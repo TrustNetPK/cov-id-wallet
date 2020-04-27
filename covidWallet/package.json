@@ -10,6 +10,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-navigation/native": "^5.1.7",
+    "@react-navigation/stack": "^5.2.14",
     "react": "16.11.0",
     "react-native": "0.62.2"
   },
