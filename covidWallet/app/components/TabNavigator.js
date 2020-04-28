@@ -7,8 +7,6 @@ import QRScreen from './QRScreen';
 
 const Tab = createBottomTabNavigator();
 
-
-
 function TabNavigator() {
   return (
    
@@ -29,7 +27,7 @@ function TabNavigator() {
         },
       })}
       tabBarOptions={{
-        activeTintColor: 'tomato',
+        activeTintColor: '#8dc03c',
         inactiveTintColor: 'gray',
       }}>
         <Tab.Screen name="Home" component={HomeScreen} />
