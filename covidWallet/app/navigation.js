@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
+import PassCodeScreen from './components/PassCodeScreen';
 
 const Stack = createStackNavigator();
 
@@ -13,8 +14,9 @@ function NavigationComponent() {
   },[])
   return (
     <NavigationContainer>
-       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={TabNavigator}  options={{ title: 'COVID Wallet' }} />
+       <Stack.Navigator initialRouteName="PassCodeScreen">
+        <Stack.Screen options={{headerShown: false}} name="PassCodeScreen" component={PassCodeScreen}  />
+        <Stack.Screen name="MainScreen"  options={{ title: 'COVID WALLET' }} component={TabNavigator}  />
       </Stack.Navigator>
     </NavigationContainer>
   );
