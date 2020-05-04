@@ -9,7 +9,13 @@ function PrimaryButton(props) {
 
 const styles = StyleSheet.create({
     primaryButton: {
-        marginTop: 90
+        borderColor: '#8dc03c',
+        borderWidth: 2,
+        paddingTop: 10,
+        paddingLeft: 20,
+        paddingBottom: 10,
+        paddingRight: 20,
+        marginTop: 60
     }
 });
 

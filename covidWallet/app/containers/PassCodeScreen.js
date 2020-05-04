@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
     },
     textBox: {
         fontSize: 30,
+        marginTop: 20,
         letterSpacing: 15,
         textAlign: 'center',
     },
@@ -143,6 +144,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 3,
         display: 'flex',
         borderRadius: 1,
+        marginTop: 50,
         borderStyle: 'dashed',
         flexDirection: 'row',
         justifyContent: 'center'
