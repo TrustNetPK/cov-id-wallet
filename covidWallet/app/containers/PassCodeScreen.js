@@ -2,8 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import AsyncStorage from '@react-native-community/async-storage';
-
+import { savePassCode } from '.././helpers/storage';
 
 function PassCodeScreen({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
@@ -20,6 +19,7 @@ function PassCodeScreen({ navigation }) {
             }
             else {
                 setStage(stage + 1)
+                setHeading('Confirm the PassCode')
             }
         }
         else if (stage == 1) {
@@ -33,37 +33,21 @@ function PassCodeScreen({ navigation }) {
                     setError('passcodes dont match')
                 }
                 else {
-                    savePassCode();
-                    setStage(stage + 1)
+                    savePassCode(firstPassCode).then(()=>{
+                        setStage(stage + 1) 
+                        setHeading('Success')
+                    }).catch(e=>{
+                        setHeading('Error')
+                    })
+                    } 
                 }
             }
-        }
 
         else {
             navigation.navigate('MainScreen')
         }
     }
 
-    getData = async () => {
-        try {
-            const value = await AsyncStorage.getItem('@passCode')
-            if (value !== null) {
-
-            }
-        } catch (e) {
-            // error reading value
-        }
-    }
-
-    savePassCode = async () => {
-        try {
-
-            await AsyncStorage.setItem('@passCode', firstPassCode)
-            setHeading('Success')
-        } catch (e) {
-
-        }
-    }
     onChangePassCode = () => {
 
     }
@@ -161,7 +145,6 @@ const styles = StyleSheet.create({
         borderBottomColor: 'black',
         width: 20
     },
-   
     circleFill: {
         backgroundColor: 'green',
         padding: 10,
