@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { useState, useRef } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, Text, View, TextInput } from 'react-native';
+import PrimaryButton from '../components/PrimaryButton';
 import AsyncStorage from '@react-native-community/async-storage';
+
 
 function PassCodeScreen({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
@@ -11,7 +13,6 @@ function PassCodeScreen({ navigation }) {
     const [stage, setStage] = useState(0);
   
     nextHandler = () => {
-        console.log(error.length)
         setError('')
         if (stage == 0) {
             if (firstPassCode.length == undefined || firstPassCode.length < 6) {
@@ -110,9 +111,7 @@ function PassCodeScreen({ navigation }) {
                 </View>}
                 {error.length > 0 ? <Text>{error}</Text> : null}
             </View>
-            <TouchableOpacity style={styles.nextButton} onPress={nextHandler}>
-                <Text>Next</Text>
-            </TouchableOpacity>
+            <PrimaryButton nextHandler={nextHandler} />
         </View>);
 }
 
@@ -160,9 +159,7 @@ const styles = StyleSheet.create({
         borderBottomColor: 'black',
         width: 20
     },
-    nextButton: {
-        marginTop: 90,
-    },
+   
     circleFill: {
         backgroundColor: 'green',
         padding: 10,

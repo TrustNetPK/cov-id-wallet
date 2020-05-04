@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
-import PassCodeScreen from './components/PassCodeScreen';
+import PassCodeScreen from './containers/PassCodeScreen';
 
 const Stack = createStackNavigator();
 
