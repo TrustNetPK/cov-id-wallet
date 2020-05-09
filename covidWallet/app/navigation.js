@@ -6,6 +6,8 @@ import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeScreen from './containers/PassCodeScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import SettingsScreen from './components/SettingsScreen';
+import QRScreen from './components/QRScreen';
 
 const Stack = createStackNavigator();
 
@@ -17,15 +19,22 @@ function NavigationComponent() {
     <NavigationContainer>
        <Stack.Navigator initialRouteName="PassCodeScreen">
         <Stack.Screen options={{headerShown: false}} name="PassCodeScreen" component={PassCodeScreen}  />
-        <Stack.Screen name="MainScreen"  options={{  headerStyle: {
+        <Stack.Screen options={{headerShown: false}} name="SettingsScreen" component={SettingsScreen}  />
+        <Stack.Screen options={{headerShown: false}} name="QRScreen" component={QRScreen}  />
+        <Stack.Screen name="MainScreen"  
+        options={({navigation})=>({  headerStyle: {
       elevation: 0,
       shadowOpacity: 0,
       borderBottomWidth: 0,
     }, title: false,headerRight: () => (
-        <Icon onPress={()=>{console.log('1')}} style={styles.headerRightIcon} size={30} name="qrcode" padding={30} />
+        <Icon onPress={()=>{navigation.navigate('QRScreen')}} style={styles.headerRightIcon} size={30} name="qrcode" padding={30} />
       ),headerLeft: () => (
-        <Icon onPress={()=>{console.log('backbutton')}} style={styles.headerRightIcon} size={30} name="gear" padding={30} />
-      ) }} component={TabNavigator}  />
+        <Icon onPress={()=>{navigation.navigate('SettingsScreen')}} style={styles.headerRightIcon} size={30} name="gear" padding={30} />
+      ) })}
+    // options={({ navigation, route }) => ({
+    //   headerTitle: (props)=>{console.log(props)},
+    // })}
+      component={TabNavigator}  />
       </Stack.Navigator>
     </NavigationContainer>
   );
