@@ -4,6 +4,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ActionsScreen from './ActionsScreen';
 import ConnectionsScreen from './ConnectionsScreen';
 import CredentialsScreen from './CredentialsScreen';
+import { PRIMARY_COLOR, SECONDARY_COLOR } from '../constants/constants';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,8 +28,8 @@ function TabNavigator() {
       },
     })}
       tabBarOptions={{
-        activeTintColor: '#8dc03c',
-        inactiveTintColor: 'gray',
+        activeTintColor: PRIMARY_COLOR,
+        inactiveTintColor: SECONDARY_COLOR,
       }}>
       <Tab.Screen name="Actions" component={ActionsScreen} />
       <Tab.Screen name="Credentials" component={CredentialsScreen} />
