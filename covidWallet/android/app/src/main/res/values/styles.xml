@@ -3,7 +3,7 @@
   <!-- Base application theme. -->
   <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <!-- Customize your theme here. -->
-    <item name="android:textColor">#8DC03C</item>
+    <item name="android:textColor">#4178CD</item>
   </style>
 
  <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
