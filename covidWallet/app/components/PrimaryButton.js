@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { PRIMARY_COLOR } from '../constants/constants'
 
 function PrimaryButton(props) {
     return (<TouchableOpacity style={styles.primaryButton} onPress={props.nextHandler}>
@@ -9,7 +10,7 @@ function PrimaryButton(props) {
 
 const styles = StyleSheet.create({
     primaryButton: {
-        borderColor: '#8dc03c',
+        borderColor: PRIMARY_COLOR,
         borderWidth: 2,
         paddingTop: 10,
         paddingLeft: 20,

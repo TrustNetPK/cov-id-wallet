@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-function QRScreen() {
+function SettingsScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>QRScreen</Text>
+      <Text>SettingsScreen</Text>
     </View>
   );
 }
 
-export default QRScreen;
+export default SettingsScreen;

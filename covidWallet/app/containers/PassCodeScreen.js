@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode } from '.././helpers/storage';
+import { PRIMARY_COLOR, BLACK_COLOR } from '../constants/constants';
 
 function PassCodeScreen({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     circleBlock: {
-        borderBottomColor: 'black',
+        borderBottomColor: BLACK_COLOR,
         borderBottomWidth: 3,
         display: 'flex',
         borderRadius: 1,
@@ -142,13 +143,13 @@ const styles = StyleSheet.create({
         borderLeftWidth: 0,
         borderRightWidth: 0,
         borderTopWidth: 0,
-        borderBottomColor: 'black',
+        borderBottomColor: BLACK_COLOR,
         width: 20
     },
     circleFill: {
-        backgroundColor: 'green',
+        backgroundColor: PRIMARY_COLOR,
         padding: 10,
-        borderColor: 'green',
+        borderColor: PRIMARY_COLOR,
         height: 20,
         marginLeft: 15,
         marginRight: 15,
