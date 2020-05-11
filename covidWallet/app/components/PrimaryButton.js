@@ -16,7 +16,10 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingBottom: 10,
         paddingRight: 20,
-        marginTop: 60
+        marginTop: 60,
+        backgroundColor:'#4178CD',
+        borderRadius:10,
+        alignItems: 'stretch'
     }
 });
 
