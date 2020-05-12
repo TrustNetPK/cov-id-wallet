@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-function UserScreen() {
+function SettingsScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>User Screen</Text>
+      <Text>SettingsScreen</Text>
     </View>
   );
 }
 
-export default UserScreen;
+export default SettingsScreen;
