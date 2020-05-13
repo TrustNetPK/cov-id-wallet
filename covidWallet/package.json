@@ -10,7 +10,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@ant-design/icons-react-native": "^2.2.1",
     "@react-native-community/async-storage": "^1.9.0",
+    "@react-native-community/cli": "^4.8.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/bottom-tabs": "^5.2.8",
     "@react-navigation/native": "^5.1.7",

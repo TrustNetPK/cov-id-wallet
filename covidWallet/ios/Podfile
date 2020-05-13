@@ -78,6 +78,8 @@ target 'covidWallet' do
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'covidWalletTests' do
     inherit! :complete
     # Pods for testing
