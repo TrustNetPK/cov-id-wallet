@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, TextInput, Switch, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Switch } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { IconFill, IconOutline } from "@ant-design/icons-react-native";
 import Icon from 'react-native-vector-icons/AntDesign';
 
 export function TextTypeView({ startValue, endValue, endIcon }) {

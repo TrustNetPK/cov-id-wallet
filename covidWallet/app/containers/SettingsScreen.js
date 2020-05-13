@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Switch, FlatList } from 'react-native';
-import { TextTypeView, BooleanTypeView } from './ShowTypesView'
+import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView'
 
 var settingLocalData = {
     'GENERAL': {
