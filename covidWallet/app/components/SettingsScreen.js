@@ -1,13 +1,132 @@
+import React, { useState } from 'react'
+import { StyleSheet, Text, View, FlatList } from 'react-native'
+import { TextTypeView, BooleanTypeView } from './ShowTypesView'
 
-import * as React from 'react';
-import { View, Text } from 'react-native';
-
-function SettingsScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>SettingsScreen</Text>
-    </View>
-  );
+var settingLocalData = {
+  GENERAL: {
+    agent: {
+      value: 'Iphone',
+      type: 'Text',
+      key: '1'
+    },
+    Network: {
+      value: 'SoverinStagingNetwork',
+      type: 'Radio',
+      key: '2',
+      options: ['soverign', 'non-soverign']
+    },
+    key: '1'
+  },
+  SECURITY: {
+    BioMetricSecurity: {
+      value: true,
+      key: '1',
+      type: 'Boolean'
+    },
+    ChangeCode: {
+      value: 'None',
+      key: '2',
+      type: 'Link'
+    },
+    key: '2'
+  },
+  SUPPORT: {
+    ContactUS: {
+      value: 'None',
+      type: 'Link',
+      key: '1'
+    },
+    key: '3'
+  },
+  'LISCENCE AND AGREEMENTS': { key: '4' }
 }
 
-export default SettingsScreen;
+export default function SettingsScreen () {
+  const [settingsData, setSettingsData] = useState(settingLocalData)
+
+  const toggleSwitch = (parent, child) => {
+    const tempSettings = { ...settingsData }
+    tempSettings[parent][child].value = !tempSettings[parent][child].value
+    setSettingsData({ ...tempSettings })
+  }
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={Object.keys(settingsData)}
+        renderItem={({ item }) => {
+          const parent = item
+          const parentData = settingsData[parent]
+          return (
+            <View>
+              <Text style={styles.parentItem}>{parent}</Text>
+              <FlatList
+                data={Object.keys(parentData)}
+                renderItem={({ item }) => {
+                  const childData = settingsData[parent][item]
+                  if (item !== 'key' && item !== '') {
+                    if (childData.value !== 'None') {
+                      if (childData.type === 'Text') {
+                        return (
+                          <TextTypeView startValue={item + ' :  ' + childData.value} endValue='Edit' endIcon='' />
+                        )
+                      } else if (childData.type === 'Radio') {
+                        return (
+                          <TextTypeView startValue={item + ' :  ' + childData.value} endIcon='right' />
+                        )
+                      } else if (childData.type === 'Boolean') {
+                        return (
+                          <BooleanTypeView
+                            parentValue={parent}
+                            startValue={item}
+                            endValue={childData.value}
+                            toChangeValue={childData.value}
+                            valueHandler={toggleSwitch}
+                          />
+                        )
+                      } else {
+                        return (
+                          <TextTypeView startValue={item + ' :  ' + childData.value} endIcon='right' />
+                        )
+                      }
+                    } else {
+                      return (
+                        <TextTypeView startValue={item} endValue='Edit' endIcon='right' />
+
+                      )
+                    }
+                  }
+                }}
+              />
+            </View>
+          )
+        }}
+      />
+
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 20,
+    backgroundColor: '#f7f7f7'
+  },
+  parentItem: {
+    flex: 1,
+    margin: 5,
+    marginTop: 20,
+    backgroundColor: '#f7f7f7',
+    fontSize: 15,
+    color: '#0f0f0f'
+  },
+  childItem: {
+    flex: 1,
+    padding: 8,
+    margin: 1,
+    backgroundColor: '#ffffff',
+    fontSize: 20,
+    color: '#0f0f0f',
+    borderRadius: 10
+  }
+})
