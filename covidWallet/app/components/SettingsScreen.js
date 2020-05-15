@@ -7,25 +7,25 @@ var settingLocalData = {
     Agent: {
       value: 'Iphone',
       type: 'Text',
-      key: '1'
+      key: '11'
     },
     Network: {
-      value: 'Soverign Staging Network',
+      value: 'Soverin Staging Network',
       type: 'Radio',
-      key: '2',
-      options: ['Soverign', 'non-soverign']
+      key: '12',
+      options: ['Soverin', 'non-soverin']
     },
     key: '1'
   },
   SECURITY: {
-    'Bio-Metric Security': {
+    'Biometric Security': {
       value: true,
-      key: '1',
+      key: '21',
       type: 'Boolean'
     },
     'Change Code': {
       value: 'None',
-      key: '2',
+      key: '22',
       type: 'Link'
     },
     key: '2'
@@ -34,17 +34,17 @@ var settingLocalData = {
     'Contact us': {
       value: 'None',
       type: 'Link',
-      key: '1'
+      key: '31'
     },
-    'license and  agreements': {
+    'License and agreements': {
       value: 'None',
       type: 'Link',
-      key: '2'
+      key: '32'
     },
-    'about us': {
+    'About us': {
       value: 'None',
       type: 'Link',
-      key: '3'
+      key: '33'
     },
     key: '3'
   }
@@ -62,6 +62,7 @@ export default function SettingsScreen () {
     <View style={styles.container}>
       <FlatList
         data={Object.keys(settingsData)}
+        keyExtractor={(item, index) => settingsData[item].key}
         renderItem={({ item }) => {
           const parent = item
           const parentData = settingsData[parent]
@@ -70,6 +71,7 @@ export default function SettingsScreen () {
               <Text style={styles.parentItem}>{parent}</Text>
               <FlatList
                 data={Object.keys(parentData)}
+                keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => {
                   const childData = settingsData[parent][item]
                   if (item !== 'key' && item !== '') {
