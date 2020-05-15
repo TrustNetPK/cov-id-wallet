@@ -44,6 +44,15 @@ def flipper_post_install(installer)
   end
 end
 
+target 'ReactNativeBarcode' do
+  # Permissions
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
+
+  # Pods for ReactNativeBarcode
+  ...
+end
+
 target 'covidWallet' do
   # Pods for covidWallet
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
@@ -77,6 +86,10 @@ target 'covidWallet' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+
+  pod 'react-native-camera', :path => '../node_modules/react-native-camera'
+
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
 
   target 'covidWalletTests' do
     inherit! :complete
