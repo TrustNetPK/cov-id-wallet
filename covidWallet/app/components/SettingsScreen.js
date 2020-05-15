@@ -4,26 +4,26 @@ import { TextTypeView, BooleanTypeView } from './ShowTypesView'
 
 var settingLocalData = {
   GENERAL: {
-    agent: {
+    Agent: {
       value: 'Iphone',
       type: 'Text',
       key: '1'
     },
     Network: {
-      value: 'SoverinStagingNetwork',
+      value: 'Soverign Staging Network',
       type: 'Radio',
       key: '2',
-      options: ['soverign', 'non-soverign']
+      options: ['Soverign', 'non-soverign']
     },
     key: '1'
   },
   SECURITY: {
-    BioMetricSecurity: {
+    'Bio-Metric Security': {
       value: true,
       key: '1',
       type: 'Boolean'
     },
-    ChangeCode: {
+    'Change Code': {
       value: 'None',
       key: '2',
       type: 'Link'
@@ -31,14 +31,23 @@ var settingLocalData = {
     key: '2'
   },
   SUPPORT: {
-    ContactUS: {
+    'Contact us': {
       value: 'None',
       type: 'Link',
       key: '1'
     },
+    'license and  agreements': {
+      value: 'None',
+      type: 'Link',
+      key: '2'
+    },
+    'about us': {
+      value: 'None',
+      type: 'Link',
+      key: '3'
+    },
     key: '3'
-  },
-  'LISCENCE AND AGREEMENTS': { key: '4' }
+  }
 }
 
 export default function SettingsScreen () {
@@ -67,11 +76,11 @@ export default function SettingsScreen () {
                     if (childData.value !== 'None') {
                       if (childData.type === 'Text') {
                         return (
-                          <TextTypeView startValue={item + ' :  ' + childData.value} endValue='Edit' endIcon='' />
+                          <TextTypeView startValue={item + ':  ' + childData.value} endValue='Edit' endIcon='' />
                         )
                       } else if (childData.type === 'Radio') {
                         return (
-                          <TextTypeView startValue={item + ' :  ' + childData.value} endIcon='right' />
+                          <TextTypeView startValue={item + ':  ' + childData.value} endIcon='right' />
                         )
                       } else if (childData.type === 'Boolean') {
                         return (
@@ -85,7 +94,7 @@ export default function SettingsScreen () {
                         )
                       } else {
                         return (
-                          <TextTypeView startValue={item + ' :  ' + childData.value} endIcon='right' />
+                          <TextTypeView startValue={item + ':  ' + childData.value} endIcon='right' />
                         )
                       }
                     } else {
@@ -110,6 +119,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
+    paddingLeft: 5,
+    paddingRight: 5,
     backgroundColor: '#f7f7f7'
   },
   parentItem: {
@@ -118,7 +129,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: '#f7f7f7',
     fontSize: 15,
-    color: '#0f0f0f'
+    color: '#6f6f6f'
   },
   childItem: {
     flex: 1,
