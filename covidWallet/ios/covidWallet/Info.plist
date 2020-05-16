@@ -75,10 +75,10 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-    <string>Your message to user when the camera is accessed for the first time</string>
+    <string>Allow VAXN Wallet to take Pictures?</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Your message to user when the microsphone is accessed for the first time</string>
+    <string>Allow VAXN Wallet to use Microphone?</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Your message to user when the photo library is accessed for the first time</string>
+    <string>Allow VAXN Wallet to use Photo Library?</string>
 </dict>
 </plist>

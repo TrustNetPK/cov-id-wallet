@@ -16,62 +16,55 @@ import {
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
+
 const QRScreen = () => {
 
-  const [scan, setScan] = useState(false)
   const [result, setResult] = useState()
   //This method gives the value of the QR Code
   onSuccess = (e) => {
     setResult(e.data)
-    setScan(false)
     //TODO: Parse QR Values Here
     Alert.alert("The QR Code value is " + e.data)
-  }
-
-  startScan = () => {
-    setScan(true)
-    setResult()
   }
 
   return (
 
     <View style={styles.MainContainer}>
 
-      {!scan &&
-        <View style={styles.MainContainer}>
-          <Image style={styles.Imagesize} source={require('../assets/images/qrc.png')} />
-          <Text style={styles.TextGuide}>There are no actions to complete</Text>
-          <TouchableOpacity style={styles.RoundButtonStyle} activeOpacity={0.8} onPress={this.startScan}>
-            <Image
-              source={require('../assets/images/qri.png')}
-              style={styles.ImageIconStyle}
-            />
-            <Text style={styles.TextStyle}> SCAN CODE </Text>
-          </TouchableOpacity>
-        </View>
 
-
-      }
-      {scan &&
-        <View style={styles.sectionContainer}>
-          <QRCodeScanner
-            reactivate={true}
-            showMarker={true}
-            ref={(node) => { this.scanner = node }}
-            onRead={this.onSuccess}
-            topContent={
-              <Text style={styles.textBold}>
-                Point your camera to a QR code to scan
+      <QRCodeScanner
+        reactivate={true}
+        showMarker={true}
+        customMarker={
+          <View style={
+            {
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'transparent'
+            }
+          }>
+            <View style={
+              {
+                height: 250,
+                width: 250,
+                borderWidth: 2,
+                borderColor: 'white',
+                backgroundColor: 'transparent'
+              }
+            } />
+          </View>
+        }
+        ref={(node) => { this.scanner = node }}
+        onRead={this.onSuccess}
+        topContent={
+          <Text style={styles.textBold}>
+            Point your camera to a QR code to scan
                   </Text>
-            }
-            bottomContent={
-              <TouchableOpacity style={styles.buttonTouchable} onPress={() => setScan(false)}>
-                <Text style={styles.buttonText}>Cancel Scan</Text>
-              </TouchableOpacity>
-            }
-          />
-        </View>
-      }
+        }
+
+      />
+
     </View>
 
 
@@ -110,9 +103,9 @@ const styles = StyleSheet.create({
 
   MainContainer: {
     flex: 1,
+    backgroundColor: Colors.black,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 10,
   },
   Imagesize: {
     alignItems: 'center',
