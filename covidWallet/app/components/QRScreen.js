@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
-  Image,
   Text,
   Alert,
   TouchableOpacity,
@@ -16,61 +15,79 @@ import {
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
-
-const QRScreen = () => {
-
-  const [result, setResult] = useState()
-  //This method gives the value of the QR Code
-  onSuccess = (e) => {
-    setResult(e.data)
-    //TODO: Parse QR Values Here
-    Alert.alert("The QR Code value is " + e.data)
+class QRScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      scan: true,
+    }
   }
 
-  return (
+  onSuccess = e => {
+    Alert.alert(
+      'VAXN Wallet',
+      'QR Code Result is ' + e.data,
+      [
+        { text: 'OK', onPress: () => this.props.navigation.navigate('MainScreen') }
+      ],
+      { cancelable: false }
+    );
+    this.setState({ scan: (this.state.scan = false) })
 
-    <View style={styles.MainContainer}>
+  }
 
 
-      <QRCodeScanner
-        reactivate={true}
-        showMarker={true}
-        customMarker={
-          <View style={
-            {
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'transparent'
+  render() {
+    const { navigate } = this.props.navigation;
+
+    return (
+      <View style={styles.MainContainer}>
+        {this.state.scan &&
+          <QRCodeScanner
+            reactivate={true}
+            showMarker={true}
+            customMarker={
+              <View style={
+                {
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'transparent'
+                }
+              }>
+                <View style={
+                  {
+                    height: 250,
+                    width: 250,
+                    borderWidth: 2,
+                    borderColor: 'white',
+                    backgroundColor: 'transparent'
+                  }
+                } />
+              </View>
             }
-          }>
-            <View style={
-              {
-                height: 250,
-                width: 250,
-                borderWidth: 2,
-                borderColor: 'white',
-                backgroundColor: 'transparent'
-              }
-            } />
-          </View>
-        }
-        ref={(node) => { this.scanner = node }}
-        onRead={this.onSuccess}
-        topContent={
-          <Text style={styles.textBold}>
-            Point your camera to a QR code to scan
-                  </Text>
+            ref={(node) => { this.scanner = node }}
+            onRead={this.onSuccess}
+            topContent={
+              <Text style={styles.textBold}>
+                Point your camera to a QR code to scan
+            </Text>
+            }
+            bottomContent={
+              <TouchableOpacity style={styles.buttonTouchable} onPress={() => {
+                navigate('MainScreen')
+              }}>
+                <Text style={styles.buttonText}>Cancel Scan</Text>
+              </TouchableOpacity>
+            }
+
+          />
         }
 
-      />
-
-    </View>
-
-
-
-  );
-};
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
 
