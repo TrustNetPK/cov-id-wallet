@@ -74,5 +74,11 @@
 	<string>UIStatusBarStyleLightContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+    <string>Allow VAXN Wallet to take Pictures?</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Allow VAXN Wallet to use Microphone?</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Allow VAXN Wallet to use Photo Library?</string>
 </dict>
 </plist>
