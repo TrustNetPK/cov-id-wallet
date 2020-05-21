@@ -16,7 +16,7 @@ class CredentialsScreen extends Component {
 
   render() {
     return (
-      <View style={{ flex: 1, alignItems: 'center' }}>
+      <View style={styles.MainContainer}>
         {this.state.isCredentialAvailable &&
           <View>
             <Text style={styles.heading}>Credentials</Text>
@@ -25,14 +25,7 @@ class CredentialsScreen extends Component {
         }
 
         {!this.state.isCredentialAvailable &&
-          <View style={{
-            marginLeft: 30,
-            marginRight: 30,
-            flex: 8,
-          }}>
-            <View style={{
-              flex: 1,
-            }} />
+          <View style={styles.EmptyContainer}>
             <Image style={styles.Imagesize} source={require('../assets/images/credentialsempty.png')} />
             <Text style={styles.TextGuide}>There are no credentials in your wallet. Once you receive a credential, it will show up here.</Text>
 
@@ -48,24 +41,31 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 30,
   },
-  Imagesize: {
+  MainContainer: {
+    flex: 1,
     alignItems: 'center',
-    height: 300,
-    position: 'relative',
-    width: 300,
-    flex: 5,
+  },
+  EmptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  Imagesize: {
     marginBottom: 50,
+    height: 300,
+    width: 300,
+    resizeMode: 'contain'
   },
 
   TextGuide: {
-    color: 'gray',
+    color: '#708090',
     marginTop: 14,
-    flex: 2,
-    fontSize: 18,
-    marginLeft: 1,
-    marginRight: 1,
+    fontSize: 15,
+    marginLeft: 50,
+    marginRight: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
     textAlign: 'center',
-
   }
 });
 

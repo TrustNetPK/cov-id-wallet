@@ -11,14 +11,14 @@ class ActionsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      //This variable controls the Action Visibility
+      //This variable controls the Actions Visibility
       isActionAvailable: false,
     };
   }
 
   render() {
     return (
-      <View style={{ flex: 1, alignItems: 'center' }}>
+      <View style={styles.MainContainer}>
         {this.state.isActionAvailable &&
           <View>
             <Text>Actions</Text>
@@ -28,15 +28,9 @@ class ActionsScreen extends Component {
         }
 
         {!this.state.isActionAvailable &&
-          <View style={{
-            marginLeft: 30,
-            marginRight: 30,
-            flex: 8,
-          }}>
-            <View style={{
-              flex: 1,
-            }} />
-            <Image style={styles.Imagesize} source={require('../assets/images/actionempty.png')} />
+          <View style={styles.EmptyContainer}>
+
+            <Image style={styles.Imagesize} source={require('../assets/images/action.gif')} />
             <Text style={styles.TextGuide}>There are no actions to complete.</Text>
 
           </View>
@@ -51,24 +45,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  Imagesize: {
+  EmptyContainer: {
+    flex: 1,
     alignItems: 'center',
-    height: 300,
-    position: 'relative',
-    width: 300,
-    flex: 5,
+    justifyContent: 'center',
+  },
+  Imagesize: {
     marginBottom: 50,
+    height: 300,
+    width: 300,
+    resizeMode: 'contain'
   },
 
   TextGuide: {
-    color: 'gray',
+    color: '#708090',
     marginTop: 14,
-    flex: 2,
-    fontSize: 18,
-    marginLeft: 1,
-    marginRight: 1,
+    fontSize: 15,
+    marginLeft: 50,
+    marginRight: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
     textAlign: 'center',
-
   }
 
 });

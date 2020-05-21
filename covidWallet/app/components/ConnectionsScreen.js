@@ -24,14 +24,8 @@ class ConnectionsScreen extends Component {
           </View>
         }
         {!this.state.isConnectionsAvailable &&
-          <View style={{
-            marginLeft: 30,
-            marginRight: 30,
-            flex: 8,
-          }}>
-            <View style={{
-              flex: 1,
-            }} />
+          <View style={styles.EmptyContainer}>
+
             <Image style={styles.Imagesize} source={require('../assets/images/connectionsempty.png')} />
             <Text style={styles.TextGuide}>Once you establish a connection, it will show up here. Go ahead and connect with someone.</Text>
 
@@ -48,24 +42,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  Imagesize: {
+  EmptyContainer: {
+    flex: 1,
     alignItems: 'center',
-    height: 300,
-    position: 'relative',
-    width: 300,
-    flex: 5,
+    justifyContent: 'center',
+  },
+  Imagesize: {
     marginBottom: 50,
+    height: 300,
+    width: 300,
+    resizeMode: 'contain'
   },
 
   TextGuide: {
-    color: 'gray',
+    color: '#708090',
     marginTop: 14,
-    flex: 2,
-    fontSize: 18,
-    marginLeft: 1,
-    marginRight: 1,
+    fontSize: 15,
+    marginLeft: 50,
+    marginRight: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
     textAlign: 'center',
-
   }
 
 });
