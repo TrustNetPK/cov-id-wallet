@@ -10,45 +10,65 @@
         {label: '', value: 0 }
       ];
       function WelcomeScreen({navigation}) {
-        const [isSelected, setSelection] = useState(false);
+        //const [isSelected, setSelection] = useState(false);
         const [error, setError] = useState('');
-        
+        const[isChecked,setChecked]=useState(false);
+        const[isRadio,setRadio]=useState('false');
+        const checkHandler = () => {
+          console.log('come');
+          console.log(isChecked);
+          if (!isChecked) {
+                  setChecked(true); 
+                  setRadio('true');
+                  
+          }    
+          console.log(isRadio);    
+          // else { 
+          //   setError("Please agree with the terms and conditions of TrustNetPk.")   
+          // }
+      }
         nextHandler = () => {
           setError('')
-          if (isSelected == false) {
+          console.log(isChecked);
+          if (!isChecked) {   
+            console.log(isChecked);
                   setError("Please agree with the terms and conditions of TrustNetPk.")        
           }    
-          else { 
+          else{ 
               navigation.navigate('SecurityScreen');
           }
       }
         return (
          
           <View style={{ flex:1, alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
-          <Image style={{ width:200, height:200 }}
+            <View style={{ flex:4, alignItems: 'center', justifyContent: 'center' }}>
+          <Image style={styles.ImageBox}
                     source={img}
           />
           </View>
-          <View style={{ flex:2, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ flex:2, alignItems: 'center', justifyContent: 'center',textAlign:'center' }}>
           <Text style={styles.TextContainerHead}>Welcome!</Text>
               <Text style={styles.TextContainer}>Let's create your self-soverign identity.
               {"\n"}This app helps you exchange secure 
-                                                vaccination proof against Covid-19.</Text>
+                                                vaccination proof against COVID-19.</Text>
           </View>
           <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
           <View style={styles.checkboxContainer}>
-              <CheckBox
+              {/* <CheckBox
                 value={isSelected}
                 onValueChange={setSelection}
                 style={styles.checkbox}
-              />
-                {/* <RadioForm
-               radio_props={radio_props}
-               initial={0}
-               onPress={(value) => {this.setState({value:value})}}
-               style={styles.checkbox}
               /> */}
+                <RadioForm
+                radio_props={radio_props}
+                 buttonSize={10}
+               //value={isChecked}
+               initial={-1}
+              checked={isChecked}
+               onPress={checkHandler}
+               style={styles.checkbox}
+               
+              />
             <View style={{alignItems: 'center', justifyContent: 'center' }}>
               <Text style={styles.link}>I agree to TrustNet Pakistan’s
                   <Text style={styles.linkText} 
@@ -68,13 +88,18 @@
       } 
       const styles = StyleSheet.create({
         TextContainerHead: {
-           margin:20,alignItems: 'center', justifyContent: 'center',color:'black',fontWeight:'bold',
-          fontSize:25 
+           marginTop:30,padding:20,alignItems: 'center', justifyContent: 'center',color:'black',fontWeight:'bold',
+          fontSize:35,flexDirection: 'column'
         },  
       
         TextContainer: {
-        padding:10, alignItems: 'center', justifyContent: 'center',color:'black',alignContent:'center'
-        ,marginLeft:30}, 
+        padding:10,  color:'black',fontSize:15,
+        textAlign:'center'
+      }, 
+        ImageBox: {
+          width:230, height:220,
+          marginTop:100,marginBottom:70
+            },
         ErrorBox: {
           flexDirection: "row",
           alignSelf: "center",

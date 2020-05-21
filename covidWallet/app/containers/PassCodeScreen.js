@@ -96,7 +96,7 @@ function PassCodeScreen({ navigation }) {
                 </View>}
                 {error.length > 0 ? <Text>{error}</Text> : null}
             </View>
-            <PrimaryButton nextHandler={nextHandler} />
+            <PrimaryButton title="Pass Code" nextHandler={nextHandler} />
         </View>);
 }
 

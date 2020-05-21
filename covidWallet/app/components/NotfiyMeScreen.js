@@ -14,12 +14,12 @@
     return (
       
          <View style={{ flex:1, alignItems: 'center', justifyContent: 'center' }}>
-         <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
-       <Image style={{ width:200, height:200 }}
+         <View style={{ flex:4, alignItems: 'center', justifyContent: 'center' }}>
+       <Image style={styles.ImageBox}
                  source={img}
        />
        </View>
-       <View style={{ flex:2, alignItems: 'center', justifyContent: 'center' }}>
+       <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
        
            <Text style={styles.TextContainer}>We use push notifications to deliver messages for important events,
           such as when you recieve a new credential.</Text>
@@ -27,7 +27,7 @@
        <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
        <PrimaryButton title="Enable Notifications" nextHandler={nextHandler} />
     
-        <Text style={styles.TextContainerEnd}>Continue without alerts</Text>
+        <Text style={styles.TextContainerEnd} >Continue without alerts</Text>
 
        </View>
     
@@ -36,11 +36,17 @@
   } 
   const styles = StyleSheet.create({
     TextContainer: {
-      padding:10, alignItems: 'center', justifyContent: 'center',color:'black',alignContent:'center'
-      ,marginLeft:30,margin:20}, 
+      padding:30,  color:'black',fontSize:15,
+      textAlign:'center',
+      marginTop:70,alignItems: 'center', justifyContent: 'center',color:'black',
+    }, 
      TextContainerEnd: {
       alignItems: 'center', justifyContent: 'center',color:PRIMARY_COLOR,paddingTop:15
-    }
+    },
+      ImageBox: {
+          width:230, height:220,
+          marginTop:100,marginBottom:30
+            }, 
   });
     
   export default NotfiyMeScreen;

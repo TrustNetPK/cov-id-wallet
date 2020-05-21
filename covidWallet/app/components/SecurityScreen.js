@@ -14,12 +14,12 @@
           return (
         
         <View style={{ flex:1, alignItems: 'center', justifyContent: 'center' }}>
-        <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
-        <Image style={{ width:200, height:200  }}
+        <View style={{ flex:4, alignItems: 'center', justifyContent: 'center' }}>
+        <Image style={styles.ImageBox}
                       source={img}
             />
       </View>
-      <View style={{ flex:2, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
       <Text style={styles.TextContainer}>Using biometric security significantly reduces the chances
                 your account will be compromised in case your phone is lost or stolen.</Text>
       </View>
@@ -38,8 +38,16 @@
    
 
     TextContainer: {
-    padding:10, alignItems: 'center', justifyContent: 'center',color:'black',alignContent:'center'
-    ,marginLeft:30,margin:20}, 
+      padding:30,  color:'black',fontSize:15,
+      textAlign:'center',
+      marginTop:70,alignItems: 'center', justifyContent: 'center',color:'black',
+      
+  },
+  
+        ImageBox: {
+          width:230, height:220,
+          marginTop:100,marginBottom:30
+            }, 
  
     });
         export default SecurityScreen;
