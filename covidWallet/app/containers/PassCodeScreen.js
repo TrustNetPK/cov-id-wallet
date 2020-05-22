@@ -45,7 +45,7 @@ function PassCodeScreen({ navigation }) {
             }
 
         else {
-            navigation.navigate('MainScreen')
+            navigation.navigate('NotfiyMeScreen')
         }
     }
 

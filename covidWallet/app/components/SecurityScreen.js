@@ -7,7 +7,7 @@
         function SecurityScreen({navigation}) {
 
           nextHandler = () => {     
-                navigation.navigate('NotfiyMeScreen');
+                navigation.navigate('PassCodeScreen');
             
         }
 

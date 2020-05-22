@@ -10,7 +10,6 @@
         {label: '', value: 0 }
       ];
       function WelcomeScreen({navigation}) {
-        //const [isSelected, setSelection] = useState(false);
         const [error, setError] = useState('');
         const[isChecked,setChecked]=useState(false);
         const[isRadio,setRadio]=useState('false');
@@ -23,9 +22,7 @@
                   
           }    
           console.log(isRadio);    
-          // else { 
-          //   setError("Please agree with the terms and conditions of TrustNetPk.")   
-          // }
+         
       }
         nextHandler = () => {
           setError('')
@@ -54,11 +51,7 @@
           </View>
           <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
           <View style={styles.checkboxContainer}>
-              {/* <CheckBox
-                value={isSelected}
-                onValueChange={setSelection}
-                style={styles.checkbox}
-              /> */}
+            
                 <RadioForm
                 radio_props={radio_props}
                  buttonSize={10}
@@ -119,7 +112,8 @@
             linkText: {
               color : PRIMARY_COLOR,
               fontSize:12,
-              fontStyle: 'italic' 
+              fontStyle: 'italic' ,
+              margin:5
           
             },
         link: {

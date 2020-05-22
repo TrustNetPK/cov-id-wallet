@@ -1,5 +1,5 @@
   import * as React from 'react';
-  import { View,Image,Text,StyleSheet } from 'react-native';
+  import { View,Image,Text,StyleSheet,Linking } from 'react-native';
   import { useState } from 'react';
   import PrimaryButton from '../components/PrimaryButton';
   import { PRIMARY_COLOR } from '../constants/constants';
@@ -7,7 +7,7 @@
   function NotfiyMeScreen({navigation}) {
     const [isEnabled, setIsEnabled] = useState(false);
     nextHandler = () => {     
-          navigation.navigate('PassCodeScreen');
+          navigation.navigate('MainScreen');
       
   }
 
@@ -27,7 +27,8 @@
        <View style={{ flex:3, alignItems: 'center', justifyContent: 'center' }}>
        <PrimaryButton title="Enable Notifications" nextHandler={nextHandler} />
     
-        <Text style={styles.TextContainerEnd} >Continue without alerts</Text>
+        <Text style={styles.TextContainerEnd} 
+         onPress={() => navigation.navigate('MainScreen')} >Continue without alerts</Text>
 
        </View>
     
