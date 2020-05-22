@@ -31,7 +31,7 @@ class ActionsScreen extends Component {
           <View style={styles.EmptyContainer}>
 
             <Image style={styles.Imagesize} source={require('../assets/images/action.gif')} />
-            <Text style={styles.TextGuide}>There are no actions to complete.</Text>
+            <Text style={styles.TextGuide}>There are no actions to complete, Please scan a QR code to either get a vaccination certificate or to prove it.</Text>
 
           </View>
         }

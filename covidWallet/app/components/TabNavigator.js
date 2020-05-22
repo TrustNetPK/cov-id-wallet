@@ -25,7 +25,7 @@ function TabNavigator() {
           iconName = 'ios-git-network';
           return <Ionicons name={iconName} size={size} color={color} />
         }
-        else if (route.name === 'Credentials') {
+        else if (route.name === 'Certificates') {
           iconName = 'account-badge-horizontal-outline';
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />
 
@@ -39,7 +39,7 @@ function TabNavigator() {
         inactiveTintColor: SECONDARY_COLOR,
       }}>
       <Tab.Screen name="Actions" component={ActionsScreen} />
-      <Tab.Screen name="Credentials" component={CredentialsScreen} />
+      <Tab.Screen name="Certificates" component={CredentialsScreen} />
       <Tab.Screen name="Connections" component={ConnectionsScreen} />
     </Tab.Navigator>
 

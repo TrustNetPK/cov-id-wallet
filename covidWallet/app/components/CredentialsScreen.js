@@ -27,7 +27,7 @@ class CredentialsScreen extends Component {
         {!this.state.isCredentialAvailable &&
           <View style={styles.EmptyContainer}>
             <Image style={styles.Imagesize} source={require('../assets/images/credentialsempty.png')} />
-            <Text style={styles.TextGuide}>There are no credentials in your wallet. Once you receive a credential, it will show up here.</Text>
+            <Text style={styles.TextGuide}>There are no certificates in your wallet. Once you receive a certificate, it will show up here.</Text>
 
           </View>
         }
