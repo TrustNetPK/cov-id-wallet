@@ -4,7 +4,7 @@ import { PRIMARY_COLOR } from '../constants/constants'
 
 function PrimaryButton(props) {
     return (<TouchableOpacity style={styles.primaryButton} onPress={props.nextHandler}>
-                <Text>Next</Text>
+                <Text style={{color:'white', textAlign:'center'}}>{props.title}</Text>
             </TouchableOpacity>)
 }
 
@@ -16,7 +16,12 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingBottom: 10,
         paddingRight: 20,
-        marginTop: 60
+        marginTop: 20,
+        backgroundColor:'#4178CD',
+        textDecorationColor:'white',
+        borderRadius:20,
+        alignItems: 'stretch',
+        width:300,
     }
 });
 

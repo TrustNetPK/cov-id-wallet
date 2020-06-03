@@ -5,6 +5,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeScreen from './containers/PassCodeScreen';
+import WelcomeScreen from './components/WelcomeScreen';
+import SecurityScreen from './components/SecurityScreen';
+import NotfiyMeScreen from './components/NotfiyMeScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsScreen from './components/SettingsScreen';
 import QRScreen from './components/QRScreen';
@@ -17,9 +20,12 @@ function NavigationComponent() {
   }, [])
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="PassCodeScreen">
-        <Stack.Screen options={{ headerShown: false }} name="PassCodeScreen" component={PassCodeScreen} />
-        <Stack.Screen options={{ headerShown: false }} name="SettingsScreen" component={SettingsScreen} />
+      <Stack.Navigator initialRouteName="WelcomeScreen">
+      <Stack.Screen options={{headerShown: false}} name="PassCodeScreen" component={PassCodeScreen}  />
+        <Stack.Screen options={{headerShown: false}} name="WelcomeScreen"  component={WelcomeScreen}  />
+        <Stack.Screen options={{headerShown: false}} name="SecurityScreen"  component={SecurityScreen}  />
+        <Stack.Screen options={{headerShown: false}} name="NotfiyMeScreen"  component={NotfiyMeScreen}  />
+        <Stack.Screen options={{headerShown: false}} name="SettingsScreen" component={SettingsScreen}  />
         <Stack.Screen options={{ headerShown: false }} name="QRScreen" component={QRScreen} />
         <Stack.Screen name="MainScreen"
           options={({ navigation }) => ({
