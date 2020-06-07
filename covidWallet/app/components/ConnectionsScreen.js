@@ -1,40 +1,27 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import FlatCard from './FlatCard';
 const image = require('../assets/images/visa.jpg')
 
-class ConnectionsScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      //This variable controls the Connections Visibility
-      isConnectionsAvailable: false,
-    };
-  }
-
-  render() {
-    return (
-      <View style={styles.MainContainer}>
-
-        {this.state.isConnectionsAvailable &&
-          <View>
-            <Text>ConnectionsScreen</Text>
-            <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
-            <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
-          </View>
-        }
-        {!this.state.isConnectionsAvailable &&
-          <View style={styles.EmptyContainer}>
-
-            <Image style={styles.Imagesize} source={require('../assets/images/connectionsempty.png')} />
-            <Text style={styles.TextGuide}>Once you establish a connection, it will show up here. Go ahead and connect with someone.</Text>
-
-          </View>
-        }
-
-      </View>
-    );
-  }
+function ConnectionsScreen(props) {
+  const [isConnection, setConnection] = useState(false);
+  return (
+    <View style={styles.MainContainer}>
+      {isConnection &&
+        <View>
+          <Text>ConnectionsScreen</Text>
+          <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
+          <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
+        </View>
+      }
+      {!isConnection &&
+        <View style={styles.EmptyContainer}>
+          <Image style={styles.Imagesize} source={require('../assets/images/connectionsempty.png')} />
+          <Text style={styles.TextGuide}>Once you establish a connection, it will show up here. Go ahead and connect with someone.</Text>
+        </View>
+      }
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
