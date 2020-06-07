@@ -10,5 +10,4 @@ function PrimaryButton(props) {
     )
 }
 
-
 export default PrimaryButton;

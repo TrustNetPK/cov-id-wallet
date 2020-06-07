@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import { savePassCode } from '.././helpers/storage';
+import { savePassCode } from '.././helpers/Storage';
 import { PRIMARY_COLOR, BLACK_COLOR } from '../theme/colors';
 
 function PassCodeScreen({ navigation }) {
