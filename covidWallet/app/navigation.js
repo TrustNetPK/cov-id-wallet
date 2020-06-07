@@ -15,9 +15,11 @@ import QRScreen from './components/QRScreen';
 const Stack = createStackNavigator();
 
 function NavigationComponent() {
+
   React.useEffect(() => {
     SplashScreen.hide();
   }, [])
+  
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="WelcomeScreen">

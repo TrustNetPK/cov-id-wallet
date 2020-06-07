@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { PRIMARY_COLOR } from '../theme/colors'
+import { PRIMARY_COLOR } from './Colors'
 
 export const themeStyles = StyleSheet.create({
     primaryButton: {
