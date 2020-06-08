@@ -9,7 +9,7 @@ export const themeStyles = StyleSheet.create({
         paddingLeft: 20,
         paddingBottom: 10,
         paddingRight: 20,
-        marginTop: 60
+        marginTop: 30
     }
 });
 

@@ -26,7 +26,7 @@ function WelcomeScreen({ navigation }) {
   nextHandler = () => {
     setError('')
     if (!isChecked) {
-      setError("Please agree with the terms and conditions of TrustNetPk.")
+      setError("Please agree with the terms and conditions.")
     }
     else {
       navigation.navigate('SecurityScreen');
@@ -35,7 +35,7 @@ function WelcomeScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ flex: 4, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
         <ImageBoxComponent
           source={img}
         />
@@ -74,17 +74,14 @@ function WelcomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   TextContainerHead: {
-    marginTop: 30, padding: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
-    fontSize: 35, flexDirection: 'column'
+     padding: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
+    fontSize: 35, flexDirection: 'column',
   },
   TextContainer: {
     padding: 10, color: 'black', fontSize: 15,
     textAlign: 'center'
   },
   ErrorBox: {
-    flexDirection: "row",
-    alignSelf: "center",
-    textAlign: 'center',
     color: 'red',
     fontSize: 13
   },
