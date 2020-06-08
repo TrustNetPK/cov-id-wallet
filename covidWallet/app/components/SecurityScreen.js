@@ -1,19 +1,20 @@
 import * as React from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton';
+import ImageBoxComponent from './ImageBoxComponent';
 const img = require('../assets/images/security.png');
 
 function SecurityScreen({ navigation }) {
 
   nextHandler = () => {
-    navigation.navigate('PassCodeScreen');
+    navigation.navigate('PassCodeContainer');
   }
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <View style={{ flex: 4, alignItems: 'center', justifyContent: 'center' }}>
-        <Image style={styles.ImageBox}
+        <ImageBoxComponent
           source={img}
         />
       </View>
@@ -34,12 +35,6 @@ const styles = StyleSheet.create({
     padding: 30, color: 'black', fontSize: 15,
     textAlign: 'center',
     marginTop: 70, alignItems: 'center', justifyContent: 'center', color: 'black',
-
-  },
-
-  ImageBox: {
-    width: 230, height: 220,
-    marginTop: 100, marginBottom: 30
   },
 });
 

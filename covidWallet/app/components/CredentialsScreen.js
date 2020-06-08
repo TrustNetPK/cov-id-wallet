@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, ImageComponent } from 'react-native';
 import CredentialsCard from './CredentialsCard';
+import ImageBoxComponent from './ImageBoxComponent';
 
 const card_logo = require('../assets/images/visa.jpg')
 
@@ -18,7 +19,7 @@ function CredentialsScreen(props) {
       }
       {!isCredential &&
         <View style={styles.EmptyContainer}>
-          <Image style={styles.Imagesize} source={require('../assets/images/credentialsempty.png')} />
+          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
           <Text style={styles.TextGuide}>There are no certificates in your wallet. Once you receive a certificate, it will show up here.</Text>
         </View>
       }
@@ -37,17 +38,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   EmptyContainer: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  Imagesize: {
-    marginBottom: 50,
-    height: 300,
-    width: 300,
-    resizeMode: 'contain'
-  },
-
   TextGuide: {
     color: '#708090',
     marginTop: 14,

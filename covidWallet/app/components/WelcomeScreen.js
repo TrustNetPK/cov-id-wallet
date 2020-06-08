@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { View, Image, Text, Linking, StyleSheet, CheckBox } from 'react-native';
+import { View, Text, Linking, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
-import { PRIMARY_COLOR } from '../theme/colors';
+import { PRIMARY_COLOR } from '../theme/Colors';
+import ImageBoxComponent from './ImageBoxComponent';
 const img = require('../assets/images/t&c.png');
 
 var radio_props = [
@@ -35,7 +36,7 @@ function WelcomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <View style={{ flex: 4, alignItems: 'center', justifyContent: 'center' }}>
-        <Image style={styles.ImageBox}
+        <ImageBoxComponent
           source={img}
         />
       </View>
@@ -79,10 +80,6 @@ const styles = StyleSheet.create({
   TextContainer: {
     padding: 10, color: 'black', fontSize: 15,
     textAlign: 'center'
-  },
-  ImageBox: {
-    width: 230, height: 220,
-    marginTop: 100, marginBottom: 70
   },
   ErrorBox: {
     flexDirection: "row",

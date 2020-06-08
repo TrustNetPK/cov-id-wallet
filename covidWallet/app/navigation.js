@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
-import PassCodeScreen from './containers/PassCodeScreen';
+import PassCodeContainer from './containers/PassCodeContainer';
 import WelcomeScreen from './components/WelcomeScreen';
 import SecurityScreen from './components/SecurityScreen';
 import NotfiyMeScreen from './components/NotfiyMeScreen';
@@ -23,7 +23,7 @@ function NavigationComponent() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="WelcomeScreen">
-        <Stack.Screen options={{ headerShown: false }} name="PassCodeScreen" component={PassCodeScreen} />
+        <Stack.Screen options={{ headerShown: false }} name="PassCodeContainer" component={PassCodeContainer} />
         <Stack.Screen options={{ headerShown: false }} name="WelcomeScreen" component={WelcomeScreen} />
         <Stack.Screen options={{ headerShown: false }} name="SecurityScreen" component={SecurityScreen} />
         <Stack.Screen options={{ headerShown: false }} name="NotfiyMeScreen" component={NotfiyMeScreen} />

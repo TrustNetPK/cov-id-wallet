@@ -2,10 +2,10 @@ import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import { savePassCode } from '.././helpers/Storage';
-import { PRIMARY_COLOR, BLACK_COLOR } from '../theme/colors';
+import { savePassCode } from '../helpers/Storage';
+import { PRIMARY_COLOR, BLACK_COLOR } from '../theme/Colors';
 
-function PassCodeScreen({ navigation }) {
+function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
     const [secondPassCode, setSecondPassCode] = useState(0);
     const [heading, setHeading] = useState('Create a Passcode')
@@ -26,13 +26,13 @@ function PassCodeScreen({ navigation }) {
         else if (stage == 1) {
             if (secondPassCode.length == undefined || secondPassCode.length < 6) {
                 setError("please enter a valid passcode")
-
             }
 
             else {
                 if (firstPassCode !== secondPassCode) {
                     setError('passcodes dont match')
                 }
+                
                 else {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
@@ -155,4 +155,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default PassCodeScreen;
+export default PassCodeContainer;
