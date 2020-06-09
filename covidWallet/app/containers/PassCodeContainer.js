@@ -2,16 +2,16 @@ import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import { savePassCode } from '.././helpers/storage';
-import { PRIMARY_COLOR, BLACK_COLOR } from '../constants/constants';
+import { savePassCode } from '../helpers/Storage';
+import { PRIMARY_COLOR, BLACK_COLOR } from '../theme/Colors';
 
-function PassCodeScreen({ navigation }) {
+function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
     const [secondPassCode, setSecondPassCode] = useState(0);
     const [heading, setHeading] = useState('Create a Passcode')
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
-  
+
     nextHandler = () => {
         setError('')
         if (stage == 0) {
@@ -26,23 +26,23 @@ function PassCodeScreen({ navigation }) {
         else if (stage == 1) {
             if (secondPassCode.length == undefined || secondPassCode.length < 6) {
                 setError("please enter a valid passcode")
-
             }
 
             else {
                 if (firstPassCode !== secondPassCode) {
                     setError('passcodes dont match')
                 }
+                
                 else {
-                    savePassCode(firstPassCode).then(()=>{
-                        setStage(stage + 1) 
+                    savePassCode(firstPassCode).then(() => {
+                        setStage(stage + 1)
                         setHeading('Success')
-                    }).catch(e=>{
+                    }).catch(e => {
                         setHeading('Error')
                     })
-                    } 
                 }
             }
+        }
 
         else {
             navigation.navigate('NotfiyMeScreen')
@@ -52,13 +52,12 @@ function PassCodeScreen({ navigation }) {
     onChangePassCode = () => {
 
     }
-    return (
 
+    return (
         <View style={styles.title}>
             <Text style={styles.heading}>{heading}</Text>
             <View style={styles.codeWrapper}>
                 <View style={styles.passcodeEnter}>
-
                     {stage == 0 && <TextInput
                         secureTextEntry={true}
                         style={styles.textBox}
@@ -76,7 +75,6 @@ function PassCodeScreen({ navigation }) {
                         caretHidden={true}
                         onChangeText={(secondPassCode) => setSecondPassCode(secondPassCode)}
                     />}
-
                 </View>
                 {stage == 0 && <View style={styles.circleBlock}>
                     <View style={[styles.circle, firstPassCode.length >= 1 && styles.circleFill]}></View>
@@ -157,4 +155,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default PassCodeScreen;
+export default PassCodeContainer;

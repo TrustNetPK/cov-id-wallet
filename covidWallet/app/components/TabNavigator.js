@@ -6,17 +6,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ActionsScreen from './ActionsScreen';
 import ConnectionsScreen from './ConnectionsScreen';
 import CredentialsScreen from './CredentialsScreen';
-import { PRIMARY_COLOR, SECONDARY_COLOR } from '../constants/constants';
+import { PRIMARY_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
   return (
-
     <Tab.Navigator screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
-
         if (route.name === 'Actions') {
           iconName = 'md-notifications-outline'
           return <Ionicons name={iconName} size={size} color={color} />
@@ -28,7 +26,6 @@ function TabNavigator() {
         else if (route.name === 'Certificates') {
           iconName = 'account-badge-horizontal-outline';
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />
-
         }
         // You can return any component that you like here!
         return <FontAwesome name={iconName} size={size} color={color} />;
