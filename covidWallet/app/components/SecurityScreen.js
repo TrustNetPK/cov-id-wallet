@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton';
 import ImageBoxComponent from './ImageBoxComponent';
+import TextComponent from './TextComponent';
 const img = require('../assets/images/security.png');
 
 function SecurityScreen({ navigation }) {
@@ -19,9 +20,8 @@ function SecurityScreen({ navigation }) {
         />
       </View>
       <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={styles.TextContainer}>Using biometric security significantly reduces the chances
-                your account will be compromised in case your phone is lost or stolen.
-        </Text>
+        <TextComponent onboarding={true} text="Using biometric security significantly reduces the chances
+                your account will be compromised in case your phone is lost or stolen."/>
       </View>
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
         <PrimaryButton title="Enable Secure ID" nextHandler={nextHandler} />
@@ -29,13 +29,5 @@ function SecurityScreen({ navigation }) {
     </View> 
   );
 }
-
-const styles = StyleSheet.create({
-  TextContainer: {
-    padding: 30, color: 'black', fontSize: 15,
-    textAlign: 'center',
-    marginTop: 10, alignItems: 'center', justifyContent: 'center', color: 'black',
-  },
-});
 
 export default SecurityScreen;

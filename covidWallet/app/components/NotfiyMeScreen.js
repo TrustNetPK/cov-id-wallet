@@ -4,6 +4,7 @@ import { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from './ImageBoxComponent';
+import TextComponent from './TextComponent';
 
 const img = require('../assets/images/notifications.png');
 
@@ -22,10 +23,8 @@ function NotfiyMeScreen({ navigation }) {
         />
       </View>
       <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={styles.TextContainer}>
-          We use push notifications to deliver messages for important events,
-          such as when you recieve a new credential.
-        </Text>
+        <TextComponent onboarding={true} text="We use push notifications to deliver messages for important events,
+          such as when you recieve a new credential."/>
       </View>
       <View style={{ flex: 1.5, alignItems: 'center', justifyContent: 'center' }}>
         <PrimaryButton title="Enable Notifications" nextHandler={nextHandler} />
@@ -36,11 +35,6 @@ function NotfiyMeScreen({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
-  TextContainer: {
-    padding: 30, color: 'black', fontSize: 15,
-    textAlign: 'center',
-    marginTop: 70, alignItems: 'center', justifyContent: 'center', color: 'black',
-  },
   TextContainerEnd: {
     alignItems: 'center', justifyContent: 'center', color: PRIMARY_COLOR, paddingTop: 15
   },

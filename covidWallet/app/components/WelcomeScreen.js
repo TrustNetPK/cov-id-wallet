@@ -5,6 +5,8 @@ import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from './ImageBoxComponent';
+import TextComponent from './TextComponent';
+
 const img = require('../assets/images/t&c.png');
 
 var radio_props = [
@@ -42,9 +44,7 @@ function WelcomeScreen({ navigation }) {
       </View>
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <Text style={styles.TextContainerHead}>Welcome!</Text>
-        <Text style={styles.TextContainer}>Let's create your self-soverign identity.
-              {"\n"}This app helps you exchange secure
-                                                vaccination proof against COVID-19.</Text>
+        <TextComponent onboarding={true} text="Let's create your self-soverign identity.This app helps you exchange secure vaccination proof against COVID-19."/>
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <View style={styles.checkboxContainer}>
@@ -55,7 +55,6 @@ function WelcomeScreen({ navigation }) {
             checked={isChecked}
             onPress={checkHandler}
             style={styles.checkbox}
-
           />
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={styles.link}>I agree to TrustNet Pakistan’s
@@ -76,10 +75,6 @@ const styles = StyleSheet.create({
   TextContainerHead: {
      padding: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
     fontSize: 35, flexDirection: 'column',
-  },
-  TextContainer: {
-    padding: 10, color: 'black', fontSize: 15,
-    textAlign: 'center'
   },
   ErrorBox: {
     color: 'red',

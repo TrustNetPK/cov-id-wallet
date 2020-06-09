@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import FlatCard from './FlatCard';
 import ImageBoxComponent from './ImageBoxComponent';
+import TextComponent from './TextComponent';
 
 const image = require('../assets/images/visa.jpg')
 
@@ -20,7 +21,7 @@ function ActionsScreen(props) {
       {!isAction &&
         <View style={styles.EmptyContainer}>
           <ImageBoxComponent source={require('../assets/images/action.gif')} />
-          <Text style={styles.TextGuide}>There are no actions to complete, Please scan a QR code to either get a vaccination certificate or to prove it.</Text>
+          <TextComponent text="There are no actions to complete, Please scan a QR code to either get a vaccination certificate or to prove it." />
         </View>
       }
     </View>
@@ -42,17 +43,5 @@ const styles = StyleSheet.create({
     width: 300,
     resizeMode: 'contain'
   },
-
-  TextGuide: {
-    color: '#708090',
-    marginTop: 14,
-    fontSize: 15,
-    marginLeft: 50,
-    marginRight: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-  }
-
 });
 export default ActionsScreen;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import ImageBoxComponent from './ImageBoxComponent'
+import ImageBoxComponent from './ImageBoxComponent';
+import TextComponent from './TextComponent';
 import FlatCard from './FlatCard';
 const image = require('../assets/images/visa.jpg')
 
@@ -18,7 +19,7 @@ function ConnectionsScreen(props) {
       {!isConnection &&
         <View style={styles.EmptyContainer}>
           <ImageBoxComponent source={require('../assets/images/connectionsempty.png')} />
-          <Text style={styles.TextGuide}>Once you establish a connection, it will show up here. Go ahead and connect with someone.</Text>
+          <TextComponent text="Once you establish a connection, it will show up here. Go ahead and connect with someone." />
         </View>
       }
     </View>
@@ -34,16 +35,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  TextGuide: {
-    color: '#708090',
-    marginTop: 14,
-    fontSize: 15,
-    marginLeft: 50,
-    marginRight: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-  }
 });
 
 export default ConnectionsScreen;
