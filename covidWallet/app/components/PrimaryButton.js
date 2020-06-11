@@ -5,7 +5,7 @@ import { themeStyles } from '../theme/styles';
 function PrimaryButton(props) {
     return (
         <TouchableOpacity style={themeStyles.primaryButton} onPress={props.nextHandler}>
-            <Text>Next</Text>
+            <Text>{props.title}</Text>
         </TouchableOpacity>
     )
 }

@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeContainer from './containers/PassCodeContainer';
+import SecureIdContainer from './containers/SecureidContainer';
 import WelcomeScreen from './components/WelcomeScreen';
 import SecurityScreen from './components/SecurityScreen';
 import NotfiyMeScreen from './components/NotfiyMeScreen';
@@ -19,13 +20,14 @@ function NavigationComponent() {
   React.useEffect(() => {
     SplashScreen.hide();
   }, [])
-  
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="WelcomeScreen">
         <Stack.Screen options={{ headerShown: false }} name="PassCodeContainer" component={PassCodeContainer} />
         <Stack.Screen options={{ headerShown: false }} name="WelcomeScreen" component={WelcomeScreen} />
         <Stack.Screen options={{ headerShown: false }} name="SecurityScreen" component={SecurityScreen} />
+        <Stack.Screen options={{ headerShown: false }} name="SecureidContainer" component={SecureIdContainer} />
         <Stack.Screen options={{ headerShown: false }} name="NotfiyMeScreen" component={NotfiyMeScreen} />
         <Stack.Screen options={{ headerShown: false }} name="SettingsScreen" component={SettingsScreen} />
         <Stack.Screen options={{ headerShown: false }} name="QRScreen" component={QRScreen} />
