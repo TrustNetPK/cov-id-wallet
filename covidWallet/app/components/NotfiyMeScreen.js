@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Image, Text, StyleSheet, Linking } from 'react-native';
 import { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton';
-import { PRIMARY_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR } from '../theme/colors';
 import ImageBoxComponent from './ImageBoxComponent';
 import TextComponent from './TextComponent';
 
