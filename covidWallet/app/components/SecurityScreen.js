@@ -48,6 +48,7 @@ function SecurityScreen({ navigation }) {
   }
 
   function authLegacy() {
+    FingerprintScanner.release();
     FingerprintScanner
       .authenticate({ title: 'Log in with Secure ID to continue' })
       .then(() => {
@@ -65,16 +66,17 @@ function SecurityScreen({ navigation }) {
         }
         checkSecureIDAuth(false);
       });
+
   }
 
   function authCurrent() {
+    // console.log("Enter in the True Section of Finger Print")
+    FingerprintScanner.release();
     FingerprintScanner
       .authenticate({ title: 'Log in with Secure ID to continue' })
       .then(() => {
         checkSecureIDAuth(true);
         nextHandler();
-        //console.log("Enter in the True Section of Finger Print")
-
       })
       .catch((error) => {
         if (Platform.OS === 'ios') {
@@ -85,7 +87,6 @@ function SecurityScreen({ navigation }) {
 
         }
         checkSecureIDAuth(false);
-        //console.log("False Section is " + isSuccessful)
 
       });
 
@@ -95,7 +96,6 @@ function SecurityScreen({ navigation }) {
 
 
   nextHandler = () => {
-    FingerprintScanner.release();
     // if (isSuccessful)
     navigation.navigate('PassCodeContainer');
 
