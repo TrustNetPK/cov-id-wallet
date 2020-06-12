@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import ActionsScreen from './ActionsScreen';
-import ConnectionsScreen from './ConnectionsScreen';
-import CredentialsScreen from './CredentialsScreen';
+import ActionsScreen from '../screens/ActionsScreen';
+import ConnectionsScreen from '../screens/ConnectionsScreen';
+import CredentialsScreen from '../screens/CredentialsScreen';
 import { PRIMARY_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
 const Tab = createBottomTabNavigator();
