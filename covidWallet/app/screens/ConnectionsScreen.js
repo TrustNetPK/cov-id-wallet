@@ -1,31 +1,29 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import FlatCard from './FlatCard';
-import ImageBoxComponent from './ImageBoxComponent';
-import TextComponent from './TextComponent';
-
+import ImageBoxComponent from '../components/ImageBoxComponent';
+import TextComponent from '../components/TextComponent';
+import FlatCard from '../components/FlatCard';
 const image = require('../assets/images/visa.jpg')
 
-function ActionsScreen(props) {
-  const [isAction, setAction] = useState(false);
-
+function ConnectionsScreen(props) {
+  const [isConnection, setConnection] = useState(false);
   return (
     <View style={styles.MainContainer}>
-      {isAction &&
+      {isConnection &&
         <View>
-          <Text>Actions</Text>
+          <Text>ConnectionsScreen</Text>
           <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
           <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
         </View>
       }
-      {!isAction &&
+      {!isConnection &&
         <View style={styles.EmptyContainer}>
-          <ImageBoxComponent source={require('../assets/images/action.gif')} />
-          <TextComponent text="There are no actions to complete, Please scan a QR code to either get a vaccination certificate or to prove it." />
+          <ImageBoxComponent source={require('../assets/images/connectionsempty.png')} />
+          <TextComponent text="Once you establish a connection, it will show up here. Go ahead and connect with someone." />
         </View>
       }
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -37,11 +35,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  Imagesize: {
-    marginBottom: 50,
-    height: 300,
-    width: 300,
-    resizeMode: 'contain'
-  },
 });
-export default ActionsScreen;
+
+export default ConnectionsScreen;

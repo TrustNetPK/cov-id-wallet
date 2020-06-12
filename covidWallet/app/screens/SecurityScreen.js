@@ -2,8 +2,8 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton';
-import ImageBoxComponent from './ImageBoxComponent';
-import TextComponent from './TextComponent';
+import ImageBoxComponent from '../components/ImageBoxComponent';
+import TextComponent from '../components/TextComponent';
 const img = require('../assets/images/security.png');
 
 function SecurityScreen({ navigation }) {

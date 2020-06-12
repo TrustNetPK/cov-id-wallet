@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ImageComponent } from 'react-native';
-import CredentialsCard from './CredentialsCard';
-import ImageBoxComponent from './ImageBoxComponent';
-import TextComponent from './TextComponent';
+import CredentialsCard from '../components/CredentialsCard';
+import ImageBoxComponent from '../components/ImageBoxComponent';
+import TextComponent from '../components/TextComponent';
 
 const card_logo = require('../assets/images/visa.jpg')
 

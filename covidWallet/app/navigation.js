@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeContainer from './containers/PassCodeContainer';
-import WelcomeScreen from './components/WelcomeScreen';
-import SecurityScreen from './components/SecurityScreen';
-import NotfiyMeScreen from './components/NotfiyMeScreen';
+import WelcomeScreen from './screens/WelcomeScreen';
+import SecurityScreen from './screens/SecurityScreen';
+import NotfiyMeScreen from './screens/NotfiyMeScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import SettingsScreen from './components/SettingsScreen';
-import QRScreen from './components/QRScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import QRScreen from './screens/QRScreen';
 
 const Stack = createStackNavigator();
 

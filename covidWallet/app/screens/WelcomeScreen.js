@@ -4,8 +4,8 @@ import { useState } from 'react';
 import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
-import ImageBoxComponent from './ImageBoxComponent';
-import TextComponent from './TextComponent';
+import ImageBoxComponent from '../components/ImageBoxComponent';
+import TextComponent from '../components/TextComponent';
 
 const img = require('../assets/images/t&c.png');
 
