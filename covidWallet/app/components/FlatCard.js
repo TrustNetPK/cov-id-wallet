@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     backgroundColor: WHITE_COLOR,
-    height: 40,
+    height: 50
   },
   row1: {
     width: '25%',
