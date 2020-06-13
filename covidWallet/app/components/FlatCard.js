@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR} from '../theme/Colors';
 
 function FlatCard(props) {
   return (
@@ -13,59 +14,52 @@ function FlatCard(props) {
           <Text style={styles.heading}>{props.heading}</Text>
           <Text style={styles.text}>{props.text}</Text>
         </View>
-        <View style={styles.row3}>
-          <Text style={styles.button}>New</Text>
-        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#5973f2',
-    color: 'white',
-    textAlign: 'center',
-  },
   container: {
-    flex: 1,
-    padding: 7,
+    flex: 0,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderRadius: 5,
+    justifyContent: 'center', //Centered vertically
+    alignItems: 'center',
   },
   text: {
-    fontSize: 9,
+    fontSize: 11,
     paddingLeft: 12,
-    lineHeight: 9,
+    color: SECONDARY_COLOR,
   },
   heading: {
-    color: 'white',
-    fontSize: 17,
-    paddingLeft: 12,
-    lineHeight: 20,
-    fontWeight: 'bold',
+    color: BLACK_COLOR,
+    fontSize: 23,
+    paddingLeft: 10,
   },
   card: {
-    width: 360,
+    width: '100%',
+    flex: 0,
     marginTop: 7,
-    backgroundColor: '#bacff2',
-    height: 55,
+    paddingTop: 10,
+    paddingBottom: 15,
+    backgroundColor: WHITE_COLOR,
+    borderRadius: 20,
+    borderColor:SECONDARY_COLOR,
+    borderWidth: 0.5
   },
   logo: {
     width: 50,
-    backgroundColor: 'white',
-    height: 40,
+    backgroundColor: WHITE_COLOR,
+    height: 50
   },
   row1: {
-    width: '15%',
+    width: '25%',
+    paddingLeft: '6%',
   },
   row2: {
-    width: '65%',
+    width: '75%',
     paddingRight: 10,
-  },
-  row3: {
-    width: '20%',
   },
 });
 

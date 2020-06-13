@@ -3,19 +3,21 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
+import HeadingComponent from '../components/HeadingComponent';
+import { themeStyles } from '../theme/Styles';
 
 const image = require('../assets/images/visa.jpg')
 
 function ActionsScreen(props) {
-  const [isAction, setAction] = useState(false);
+  const [isAction, setAction] = useState(true);
 
   return (
-    <View style={styles.MainContainer}>
+    <View style={themeStyles.mainContainer}>
       {isAction &&
         <View>
-          <Text>Actions</Text>
-          <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
-          <FlatCard image={image} heading="VISA MasterCard" text="Mastercard enables you to pay at 2 billion plus kiosks throughout the world" />
+          <HeadingComponent text="Actions" />
+          <FlatCard image={image} heading="Connection Request" text="Tap to view the connection request from Agha Khan Hospital, Karachi" />
+          <FlatCard image={image} heading="Vaccination Certificate" text="Tap to accept the immunity certificate from Agha Khan Hospital, Karachi" />
         </View>
       }
       {!isAction &&
@@ -29,10 +31,6 @@ function ActionsScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  MainContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
   EmptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
