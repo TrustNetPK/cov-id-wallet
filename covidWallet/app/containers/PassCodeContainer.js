@@ -9,6 +9,7 @@ function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
     const [secondPassCode, setSecondPassCode] = useState(0);
     const [heading, setHeading] = useState('Create a Passcode')
+    const [btnText, setBtnText] = useState('CREATE');
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
 
@@ -21,6 +22,7 @@ function PassCodeContainer({ navigation }) {
             else {
                 setStage(stage + 1)
                 setHeading('Confirm the PassCode')
+                setBtnText("CONFIRM")
             }
         }
         else if (stage == 1) {
@@ -36,16 +38,12 @@ function PassCodeContainer({ navigation }) {
                 else {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
-                        setHeading('Success')
+                        navigation.navigate('NotfiyMeScreen')
                     }).catch(e => {
                         setHeading('Error')
                     })
                 }
             }
-        }
-
-        else {
-            navigation.navigate('NotfiyMeScreen')
         }
     }
 
@@ -94,7 +92,7 @@ function PassCodeContainer({ navigation }) {
                 </View>}
                 {error.length > 0 ? <Text>{error}</Text> : null}
             </View>
-            <PrimaryButton title="Pass Code" nextHandler={nextHandler} />
+            <PrimaryButton text={btnText} nextHandler={nextHandler} />
         </View>);
 }
 

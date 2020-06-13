@@ -27,9 +27,9 @@ function NotfiyMeScreen({ navigation }) {
           such as when you recieve a new credential."/>
       </View>
       <View style={{ flex: 1.5, alignItems: 'center', justifyContent: 'center' }}>
-        <PrimaryButton title="Enable Notifications" nextHandler={nextHandler} />
+        <PrimaryButton text="ENABLE NOTIFICATIONS" nextHandler={nextHandler} />
         <Text style={styles.TextContainerEnd}
-          onPress={() => navigation.navigate('MainScreen')} >Continue without alerts</Text>
+          onPress={nextHandler} >Continue without alerts</Text>
       </View>
     </View>
   );
