@@ -10,6 +10,10 @@ export const themeStyles = StyleSheet.create({
         paddingBottom: 10,
         paddingRight: 20,
         marginTop: 30
-    }
+    },
+    mainContainer: {
+        flex: 1,
+        padding: 10
+    },
 });
 
