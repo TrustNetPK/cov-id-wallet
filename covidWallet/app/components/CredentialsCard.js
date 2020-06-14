@@ -13,18 +13,17 @@ function CredentialsCard(props) {
                         <Text style={styles.card_text}>{props.card_title}</Text>
                         <Text style={styles.card_text}>{props.card_type}</Text>
                         </View>
-                        <View>
-                        <Image source={props.card_logo} style={styles.logo} />
+                        <View style={styles.imageContainer}>
+                            <Image source={props.card_logo} style={styles.logo} />
                         </View>
                     </View>
                     <View style={styles.container}>
-                        <View style={styles.item}>
+                        <View style={styles.item1}>
                         <Image source={props.card_logo} style={{width:30,height:40}} />
                         </View>
-                        <View style={styles.item}>
+                        <View style={styles.item2}>
                             <Text style={styles.card_small_text}>Issued by</Text>
                             <Text style={styles.card_small_text}>{props.issuer}</Text>
-
                         </View>
                     </View>
                 </ImageBackground>
@@ -35,7 +34,8 @@ function CredentialsCard(props) {
 
 const styles = StyleSheet.create({
     cardTextContainer: {
-        padding: 20,
+        paddingTop: 20,
+        paddingLeft: 20,
     },
     logo: {
         width: 50,
@@ -58,10 +58,18 @@ const styles = StyleSheet.create({
     item: {
         justifyContent:'center',
     },
-    item: {
-        width:'50%',
+    item1: {
+        width:'20%',
         padding: 20,
         justifyContent:'center',
+    },
+    item2: {
+        width:'80%',
+        padding: 20,
+        justifyContent:'center',
+    },
+    imageContainer: {
+        
     },
     card_text: {
         color: 'white',

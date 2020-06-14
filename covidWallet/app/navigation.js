@@ -11,6 +11,7 @@ import NotfiyMeScreen from './screens/NotfiyMeScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsScreen from './screens/SettingsScreen';
 import QRScreen from './screens/QRScreen';
+import { BLACK_COLOR } from './theme/Colors';
 
 const Stack = createStackNavigator();
 
@@ -50,6 +51,7 @@ function NavigationComponent() {
 const styles = StyleSheet.create({
   headerRightIcon: {
     padding: 10,
+    color: BLACK_COLOR
   }
 });
 
