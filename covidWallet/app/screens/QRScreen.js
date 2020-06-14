@@ -24,7 +24,7 @@ class QRScreen extends React.Component {
 
   onSuccess = e => {
     Alert.alert(
-      'VAXN Wallet',
+      'VACCIFY',
       'QR Code Result is ' + e.data,
       [
         { text: 'OK', onPress: () => this.props.navigation.navigate('MainScreen') }

@@ -12,7 +12,7 @@ const image = require('../assets/images/visa.jpg')
 
 function ActionsScreen(props) {
   const [isAction, setAction] = useState(true);
-  const [isModalVisible, setModalVisible] = useState(true);
+  const [isModalVisible, setModalVisible] = useState(false);
   const data = [
     {name:'First Name',value:'Umer'},
     {name:'Last Name',value:'Shafiq'},

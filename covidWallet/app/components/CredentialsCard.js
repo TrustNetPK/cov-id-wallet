@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
 const image = require('../assets/images/card-bg.png')
+const card_badge = require('../assets/images/badge.png')
 
 function CredentialsCard(props) {
     return (
@@ -14,7 +15,7 @@ function CredentialsCard(props) {
                         <Text style={styles.card_text}>{props.card_type}</Text>
                         </View>
                         <View style={styles.imageContainer}>
-                            <Image source={props.card_logo} style={styles.logo} />
+                            <Image source={card_badge} style={styles.logo} />
                         </View>
                     </View>
                     <View style={styles.container}>
@@ -39,10 +40,9 @@ const styles = StyleSheet.create({
     },
     logo: {
         width: 50,
-        marginTop: 60,
+        marginTop: 50,
         marginRight: 6,
-        backgroundColor: 'white',
-        height: 40,
+        height: 70,
     },
     card: {
         width: '100%',
