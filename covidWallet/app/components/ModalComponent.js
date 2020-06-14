@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton'
 import Modal from 'react-native-modal';
-import { WHITE_COLOR, GRAY_COLOR } from '../theme/Colors';
+import { WHITE_COLOR, GRAY_COLOR } from '../theme/colors';
 import HeadingComponent from './HeadingComponent';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -35,7 +35,7 @@ function ModalComponent(props) {
       alignSelf: 'center',
       paddingLeft: 10,
       paddingRight: 10,
-      paddingTop: 8
+      paddingTop: 20
     }
   });
 
@@ -55,8 +55,8 @@ function ModalComponent(props) {
             })
             }
             <View style={styles.centerContainer}>
-              <PrimaryButton text="ACCEPT" nextHandler={props.toggleModal} />
-              <PrimaryButton text="REJECT" nextHandler={props.toggleModal} />
+              <PrimaryButton text="Accept" nextHandler={props.toggleModal} />
+              <PrimaryButton text="Reject" nextHandler={props.toggleModal} />
             </View>
           </ScrollView>
         </View>

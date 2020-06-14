@@ -11,7 +11,7 @@ import NotfiyMeScreen from './screens/NotfiyMeScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsScreen from './screens/SettingsScreen';
 import QRScreen from './screens/QRScreen';
-import { BLACK_COLOR } from './theme/Colors';
+import { BLACK_COLOR } from './theme/colors';
 
 const Stack = createStackNavigator();
 
@@ -20,7 +20,7 @@ function NavigationComponent() {
   React.useEffect(() => {
     SplashScreen.hide();
   }, [])
-  
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="WelcomeScreen">
@@ -37,9 +37,9 @@ function NavigationComponent() {
               shadowOpacity: 0,
               borderBottomWidth: 0,
             }, title: false, headerRight: () => (
-              <MaterialCommunityIcons onPress={() => { navigation.navigate('QRScreen') }} style={styles.headerRightIcon} size={30} name="qrcode-scan" padding={30} />
+              <MaterialCommunityIcons onPress={() => { navigation.navigate('QRScreen') }} style={styles.headerRightIcon} size={30} name="qrcode" padding={30} />
             ), headerLeft: () => (
-              <MaterialCommunityIcons onPress={() => { navigation.navigate('SettingsScreen') }} style={styles.headerRightIcon} size={30} name="settings-outline" padding={30} />
+              <MaterialCommunityIcons onPress={() => { navigation.navigate('SettingsScreen') }} style={styles.headerRightIcon} size={30} name="settings" padding={30} />
             )
           })}
           component={TabNavigator} />

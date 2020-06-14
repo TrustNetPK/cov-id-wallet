@@ -2,15 +2,15 @@ import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import { savePassCode } from '../helpers/Storage';
-import { PRIMARY_COLOR, BLACK_COLOR, GRAY_COLOR } from '../theme/Colors';
+import { savePassCode } from '../helpers/storage';
+import { PRIMARY_COLOR, BLACK_COLOR, GRAY_COLOR } from '../theme/colors';
 import HeadingComponent from '../components/HeadingComponent';
 
 function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
     const [secondPassCode, setSecondPassCode] = useState(0);
     const [heading, setHeading] = useState('Create a Passcode')
-    const [btnText, setBtnText] = useState('CREATE');
+    const [btnText, setBtnText] = useState('Create');
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
 
@@ -23,7 +23,7 @@ function PassCodeContainer({ navigation }) {
             else {
                 setStage(stage + 1)
                 setHeading('Confirm the Passcode')
-                setBtnText("CONFIRM")
+                setBtnText("Confirm")
             }
         }
         else if (stage == 1) {
@@ -35,7 +35,7 @@ function PassCodeContainer({ navigation }) {
                 if (firstPassCode !== secondPassCode) {
                     setError('passcodes dont match')
                 }
-                
+
                 else {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: '15%',
         justifyContent: 'center'
-      },
-      circle: {
+    },
+    circle: {
         borderRadius: 30,
         borderWidth: 3,
         borderColor: GRAY_COLOR,
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         marginRight: 12,
         width: 25
-      },
-      circleFill: {
+    },
+    circleFill: {
         backgroundColor: PRIMARY_COLOR,
         borderRadius: 30,
         borderWidth: 3,
@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         marginRight: 12,
         width: 25
-      },
-      buttonContainer: {
-          marginTop:'15%'
-      }
+    },
+    buttonContainer: {
+        marginTop: '15%'
+    }
 });
 
 export default PassCodeContainer;

@@ -20,14 +20,23 @@ function SecurityScreen({ navigation }) {
         />
       </View>
       <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={styles.TextContainerHead}>Be Secure</Text>
         <TextComponent onboarding={true} text="Using biometric security significantly reduces the chances
                 your account will be compromised in case your phone is lost or stolen."/>
       </View>
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
-        <PrimaryButton text="ENABLE FACE ID" nextHandler={nextHandler} />
+        <PrimaryButton text="Enable Face ID" nextHandler={nextHandler} />
       </View>
-    </View> 
+    </View>
   );
 }
+
+
+const styles = StyleSheet.create({
+  TextContainerHead: {
+    alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
+    fontSize: 32, flexDirection: 'column',
+  }
+});
 
 export default SecurityScreen;

@@ -37,8 +37,14 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow Vaccify to take Pictures?</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow Vaccify to use Microphone?</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow Vaccify to use Photo Library?</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -64,21 +70,13 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-    <string>Allow Vaccify to take Pictures?</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Allow Vaccify to use Microphone?</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow Vaccify to use Photo Library?</string>
 </dict>
 </plist>
