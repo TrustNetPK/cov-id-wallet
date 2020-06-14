@@ -5,6 +5,7 @@ import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const image = require('../assets/images/visa.jpg')
 
@@ -15,8 +16,12 @@ function ConnectionsScreen(props) {
       {isConnection &&
         <View>
           <HeadingComponent text="Connections" />
+          <TouchableOpacity>
           <FlatCard image={image} heading="Connection Request" text="Tap to view the connection request from Agha Khan Hospital, Karachi" />
+          </TouchableOpacity>
+          <TouchableOpacity>
           <FlatCard image={image} heading="Vaccination Certificate" text="Tap to accept the immunity certificate from Agha Khan Hospital, Karachi" />
+          </TouchableOpacity>
         </View>}
       {!isConnection &&
         <View style={styles.EmptyContainer}>

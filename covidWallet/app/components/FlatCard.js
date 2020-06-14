@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     color: BLACK_COLOR,
-    fontSize: 23,
+    fontSize: 20,
     paddingLeft: 10,
   },
   card: {
