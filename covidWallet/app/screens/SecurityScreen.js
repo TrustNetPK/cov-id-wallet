@@ -24,7 +24,7 @@ function SecurityScreen({ navigation }) {
                 your account will be compromised in case your phone is lost or stolen."/>
       </View>
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
-        <PrimaryButton title="Enable Secure ID" nextHandler={nextHandler} />
+        <PrimaryButton text="ENABLE FACE ID" nextHandler={nextHandler} />
       </View>
     </View> 
   );

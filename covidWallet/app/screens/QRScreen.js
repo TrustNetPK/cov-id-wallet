@@ -89,7 +89,6 @@ class QRScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-
   sectionContainer: {
     backgroundColor: Colors.black,
   },
@@ -97,6 +96,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 70,
     marginRight: 70,
+    zIndex: 10,
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: '600',

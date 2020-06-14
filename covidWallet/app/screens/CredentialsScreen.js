@@ -17,7 +17,9 @@ function CredentialsScreen(props) {
       {isCredential &&
         <View>
           <HeadingComponent text="Credentials" />
-          <CredentialsCard card_no="0000 0000 0000 0000" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
+          <View style={styles.CredentialsCardContainer}>
+          <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
+          </View>
         </View>}
       {!isCredential &&
         <View style={styles.EmptyContainer}>
@@ -34,6 +36,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  CredentialsCardContainer: {
+    paddingTop: 5
+  }
 });
 
 export default CredentialsScreen;

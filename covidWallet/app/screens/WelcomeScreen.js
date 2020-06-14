@@ -64,7 +64,7 @@ function WelcomeScreen({ navigation }) {
           </View>
         </View>
         {error.length > 0 ? <Text style={styles.ErrorBox}>{error}</Text> : null}
-        <PrimaryButton title="Continue" nextHandler={nextHandler} />
+        <PrimaryButton text="CONTINUE" nextHandler={nextHandler} />
       </View>
     </View>
 
@@ -73,7 +73,7 @@ function WelcomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   TextContainerHead: {
-     padding: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
+     paddingTop: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
     fontSize: 35, flexDirection: 'column',
   },
   ErrorBox: {

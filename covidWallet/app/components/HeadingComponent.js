@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Text, StyleSheet } from 'react-native';
+import { BLACK_COLOR } from '../theme/Colors';
 
 function HeadingComponent(props) {
 
@@ -7,6 +8,7 @@ function HeadingComponent(props) {
         heading: {
           fontWeight: "bold",
           fontSize: 30,
+          color: BLACK_COLOR,
         }});
 
     return (

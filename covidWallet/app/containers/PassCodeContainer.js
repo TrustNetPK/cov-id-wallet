@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode } from '../helpers/Storage';
-import { PRIMARY_COLOR, BLACK_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR, BLACK_COLOR, GRAY_COLOR } from '../theme/Colors';
+import HeadingComponent from '../components/HeadingComponent';
 
 function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
     const [secondPassCode, setSecondPassCode] = useState(0);
     const [heading, setHeading] = useState('Create a Passcode')
+    const [btnText, setBtnText] = useState('CREATE');
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
 
@@ -20,7 +22,8 @@ function PassCodeContainer({ navigation }) {
             }
             else {
                 setStage(stage + 1)
-                setHeading('Confirm the PassCode')
+                setHeading('Confirm the Passcode')
+                setBtnText("CONFIRM")
             }
         }
         else if (stage == 1) {
@@ -36,16 +39,12 @@ function PassCodeContainer({ navigation }) {
                 else {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
-                        setHeading('Success')
+                        navigation.navigate('NotfiyMeScreen')
                     }).catch(e => {
                         setHeading('Error')
                     })
                 }
             }
-        }
-
-        else {
-            navigation.navigate('NotfiyMeScreen')
         }
     }
 
@@ -55,7 +54,7 @@ function PassCodeContainer({ navigation }) {
 
     return (
         <View style={styles.title}>
-            <Text style={styles.heading}>{heading}</Text>
+            <HeadingComponent text={heading} />
             <View style={styles.codeWrapper}>
                 <View style={styles.passcodeEnter}>
                     {stage == 0 && <TextInput
@@ -94,7 +93,7 @@ function PassCodeContainer({ navigation }) {
                 </View>}
                 {error.length > 0 ? <Text>{error}</Text> : null}
             </View>
-            <PrimaryButton title="Pass Code" nextHandler={nextHandler} />
+            <View style={styles.buttonContainer}><PrimaryButton text={btnText} nextHandler={nextHandler} /></View>
         </View>);
 }
 
@@ -104,16 +103,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingTop: 80,
     },
-    codeWrapper: {
-        position: 'relative'
-    },
     heading: {
         fontSize: 25
     },
     passcodeEnter: {
         opacity: 0,
         position: 'absolute',
-        width: '100%',
+        width: 200,
         zIndex: 9
     },
     textBox: {
@@ -123,36 +119,33 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     circleBlock: {
-        borderBottomColor: BLACK_COLOR,
-        borderBottomWidth: 3,
         display: 'flex',
-        borderRadius: 1,
-        marginTop: 50,
-        borderStyle: 'dashed',
         flexDirection: 'row',
+        marginTop: '15%',
         justifyContent: 'center'
-    },
-    circle: {
-        height: 20,
-        marginLeft: 15,
-        marginRight: 15,
-        marginBottom: 10,
-        borderRadius: 20,
-        borderLeftWidth: 0,
-        borderRightWidth: 0,
-        borderTopWidth: 0,
-        borderBottomColor: BLACK_COLOR,
-        width: 20
-    },
-    circleFill: {
+      },
+      circle: {
+        borderRadius: 30,
+        borderWidth: 3,
+        borderColor: GRAY_COLOR,
+        height: 25,
+        marginLeft: 12,
+        marginRight: 12,
+        width: 25
+      },
+      circleFill: {
         backgroundColor: PRIMARY_COLOR,
-        padding: 10,
-        borderColor: PRIMARY_COLOR,
-        height: 20,
-        marginLeft: 15,
-        marginRight: 15,
-        width: 20
-    }
+        borderRadius: 30,
+        borderWidth: 3,
+        borderColor: GRAY_COLOR,
+        height: 25,
+        marginLeft: 12,
+        marginRight: 12,
+        width: 25
+      },
+      buttonContainer: {
+          marginTop:'5%'
+      }
 });
 
 export default PassCodeContainer;
