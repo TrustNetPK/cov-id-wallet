@@ -4,7 +4,7 @@ import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/Styles';
+import { themeStyles } from '../theme/styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
 
@@ -14,14 +14,14 @@ function ActionsScreen(props) {
   const [isAction, setAction] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
   const data = [
-    {name:'First Name',value:'Umer'},
-    {name:'Last Name',value:'Shafiq'},
-    {name:'Birthday',value:'01-01-1990'},
-    {name:'Locality',value:'Helisinki'},
-    {name:'Address',value:'Khaleefa Heights, Champs Elysee'},
-    {name:'Country Name',value:'Finland'},
+    { name: 'First Name', value: 'Umer' },
+    { name: 'Last Name', value: 'Shafiq' },
+    { name: 'Birthday', value: '01-01-1990' },
+    { name: 'Locality', value: 'Helisinki' },
+    { name: 'Address', value: 'Khaleefa Heights, Champs Elysee' },
+    { name: 'Country Name', value: 'Finland' },
   ]
-  
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -31,12 +31,12 @@ function ActionsScreen(props) {
       {isAction &&
         <View>
           <HeadingComponent text="Actions" />
-          <ModalComponent data={data} isVisible={isModalVisible} toggleModal={toggleModal}/>
+          <ModalComponent data={data} isVisible={isModalVisible} toggleModal={toggleModal} />
           <TouchableOpacity onPress={() => toggleModal()}>
-          <FlatCard image={image} heading="Connection Request" text="Tap to view the connection request from Agha Khan Hospital, Karachi" />
+            <FlatCard image={image} heading="Connection Request" text="Tap to view the connection request from Agha Khan Hospital, Karachi" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => toggleModal()}>
-          <FlatCard image={image} heading="Vaccination Certificate" text="Tap to accept the immunity certificate from Agha Khan Hospital, Karachi" />
+            <FlatCard image={image} heading="Vaccination Certificate" text="Tap to accept the immunity certificate from Agha Khan Hospital, Karachi" />
           </TouchableOpacity>
         </View>
       }

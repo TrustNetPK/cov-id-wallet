@@ -1,26 +1,26 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { GRAY_COLOR } from '../theme/Colors';
+import { GRAY_COLOR } from '../theme/colors';
 
-function TextComponent({text, onboarding}) {
+function TextComponent({ text, onboarding }) {
 
-const styles = StyleSheet.create({
-        TextGuide: {
-            color:onboarding?'black':GRAY_COLOR,
-            marginTop: 14,
-            fontSize: 15,
-            marginLeft: 35,
-            marginRight: 35,
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-          }
-    });
+  const styles = StyleSheet.create({
+    TextGuide: {
+      color: onboarding ? 'black' : GRAY_COLOR,
+      marginTop: 14,
+      fontSize: 16,
+      marginLeft: 35,
+      marginRight: 35,
+      justifyContent: 'center',
+      alignItems: 'center',
+      textAlign: 'center',
+    }
+  });
 
   return (
     <View>
-        <Text style={styles.TextGuide}>{text}</Text>
+      <Text style={styles.TextGuide}>{text}</Text>
     </View>
   );
 }

@@ -3,7 +3,7 @@ import { View, Text, Linking, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
-import { PRIMARY_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR } from '../theme/colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 
@@ -44,7 +44,7 @@ function WelcomeScreen({ navigation }) {
       </View>
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <Text style={styles.TextContainerHead}>Welcome!</Text>
-        <TextComponent onboarding={true} text="Let's create your self-soverign identity.This app helps you exchange secure vaccination proof against COVID-19."/>
+        <TextComponent onboarding={true} text="Let's create your self-soverign identity.This app helps you exchange secure vaccination proof against COVID-19." />
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <View style={styles.checkboxContainer}>
@@ -59,12 +59,11 @@ function WelcomeScreen({ navigation }) {
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={styles.link}>I agree to TrustNet Pakistan’s
                   <Text style={styles.linkText}
-                onPress={() => Linking.openURL('https://trust.net.pk/')}> Terms of Services
-                  and Privacy Policy.</Text></Text>
+                onPress={() => Linking.openURL('https://trust.net.pk/')}> {'\n'}Terms of Services and Privacy Policy.</Text></Text>
           </View>
         </View>
         {error.length > 0 ? <Text style={styles.ErrorBox}>{error}</Text> : null}
-        <PrimaryButton text="CONTINUE" nextHandler={nextHandler} />
+        <PrimaryButton text="Continue" nextHandler={nextHandler} />
       </View>
     </View>
 
@@ -73,8 +72,8 @@ function WelcomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   TextContainerHead: {
-     paddingTop: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
-    fontSize: 35, flexDirection: 'column',
+    paddingTop: 20, alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
+    fontSize: 32, flexDirection: 'column',
   },
   ErrorBox: {
     color: 'red',
@@ -91,13 +90,14 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: PRIMARY_COLOR,
-    fontSize: 12,
+    fontSize: 14,
     fontStyle: 'italic',
     margin: 5
   },
   link: {
     color: 'black',
-    fontSize: 12
+    fontSize: 14,
+    marginBottom: 20
   },
 });
 

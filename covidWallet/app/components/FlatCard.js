@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR} from '../theme/Colors';
+import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR } from '../theme/colors';
 
 function FlatCard(props) {
   return (
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     backgroundColor: WHITE_COLOR,
     borderRadius: 20,
-    borderColor:SECONDARY_COLOR,
+    borderColor: SECONDARY_COLOR,
     borderWidth: 0.5
   },
   logo: {
