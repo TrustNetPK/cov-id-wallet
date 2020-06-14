@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
-const image = require('../assets/images/creditcard.jpg')
+const image = require('../assets/images/card-bg.png')
 
 function CredentialsCard(props) {
     return (

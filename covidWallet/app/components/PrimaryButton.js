@@ -15,7 +15,7 @@ function PrimaryButton(props) {
             paddingLeft: 20,
             paddingBottom: 10,
             paddingRight: 20,
-            marginTop: 30,
+            marginTop: 10,
             width: 200,
         },
         text: {
