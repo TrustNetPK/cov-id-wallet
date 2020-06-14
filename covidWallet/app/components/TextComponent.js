@@ -1,12 +1,13 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { GRAY_COLOR } from '../theme/Colors';
 
 function TextComponent({text, onboarding}) {
 
 const styles = StyleSheet.create({
         TextGuide: {
-            color:onboarding?'black':'#708090',
+            color:onboarding?'black':GRAY_COLOR,
             marginTop: 14,
             fontSize: 15,
             marginLeft: 35,

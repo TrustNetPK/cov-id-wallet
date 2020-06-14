@@ -7,4 +7,3 @@ export const themeStyles = StyleSheet.create({
         padding: 10
     },
 });
-
