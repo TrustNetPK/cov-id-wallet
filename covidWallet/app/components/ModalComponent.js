@@ -20,7 +20,7 @@ function ModalComponent(props) {
     centerContainer: {
       alignItems: 'center',
       paddingBottom: 20,
-      paddingTop:10,
+      paddingTop: 10,
     },
     modalValues: {
       color: GRAY_COLOR,
@@ -35,7 +35,7 @@ function ModalComponent(props) {
       alignSelf: 'center',
       paddingLeft: 10,
       paddingRight: 10,
-      paddingTop:8
+      paddingTop: 8
     }
   });
 
@@ -45,28 +45,19 @@ function ModalComponent(props) {
         <View style={styles.ModalChildContainer}>
           <View style={styles.centerContainer}>
             <HeadingComponent text="Details" />
-          
           </View>
           <ScrollView>
-{
-  props.data && props.data.map((v,i)=> {
-    return (<View style={styles.modalValuesContainer}>
-    <Text>
-      {v.name}
-    </Text>
-    <Text style={styles.modalValues}>
-      {v.value}
-    </Text>
-    <View
-      style={styles.horizontalRule}
-    />
-  </View>)
-  })
-}
-          <View style={styles.centerContainer}>
-            <PrimaryButton text="ACCEPT" nextHandler={props.toggleModal} />
-            <PrimaryButton text="REJECT" nextHandler={props.toggleModal} />
-          </View>
+            {props.data && props.data.map((v, i) => {
+              return (<View key={i} style={styles.modalValuesContainer}>
+                <Text>{v.name}</Text>
+                <Text style={styles.modalValues}>{v.value}</Text>
+                <View style={styles.horizontalRule} /></View>)
+            })
+            }
+            <View style={styles.centerContainer}>
+              <PrimaryButton text="ACCEPT" nextHandler={props.toggleModal} />
+              <PrimaryButton text="REJECT" nextHandler={props.toggleModal} />
+            </View>
           </ScrollView>
         </View>
       </Modal>

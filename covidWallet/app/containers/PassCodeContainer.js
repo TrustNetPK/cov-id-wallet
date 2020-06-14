@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
         width: 25
       },
       buttonContainer: {
-          marginTop:'5%'
+          marginTop:'15%'
       }
 });
 
