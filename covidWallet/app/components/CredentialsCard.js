@@ -9,41 +9,43 @@ function CredentialsCard(props) {
             <View style={styles.card}>
                 <ImageBackground source={image} style={styles.image} imageStyle={{ borderRadius: 15 }}>
                     <View style={styles.container}>
-                        <View style={styles.item}>
+                        <View style={styles.cardTextContainer}>
+                        <Text style={styles.card_text}>{props.card_title}</Text>
+                        <Text style={styles.card_text}>{props.card_type}</Text>
                         </View>
-                        <View style={styles.item}>
-                            <Image source={props.card_logo} style={styles.logo} />
-                        </View>
-                        <View style={styles.card_no}>
-                            <Text style={styles.card_text}>{props.card_no}</Text>
-                        </View>
-                        <View style={styles.item}>
+                        <View>
+                        <Image source={props.card_logo} style={styles.logo} />
                         </View>
                     </View>
                     <View style={styles.container}>
                         <View style={styles.item}>
-                            <Text style={styles.card_small_text}>{props.card_user}</Text>
+                        <Image source={props.card_logo} style={{width:30,height:40}} />
                         </View>
                         <View style={styles.item}>
-                            <Text style={styles.card_small_text}>{props.date}</Text>
+                            <Text style={styles.card_small_text}>Issued by</Text>
+                            <Text style={styles.card_small_text}>{props.issuer}</Text>
+
                         </View>
                     </View>
                 </ImageBackground>
             </View>
-
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    cardTextContainer: {
+        padding: 20,
+    },
     logo: {
         width: 50,
+        marginTop: 60,
+        marginRight: 6,
         backgroundColor: 'white',
         height: 40,
     },
-
     card: {
-        width: 280,
+        width: '100%',
         height: 170,
         borderRadius: 20,
         backgroundColor: 'black',
@@ -54,23 +56,22 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     item: {
-        width: '50%',
-        paddingLeft: 40,
-        paddingTop: 30,
+        justifyContent:'center',
     },
-    card_no: {
-        width: '100%',
-        paddingTop: 20,
+    item: {
+        width:'50%',
+        padding: 20,
+        justifyContent:'center',
     },
     card_text: {
         color: 'white',
-        fontSize: 17,
-        paddingLeft: 15,
-        fontWeight: 'bold',
+        fontSize: 23,
+        lineHeight: 22,
+        fontWeight: '100',
     },
     card_small_text: {
         color: 'white',
-        paddingTop: 15,
+        lineHeight: 14,
     },
     image: {
         flex: 1,

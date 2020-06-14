@@ -17,7 +17,7 @@ function CredentialsScreen(props) {
       {isCredential &&
         <View>
           <HeadingComponent text="Credentials" />
-          <CredentialsCard card_no="0000 0000 0000 0000" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
+          <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
         </View>}
       {!isCredential &&
         <View style={styles.EmptyContainer}>
