@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import { savePassCode } from '../helpers/storage';
-import { PRIMARY_COLOR, BLACK_COLOR, GRAY_COLOR } from '../theme/colors';
+import { savePassCode } from '../helpers/Storage';
+import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
 
 function PassCodeContainer({ navigation }) {

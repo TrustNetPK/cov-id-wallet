@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton'
 import Modal from 'react-native-modal';
-import { WHITE_COLOR, GRAY_COLOR } from '../theme/colors';
+import { WHITE_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from './HeadingComponent';
 import { ScrollView } from 'react-native-gesture-handler';
 

@@ -4,7 +4,7 @@ import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/styles';
+import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
 

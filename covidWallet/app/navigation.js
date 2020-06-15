@@ -11,7 +11,7 @@ import NotfiyMeScreen from './screens/NotfiyMeScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsScreen from './screens/SettingsScreen';
 import QRScreen from './screens/QRScreen';
-import { BLACK_COLOR } from './theme/colors';
+import { BLACK_COLOR } from './theme/Colors';
 
 const Stack = createStackNavigator();
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { BLACK_COLOR } from '../theme/colors';
+import { BLACK_COLOR } from '../theme/Colors';
 
 function HeadingComponent(props) {
 

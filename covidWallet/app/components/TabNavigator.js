@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ActionsScreen from '../screens/ActionsScreen';
 import ConnectionsScreen from '../screens/ConnectionsScreen';
 import CredentialsScreen from '../screens/CredentialsScreen';
-import { PRIMARY_COLOR, SECONDARY_COLOR, BLACK_COLOR } from '../theme/colors';
+import { PRIMARY_COLOR, SECONDARY_COLOR, BLACK_COLOR } from '../theme/Colors';
 
 const Tab = createBottomTabNavigator();
 
