@@ -3,7 +3,7 @@ import { View, Text, Linking, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
-import { PRIMARY_COLOR } from '../theme/colors';
+import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 

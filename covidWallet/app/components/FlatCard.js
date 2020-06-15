@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR } from '../theme/colors';
+import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
 function FlatCard(props) {
   return (

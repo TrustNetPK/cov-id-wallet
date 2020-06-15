@@ -1,6 +1,6 @@
 import React from 'react';
 
-import NavigationComponent from './app/navigation';
+import NavigationComponent from './app/Navigation';
 
 const App = () => {
   return (

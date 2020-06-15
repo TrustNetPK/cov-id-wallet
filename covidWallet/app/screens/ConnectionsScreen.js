@@ -4,7 +4,7 @@ import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/styles';
+import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const image = require('../assets/images/visa.jpg')

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { themeStyles } from '../theme/styles';
-import { PRIMARY_COLOR, WHITE_COLOR } from '../theme/colors';
+import { PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 
 function PrimaryButton(props) {
 
