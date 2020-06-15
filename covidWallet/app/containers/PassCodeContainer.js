@@ -1,10 +1,10 @@
-import * as React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode } from '../helpers/Storage';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import React, { useRef } from 'react';
 
 function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);

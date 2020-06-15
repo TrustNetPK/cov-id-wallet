@@ -11,8 +11,8 @@ function CredentialsCard(props) {
                 <ImageBackground source={image} style={styles.image} imageStyle={{ borderRadius: 15 }}>
                     <View style={styles.container}>
                         <View style={styles.cardTextContainer}>
-                        <Text style={styles.card_text}>{props.card_title}</Text>
-                        <Text style={styles.card_text}>{props.card_type}</Text>
+                            <Text style={styles.card_text}>{props.card_title}</Text>
+                            <Text style={styles.card_text}>{props.card_type}</Text>
                         </View>
                         <View style={styles.imageContainer}>
                             <Image source={card_badge} style={styles.logo} />
@@ -20,7 +20,7 @@ function CredentialsCard(props) {
                     </View>
                     <View style={styles.container}>
                         <View style={styles.item1}>
-                        <Image source={props.card_logo} style={{width:30,height:40}} />
+                            <Image source={props.card_logo} style={{ width: 30, height: 40 }} />
                         </View>
                         <View style={styles.item2}>
                             <Text style={styles.card_small_text}>Issued by</Text>
@@ -41,7 +41,6 @@ const styles = StyleSheet.create({
     logo: {
         width: 50,
         marginTop: 50,
-        marginRight: 6,
         height: 70,
     },
     card: {
@@ -56,20 +55,20 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     item: {
-        justifyContent:'center',
+        justifyContent: 'center',
     },
     item1: {
-        width:'20%',
+        width: '20%',
         padding: 20,
-        justifyContent:'center',
+        justifyContent: 'center',
     },
     item2: {
-        width:'80%',
+        width: '80%',
         padding: 20,
-        justifyContent:'center',
+        justifyContent: 'center',
     },
     imageContainer: {
-        
+
     },
     card_text: {
         color: 'white',

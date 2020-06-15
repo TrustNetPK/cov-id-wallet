@@ -16,6 +16,8 @@ function ModalComponent(props) {
       flex: 1,
       backgroundColor: WHITE_COLOR,
       borderRadius: 10,
+      marginTop: "20%",
+      marginBottom: "10%",
     },
     centerContainer: {
       alignItems: 'center',

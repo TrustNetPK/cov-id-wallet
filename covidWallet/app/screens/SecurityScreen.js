@@ -14,18 +14,21 @@ function SecurityScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ flex: 4, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
         <ImageBoxComponent
           source={img}
         />
       </View>
-      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
+
+      <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <Text style={styles.TextContainerHead}>Be Secure</Text>
         <TextComponent onboarding={true} text="Using biometric security significantly reduces the chances
-                your account will be compromised in case your phone is lost or stolen."/>
+                your account will be compromised in case your phone is lost or stolen." />
+      </View>
+      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <PrimaryButton text="Enable Face ID" nextHandler={nextHandler} />
       </View>
-    </View>
+    </View >
   );
 }
 

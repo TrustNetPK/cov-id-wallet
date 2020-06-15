@@ -17,15 +17,18 @@ function NotfiyMeScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    <View style={{ flex: 5.5, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
         <ImageBoxComponent
           source={img}
         />
       </View>
-      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
         <Text style={styles.TextContainerHead}>Stay Notified</Text>
         <TextComponent onboarding={true} text="We use push notifications to deliver messages for important events,
           such as when you recieve a new vaccination certificate."/>
+
+      </View>
+      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <PrimaryButton text="Enable Notifications" nextHandler={nextHandler} />
         <Text style={styles.TextContainerEnd}
           onPress={nextHandler} >Continue without alerts</Text>

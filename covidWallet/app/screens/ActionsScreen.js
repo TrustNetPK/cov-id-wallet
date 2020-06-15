@@ -14,8 +14,8 @@ function ActionsScreen(props) {
   const [isAction, setAction] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
   const data = [
-    { name: 'First Name', value: 'Umer' },
-    { name: 'Last Name', value: 'Shafiq' },
+    { name: 'First Name', value: 'John' },
+    { name: 'Last Name', value: 'Doe' },
     { name: 'Birthday', value: '01-01-1990' },
     { name: 'Locality', value: 'Helisinki' },
     { name: 'Address', value: 'Khaleefa Heights, Champs Elysee' },
