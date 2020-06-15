@@ -32,7 +32,7 @@ function TabNavigator() {
       },
     })}
       tabBarOptions={{
-        activeTintColor: BLACK_COLOR,
+        activeTintColor: PRIMARY_COLOR,
         inactiveTintColor: SECONDARY_COLOR,
       }}>
       <Tab.Screen name="Actions" component={ActionsScreen} />
