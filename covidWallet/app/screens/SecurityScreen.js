@@ -9,7 +9,7 @@ const img = require('../assets/images/security.png');
 function SecurityScreen({ navigation }) {
 
   nextHandler = () => {
-    navigation.navigate('PassCodeContainer');
+    navigation.replace('PassCodeContainer');
   }
 
   return (

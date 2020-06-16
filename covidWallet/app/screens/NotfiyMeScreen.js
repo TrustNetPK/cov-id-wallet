@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { View, Image, Text, StyleSheet, Linking } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Image, Text, StyleSheet, BackHandler ,Alert} from 'react-native';
 import { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
@@ -10,6 +10,31 @@ const img = require('../assets/images/notifications.png');
 
 function NotfiyMeScreen({ navigation }) {
   const [isEnabled, setIsEnabled] = useState(false);
+
+  useEffect(()=>{
+    BackHandler.addEventListener('hardwareBackPress', () => {
+      Alert.alert(
+        'Exit App',
+        'Are you sure to exit the application?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {},
+            style: 'cancel'
+          },
+          {
+            text: 'OK',
+            onPress: () => BackHandler.exitApp()
+          }
+        ],
+        {
+          cancelable: false
+        }
+      );
+      return true;
+  }); 
+  return BackHandler.removeEventListener('hardwareBackPress');
+  },[]);
 
   nextHandler = () => {
     navigation.navigate('MainScreen');
