@@ -83,10 +83,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     textAlign: 'center',
-    paddingLeft: 20, paddingRight: 20, marginLeft: 30
+    paddingLeft: 0, paddingRight: 0,
   },
   checkbox: {
-    alignSelf: "center"
+    paddingTop:'2%'
   },
   linkText: {
     color: PRIMARY_COLOR,
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
   link: {
     color: 'black',
     fontSize: 14,
+
     marginBottom: 20
   },
 });
