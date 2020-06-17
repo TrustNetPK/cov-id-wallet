@@ -5,36 +5,13 @@ import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
+import {useRoute} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const img = require('../assets/images/notifications.png');
 
-function NotfiyMeScreen({ navigation }) {
+function NotifyMeScreen({ navigation }) {
   const [isEnabled, setIsEnabled] = useState(false);
-
-  useEffect(()=>{
-    BackHandler.addEventListener('hardwareBackPress', () => {
-      Alert.alert(
-        'Exit App',
-        'Are you sure to exit the application?',
-        [
-          {
-            text: 'Cancel',
-            onPress: () => {},
-            style: 'cancel'
-          },
-          {
-            text: 'OK',
-            onPress: () => BackHandler.exitApp()
-          }
-        ],
-        {
-          cancelable: false
-        }
-      );
-      return true;
-  }); 
-  return BackHandler.removeEventListener('hardwareBackPress');
-  },[]);
 
   nextHandler = () => {
     navigation.navigate('MainScreen');
@@ -71,4 +48,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotfiyMeScreen;
+export default NotifyMeScreen;
