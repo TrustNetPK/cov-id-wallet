@@ -6,6 +6,7 @@ import TabNavigator from './components/TabNavigator';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeContainer from './containers/PassCodeContainer';
 import WelcomeScreen from './screens/WelcomeScreen';
+import SecureIdContainer from './containers/SecureIdContainer';
 import SecurityScreen from './screens/SecurityScreen';
 import NotifyMeScreen from './screens/NotifyMeScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -27,6 +28,7 @@ function NavigationComponent() {
         <Stack.Screen options={{ headerShown: false }} name="PassCodeContainer" component={PassCodeContainer} />
         <Stack.Screen options={{ headerShown: false }} name="WelcomeScreen" component={WelcomeScreen} />
         <Stack.Screen options={{ headerShown: false }} name="SecurityScreen" component={SecurityScreen} />
+        <Stack.Screen options={{ headerShown: false }} name="SecureidContainer" component={SecureIdContainer} />
         <Stack.Screen options={{ headerShown: false }} name="NotifyMeScreen" component={NotifyMeScreen} />
         <Stack.Screen options={{ headerShown: false }} name="SettingsScreen" component={SettingsScreen} />
         <Stack.Screen options={{ headerShown: false }} name="QRScreen" component={QRScreen} />
