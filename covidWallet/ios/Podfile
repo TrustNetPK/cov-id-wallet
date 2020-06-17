@@ -82,7 +82,7 @@ target 'covidWallet' do
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
 
   pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
-
+  pod 'react-native-fingerprint-scanner', :path => '../node_modules/react-native-fingerprint-scanner'
   target 'covidWalletTests' do
     inherit! :complete
     # Pods for testing
