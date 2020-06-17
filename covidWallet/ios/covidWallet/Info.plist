@@ -72,6 +72,8 @@
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
+	<key>NSFaceIDUsageDescription</key>
+<string>VAXN Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
