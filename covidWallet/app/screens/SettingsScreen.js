@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
 import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView'
+import HeadingComponent from '../components/HeadingComponent'
 
 var settingLocalData = {
   GENERAL: {
@@ -60,6 +61,7 @@ export default function SettingsScreen () {
   }
   return (
     <View style={styles.container}>
+      <HeadingComponent text="Settings" />
       <FlatList
         data={Object.keys(settingsData)}
         keyExtractor={(item, index) => settingsData[item].key}

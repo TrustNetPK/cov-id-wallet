@@ -39,7 +39,7 @@ function PassCodeContainer({ navigation }) {
                 else {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
-                        navigation.replace('NotfiyMeScreen')
+                        navigation.replace('NotifyMeScreen')
                     }).catch(e => {
                         setHeading('Error')
                     })
