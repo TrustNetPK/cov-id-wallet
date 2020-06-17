@@ -39,6 +39,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow Vaccify to take Pictures?</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Vaccify Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -72,8 +74,6 @@
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
-	<key>NSFaceIDUsageDescription</key>
-<string>VAXN Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
