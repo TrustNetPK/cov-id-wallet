@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode } from '../helpers/Storage';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
-import React, { useRef } from 'react';
+
 
 function PassCodeContainer({ navigation }) {
     const [firstPassCode, setFirstPassCode] = useState(0);
@@ -39,17 +39,13 @@ function PassCodeContainer({ navigation }) {
                 else {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
-                        navigation.navigate('NotfiyMeScreen')
+                        navigation.replace('NotfiyMeScreen')
                     }).catch(e => {
                         setHeading('Error')
                     })
                 }
             }
         }
-    }
-
-    onChangePassCode = () => {
-
     }
 
     return (
@@ -71,6 +67,7 @@ function PassCodeContainer({ navigation }) {
                         style={styles.textBox}
                         keyboardType='numeric'
                         maxLength={6}
+                        autoFocus={true}
                         caretHidden={true}
                         onChangeText={(secondPassCode) => setSecondPassCode(secondPassCode)}
                     />}
