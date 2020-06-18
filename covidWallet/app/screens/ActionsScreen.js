@@ -13,6 +13,7 @@ const image = require('../assets/images/visa.jpg')
 function ActionsScreen(props) {
   const [isAction, setAction] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
+  
   const data = [
     { name: 'First Name', value: 'John' },
     { name: 'Last Name', value: 'Doe' },
@@ -20,6 +21,11 @@ function ActionsScreen(props) {
     { name: 'Locality', value: 'Helisinki' },
     { name: 'Address', value: 'Khaleefa Heights, Champs Elysee' },
     { name: 'Country Name', value: 'Finland' },
+  ];
+
+  const actions = [
+    { heading: 'Connection Request', text: 'Tap to view the connection request from Agha Khan Hospital Karachi' },
+    { heading: 'Vaccination Certificate', text: 'Tap to accept the immunity certificate from Agha Khan Hospital, Karachi' },
   ]
 
   const toggleModal = () => {
@@ -32,12 +38,13 @@ function ActionsScreen(props) {
         <View>
           <HeadingComponent text="Actions" />
           <ModalComponent data={data} isVisible={isModalVisible} toggleModal={toggleModal} />
-          <TouchableOpacity onPress={() => toggleModal()}>
-            <FlatCard image={image} heading="Connection Request" text="Tap to view the connection request from Agha Khan Hospital, Karachi" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleModal()}>
-            <FlatCard image={image} heading="Vaccination Certificate" text="Tap to accept the immunity certificate from Agha Khan Hospital, Karachi" />
-          </TouchableOpacity>
+          {
+            actions.map((v, i) => {
+              return  <TouchableOpacity key={i} onPress={() => toggleModal()}>
+                        <FlatCard image={image} heading={v.heading} text={v.text} />
+                      </TouchableOpacity>
+            })
+          }
         </View>
       }
       {!isAction &&
