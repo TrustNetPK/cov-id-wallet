@@ -5,6 +5,9 @@ import Modal from 'react-native-modal';
 import { WHITE_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from './HeadingComponent';
 import { ScrollView } from 'react-native-gesture-handler';
+import CredentialsCard from './CredentialsCard';
+
+const card_logo = require('../assets/images/visa.jpg')
 
 function ModalComponent(props) {
 
@@ -15,14 +18,13 @@ function ModalComponent(props) {
     ModalChildContainer: {
       flex: 1,
       backgroundColor: WHITE_COLOR,
-      borderRadius: 10,
-      marginTop: "20%",
-      marginBottom: "10%",
+      borderRadius: 15,
+      marginTop: "10%",
+      marginBottom: "2%",
     },
     centerContainer: {
       alignItems: 'center',
       paddingBottom: 20,
-      paddingTop: 10,
     },
     modalValues: {
       color: GRAY_COLOR,
@@ -45,6 +47,7 @@ function ModalComponent(props) {
     <View style={styles.ModalComponent}>
       <Modal hideModalContentWhileAnimating={true} useNativeDriver={false} isVisible={props.isVisible}>
         <View style={styles.ModalChildContainer}>
+          {props.credentials && <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />}
           <View style={styles.centerContainer}>
             <HeadingComponent text="Details" />
           </View>
