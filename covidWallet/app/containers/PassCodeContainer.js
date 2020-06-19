@@ -4,6 +4,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode } from '../helpers/Storage';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import ErrorComponent from '../components/ErrorComponent';
 
 
 function PassCodeContainer({ navigation }) {
@@ -88,7 +89,7 @@ function PassCodeContainer({ navigation }) {
                     <View style={[styles.circle, secondPassCode.length >= 5 && styles.circleFill]}></View>
                     <View style={[styles.circle, secondPassCode.length >= 6 && styles.circleFill]}></View>
                 </View>}
-                {error.length > 0 ? <Text style={styles.errorText}>{error}</Text> : null}
+                {error.length > 0 ? <ErrorComponent text={error} /> : null}
             </View>
             <View style={styles.buttonContainer}><PrimaryButton text={btnText} nextHandler={nextHandler} /></View>
         </View>);
@@ -140,11 +141,7 @@ const styles = StyleSheet.create({
         marginRight: 12,
         width: 25
     },
-    errorText: {
-        marginTop: '10%',
-        textAlign: 'center',
-        justifyContent: 'center'
-    },
+
     buttonContainer: {
         marginTop: '15%'
     }
