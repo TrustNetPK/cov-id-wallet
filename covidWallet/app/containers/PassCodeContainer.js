@@ -4,6 +4,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode } from '../helpers/Storage';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import ErrorComponent from '../components/ErrorComponent';
 
 
 function PassCodeContainer({ navigation }) {
@@ -18,7 +19,7 @@ function PassCodeContainer({ navigation }) {
         setError('')
         if (stage == 0) {
             if (firstPassCode.length == undefined || firstPassCode.length < 6) {
-                setError("please enter a valid passcode")
+                setError("Please enter a valid passcode.")
             }
             else {
                 setStage(stage + 1)
@@ -28,12 +29,12 @@ function PassCodeContainer({ navigation }) {
         }
         else if (stage == 1) {
             if (secondPassCode.length == undefined || secondPassCode.length < 6) {
-                setError("please enter a valid passcode")
+                setError("Please enter a valid passcode.")
             }
 
             else {
                 if (firstPassCode !== secondPassCode) {
-                    setError('passcodes dont match')
+                    setError('Passcode does not match')
                 }
 
                 else {
@@ -88,7 +89,7 @@ function PassCodeContainer({ navigation }) {
                     <View style={[styles.circle, secondPassCode.length >= 5 && styles.circleFill]}></View>
                     <View style={[styles.circle, secondPassCode.length >= 6 && styles.circleFill]}></View>
                 </View>}
-                {error.length > 0 ? <Text>{error}</Text> : null}
+                {error.length > 0 ? <ErrorComponent text={error} /> : null}
             </View>
             <View style={styles.buttonContainer}><PrimaryButton text={btnText} nextHandler={nextHandler} /></View>
         </View>);
@@ -140,6 +141,7 @@ const styles = StyleSheet.create({
         marginRight: 12,
         width: 25
     },
+
     buttonContainer: {
         marginTop: '15%'
     }
