@@ -45,6 +45,11 @@ static void InitializeFlipper(UIApplication *application) {
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   [RNSplashScreen show];
+  if (@available(iOS 13.0, *)) {
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDarkContent animated:YES];
+  } else {
+    // Fallback on earlier versions
+  }
   return YES;
 }
 

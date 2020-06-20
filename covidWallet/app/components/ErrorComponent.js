@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
-import { PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR, WHITE_COLOR, RED_COLOR } from '../theme/Colors';
 
 function ErrorComponent(props) {
 
     const styles = StyleSheet.create({
         text: {
-            color: PRIMARY_COLOR,
+            color: RED_COLOR,
             marginTop: '10%',
             textAlign: 'center',
             justifyContent: 'center'
