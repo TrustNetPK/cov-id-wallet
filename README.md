@@ -2,7 +2,7 @@
 A cross-platform digital wallet mobile app that enables people to store and prove COVID-19 digital verifiable credentials. This project works in combination with [Aries Cloud Agency](https://github.com/TrustNetPK/aries-cloudagency-python) and [Aries Cloud Agents](https://github.com/TrustNetPK/cov-id-cloud-agent). You can make it work with any custom [ACA-PY](https://github.com/hyperledger/aries-cloudagent-python) cloud agent. However the app depends on agency multi-tenatn wallet handling.
 
 # Visuals
-![app screenshots](app-visuals.png)
+![app screenshots](visuals.png)
 
 # How to build and run
 ```
