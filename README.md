@@ -1,5 +1,26 @@
 # COV-ID Wallet
-A digital wallet mobile app that enables people to store and prove COVID-19 digital verifiable credentials.
+A cross-platform digital wallet mobile app that enables people to store and prove COVID-19 digital verifiable credentials. This project works in combination with [Aries Cloud Agency](https://github.com/TrustNetPK/aries-cloudagency-python) and [Aries Cloud Agents](https://github.com/TrustNetPK/cov-id-cloud-agent). You can make it work with any custom [ACA-PY](https://github.com/hyperledger/aries-cloudagent-python) cloud agent. However the app depends on agency multi-tenatn wallet handling.
+
+
+# How to build and run
+```
+git clone https://github.com/TrustNetPK/cov-id-wallet.git
+cd cov-id-wallet
+yarn
+cd cov-id-wallet/ios
+pod install
+```
+For iOS:
+```
+yarn ios
+```
+For Android:
+```
+yarn android
+```
+
+# Visuals
+
 
 
 # License 
