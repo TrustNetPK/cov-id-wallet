@@ -1,20 +1,33 @@
-import React, { useEffect } from 'react';
-import { View, Image, Text, StyleSheet, BackHandler ,Alert} from 'react-native';
-import { useState } from 'react';
+import React from 'react';
+import { View, Image, Text, StyleSheet, BackHandler, Alert } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
-import {useRoute} from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
 
+//import { AuthContext } from '../helpers/AuthContext'
+import { AuthContext } from '../Navigation'
+import { isFirstTime } from '../helpers/Storage';
 const img = require('../assets/images/notifications.png');
 
-function NotifyMeScreen({ navigation }) {
-  const [isEnabled, setIsEnabled] = useState(false);
 
+function NotifyMeScreen({ navigation }) {
+  //const [isEnabled, setIsEnabled] = useState(false);
+  const { isFirstTimeFunction } = React.useContext(AuthContext)
+  storeData = async () => {
+    try {
+      await AsyncStorage.setItem(
+        'isfirstTime',
+        'false'
+      );
+      isFirstTimeFunction({})
+    } catch (error) {
+      // Error saving data
+    }
+  };
   nextHandler = () => {
-    navigation.navigate('MainScreen');
+    storeData()
+    //navigation.navigate('MainScreen');
   }
 
   return (
@@ -31,9 +44,9 @@ function NotifyMeScreen({ navigation }) {
 
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-        <PrimaryButton text="Enable Notifications" nextHandler={nextHandler} />
+        <PrimaryButton text="Enable Notifications" nextHandler={isFirstTimeFunction()} />
         <Text style={styles.TextContainerEnd}
-          onPress={nextHandler} >Continue without alerts</Text>
+          onPress={nextHandler()} >Continue without alerts</Text>
       </View>
     </View>
   );
