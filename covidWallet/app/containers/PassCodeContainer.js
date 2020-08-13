@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
-import { savePassCode } from '../helpers/Storage';
+import { savePassCode, isFirstTime } from '../helpers/Storage';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import AsyncStorage from '@react-native-community/async-storage';
 import ErrorComponent from '../components/ErrorComponent';
 
 
@@ -14,6 +15,17 @@ function PassCodeContainer({ navigation }) {
     const [btnText, setBtnText] = useState('Create');
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
+
+    storeData = async () => {
+        try {
+            await AsyncStorage.setItem(
+                'isfirstTime',
+                'false'
+            );
+        } catch (error) {
+            // Error saving data
+        }
+    };
 
     nextHandler = () => {
         setError('')
@@ -41,6 +53,7 @@ function PassCodeContainer({ navigation }) {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
                         navigation.replace('NotifyMeScreen')
+                        storeData()
                     }).catch(e => {
                         setHeading('Error')
                     })
