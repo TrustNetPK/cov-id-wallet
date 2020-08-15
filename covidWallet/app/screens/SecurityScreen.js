@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AlertIOS, StyleSheet, View, Text, Alert, Platform } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import PrimaryButton from '../components/PrimaryButton';
@@ -106,7 +106,7 @@ function SecurityScreen({ navigation }) {
                 your account will be compromised in case your phone is lost or stolen." />
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-      <PrimaryButton text="Enable Secure ID" nextHandler={enableSecureID} />
+        <PrimaryButton text="Enable Secure ID" nextHandler={enableSecureID} />
       </View>
     </View >
   );
