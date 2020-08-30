@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacityBase } from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
@@ -7,28 +7,33 @@ import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
-
+import { getCredentials } from '../helpers/Storage';
+import ConstantsList from '../helpers/ConfigApp';
+import { ScrollView } from 'react-native-gesture-handler';
 const image = require('../assets/images/visa.jpg')
 
 function ActionsScreen(props) {
   const [isAction, setAction] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
-  
-  const data = [
-    { name: 'First Name', value: 'John' },
-    { name: 'Last Name', value: 'Doe' },
-    { name: 'Birthday', value: '01-01-1990' },
-    { name: 'Locality', value: 'Helisinki' },
-    { name: 'Address', value: 'Khaleefa Heights, Champs Elysee' },
-    { name: 'Country Name', value: 'Finland' },
-  ];
+  const [actionsList, setActionsList] = useState([]);
+  const [modalData, setModalData] = useState([]);
 
-  const actions = [
-    { heading: 'Connection Request', text: 'Tap to view the connection request from Agha Khan Hospital Karachi' },
-    { heading: 'Vaccination Certificate', text: 'Tap to accept the immunity certificate from Agha Khan Hospital, Karachi' },
-  ]
+  useEffect(() => {
+    getCredentials(ConstantsList.CERT_REQ).then((actions) => {
+      if (actions == null) {
+        setAction(false);
+      }
+      else {
+        setActionsList(JSON.parse(actions));
+        setAction(true);
+      }
+    }).catch(e => {
 
-  const toggleModal = () => {
+    })
+  }, [actionsList]);
+
+  const toggleModal = (v) => {
+    setModalData(v);
     setModalVisible(!isModalVisible);
   };
 
@@ -37,12 +42,16 @@ function ActionsScreen(props) {
       {isAction &&
         <View>
           <HeadingComponent text="Actions" />
-          <ModalComponent data={data} isVisible={isModalVisible} toggleModal={toggleModal} />
+          <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} />
           {
-            actions.map((v, i) => {
-              return  <TouchableOpacity key={i} onPress={() => toggleModal()}>
-                        <FlatCard image={image} heading={v.heading} text={v.text} />
-                      </TouchableOpacity>
+            actionsList !== undefined && actionsList.map((v, i) => {
+              let header = String(v.type === "connection_credential" ? "Vaccination Certificate Request" : "Vaccination Proof Request");
+              let subtitle = "Click to view the " + header.toLowerCase() + " from " + v.org.name;
+              return <TouchableOpacity key={i} onPress={() => toggleModal(v.data)}>
+                <ScrollView showsVerticalScrollIndicator={true}>
+                  <FlatCard image={image} heading={header} text={subtitle} />
+                </ScrollView>
+              </TouchableOpacity>
             })
           }
         </View>

@@ -15,6 +15,14 @@ export const getPassCode = async () => {
     }
 }
 
+export const saveCredentials = async (key, value) => {
+    return await AsyncStorage.setItem(key, value);
+}
+
+export const getCredentials = async (key) => {
+    return await AsyncStorage.getItem(key);
+}
+
 export const isFirstTime = async (value) => {
     return await AsyncStorage.setItem('isFirstTime', value)
 }
