@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -13,80 +14,140 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
+import { getCredentials, saveCredentials } from '../helpers/Storage';
+import ConstantsList from '../helpers/ConfigApp';
+function QRScreen({ navigation }) {
+  const [scan, setScan] = useState(true);
+  const [certificate_request, setCertificateRequest] = useState("");
+  const [proof_request, setProofRequest] = useState('');
+  var arr = [];
 
-class QRScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      scan: true,
-    }
-  }
+  useEffect(() => {
 
-  onSuccess = e => {
-    Alert.alert(
-      'VACCIFY',
-      'QR Code Result is ' + e.data,
-      [
-        { text: 'OK', onPress: () => this.props.navigation.navigate('MainScreen') }
-      ],
-      { cancelable: false }
-    );
-    this.setState({ scan: (this.state.scan = false) })
-
-  }
-
-
-  render() {
-    const { navigate } = this.props.navigation;
-
-    return (
-      <View style={styles.MainContainer}>
-        {this.state.scan &&
-          <QRCodeScanner
-            reactivate={true}
-            showMarker={true}
-            customMarker={
-              <View style={
-                {
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'transparent'
-                }
-              }>
-                <View style={
-                  {
-                    height: 250,
-                    width: 250,
-                    borderWidth: 2,
-                    borderColor: 'white',
-                    backgroundColor: 'transparent'
-                  }
-                } />
-              </View>
-            }
-            ref={(node) => { this.scanner = node }}
-            onRead={this.onSuccess}
-            topContent={
-              <Text style={styles.textBold}>
-                Point your camera to a QR code to scan
-            </Text>
-            }
-            bottomContent={
-              <TouchableOpacity style={styles.buttonTouchable} onPress={() => {
-                navigate('MainScreen')
-              }}>
-                <Text style={styles.buttonText}>Cancel Scan</Text>
-              </TouchableOpacity>
-            }
-
-          />
+    getCredentials(ConstantsList.CERT_REQ).then((data) => {
+      //console.log("Wallet " + data);
+      if (data == null) {
+        arr = [];
+      }
+      else {
+        try {
+          arr = JSON.parse(data);
+          //arr.push(JSON.parse(data));
+        }
+        catch (e) {
+          arr = [];
         }
 
-      </View>
+      }
+      // console.log("CERT_REQ: " + JSON.stringify(arr));
+      console.log("data value " + data);
+      // console.log("arr length get credential " + arr.length);
+      setCertificateRequest(JSON.stringify(arr));
+    }).catch(e => {
+      setError('Error');
+    })
+  }, []);
+
+  const onSuccess = (e) => {
+    let title = "";
+    //arr = [];
+    //console.log("Condition length>0 " + arr.length != 0);
+    try {
+      arr = JSON.parse(certificate_request);
+      //console.log("Certificate Request" + JSON.stringify(arr));
+    }
+    catch{
+      arr = [];
+    }
+
+    const qrJSON = JSON.parse(e.data);
+    if (qrJSON.type == "connection_credential") {
+      title = "Vaccination Certificate Request Added";
+
+      //title = JSON.stringify (arr);
+      arr.push(qrJSON);
+      console.log("arrs length " + arr.length);
+      saveCredentials(ConstantsList.CERT_REQ, JSON.stringify(arr)).then(() => {
+        //title = "safi" + certificate_request;
+
+        //console.log("Certificate Request" + JSON.stringify(arr));
+      }).catch(e => {
+
+      })
+    }
+    else if (qrJSON.type == "connection_proof") {
+      title = "Vaccination Proof Request Added";
+      setProofRequest(JSON.stringify(arr.push(qrJSON)));
+      saveCredentials(ConstantsList.PROOF_REQ, certificate_request).then(() => {
+
+      }).catch(e => {
+
+      })
+    }
+    else {
+      title = "Invalid QR Code";
+    }
+    Alert.alert(
+      'VACCIFY',
+      title,
+      [
+        { text: 'OK', onPress: () => navigation.navigate('MainScreen') }
+      ],
+      { cancelable: false }
+
     );
+    setScan(false);
+    //setScan(false);
+
   }
+  return (
+    <View style={styles.MainContainer}>
+      {scan &&
+        <QRCodeScanner
+          reactivate={true}
+          showMarker={true}
+          customMarker={
+            <View style={
+              {
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'transparent'
+              }
+            }>
+              <View style={
+                {
+                  height: 250,
+                  width: 250,
+                  borderWidth: 2,
+                  borderColor: 'white',
+                  backgroundColor: 'transparent'
+                }
+              } />
+            </View>
+          }
+          ref={(node) => { scanner = node }}
+          onRead={onSuccess}
+          topContent={
+            <Text style={styles.textBold}>
+              Point your camera to a QR code to scan
+            </Text>
+          }
+          bottomContent={
+            <TouchableOpacity style={styles.buttonTouchable} onPress={() => {
+              navigation.navigate('MainScreen')
+            }}>
+              <Text style={styles.buttonText}>Cancel Scan</Text>
+            </TouchableOpacity>
+          }
+
+        />
+      }
+
+    </View>
+  );
 }
+
 
 const styles = StyleSheet.create({
   sectionContainer: {

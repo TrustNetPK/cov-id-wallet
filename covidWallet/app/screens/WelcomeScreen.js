@@ -1,11 +1,14 @@
 import * as React from 'react';
-import { View, Text, Linking, StyleSheet } from 'react-native';
-import { useState } from 'react';
+import { View, Text, Linking, StyleSheet, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
+import ConstantsList from '../helpers/ConfigApp';
+import randomString from '../helpers/RandomString';
+import { saveCredentials } from '../helpers/Storage';
 
 const img = require('../assets/images/t&c.png');
 
@@ -16,7 +19,36 @@ var radio_props = [
 function WelcomeScreen({ navigation }) {
   const [error, setError] = useState('');
   const [isChecked, setChecked] = useState(false);
+  const [isLoading, setLoading] = useState(true);
+  const [wallet_secret, setSecret] = useState('');
+  const [wallet_name] = useState(randomString(8));
   const [isRadio, setRadio] = useState('false');
+
+  useEffect(() => {
+    saveWalletSecret();
+    fetch(ConstantsList.BASE_URL + `/create_wallet`,
+      {
+        method: 'POST',
+        headers: {
+          'X-API-Key': 'secret',
+          'Content-Type': 'application/json; charset=utf-8',
+          'Server': 'Python/3.6 aiohttp/3.6.2'
+        },
+        body: JSON.stringify({
+          wallet_name: wallet_name,
+          seed: randomString(32)
+        })
+      }).then((
+        resp => resp.json().then((data => {
+          // save data in async storage
+          setLoading(false);
+          setSecret(data.wallet_secret);
+          console.log(data.wallet_secret);
+        })))).catch(e => {
+          setError(e)
+        })
+  }, []);
+
 
   const checkHandler = () => {
     if (!isChecked) {
@@ -24,14 +56,32 @@ function WelcomeScreen({ navigation }) {
       setRadio('true');
     }
   }
+  const saveWalletSecret = async () => {
+    try {
+      await AsyncStorage.setItem(
+        ConstantsList.WALLET_NAME,
+        wallet_name
+      );
 
-  nextHandler = () => {
+    } catch (error) {
+      // Error saving data
+      setError(error)
+    }
+  }
+
+  const nextHandler = () => {
     setError('')
     if (!isChecked) {
       setError("Please agree with the terms and conditions.")
     }
     else {
-      navigation.navigate('SecurityScreen');
+      saveCredentials(ConstantsList.WALLET_SECRET, wallet_secret).then(() => {
+        saveWalletSecret();
+        navigation.navigate('SecurityScreen');
+      }).catch(e => {
+        setError('Error')
+      })
+
     }
   }
 
@@ -43,7 +93,7 @@ function WelcomeScreen({ navigation }) {
         />
       </View>
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-        <Text style={styles.TextContainerHead}>Welcome!</Text>
+        <Text style={styles.TextContainerHead}></Text>
         <TextComponent onboarding={true} text="Let's create your self-soverign identity.This app helps you exchange secure vaccination proof against COVID-19." />
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
@@ -63,7 +113,7 @@ function WelcomeScreen({ navigation }) {
           </View>
         </View>
         {error.length > 0 ? <Text style={styles.ErrorBox}>{error}</Text> : null}
-        <PrimaryButton text="Continue" nextHandler={nextHandler} />
+        {isLoading ? <ActivityIndicator size="large" color={PRIMARY_COLOR} /> : <PrimaryButton text="Continue" nextHandler={nextHandler} />}
       </View>
     </View>
 
@@ -86,7 +136,7 @@ const styles = StyleSheet.create({
     paddingLeft: 0, paddingRight: 0,
   },
   checkbox: {
-    paddingTop:'2%'
+    paddingTop: '2%'
   },
   linkText: {
     color: PRIMARY_COLOR,
