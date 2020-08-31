@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   heading: {
     color: BLACK_COLOR,
     fontSize: 15,
-    paddingLeft: 10,
+    paddingLeft: 10
   },
   card: {
     width: '100%',
@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     backgroundColor: WHITE_COLOR,
-    height: 50
+    height: 50,
+    resizeMode: 'contain'
   },
   row1: {
     width: '25%',

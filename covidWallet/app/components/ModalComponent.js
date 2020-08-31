@@ -29,7 +29,11 @@ function ModalComponent(props) {
     modalValues: {
       color: GRAY_COLOR,
       fontSize: 18,
+      marginBottom: "2%"
 
+    },
+    modalTitles: {
+      marginTop: "2%"
     },
     horizontalRule: {
       borderBottomColor: GRAY_COLOR,
@@ -40,63 +44,69 @@ function ModalComponent(props) {
       alignSelf: 'center',
       paddingLeft: 10,
       paddingRight: 10,
-      paddingTop: 20
+      paddingTop: 10
+    },
+    cross: {
+      width: 10,
+      height: 10,
+      resizeMode: 'contain'
     }
   });
 
   return (
     <View style={styles.ModalComponent}>
-      <Modal hideModalContentWhileAnimating={true} useNativeDriver={false} isVisible={props.isVisible} >
+      <Modal hideModalContentWhileAnimating={true} useNativeDriver={false} isVisible={props.isVisible}>
         <View style={styles.ModalChildContainer}>
-          {props.credentials && <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />}
+          {props.credentials && <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="WeCare University Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />}
           <View style={styles.centerContainer}>
             <HeadingComponent text="Details" />
           </View>
           <ScrollView>
 
             {props.data !== undefined && (<View style={styles.modalValuesContainer}>
-              <Text>First Name</Text>
+              <Text style={styles.modalTitles}>First Name</Text>
               <Text style={styles.modalValues}>{String(props.data.firstname)}</Text>
-              <Text>Last Name</Text>
+              <Text style={styles.modalTitles}>Last Name</Text>
               <Text style={styles.modalValues}>{String(props.data.lastname)}</Text>
-              <Text>Gender</Text>
+              <Text style={styles.modalTitles}>Gender</Text>
               <Text style={styles.modalValues}>{props.data.gender}</Text>
-              <Text>Data of Birth</Text>
+              <Text style={styles.modalTitles}>Data of Birth</Text>
               <Text style={styles.modalValues}>{props.data.dob}</Text>
-              <Text>Nationality</Text>
+              <Text style={styles.modalTitles}>Nationality</Text>
               <Text style={styles.modalValues}>{props.data.nationality}</Text>
-              <Text>Document Type</Text>
+              <Text style={styles.modalTitles}>Document Type</Text>
               <Text style={styles.modalValues}>{props.data.doctype}</Text>
-              <Text>Document ID</Text>
+              <Text style={styles.modalTitles}>Document ID</Text>
               <Text style={styles.modalValues}>{props.data.docID}</Text>
-              <Text>Vaccination Name</Text>
+              <Text style={styles.modalTitles}>Vaccination Name</Text>
               <Text style={styles.modalValues}>{props.data.vacName}</Text>
-              <Text>Batch</Text>
+              <Text style={styles.modalTitles}>Batch</Text>
               <Text style={styles.modalValues}>{props.data.batch}</Text>
-              <Text>Dose</Text>
+              <Text style={styles.modalTitles}>Dose</Text>
               <Text style={styles.modalValues}>{props.data.dose}</Text>
-              <Text>Next Booster Date</Text>
+              <Text style={styles.modalTitles}>Next Booster Date</Text>
               <Text style={styles.modalValues}>{props.data.nextBoosterDate}</Text>
-              <Text>Vaccinator Name</Text>
+              <Text style={styles.modalTitles}>Vaccinator Name</Text>
               <Text style={styles.modalValues}>{props.data.vaccinatorName}</Text>
-              <Text>Accreditor Credential Defination ID</Text>
+              <Text style={styles.modalTitles}>Accreditor Credential Defination ID</Text>
               <Text style={styles.modalValues}>{props.data.accreditor_cred_def_id}</Text>
-              <Text>Vaccination Organization</Text>
+              <Text style={styles.modalTitles}>Vaccination Organization</Text>
               <Text style={styles.modalValues}>{props.data.vaccinator_org}</Text>
-              <Text>Vaccination Organization Type</Text>
+              <Text style={styles.modalTitles}>Vaccination Organization Type</Text>
               <Text style={styles.modalValues}>{props.data.vaccinator_org_type}</Text>
-              <Text>Vaccination Oragnization Location</Text>
+              <Text style={styles.modalTitles}>Vaccination Oragnization Location</Text>
               <Text style={styles.modalValues}>{props.data.vaccinator_org_loc}</Text>
-              <Text>Validation Duration</Text>
+              <Text style={styles.modalTitles}>Validation Duration</Text>
               <Text style={styles.modalValues}>{props.data.validate_from} to {props.data.validTill}</Text>
-
-              <View style={styles.horizontalRule} /></View>)
+            </View>)
             }
-            <View style={styles.centerContainer}>
-              <PrimaryButton text="Accept" nextHandler={props.toggleModal} />
-              <PrimaryButton text="Reject" nextHandler={props.toggleModal} />
-            </View>
           </ScrollView>
+          <View style={styles.horizontalRule} />
+          <View style={styles.centerContainer}>
+            {props.modalType === 'action' && <PrimaryButton text="Accept" nextHandler={props.toggleModal} />}
+            {props.modalType === 'action' && <PrimaryButton isVisible={props.modalType === 'action'} text="Reject" nextHandler={props.toggleModal} />}
+            <PrimaryButton text="Close" nextHandler={props.dismissModal} />
+          </View>
         </View>
       </Modal>
     </View>

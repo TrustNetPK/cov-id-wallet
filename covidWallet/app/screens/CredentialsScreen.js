@@ -26,16 +26,21 @@ function CredentialsScreen(props) {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
+  const dismissModal = (v) => {
+    setModalVisible(false);
+  };
+
   return (
     <View style={themeStyles.mainContainer}>
       {isCredential &&
         <View>
           <HeadingComponent text="Credentials" />
-          <ModalComponent credentials={true} data={data} isVisible={isModalVisible} toggleModal={toggleModal} />
+          <ModalComponent credentials={true} data={data} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} />
           <TouchableOpacity onPress={() => toggleModal()}>
-          <View style={styles.CredentialsCardContainer}>
-            <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
-          </View>
+            <View style={styles.CredentialsCardContainer}>
+              <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
+            </View>
           </TouchableOpacity>
         </View>}
       {!isCredential &&

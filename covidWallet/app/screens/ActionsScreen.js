@@ -37,20 +37,23 @@ function ActionsScreen(props) {
     setModalVisible(!isModalVisible);
   };
 
+  const dismissModal = (v) => {
+    setModalVisible(false);
+  };
+
   return (
     <View style={themeStyles.mainContainer}>
       {isAction &&
         <View>
           <HeadingComponent text="Actions" />
-          <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} />
+          <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} modalType="action" />
           {
             actionsList !== undefined && actionsList.map((v, i) => {
               let header = String(v.type === "connection_credential" ? "Vaccination Certificate Request" : "Vaccination Proof Request");
               let subtitle = "Click to view the " + header.toLowerCase() + " from " + v.org.name;
+              let imgURI = { uri: v.org.img };
               return <TouchableOpacity key={i} onPress={() => toggleModal(v.data)}>
-                <ScrollView showsVerticalScrollIndicator={true}>
-                  <FlatCard image={image} heading={header} text={subtitle} />
-                </ScrollView>
+                <FlatCard image={imgURI} heading={header} text={subtitle} />
               </TouchableOpacity>
             })
           }
