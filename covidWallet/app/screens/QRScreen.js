@@ -88,7 +88,7 @@ function QRScreen({ navigation }) {
       title = "Invalid QR Code";
     }
     Alert.alert(
-      'VACCIFY',
+      'Vaccify',
       title,
       [
         { text: 'OK', onPress: () => navigation.navigate('MainScreen') }

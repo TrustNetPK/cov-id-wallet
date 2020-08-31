@@ -30,7 +30,7 @@ function WelcomeScreen({ navigation }) {
       {
         method: 'POST',
         headers: {
-          'X-API-Key': 'secret',
+          'X-API-Key': ConstantsList.API_SECRET,
           'Content-Type': 'application/json; charset=utf-8',
           'Server': 'Python/3.6 aiohttp/3.6.2'
         },

@@ -32,17 +32,21 @@ function ConnectionsScreen(props) {
     setModalVisible(!isModalVisible);
   };
 
+  const dismissModal = (v) => {
+    setModalVisible(false);
+  };
+
   return (
     <View style={themeStyles.mainContainer}>
       {isConnection &&
         <View>
           <HeadingComponent text="Connections" />
-          <ModalComponent data={data} isVisible={isModalVisible} toggleModal={toggleModal} />
-         {
+          <ModalComponent data={data} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} />
+          {
             actions.map((v, i) => {
-              return  <TouchableOpacity key={i} onPress={() => toggleModal()}>
-                        <FlatCard image={image} heading={v.heading} text={v.text} />
-                      </TouchableOpacity>
+              return <TouchableOpacity key={i} onPress={() => toggleModal()}>
+                <FlatCard image={image} heading={v.heading} text={v.text} />
+              </TouchableOpacity>
             })
           }
         </View>}
