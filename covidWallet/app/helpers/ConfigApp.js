@@ -4,5 +4,5 @@ module.exports = Object.freeze({
     WALLET_NAME: 'wallet_name',
     CERT_REQ: 'certificate_request',
     PROOF_REQ: 'proof_request',
-    API_SECRET: 'Uk4hjJ4Ym4V2sE2uq6Xr'
+    API_SECRET: ''
 });
