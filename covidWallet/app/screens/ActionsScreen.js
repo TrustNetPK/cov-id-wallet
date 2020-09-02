@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacityBase } from 'react-native';
+import { useFocusEffect, CommonActions } from '@react-navigation/native';
+import { View, Text, Image, StyleSheet, TouchableOpacityBase, Alert } from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -7,7 +8,7 @@ import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
-import { getCredentials } from '../helpers/Storage';
+import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import { ScrollView } from 'react-native-gesture-handler';
 const image = require('../assets/images/visa.jpg')
@@ -17,25 +18,96 @@ function ActionsScreen(props) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [actionsList, setActionsList] = useState([]);
   const [modalData, setModalData] = useState([]);
+  const [selectedItem, setSelectedItem] = useState('');
 
-  useEffect(() => {
-    getCredentials(ConstantsList.CERT_REQ).then((actions) => {
-      if (actions == null) {
-        setAction(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      updateActionsList()
+      return
+    }, [isAction])
+  );
+
+  const updateActionsList = () => {
+    getItem(ConstantsList.CERT_REQ).then((actions) => {
+      if (actions != null) {
+        let credActionsList = JSON.parse(actions)
+        return credActionsList
       }
-      else {
-        setActionsList(JSON.parse(actions));
-        setAction(true);
+    }).then(credlist => {
+      var finalObj = []
+      if (credlist != undefined) {
+        finalObj = finalObj.concat(credlist);
       }
-    }).catch(e => {
+      getItem(ConstantsList.PROOF_REQ).then((actions2) => {
+        if (actions2 != null) {
+          let proofActionsList = JSON.parse(actions2)
+          finalObj = finalObj.concat(proofActionsList);
+        }
+
+        if (finalObj.length > 0) {
+          setActionsList(finalObj);
+          setAction(true);
+        } else {
+          setAction(false);
+        }
+      })
 
     })
-  }, [actionsList]);
+      .catch(e => { })
+  }
 
   const toggleModal = (v) => {
-    setModalData(v);
-    setModalVisible(!isModalVisible);
+    setSelectedItem(JSON.stringify(v))
+    setModalData(v.data);
+    setModalVisible(true);
   };
+
+  const acceptModal = (v) => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    //Move item to connection screen
+    let conns = [];
+    getItem(ConstantsList.CONNECTIONS).then((data) => {
+      if (data == null) {
+        conns = conns.concat(selectedItemObj);
+      }
+      else {
+        try {
+          conns = JSON.parse(data);
+          conns = conns.concat(selectedItemObj);
+        }
+        catch (e) {
+          conns = [];
+        }
+      }
+      saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
+    }
+    );
+
+
+
+    // Add accept logic here
+    //=======================
+
+
+    //=======================
+
+
+
+    //Remove item from actions
+    setModalVisible(false);
+    deleteActionByConnId(selectedItemObj.type, selectedItemObj.invitation.connection_id).then((actions) => {
+      updateActionsList();
+    });
+  }
+
+  const rejectModal = (v) => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    setModalVisible(false);
+    deleteActionByConnId(selectedItemObj.type, selectedItemObj.invitation.connection_id).then((actions) => {
+      updateActionsList();
+    });
+
+  }
 
   const dismissModal = (v) => {
     setModalVisible(false);
@@ -45,18 +117,20 @@ function ActionsScreen(props) {
     <View style={themeStyles.mainContainer}>
       {isAction &&
         <View>
-          <HeadingComponent text="Actions" />
-          <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} modalType="action" />
-          {
-            actionsList !== undefined && actionsList.map((v, i) => {
-              let header = String(v.type === "connection_credential" ? "Vaccination Certificate Request" : "Vaccination Proof Request");
-              let subtitle = "Click to view the " + header.toLowerCase() + " from " + v.org.name;
-              let imgURI = { uri: v.org.img };
-              return <TouchableOpacity key={i} onPress={() => toggleModal(v.data)}>
-                <FlatCard image={imgURI} heading={header} text={subtitle} />
-              </TouchableOpacity>
-            })
-          }
+          <ScrollView showsVerticalScrollIndicator={true}>
+            <HeadingComponent text="Actions" />
+            <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} rejectModal={rejectModal} dismissModal={dismissModal} acceptModal={acceptModal} modalType="action" />
+            {
+              actionsList !== undefined && actionsList.map((v, i) => {
+                let header = String(v.type === "connection_credential" ? "Vaccination Certificate Request" : "Vaccination Proof Request");
+                let subtitle = "Click to view the " + header.toLowerCase() + " from " + v.org.name;
+                let imgURI = { uri: v.org.img };
+                return <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
+                  <FlatCard image={imgURI} heading={header} text={subtitle} />
+                </TouchableOpacity>
+              })
+            }
+          </ScrollView>
         </View>
       }
       {!isAction &&

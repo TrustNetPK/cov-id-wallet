@@ -103,8 +103,8 @@ function ModalComponent(props) {
           </ScrollView>
           <View style={styles.horizontalRule} />
           <View style={styles.centerContainer}>
-            {props.modalType === 'action' && <PrimaryButton text="Accept" nextHandler={props.toggleModal} />}
-            {props.modalType === 'action' && <PrimaryButton isVisible={props.modalType === 'action'} text="Reject" nextHandler={props.toggleModal} />}
+            {props.modalType === 'action' && <PrimaryButton text="Accept" nextHandler={props.acceptModal} />}
+            {props.modalType === 'action' && <PrimaryButton isVisible={props.modalType === 'action'} text="Reject" nextHandler={props.rejectModal} />}
             <PrimaryButton text="Close" nextHandler={props.dismissModal} />
           </View>
         </View>
