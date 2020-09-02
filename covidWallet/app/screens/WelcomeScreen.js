@@ -8,7 +8,7 @@ import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import randomString from '../helpers/RandomString';
-import { saveCredentials } from '../helpers/Storage';
+import { saveItem } from '../helpers/Storage';
 
 const img = require('../assets/images/t&c.png');
 
@@ -75,7 +75,7 @@ function WelcomeScreen({ navigation }) {
       setError("Please agree with the terms and conditions.")
     }
     else {
-      saveCredentials(ConstantsList.WALLET_SECRET, wallet_secret).then(() => {
+      saveItem(ConstantsList.WALLET_SECRET, wallet_secret).then(() => {
         saveWalletSecret();
         navigation.navigate('SecurityScreen');
       }).catch(e => {

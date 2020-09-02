@@ -14,71 +14,77 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import { getCredentials, saveCredentials } from '../helpers/Storage';
+import { getItem, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 function QRScreen({ navigation }) {
   const [scan, setScan] = useState(true);
   const [certificate_request, setCertificateRequest] = useState("");
-  const [proof_request, setProofRequest] = useState('');
+  const [proof_request, setProofRequest] = useState("");
   var arr = [];
+  var arr2 = [];
 
   useEffect(() => {
-
-    getCredentials(ConstantsList.CERT_REQ).then((data) => {
-      //console.log("Wallet " + data);
+    getItem(ConstantsList.CERT_REQ).then((data) => {
       if (data == null) {
         arr = [];
       }
       else {
         try {
           arr = JSON.parse(data);
-          //arr.push(JSON.parse(data));
         }
         catch (e) {
           arr = [];
         }
-
       }
-      // console.log("CERT_REQ: " + JSON.stringify(arr));
-      console.log("data value " + data);
-      // console.log("arr length get credential " + arr.length);
+
       setCertificateRequest(JSON.stringify(arr));
     }).catch(e => {
       setError('Error');
     })
+
+    getItem(ConstantsList.PROOF_REQ).then((data) => {
+      if (data == null) {
+        arr2 = [];
+      }
+      else {
+        try {
+          arr2 = JSON.parse(data);
+        }
+        catch (e) {
+          arr2 = [];
+        }
+      }
+      setProofRequest(JSON.stringify(arr2));
+    }).catch(e => {
+      setError('Error');
+    })
+
   }, []);
 
   const onSuccess = (e) => {
     let title = "";
-    //arr = [];
-    //console.log("Condition length>0 " + arr.length != 0);
     try {
       arr = JSON.parse(certificate_request);
-      //console.log("Certificate Request" + JSON.stringify(arr));
+      arr2 = JSON.parse(proof_request);
     }
     catch{
       arr = [];
+      arr2 = [];
     }
 
     const qrJSON = JSON.parse(e.data);
     if (qrJSON.type == "connection_credential") {
       title = "Vaccination Certificate Request Added";
-
-      //title = JSON.stringify (arr);
       arr.push(qrJSON);
-      console.log("arrs length " + arr.length);
-      saveCredentials(ConstantsList.CERT_REQ, JSON.stringify(arr)).then(() => {
-        //title = "safi" + certificate_request;
-
-        //console.log("Certificate Request" + JSON.stringify(arr));
+      saveItem(ConstantsList.CERT_REQ, JSON.stringify(arr)).then(() => {
       }).catch(e => {
 
       })
     }
     else if (qrJSON.type == "connection_proof") {
       title = "Vaccination Proof Request Added";
-      setProofRequest(JSON.stringify(arr.push(qrJSON)));
-      saveCredentials(ConstantsList.PROOF_REQ, certificate_request).then(() => {
+      arr2.push(qrJSON)
+      saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2)).then(() => {
 
       }).catch(e => {
 
