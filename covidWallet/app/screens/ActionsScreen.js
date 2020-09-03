@@ -9,6 +9,7 @@ import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
 import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
+import { authenticate } from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
 import { ScrollView } from 'react-native-gesture-handler';
 const image = require('../assets/images/visa.jpg')
@@ -62,42 +63,97 @@ function ActionsScreen(props) {
     setModalVisible(true);
   };
 
-  const acceptModal = (v) => {
+  const acceptModal = async (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
     //Move item to connection screen
     let conns = [];
-    getItem(ConstantsList.CONNECTIONS).then((data) => {
-      if (data == null) {
+    let data = await getItem(ConstantsList.CONNECTIONS);
+    if (data == null) {
+      conns = conns.concat(selectedItemObj);
+    }
+    else {
+      try {
+        conns = JSON.parse(data);
         conns = conns.concat(selectedItemObj);
       }
-      else {
-        try {
-          conns = JSON.parse(data);
-          conns = conns.concat(selectedItemObj);
-        }
-        catch (e) {
-          conns = [];
-        }
+      catch (e) {
+        conns = [];
       }
-      saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
     }
-    );
+    await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
 
+    let authResult = await authenticate();
+    if (authResult == true) {
+      //fetch wallet credentials
+      let walletName = await getItem(ConstantsList.WALLET_NAME);
+      let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
 
+      //make API call
+      await fetch(ConstantsList.BASE_URL + `/connections/receive-invitation`,
+        {
+          method: 'POST',
+          headers: {
+            'X-API-Key': ConstantsList.API_SECRET,
+            'Content-Type': 'application/json; charset=utf-8',
+            'Server': 'Python/3.6 aiohttp/3.6.2',
+            'wallet-name': walletName,
+            'wallet-key': walletSecret
+          },
+          body: JSON.stringify(selectedItemObj.invitation.invitation)
+        }).then(inviteResult =>
+          inviteResult.json().then(data => {
+            // console.log(data)
+          }));
+      //Remove item from actions
+      setModalVisible(false);
+      deleteActionByConnId(selectedItemObj.type, selectedItemObj.invitation.connection_id).then((actions) => {
+        updateActionsList();
+      });
+    }
+    else {
+      // do nothing
+      setModalVisible(false);
+    }
 
     // Add accept logic here
     //=======================
+    // let authPromise = authenticate();
+    // authPromise.then((authResult) => {
+    //   if (authResult == true) {
+    //     //fetch wallet credentials
+    //     let walletName = getItem(ConstantsList.WALLET_NAME);
+    //     let walletSecret = getItem(ConstantsList.WALLET_SECRET);
+    //     console.log(walletName + ':' + walletSecret)
 
+    //     //make API call
+    //     fetch(ConstantsList.BASE_URL + `/connections/receive-invitation`,
+    //       {
+    //         method: 'POST',
+    //         headers: {
+    //           'X-API-Key': ConstantsList.API_SECRET,
+    //           'Content-Type': 'application/json; charset=utf-8',
+    //           'Server': 'Python/3.6 aiohttp/3.6.2',
+    //           'wallet-name': walletName,
+    //           'wallet-key': walletSecret
+    //         },
+    //         body: JSON.stringify(selectedItemObj.invitation.invitation)
+    //       }).then((inviteResult) => {
+    //         console.log(inviteResult)
+    //         //Remove item from actions
+    //         setModalVisible(false);
+    //         deleteActionByConnId(selectedItemObj.type, selectedItemObj.invitation.connection_id).then((actions) => {
+    //           updateActionsList();
+    //         });
+    //       });
+    //   }
+    //   else {
+    //     // do nothing
+    //     setModalVisible(false);
+    //   }
+    // });
 
     //=======================
 
-
-
-    //Remove item from actions
-    setModalVisible(false);
-    deleteActionByConnId(selectedItemObj.type, selectedItemObj.invitation.connection_id).then((actions) => {
-      updateActionsList();
-    });
   }
 
   const rejectModal = (v) => {

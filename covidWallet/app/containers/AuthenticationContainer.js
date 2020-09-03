@@ -25,7 +25,6 @@ function AuthenticationContainer({ navigation }) {
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
 
-
     const retrieveData = async () => {
         try {
             const value = await AsyncStorage.getItem('@passCode').then((value) => {
