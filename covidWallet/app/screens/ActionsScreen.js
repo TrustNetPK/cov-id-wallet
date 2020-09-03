@@ -115,45 +115,6 @@ function ActionsScreen(props) {
       setModalVisible(false);
     }
 
-    // Add accept logic here
-    //=======================
-    // let authPromise = authenticate();
-    // authPromise.then((authResult) => {
-    //   if (authResult == true) {
-    //     //fetch wallet credentials
-    //     let walletName = getItem(ConstantsList.WALLET_NAME);
-    //     let walletSecret = getItem(ConstantsList.WALLET_SECRET);
-    //     console.log(walletName + ':' + walletSecret)
-
-    //     //make API call
-    //     fetch(ConstantsList.BASE_URL + `/connections/receive-invitation`,
-    //       {
-    //         method: 'POST',
-    //         headers: {
-    //           'X-API-Key': ConstantsList.API_SECRET,
-    //           'Content-Type': 'application/json; charset=utf-8',
-    //           'Server': 'Python/3.6 aiohttp/3.6.2',
-    //           'wallet-name': walletName,
-    //           'wallet-key': walletSecret
-    //         },
-    //         body: JSON.stringify(selectedItemObj.invitation.invitation)
-    //       }).then((inviteResult) => {
-    //         console.log(inviteResult)
-    //         //Remove item from actions
-    //         setModalVisible(false);
-    //         deleteActionByConnId(selectedItemObj.type, selectedItemObj.invitation.connection_id).then((actions) => {
-    //           updateActionsList();
-    //         });
-    //       });
-    //   }
-    //   else {
-    //     // do nothing
-    //     setModalVisible(false);
-    //   }
-    // });
-
-    //=======================
-
   }
 
   const rejectModal = (v) => {
