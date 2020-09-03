@@ -20,12 +20,10 @@ function WelcomeScreen({ navigation }) {
   const [error, setError] = useState('');
   const [isChecked, setChecked] = useState(false);
   const [isLoading, setLoading] = useState(true);
-  const [wallet_secret, setSecret] = useState('');
-  const [wallet_name] = useState(randomString(8));
+  const [wallet_name, setWalletName] = useState(randomString(8));
   const [isRadio, setRadio] = useState('false');
 
   useEffect(() => {
-    saveWalletSecret();
     fetch(ConstantsList.BASE_URL + `/create_wallet`,
       {
         method: 'POST',
@@ -40,10 +38,18 @@ function WelcomeScreen({ navigation }) {
         })
       }).then((
         resp => resp.json().then((data => {
+          let wSecret = data.wallet_secret;
           // save data in async storage
-          setLoading(false);
-          setSecret(data.wallet_secret);
-          console.log(data.wallet_secret);
+          saveItem(ConstantsList.WALLET_SECRET, wSecret).then(() => {
+            saveItem(ConstantsList.WALLET_NAME, wallet_name).then(() => {
+              setLoading(false);
+            }).catch(e => {
+              setError('Error')
+            })
+
+          }).catch(e => {
+            setError('Error')
+          })
         })))).catch(e => {
           setError(e)
         })
@@ -56,18 +62,6 @@ function WelcomeScreen({ navigation }) {
       setRadio('true');
     }
   }
-  const saveWalletSecret = async () => {
-    try {
-      await AsyncStorage.setItem(
-        ConstantsList.WALLET_NAME,
-        wallet_name
-      );
-
-    } catch (error) {
-      // Error saving data
-      setError(error)
-    }
-  }
 
   const nextHandler = () => {
     setError('')
@@ -75,13 +69,7 @@ function WelcomeScreen({ navigation }) {
       setError("Please agree with the terms and conditions.")
     }
     else {
-      saveItem(ConstantsList.WALLET_SECRET, wallet_secret).then(() => {
-        saveWalletSecret();
-        navigation.navigate('SecurityScreen');
-      }).catch(e => {
-        setError('Error')
-      })
-
+      navigation.navigate('SecurityScreen');
     }
   }
 
