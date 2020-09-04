@@ -77,7 +77,7 @@ function ModalComponent(props) {
               <Text style={styles.modalTitles}>Document Type</Text>
               <Text style={styles.modalValues}>{props.data.doctype}</Text>
               <Text style={styles.modalTitles}>Document ID</Text>
-              <Text style={styles.modalValues}>{props.data.docID}</Text>
+              <Text style={styles.modalValues}>{props.data.doc_id}</Text>
               <Text style={styles.modalTitles}>Vaccination Name</Text>
               <Text style={styles.modalValues}>{props.data.vacName}</Text>
               <Text style={styles.modalTitles}>Batch</Text>
