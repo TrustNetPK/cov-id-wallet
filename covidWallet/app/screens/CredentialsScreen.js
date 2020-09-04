@@ -1,4 +1,4 @@
-
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useState } from 'react';
 import PrimaryButton from '../components/PrimaryButton'
 import { View, Text, StyleSheet, Image, ImageComponent } from 'react-native';
@@ -9,6 +9,8 @@ import HeadingComponent from '../components/HeadingComponent';
 import ModalComponent from '../components/ModalComponent'
 import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
+import ConstantsList from '../helpers/ConfigApp';
 
 const card_logo = require('../assets/images/visa.jpg')
 const refresh_img = require('../assets/images/refresh.png')
@@ -16,16 +18,39 @@ const refresh_img = require('../assets/images/refresh.png')
 function CredentialsScreen(props) {
   const [isCredential, setCredential] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
-  const data = [
-    { name: 'First Name', value: 'John' },
-    { name: 'Last Name', value: 'Doe' },
-    { name: 'Birthday', value: '01-01-1990' },
-    { name: 'Locality', value: 'Helisinki' },
-    { name: 'Address', value: 'Khaleefa Heights, Champs Elysee' },
-    { name: 'Country Name', value: 'Finland' },
-  ]
+  const [credentials, setCredentialList] = useState();
+  const [modalData, setModalData] = useState([]);
 
-  const toggleModal = () => {
+  useFocusEffect(
+    React.useCallback(() => {
+      updateCredentialsList()
+      return
+    }, [isCredential])
+  );
+
+  const updateCredentialsList = () => {
+    getItem(ConstantsList.CREDENTIALS).then((connections) => {
+      if (connections != null) {
+        let connectionsList = JSON.parse(connections);
+        if (connectionsList.length === 0) {
+          setCredential(false);
+        }
+        else {
+          setCredential(true);
+          setCredentialList(connectionsList);
+        }
+
+
+
+      } else {
+        setCredential(false);
+      }
+    }).catch(e => { })
+  }
+
+
+  const toggleModal = (v) => {
+    setModalData(v)
     setModalVisible(!isModalVisible);
   };
 
@@ -33,9 +58,45 @@ function CredentialsScreen(props) {
     setModalVisible(false);
   };
 
-  const loadCreds = () => {
-    //add load all credentials logic here
-    console.log("it works");
+  const loadCreds = async () => {
+    //add load from server
+    //fetch wallet credentials
+    let walletName = await getItem(ConstantsList.WALLET_NAME);
+    console.log("Wallet Name " + walletName);
+    let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+    console.log("Wallet Secret " + walletSecret);
+    await fetch(ConstantsList.BASE_URL + `/credentials`,
+      {
+        method: 'GET',
+        headers: {
+          'X-API-Key': ConstantsList.API_SECRET,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Server': 'Python/3.6 aiohttp/3.6.2',
+          'wallet-name': walletName,
+          'wallet-key': walletSecret
+        }
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          let arr = [];
+          try {
+            arr = data.results;
+            if (arr.length === 0) {
+              setCredential(false);
+            }
+            else {
+              saveItem(ConstantsList.CREDENTIALS, JSON.stringify(arr)).then(() => {
+                setCredential(true);
+              })
+            }
+
+          }
+          catch{
+            arr = [];
+          }
+          console.log(arr.length === 0);
+
+        }));
+
   };
 
   return (
@@ -43,12 +104,21 @@ function CredentialsScreen(props) {
       {isCredential &&
         <View>
           <HeadingComponent text="Credentials" />
-          <ModalComponent credentials={true} data={data} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} />
-          <TouchableOpacity onPress={() => toggleModal()}>
-            <View style={styles.CredentialsCardContainer}>
-              <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="Agha Khan Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />
-            </View>
-          </TouchableOpacity>
+          <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} />
+          {credentials !== undefined && credentials.map((v, i) => {
+            let imgURI = { uri: v.attrs.vaccinator_org_logo };
+            let vaccineName = v.attrs.vaccine_name;
+            let issuedBy = v.attrs.vaccinator_org;
+
+
+            return <TouchableOpacity onPress={() => toggleModal(v.attrs)}>
+              <View style={styles.CredentialsCardContainer}>
+                <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
+              </View>
+            </TouchableOpacity>
+          })
+
+          }
         </View>}
       {!isCredential &&
         <View style={styles.EmptyContainer}>
