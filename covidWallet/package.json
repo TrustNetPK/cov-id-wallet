@@ -1,5 +1,5 @@
 {
-  "name": "covidWallet",
+  "name": "vaccify",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,11 +7,30 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "clean:android": "cd android && gradlew clean && npx react-native run-android",
+    "clean:ios": "cd ios && xcodebuild clean && npx react-native run-ios"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.9.0",
+    "@react-native-community/masked-view": "^0.1.10",
+    "@react-navigation/bottom-tabs": "^5.2.8",
+    "@react-navigation/native": "^5.1.7",
+    "@react-navigation/stack": "^5.2.14",
     "react": "16.11.0",
-    "react-native": "0.62.2"
+    "react-native": "0.62.2",
+    "react-native-camera": "^3.26.0",
+    "react-native-fingerprint-scanner": "^5.0.0",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-modal": "^11.5.6",
+    "react-native-permissions": "^2.1.4",
+    "react-native-qrcode-scanner": "^1.4.1",
+    "react-native-reanimated": "^1.8.0",
+    "react-native-safe-area-context": "^0.7.3",
+    "react-native-screens": "^2.7.0",
+    "react-native-simple-radio-button": "^2.7.4",
+    "react-native-splash-screen": "^3.2.0",
+    "react-native-vector-icons": "^6.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
@@ -20,6 +39,7 @@
     "babel-jest": "^24.9.0",
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
+    "jetifier": "^1.6.5",
     "metro-react-native-babel-preset": "^0.58.0",
     "react-test-renderer": "16.11.0"
   },
