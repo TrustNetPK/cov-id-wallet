@@ -55,6 +55,7 @@ function CredentialsScreen(props) {
   };
 
   const dismissModal = (v) => {
+    setCredential(false);
     setModalVisible(false);
   };
 
@@ -62,9 +63,7 @@ function CredentialsScreen(props) {
     //add load from server
     //fetch wallet credentials
     let walletName = await getItem(ConstantsList.WALLET_NAME);
-    console.log("Wallet Name " + walletName);
     let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-    console.log("Wallet Secret " + walletSecret);
     await fetch(ConstantsList.BASE_URL + `/credentials`,
       {
         method: 'GET',
@@ -101,13 +100,13 @@ function CredentialsScreen(props) {
 
   return (
     <View style={themeStyles.mainContainer}>
+      <HeadingComponent text="Certificates" />
       {isCredential &&
         <View>
-          <HeadingComponent text="Credentials" />
           <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} />
           {credentials !== undefined && credentials.map((v, i) => {
             let imgURI = { uri: v.attrs.vaccinator_org_logo };
-            let vaccineName = v.attrs.vaccine_name;
+            let vaccineName = v.attrs.vacName;
             let issuedBy = v.attrs.vaccinator_org;
 
 

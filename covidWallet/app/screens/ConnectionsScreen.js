@@ -37,9 +37,9 @@ function ConnectionsScreen(props) {
 
   return (
     <View style={themeStyles.mainContainer}>
+      <HeadingComponent text="Connections" />
       {isConnection &&
         <View>
-          <HeadingComponent text="Connections" />
           {
             connectionsList.map((v, i) => {
               let imgURI = { uri: v.org.img };

@@ -132,10 +132,10 @@ function ActionsScreen(props) {
 
   return (
     <View style={themeStyles.mainContainer}>
+      <HeadingComponent text="Actions" />
       {isAction &&
         <View>
           <ScrollView showsVerticalScrollIndicator={true}>
-            <HeadingComponent text="Actions" />
             <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} rejectModal={rejectModal} dismissModal={dismissModal} acceptModal={acceptModal} modalType="action" />
             {
               actionsList !== undefined && actionsList.map((v, i) => {

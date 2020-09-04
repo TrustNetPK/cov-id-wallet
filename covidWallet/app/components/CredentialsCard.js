@@ -20,7 +20,7 @@ function CredentialsCard(props) {
                     </View>
                     <View style={styles.container}>
                         <View style={styles.item1}>
-                            <Image source={props.card_logo} style={{ width: 30, height: 40 }} />
+                            <Image source={props.card_logo} style={{ width: 50, height: 50 }} />
                         </View>
                         <View style={styles.item2}>
                             <Text style={styles.card_small_text}>Issued by</Text>
@@ -41,7 +41,10 @@ const styles = StyleSheet.create({
     logo: {
         width: 50,
         marginTop: 50,
+        marginLeft: 75,
         height: 70,
+        position: 'absolute',
+        alignItems: 'center', justifyContent: 'center',
     },
     card: {
         width: '100%',
@@ -75,6 +78,7 @@ const styles = StyleSheet.create({
         fontSize: 23,
         lineHeight: 22,
         fontWeight: '100',
+        fontWeight: "bold",
     },
     card_small_text: {
         color: 'white',
