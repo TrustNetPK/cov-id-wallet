@@ -7,12 +7,12 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 var settingLocalData = {
   GENERAL: {
     Agent: {
-      value: 'Iphone',
+      value: 'Phone',
       type: 'Text',
       key: '11',
     },
     Network: {
-      value: 'Soverin Staging Network',
+      value: 'BCovrin Test Network',
       type: 'Radio',
       key: '12',
       options: ['Soverin', 'non-soverin'],
