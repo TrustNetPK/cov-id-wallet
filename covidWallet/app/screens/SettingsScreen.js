@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
   },
   headingContainer: {
     flex: 1,
+    marginTop: 5,
     flexDirection: 'row',
     alignContent: 'center',
     marginBottom: -20,
@@ -189,10 +190,6 @@ const styles = StyleSheet.create({
     margin: 15,
     alignSelf: 'flex-start',
     marginRight: 60,
-    backgroundColor: '#ffffff',
-    borderColor: '#e8e8e8d4',
-    borderWidth: 1,
-    borderRadius: 50,
     padding: 10,
   },
 });
