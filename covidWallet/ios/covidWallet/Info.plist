@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
@@ -42,7 +42,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Vaccify Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow Vaccify to use Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>

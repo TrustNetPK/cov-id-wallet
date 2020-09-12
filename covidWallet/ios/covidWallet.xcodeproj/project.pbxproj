@@ -779,12 +779,13 @@
 				);
 				INFOPLIST_FILE = covidWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = pk.trustnet.vaccify;
+				PRODUCT_BUNDLE_IDENTIFIER = trust.net.pk.Vaccify;
 				PRODUCT_NAME = Vaccify;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -805,12 +806,13 @@
 				DEVELOPMENT_TEAM = XWDG8SBSA7;
 				INFOPLIST_FILE = covidWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = pk.trustnet.vaccify;
+				PRODUCT_BUNDLE_IDENTIFIER = trust.net.pk.Vaccify;
 				PRODUCT_NAME = Vaccify;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
