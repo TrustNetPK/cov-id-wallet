@@ -49,15 +49,17 @@ function SecurityScreen({ navigation }) {
   }
 
   function authLegacy() {
+    console.log("h1");
     FingerprintScanner.release();
     FingerprintScanner
       .authenticate({ title: 'Log in with Secure ID to continue' })
       .then(() => {
-        this.props.handlePopupDismissedLegacy();
+        // this.props.handlePopupDismissedLegacy();
         checkSecureIDAuth(true);
         nextHandler();
       })
       .catch((error) => {
+        console.log(error)
         if (Platform.OS === 'ios') {
           AlertIOS.alert('Failed to Authenticate Secure ID');
         }

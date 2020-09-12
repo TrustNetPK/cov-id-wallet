@@ -41,7 +41,7 @@ async function authLegacy() {
     return FingerprintScanner
         .authenticate({ title: 'Log in with Secure ID to continue' })
         .then(() => {
-            this.props.handlePopupDismissedLegacy();
+            // this.props.handlePopupDismissedLegacy();
             isSuccessful = true;
             return true;
         })

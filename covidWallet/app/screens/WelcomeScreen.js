@@ -1,20 +1,20 @@
 import * as React from 'react';
-import {View, Text, Linking, StyleSheet, ActivityIndicator} from 'react-native';
-import {useState, useEffect} from 'react';
-import RadioForm, {RadioButton} from 'react-native-simple-radio-button';
+import { View, Text, Linking, StyleSheet, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
+import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
-import {PRIMARY_COLOR} from '../theme/Colors';
+import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import randomString from '../helpers/RandomString';
-import {saveItem} from '../helpers/Storage';
+import { saveItem } from '../helpers/Storage';
 
 const img = require('../assets/images/t&c.png');
 
-var radio_props = [{label: '', value: 0}];
+var radio_props = [{ label: '', value: 0 }];
 
-function WelcomeScreen({navigation}) {
+function WelcomeScreen({ navigation }) {
   const [error, setError] = useState('');
   const [isChecked, setChecked] = useState(false);
   const [isLoading, setLoading] = useState(true);
@@ -75,8 +75,8 @@ function WelcomeScreen({navigation}) {
   };
 
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <View style={{flex: 5, alignItems: 'center', justifyContent: 'center'}}>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
         <ImageBoxComponent source={img} />
       </View>
       <View
@@ -92,7 +92,7 @@ function WelcomeScreen({navigation}) {
           text="Let's create your self-soverign identity.This app helps you exchange secure vaccination proof against COVID-19."
         />
       </View>
-      <View style={{flex: 3, alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <View style={styles.checkboxContainer}>
           <RadioForm
             radio_props={radio_props}
@@ -102,7 +102,7 @@ function WelcomeScreen({navigation}) {
             onPress={checkHandler}
             style={styles.checkbox}
           />
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={styles.link}>
               I agree to TrustNet Pakistan’s
               <Text
@@ -120,8 +120,8 @@ function WelcomeScreen({navigation}) {
         {isLoading ? (
           <ActivityIndicator size="large" color={PRIMARY_COLOR} />
         ) : (
-          <PrimaryButton text="Continue" nextHandler={nextHandler} />
-        )}
+            <PrimaryButton text="Continue" nextHandler={nextHandler} />
+          )}
       </View>
     </View>
   );
