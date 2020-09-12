@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, View, FlatList, Linking} from 'react-native';
-import {TextTypeView, BooleanTypeView} from '../components/ShowTypesView';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, FlatList, Linking, Alert } from 'react-native';
+import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView';
 import HeadingComponent from '../components/HeadingComponent';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-community/async-storage';
 
 var settingLocalData = {
   GENERAL: {
@@ -54,16 +55,25 @@ var settingLocalData = {
     },
     key: '3',
   },
+
+  DEMO: {
+    'Reset Wallet': {
+      value: 'None',
+      type: 'Link',
+      key: '34',
+      to: 'reset',
+    },
+    key: '4',
+  },
 };
 
-export default function SettingsScreen({navigation}) {
-  console.log(navigation);
+export default function SettingsScreen({ navigation }) {
   const [settingsData, setSettingsData] = useState(settingLocalData);
 
   const toggleSwitch = (parent, child) => {
-    const tempSettings = {...settingsData};
+    const tempSettings = { ...settingsData };
     tempSettings[parent][child].value = !tempSettings[parent][child].value;
-    setSettingsData({...tempSettings});
+    setSettingsData({ ...tempSettings });
   };
   return (
     <View style={styles.container}>
@@ -81,7 +91,7 @@ export default function SettingsScreen({navigation}) {
       <FlatList
         data={Object.keys(settingsData)}
         keyExtractor={(item, index) => settingsData[item].key}
-        renderItem={({item}) => {
+        renderItem={({ item }) => {
           const parent = item;
           const parentData = settingsData[parent];
           return (
@@ -90,7 +100,7 @@ export default function SettingsScreen({navigation}) {
               <FlatList
                 data={Object.keys(parentData)}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({item}) => {
+                renderItem={({ item }) => {
                   const childData = settingsData[parent][item];
                   if (item !== 'key' && item !== '') {
                     if (childData.value !== 'None') {
@@ -102,7 +112,8 @@ export default function SettingsScreen({navigation}) {
                             endIcon=""
                           />
                         );
-                      } else if (childData.type === 'Radio') {
+                      }
+                      else if (childData.type === 'Radio') {
                         return (
                           <TextTypeView
                             startValue={item + ':  ' + childData.value}
@@ -128,19 +139,51 @@ export default function SettingsScreen({navigation}) {
                         );
                       }
                     } else {
-                      {
-                        console.log(childData.to);
+                      if (childData.to === 'reset') {
+                        return (
+                          <TextTypeView
+                            startValue={item}
+                            endValue="Edit"
+                            endIcon="right"
+                            onHandlePress={() => {
+                              Alert.alert(
+                                'Vaccify',
+                                'Are you sure you want to reset your app wallet?',
+                                [
+                                  {
+                                    text: 'Yes', onPress: () => {
+                                      AsyncStorage.removeItem('isfirstTime').then((value) => {
+                                        Alert.alert(
+                                          'Vaccify',
+                                          'Wallet Reset Successful, Please close the app!',
+                                          [
+                                            { text: 'OK', onPress: () => { } }
+                                          ],
+                                          { cancelable: false }
+                                        )
+                                      })
+                                    }
+                                  },
+                                  { text: 'No', onPress: () => { } }
+                                ],
+                                { cancelable: true }
+
+                              );
+                            }}
+                          />
+                        );
+                      } else {
+                        return (
+                          <TextTypeView
+                            startValue={item}
+                            endValue="Edit"
+                            endIcon="right"
+                            onHandlePress={() => {
+                              childData.to && Linking.openURL(childData.to);
+                            }}
+                          />
+                        );
                       }
-                      return (
-                        <TextTypeView
-                          startValue={item}
-                          endValue="Edit"
-                          endIcon="right"
-                          onHandlePress={() => {
-                            childData.to && Linking.openURL(childData.to);
-                          }}
-                        />
-                      );
                     }
                   }
                 }}
