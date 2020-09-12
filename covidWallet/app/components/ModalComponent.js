@@ -1,13 +1,15 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, Image } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton'
 import Modal from 'react-native-modal';
 import { WHITE_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from './HeadingComponent';
 import { ScrollView } from 'react-native-gesture-handler';
 import CredentialsCard from './CredentialsCard';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const card_logo = require('../assets/images/visa.jpg')
+const close_img = require('../assets/images/close.png')
 
 function ModalComponent(props) {
 
@@ -50,7 +52,15 @@ function ModalComponent(props) {
       width: 10,
       height: 10,
       resizeMode: 'contain'
-    }
+    },
+    crossIcon: {
+      width: 60,
+      height: 60,
+      resizeMode: 'contain'
+    },
+    crossContainer: {
+      marginTop: '4%'
+    },
   });
 
   return (
@@ -105,7 +115,10 @@ function ModalComponent(props) {
           <View style={styles.centerContainer}>
             {props.modalType === 'action' && <PrimaryButton text="Accept" nextHandler={props.acceptModal} />}
             {props.modalType === 'action' && <PrimaryButton isVisible={props.modalType === 'action'} text="Reject" nextHandler={props.rejectModal} />}
-            <PrimaryButton text="Close" nextHandler={props.dismissModal} />
+            {/* <PrimaryButton text="Close" nextHandler={props.dismissModal} /> */}
+            <TouchableOpacity activeOpacity={.5} style={styles.crossContainer} onPress={props.dismissModal}>
+              <Image source={close_img} style={styles.crossIcon} />
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

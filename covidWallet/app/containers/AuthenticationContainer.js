@@ -81,7 +81,7 @@ function AuthenticationContainer({ navigation }) {
         FingerprintScanner
             .authenticate({ title: 'Log in with Secure ID to continue' })
             .then(() => {
-                this.props.handlePopupDismissedLegacy();
+                // this.props.handlePopupDismissedLegacy();
                 checkSecureIDAuth(true);
                 nextHandler();
             })
