@@ -152,6 +152,12 @@ export default function SettingsScreen({ navigation }) {
                                 [
                                   {
                                     text: 'Yes', onPress: () => {
+                                      AsyncStorage.removeItem('wallet_secret');
+                                      AsyncStorage.removeItem('wallet_name');
+                                      AsyncStorage.removeItem('connection_credential');
+                                      AsyncStorage.removeItem('connection_proof');
+                                      AsyncStorage.removeItem('connections');
+                                      AsyncStorage.removeItem('credentials');
                                       AsyncStorage.removeItem('isfirstTime').then((value) => {
                                         Alert.alert(
                                           'Vaccify',
