@@ -44,8 +44,8 @@ def flipper_post_install(installer)
   end
 end
 
-target 'covidWallet' do
-  # Pods for covidWallet
+target 'Vaccify' do
+  # Pods for Vaccify
   pod 'Permission-Camera', :path => "../node_modules/react-native-permissions/ios/Camera.podspec"
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
@@ -83,7 +83,7 @@ target 'covidWallet' do
 
   pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
   pod 'react-native-fingerprint-scanner', :path => '../node_modules/react-native-fingerprint-scanner'
-  target 'covidWalletTests' do
+  target 'VaccifyTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -100,10 +100,10 @@ target 'covidWallet' do
   end
 end
 
-target 'covidWallet-tvOS' do
-  # Pods for covidWallet-tvOS
+target 'Vaccify-tvOS' do
+  # Pods for Vaccify-tvOS
 
-  target 'covidWallet-tvOSTests' do
+  target 'Vaccify-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end

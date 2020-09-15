@@ -1,4 +1,4 @@
-package com.covidwallet;
+package pk.net.trust.vaccify;
 
 import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
@@ -13,7 +13,7 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "covidWallet";
+        return "Vaccify";
     }
 
     @Override
