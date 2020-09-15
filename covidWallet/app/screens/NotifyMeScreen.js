@@ -40,7 +40,7 @@ function NotifyMeScreen({ navigation }) {
       <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
         <Text style={styles.TextContainerHead}>Stay Notified</Text>
         <TextComponent onboarding={true} text="We use push notifications to deliver messages for important events,
-          such as when you recieve a new vaccination certificate."/>
+          such as when you recieve a new digital certificate."/>
 
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>

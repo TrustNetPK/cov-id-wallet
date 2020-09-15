@@ -1,4 +1,4 @@
-package com.covidwallet;
+package pk.net.trust.vaccify;
 
 import android.app.Application;
 import android.content.Context;

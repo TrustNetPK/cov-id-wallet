@@ -67,7 +67,7 @@ function ModalComponent(props) {
     <View style={styles.ModalComponent}>
       <Modal hideModalContentWhileAnimating={true} useNativeDriver={false} isVisible={props.isVisible}>
         <View style={styles.ModalChildContainer}>
-          {props.credentials && <CredentialsCard card_title="COVID-19 (SARS-CoV-2)" card_type="Digital Certificate" issuer="WeCare University Hospital" card_user="SAEED AHMAD" date="05/09/2020" card_logo={card_logo} />}
+          {props.credentials && <CredentialsCard card_title="New" card_type="Digital Certificate" issuer="Issuer Organization" card_user="User" date="05/09/2020" card_logo={card_logo} />}
           <View style={styles.centerContainer}>
             <HeadingComponent text="Details" />
           </View>
