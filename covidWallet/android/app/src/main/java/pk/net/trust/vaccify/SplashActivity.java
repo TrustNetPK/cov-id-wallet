@@ -1,4 +1,4 @@
-package com.covidwallet; // ← Make sure that is your package name
+package pk.net.trust.vaccify; // ← Make sure that is your package name
 
 import android.content.Intent;
 import android.os.Bundle;

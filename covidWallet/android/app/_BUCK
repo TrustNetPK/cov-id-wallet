@@ -35,12 +35,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.covidwallet",
+    package = "pk.net.trust.vaccify",
 )
 
 android_resource(
     name = "res",
-    package = "com.covidwallet",
+    package = "pk.net.trust.vaccify",
     res = "src/main/res",
 )
 
