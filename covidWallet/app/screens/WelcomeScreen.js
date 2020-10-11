@@ -89,7 +89,7 @@ function WelcomeScreen({ navigation }) {
         <Text style={styles.TextContainerHead} />
         <TextComponent
           onboarding={true}
-          text="Let's create your self-soverign identity.This app helps you exchange secure vaccination proof against COVID-19."
+          text="Let's create your self-soverign identity. This app helps you exchange secure digital certificates."
         />
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>

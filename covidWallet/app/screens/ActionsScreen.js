@@ -139,7 +139,7 @@ function ActionsScreen(props) {
             <ModalComponent data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} rejectModal={rejectModal} dismissModal={dismissModal} acceptModal={acceptModal} modalType="action" />
             {
               actionsList !== undefined && actionsList.map((v, i) => {
-                let header = String(v.type === "connection_credential" ? "Vaccination Certificate Request" : "Vaccination Proof Request");
+                let header = String(v.type === "connection_credential" ? "Digital Certificate Request" : "Digital Proof Request");
                 let subtitle = "Click to view the " + header.toLowerCase() + " from " + v.org.name;
                 let imgURI = { uri: v.org.img };
                 return <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
@@ -153,7 +153,7 @@ function ActionsScreen(props) {
       {!isAction &&
         <View style={styles.EmptyContainer}>
           <ImageBoxComponent source={require('../assets/images/action.gif')} />
-          <TextComponent text="There are no actions to complete, Please scan a QR code to either get a vaccination certificate or to prove it." />
+          <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
         </View>
       }
     </View>

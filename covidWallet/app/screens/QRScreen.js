@@ -74,7 +74,7 @@ function QRScreen({ navigation }) {
 
     const qrJSON = JSON.parse(e.data);
     if (qrJSON.type == "connection_credential") {
-      title = "Vaccination Certificate Request Added";
+      title = "Digital Certificate Request Added";
       arr.push(qrJSON);
       saveItem(ConstantsList.CERT_REQ, JSON.stringify(arr)).then(() => {
       }).catch(e => {
@@ -82,7 +82,7 @@ function QRScreen({ navigation }) {
       })
     }
     else if (qrJSON.type == "connection_proof") {
-      title = "Vaccination Proof Request Added";
+      title = "Digital Proof Request Added";
       arr2.push(qrJSON)
       saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2)).then(() => {
 
