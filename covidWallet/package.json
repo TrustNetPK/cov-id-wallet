@@ -12,14 +12,13 @@
     "clean:ios": "cd ios && xcodebuild clean && npx react-native run-ios"
   },
   "dependencies": {
-    "@react-native-community/async-storage": "^1.9.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/bottom-tabs": "^5.2.8",
     "@react-navigation/native": "^5.1.7",
     "@react-navigation/stack": "^5.2.14",
     "react": "16.11.0",
     "react-native": "0.62.2",
-    "react-native-camera": "^3.26.0",
+    "react-native-camera": "^3.43.6",
     "react-native-fingerprint-scanner": "^5.0.0",
     "react-native-gesture-handler": "^1.6.1",
     "react-native-modal": "^11.5.6",

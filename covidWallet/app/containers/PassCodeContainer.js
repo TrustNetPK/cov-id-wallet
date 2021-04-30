@@ -4,7 +4,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import { savePassCode, isFirstTime } from '../helpers/Storage';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
-import AsyncStorage from '@react-native-community/async-storage';
+//import AsyncStorage from '@react-native-community/async-storage';
 import ErrorComponent from '../components/ErrorComponent';
 
 
@@ -16,16 +16,16 @@ function PassCodeContainer({ navigation }) {
     const [error, setError] = useState('');
     const [stage, setStage] = useState(0);
 
-    storeData = async () => {
-        try {
-            await AsyncStorage.setItem(
-                'isfirstTime',
-                'false'
-            );
-        } catch (error) {
-            // Error saving data
-        }
-    };
+    // storeData = async () => {
+    //     try {
+    //         // await AsyncStorage.setItem(
+    //         //     'isfirstTime',
+    //         //     'false'
+    //         // );
+    //     } catch (error) {
+    //         // Error saving data
+    //     }
+    // };
 
     nextHandler = () => {
         setError('')
@@ -53,7 +53,7 @@ function PassCodeContainer({ navigation }) {
                     savePassCode(firstPassCode).then(() => {
                         setStage(stage + 1)
                         navigation.replace('NotifyMeScreen')
-                        storeData()
+                       // storeData()
                     }).catch(e => {
                         setHeading('Error')
                     })

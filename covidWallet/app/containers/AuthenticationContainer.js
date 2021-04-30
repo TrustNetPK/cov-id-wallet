@@ -7,7 +7,7 @@ import PrimaryButton from '../components/PrimaryButton';
 // Pass Code Imports
 import HeadingComponent from '../components/HeadingComponent';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
-import AsyncStorage from '@react-native-community/async-storage';
+// import AsyncStorage from '@react-native-community/async-storage';
 import ErrorComponent from '../components/ErrorComponent';
 
 const img = require('../assets/images/security.png');
@@ -27,12 +27,12 @@ function AuthenticationContainer({ navigation }) {
 
     const retrieveData = async () => {
         try {
-            const value = await AsyncStorage.getItem('@passCode').then((value) => {
-                console.log("Local Storage Password is " + value)
+            // const value = await AsyncStorage.getItem('@passCode').then((value) => {
+            //     console.log("Local Storage Password is " + value)
 
-                setlocalPassCode(value)
+            //     setlocalPassCode(value)
 
-            })
+            // })
 
 
         } catch (error) {
@@ -67,7 +67,7 @@ function AuthenticationContainer({ navigation }) {
                 }
             )
             .catch((error) => {
-                retrieveData();
+                //retrieveData();
                 checkSensor(false);
             });
     }

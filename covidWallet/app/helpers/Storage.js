@@ -1,13 +1,14 @@
-import AsyncStorage from '@react-native-community/async-storage';
 import ConstantsList from '../helpers/ConfigApp';
 
 export const savePassCode = async (PassCode) => {
-    return await AsyncStorage.setItem('@passCode', PassCode)
+    return "";
+    //return await AsyncStorage.setItem('@passCode', PassCode)
 }
 
 export const getPassCode = async () => {
     try {
-        const value = await AsyncStorage.getItem('@passCode')
+        //const value = await AsyncStorage.getItem('@passCode')
+        const value ="sasas"
         if (value !== null) {
 
         }
@@ -17,11 +18,13 @@ export const getPassCode = async () => {
 }
 
 export const saveItem = async (key, value) => {
-    return await AsyncStorage.setItem(key, value);
+    return "";
+    //return await AsyncStorage.setItem(key, value);
 }
 
 export const getItem = async (key) => {
-    return await AsyncStorage.getItem(key);
+    return "";
+    // return await AsyncStorage.getItem(key);
 }
 
 export const deleteActionByConnId = async (key, connID) => {

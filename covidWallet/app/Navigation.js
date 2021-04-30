@@ -12,7 +12,7 @@ import WelcomeScreen from './screens/WelcomeScreen';
 import SecureIdContainer from './containers/SecureIdContainer';
 import SecurityScreen from './screens/SecurityScreen';
 import NotifyMeScreen from './screens/NotifyMeScreen';
-import AsyncStorage from '@react-native-community/async-storage';
+// import AsyncStorage from '@react-native-community/async-storage';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsScreen from './screens/SettingsScreen';
 import QRScreen from './screens/QRScreen';
@@ -24,7 +24,7 @@ function NavigationComponent() {
   const [isFirstTime, getisFirstTime] = React.useState('true');
   const storeData = async () => {
     try {
-      await AsyncStorage.setItem('isfirstTime', 'false');
+   //   await AsyncStorage.setItem('isfirstTime', 'false');
     } catch (error) {
       // Error saving data
     }
@@ -73,8 +73,8 @@ function NavigationComponent() {
       //isFirstTimeFunction: () => dispatch({ type: 'FIRST_TIME' })
       isFirstTimeFunction: () => {
         storeData();
-        getisFirstTime('false');
-        // console.log("From IsFirstTime is " + isFirstTime)
+      //  getisFirstTime('false');
+         console.log("From IsFirstTime is " + isFirstTime)
       },
     }),
     [],
@@ -83,7 +83,7 @@ function NavigationComponent() {
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
         <Stack.Navigator>
-          {isFirstTime == null || isFirstTime == true ? (
+          {false ? (
             <>
               <Stack.Screen
                 options={{ headerShown: false }}

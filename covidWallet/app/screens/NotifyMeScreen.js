@@ -4,7 +4,6 @@ import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
-
 //import { AuthContext } from '../helpers/AuthContext'
 import { AuthContext } from '../Navigation'
 import { isFirstTime } from '../helpers/Storage';
@@ -16,10 +15,10 @@ function NotifyMeScreen({ navigation }) {
   const { isFirstTimeFunction } = React.useContext(AuthContext)
   storeData = async () => {
     try {
-      await AsyncStorage.setItem(
-        'isfirstTime',
-        'false'
-      );
+      // await AsyncStorage.setItem(
+      //   'isfirstTime',
+      //   'false'
+      // );
       isFirstTimeFunction({})
     } catch (error) {
       // Error saving data
@@ -27,7 +26,7 @@ function NotifyMeScreen({ navigation }) {
   };
   nextHandler = () => {
     storeData()
-    //navigation.navigate('MainScreen');
+   // navigation.navigate('MainScreen');
   }
 
   return (
@@ -44,7 +43,8 @@ function NotifyMeScreen({ navigation }) {
 
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-        <PrimaryButton text="Enable Notifications" nextHandler={isFirstTimeFunction()} />
+        <PrimaryButton text="Enable Notifications"  nextHandler={isFirstTimeFunction()}  /> 
+    {/* nextHandler={isFirstTimeFunction()} */}
         <Text style={styles.TextContainerEnd}
           onPress={nextHandler()} >Continue without alerts</Text>
       </View>

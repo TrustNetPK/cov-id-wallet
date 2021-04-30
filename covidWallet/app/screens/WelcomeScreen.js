@@ -17,7 +17,7 @@ var radio_props = [{ label: '', value: 0 }];
 function WelcomeScreen({ navigation }) {
   const [error, setError] = useState('');
   const [isChecked, setChecked] = useState(false);
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
   const [wallet_name, setWalletName] = useState(randomString(8));
   const [isRadio, setRadio] = useState('false');
 
