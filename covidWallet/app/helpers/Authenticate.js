@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
-// import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 var localPassCode = 0;
 var isSuccessful = false;
@@ -15,16 +15,16 @@ function isSecureIDAvailable() {
             }
         )
         .catch((error) => {
-           // retrieveData();
+            retrieveData();
             return false;
         });
 }
 const retrieveData = async () => {
     try {
-        // const value = await AsyncStorage.getItem('@passCode').then((value) => {
-        //     localPassCode = value;
+        const value = await AsyncStorage.getItem('@passCode').then((value) => {
+            localPassCode = value;
 
-        // })
+        })
 
 
     } catch (error) {

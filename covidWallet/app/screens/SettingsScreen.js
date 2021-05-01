@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, FlatList, Linking, Alert } from 'react-native';
 import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView';
 import HeadingComponent from '../components/HeadingComponent';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-//import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 var settingLocalData = {
   GENERAL: {
@@ -152,22 +152,22 @@ export default function SettingsScreen({ navigation }) {
                                 [
                                   {
                                     text: 'Yes', onPress: () => {
-                                      // AsyncStorage.removeItem('wallet_secret');
-                                      // AsyncStorage.removeItem('wallet_name');
-                                      // AsyncStorage.removeItem('connection_credential');
-                                      // AsyncStorage.removeItem('connection_proof');
-                                      // AsyncStorage.removeItem('connections');
-                                      // AsyncStorage.removeItem('credentials');
-                                      // AsyncStorage.removeItem('isfirstTime').then((value) => {
-                                      //   Alert.alert(
-                                      //     'Vaccify',
-                                      //     'Wallet Reset Successful, Please close the app!',
-                                      //     [
-                                      //       { text: 'OK', onPress: () => { } }
-                                      //     ],
-                                      //     { cancelable: false }
-                                      //   )
-                                      // })
+                                      AsyncStorage.removeItem('wallet_secret');
+                                      AsyncStorage.removeItem('wallet_name');
+                                      AsyncStorage.removeItem('connection_credential');
+                                      AsyncStorage.removeItem('connection_proof');
+                                      AsyncStorage.removeItem('connections');
+                                      AsyncStorage.removeItem('credentials');
+                                      AsyncStorage.removeItem('isfirstTime').then((value) => {
+                                        Alert.alert(
+                                          'Vaccify',
+                                          'Wallet Reset Successful, Please close the app!',
+                                          [
+                                            { text: 'OK', onPress: () => { } }
+                                          ],
+                                          { cancelable: false }
+                                        )
+                                      })
                                     }
                                   },
                                   { text: 'No', onPress: () => { } }

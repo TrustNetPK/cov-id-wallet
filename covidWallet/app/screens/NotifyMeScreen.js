@@ -4,7 +4,6 @@ import PrimaryButton from '../components/PrimaryButton';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
-//import { AuthContext } from '../helpers/AuthContext'
 import { AuthContext } from '../Navigation'
 import { isFirstTime } from '../helpers/Storage';
 const img = require('../assets/images/notifications.png');
@@ -15,10 +14,10 @@ function NotifyMeScreen({ navigation }) {
   const { isFirstTimeFunction } = React.useContext(AuthContext)
   storeData = async () => {
     try {
-      // await AsyncStorage.setItem(
-      //   'isfirstTime',
-      //   'false'
-      // );
+      await AsyncStorage.setItem(
+        'isfirstTime',
+        'false'
+      );
       isFirstTimeFunction({})
     } catch (error) {
       // Error saving data
@@ -44,7 +43,6 @@ function NotifyMeScreen({ navigation }) {
       </View>
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <PrimaryButton text="Enable Notifications"  nextHandler={isFirstTimeFunction()}  /> 
-    {/* nextHandler={isFirstTimeFunction()} */}
         <Text style={styles.TextContainerEnd}
           onPress={nextHandler()} >Continue without alerts</Text>
       </View>

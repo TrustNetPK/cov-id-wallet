@@ -16,7 +16,7 @@ const image = require('../assets/images/visa.jpg')
 
 function ActionsScreen(props) {
   const [isAction, setAction] = useState(true);
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(true);
   const [actionsList, setActionsList] = useState([]);
   const [modalData, setModalData] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
