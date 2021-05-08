@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect, CommonActions } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, TouchableOpacityBase, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacityBase, Alert,ImageBackground } from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -152,8 +152,9 @@ function ActionsScreen(props) {
       }
       {!isAction &&
         <View style={styles.EmptyContainer}>
-          <ImageBoxComponent source={require('../assets/images/action.gif')} />
           <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
+          <ImageBoxComponent source={require('../assets/images/action.png')} />
+          <Image style={styles.bottom} source={require('../assets/images/qrcode.png')} />
         </View>
       }
     </View>
@@ -162,15 +163,14 @@ function ActionsScreen(props) {
 
 const styles = StyleSheet.create({
   EmptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex:1,
+    alignItems: 'center'
   },
-  Imagesize: {
-    marginBottom: 50,
-    height: 300,
-    width: 300,
-    resizeMode: 'contain'
-  },
+  bottom: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    width: 50, height: 50, resizeMode: 'contain',
+  }
 });
 
 export default ActionsScreen;

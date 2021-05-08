@@ -6,11 +6,14 @@ function HeadingComponent(props) {
 
     const styles = StyleSheet.create({
         heading: {
-            fontWeight: "bold",
             fontSize: 30,
+            fontFamily: 'Merriweather-Bold',
             marginTop: 20,
             marginBottom: 15,
             color: BLACK_COLOR,
+            justifyContent: 'center',
+      alignItems: 'center',
+      textAlign: 'center',
         }
     });
 

@@ -42,7 +42,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Vaccify Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow Vaccify to use Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -65,6 +65,8 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Merriweather-Bold.ttf</string>
+		<string>Poppins-Regular.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

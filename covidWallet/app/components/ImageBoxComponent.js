@@ -11,9 +11,10 @@ function ImageBoxComponent({ source }) {
 
 const styles = StyleSheet.create({
   Imagesize: {
-    height: 350,
-    width: 250,
-    resizeMode: 'contain'
+    height: 280,
+    width: 280,
+    resizeMode: 'contain',
+    opacity:0.1
   },
 });
 
