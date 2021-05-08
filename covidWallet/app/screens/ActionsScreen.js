@@ -14,7 +14,7 @@ import ConstantsList from '../helpers/ConfigApp';
 import { ScrollView } from 'react-native-gesture-handler';
 const image = require('../assets/images/visa.jpg')
 
-function ActionsScreen(props) {
+function ActionsScreen({navigation}) {
   const [isAction, setAction] = useState(true);
   const [isModalVisible, setModalVisible] = useState(true);
   const [actionsList, setActionsList] = useState([]);
@@ -154,7 +154,12 @@ function ActionsScreen(props) {
         <View style={styles.EmptyContainer}>
           <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
           <ImageBoxComponent source={require('../assets/images/action.png')} />
-          <Image style={styles.bottom} source={require('../assets/images/qrcode.png')} />
+          <TouchableOpacity onPress={() => {
+                          navigation.navigate('QRScreen');
+                        }}>
+          <Image style={styles.bottom}  source={require('../assets/images/qrcode.png')}  />
+          </TouchableOpacity>
+          
         </View>
       }
     </View>
@@ -167,9 +172,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   bottom: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    width: 50, height: 50, resizeMode: 'contain',
+    width: 50, height: 50
+  },
+  imageProps:{
+     
   }
 });
 

@@ -4,7 +4,8 @@ import FingerprintScanner from 'react-native-fingerprint-scanner';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import PrimaryButton from '../components/PrimaryButton';
-// Pass Code Imports
+import GreenPrimaryButton from '../components/GreenPrimaryButton';
+// Pass Code ImportsGreenPrimaryButton
 import HeadingComponent from '../components/HeadingComponent';
 import { PRIMARY_COLOR, GRAY_COLOR } from '../theme/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -146,19 +147,20 @@ function AuthenticationContainer({ navigation }) {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             {isSensorAvailable &&
                 <View>
-                    <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ alignItems: 'center', textAlign: 'center' }}>
+                        <Text style={styles.TextContainerHead}>Security Check</Text>
+                        <TextComponent onboarding={true} text="Using security check significantly reduces the chances
+                  your account will be compromised in case your phone is lost or stolen." />
+                    </View>
+
+                    <View style={{  alignItems: 'center',marginTop:30 }}>
                         <ImageBoxComponent
                             source={img}
                         />
                     </View>
 
-                    <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <Text style={styles.TextContainerHead}>Security Check</Text>
-                        <TextComponent onboarding={true} text="Using security check significantly reduces the chances
-                  your account will be compromised in case your phone is lost or stolen." />
-                    </View>
-                    <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-                        <PrimaryButton text="Pass Security Check to move further" nextHandler={enableSecureID} />
+                    <View style={{ alignItems: 'center',marginTop:35 }}>
+                        <GreenPrimaryButton text="PASS SECURITY CHECK" nextHandler={enableSecureID} />
                     </View>
                 </View>
             }
@@ -201,8 +203,13 @@ AuthenticationContainer.defaultProps = {
 };
 
 const styles = StyleSheet.create({
+    EmptyContainer: {
+        flex:1,
+        alignItems: 'center'
+      },
     TextContainerHead: {
-        alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: 'bold',
+        alignItems: 'center', justifyContent: 'center', color: 'black', fontFamily:'Merriweather-Bold',
+        marginBottom:10,
         fontSize: 32, flexDirection: 'column',
     },
     title: {
@@ -253,7 +260,13 @@ const styles = StyleSheet.create({
 
     buttonContainer: {
         marginTop: '15%'
-    }
+    },
+    bottom: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        width: 50, height: 50, resizeMode: 'contain',
+      }
 });
 
 export default AuthenticationContainer;

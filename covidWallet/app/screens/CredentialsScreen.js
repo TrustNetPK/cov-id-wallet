@@ -121,9 +121,8 @@ function CredentialsScreen(props) {
         </View>}
       {!isCredential &&
         <View style={styles.EmptyContainer}>
-          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
           <TextComponent text="There are no certificates in your wallet. Once you receive a certificate, it will show up here." />
-
+          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
         </View>}
 
       <View style={{

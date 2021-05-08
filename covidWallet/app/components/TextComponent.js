@@ -7,7 +7,7 @@ function TextComponent({ text, onboarding }) {
 
   const styles = StyleSheet.create({
     TextGuide: {
-      color: onboarding ? 'black' : GRAY_COLOR,
+      color: 'black',
       marginTop: 0,
       fontSize: 16,
       marginLeft: 35,

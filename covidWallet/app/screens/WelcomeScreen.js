@@ -12,7 +12,7 @@ import { saveItem } from '../helpers/Storage';
 
 const img = require('../assets/images/t&c.png');
 
-var radio_props = [{ label: '', value: 0 }];
+var radio_props = [{ label: '', value: 0,selectedButtonColor: PRIMARY_COLOR }];
 
 function WelcomeScreen({ navigation }) {
   const [error, setError] = useState('');
@@ -104,7 +104,7 @@ function WelcomeScreen({ navigation }) {
           />
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={styles.link}>
-              I agree to TrustNet Pakistan’s
+              I have read and agree to Zada
               <Text
                 style={styles.linkText}
                 onPress={() =>
@@ -147,9 +147,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingLeft: 0,
     paddingRight: 0,
+    color: PRIMARY_COLOR
   },
   checkbox: {
     paddingTop: '2%',
+    color: PRIMARY_COLOR
   },
   linkText: {
     color: PRIMARY_COLOR,
@@ -160,7 +162,6 @@ const styles = StyleSheet.create({
   link: {
     color: 'black',
     fontSize: 14,
-
     marginBottom: 20,
   },
 });

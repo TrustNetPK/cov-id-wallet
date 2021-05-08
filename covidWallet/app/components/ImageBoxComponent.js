@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
   Imagesize: {
     height: 280,
     width: 280,
+    marginTop:35,
     resizeMode: 'contain',
     opacity:0.1
   },
