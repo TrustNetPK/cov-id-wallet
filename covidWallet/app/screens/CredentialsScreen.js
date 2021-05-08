@@ -125,14 +125,14 @@ function CredentialsScreen(props) {
           <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
         </View>}
 
-      <View style={{
+      {/* <View style={{
         position: 'absolute',
         bottom: '5%', right: '5%', alignItems: 'center', justifyContent: 'center'
       }}>
         <TouchableOpacity activeOpacity={.5} onPress={loadCreds}>
           <Image source={refresh_img} style={styles.refreshButton} />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View >
   );
 }
