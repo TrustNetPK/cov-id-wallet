@@ -12,6 +12,7 @@ import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
 import { authenticate } from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
 import { ScrollView } from 'react-native-gesture-handler';
+import BorderButton from '../components/BorderButton';
 const image = require('../assets/images/visa.jpg')
 
 function ActionsScreen({navigation}) {
@@ -154,10 +155,10 @@ function ActionsScreen({navigation}) {
         <View style={styles.EmptyContainer}>
           <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
           <ImageBoxComponent source={require('../assets/images/action.png')} />
-          <TouchableOpacity onPress={() => {
+          <TouchableOpacity activeOpacity={0.9} onPress={() => {
                           navigation.navigate('QRScreen');
                         }}>
-          <Image style={styles.bottom}  source={require('../assets/images/qrcode.png')}  />
+                          <BorderButton text="QR CODE"/>
           </TouchableOpacity>
           
         </View>

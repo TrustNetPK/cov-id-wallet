@@ -13,10 +13,10 @@ import SecureIdContainer from './containers/SecureIdContainer';
 import SecurityScreen from './screens/SecurityScreen';
 import NotifyMeScreen from './screens/NotifyMeScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingsScreen from './screens/SettingsScreen';
 import QRScreen from './screens/QRScreen';
-import { BLACK_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from './theme/Colors';
+import { BLACK_COLOR, BACKGROUND_COLOR } from './theme/Colors';
 
 const Stack = createStackNavigator();
 
@@ -122,30 +122,20 @@ function NavigationComponent() {
                   name="MainScreen"
                   options={({ navigation }) => ({
                     headerStyle: {
+                      backgroundColor: BACKGROUND_COLOR,
                       elevation: 0,
                       shadowOpacity: 0,
                       borderBottomWidth: 0,
                     },
                     title: false,
-                    headerRight: () => (
-                      <MaterialCommunityIcons
-                        onPress={() => {
-                          navigation.navigate('QRScreen');
-                        }}
-                        style={styles.headerRightIcon}
-                        size={30}
-                        name="qrcode"
-                        padding={30}
-                      />
-                    ),
                     headerLeft: () => (
-                      <MaterialCommunityIcons
+                      <FontAwesome
                         onPress={() => {
                           navigation.navigate('SettingsScreen');
                         }}
                         style={styles.headerRightIcon}
                         size={30}
-                        name="settings"
+                        name="navicon"
                         padding={30}
                       />
                     ),
