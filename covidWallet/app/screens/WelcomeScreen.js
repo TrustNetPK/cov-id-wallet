@@ -1,14 +1,16 @@
 import * as React from 'react';
-import { View, Text, Linking, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Linking, StyleSheet, ActivityIndicator,TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
 import PrimaryButton from '../components/PrimaryButton';
-import { PRIMARY_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR,BACKGROUND_COLOR,GREEN_COLOR,WHITE_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import randomString from '../helpers/RandomString';
 import { saveItem } from '../helpers/Storage';
+import HeadingComponent from '../components/HeadingComponent';
+import GreenPrimaryButton from '../components/GreenPrimaryButton';
 
 const img = require('../assets/images/t&c.png');
 
@@ -66,76 +68,67 @@ function WelcomeScreen({ navigation }) {
   };
 
   const nextHandler = () => {
-    setError('');
-    if (!isChecked) {
-      setError('Please agree with the terms and conditions.');
-    } else {
       navigation.navigate('SecurityScreen');
-    }
   };
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
-        <ImageBoxComponent source={img} />
-      </View>
+    <View style={{ flex: 1,alignItems: 'center', justifyContent: 'center',backgroundColor:PRIMARY_COLOR }}>
+      <View style={{flex:1,backgroundColor:BACKGROUND_COLOR,alignContent:'center',margin:30,borderRadius:10}}>
       <View
         style={{
-          flex: 2,
+          flex: 5,
           alignItems: 'center',
           justifyContent: 'center',
-          textAlign: 'center',
+          textAlign: 'center'
         }}>
-        <Text style={styles.TextContainerHead} />
+          <View style={{marginTop:20,marginLeft:25,marginRight:25}}>
+          <HeadingComponent text="Zada is your Digital ID Wallet!"/>
+          </View>
         <TextComponent
           onboarding={true}
-          text="Let's create your self-soverign identity. This app helps you exchange secure digital certificates."
-        />
+          text="Securely prove who you are and only share the information you want."/>
+          <View style={{paddingTop:10}}/>
+        <TextComponent
+          onboarding={true}
+          text="All certificates and IDs safely stored on your phone, where only you can access them."/>
+       <View style={{ alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center'}}>
+         <Text style={{color:'black',fontFamily:'Merriweather-Bold',paddingTop:30}}>We provide your privacy and data.</Text>
+         <Text style={{color:'black',fontFamily:'Poppins-Regular', marginLeft: 20,fontSize:12,alignItems:'center',justifyContent:'center',textAlign:'center', 
+      marginRight: 20}}>By continuing below you confirm that you have read and agree to &nbsp;
+      <Text
+    style={{ color: PRIMARY_COLOR,}}
+    onPress={() => {Linking.openURL('http://www.example.com/')}}
+  >
+    ZADA General Terms and Conditions 
+  </Text>
+  &nbsp;and&nbsp;
+   <Text
+    style={{ color: PRIMARY_COLOR,}}
+    onPress={() => {Linking.openURL('http://www.example.com/')}}
+  >
+    Privacy Policy.
+  </Text>
+      </Text>
+      
+         </View>
+         <TouchableOpacity style={styles.primaryButton} onPress={nextHandler}>
+            <Text style={styles.text}>CONTINUE</Text>
+        </TouchableOpacity>
       </View>
-      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-        <View style={styles.checkboxContainer}>
-          <RadioForm
-            radio_props={radio_props}
-            buttonSize={10}
-            initial={-1}
-            checked={isChecked}
-            onPress={checkHandler}
-            style={styles.checkbox}
-          />
-          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={styles.link}>
-              I have read and agree to Zada
-              <Text
-                style={styles.linkText}
-                onPress={() =>
-                  Linking.openURL('https://vaccify.pk/terms-policy')
-                }>
-                {' '}
-                {'\n'}Terms of Services and Privacy Policy.
-              </Text>
-            </Text>
-          </View>
-        </View>
-        {error.length > 0 ? <Text style={styles.ErrorBox}>{error}</Text> : null}
-        {isLoading ? (
-          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
-        ) : (
-            <PrimaryButton text="Continue" nextHandler={nextHandler} />
-          )}
-      </View>
+     
+    </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   TextContainerHead: {
-    paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
     color: 'black',
-    fontWeight: 'bold',
     fontSize: 32,
-    flexDirection: 'column',
   },
   ErrorBox: {
     color: 'red',
@@ -164,6 +157,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 20,
   },
+  primaryButton: {
+    borderColor: GREEN_COLOR,
+    borderWidth: 2,
+    borderRadius: 20,
+    backgroundColor: GREEN_COLOR,
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    paddingRight: 20,
+    marginTop: 10,
+    width: 250,
+},
+text: {
+    color: WHITE_COLOR,
+    alignSelf: 'center',
+    fontFamily:'Merriweather-Bold'
+}
 });
 
 export default WelcomeScreen;

@@ -15,7 +15,7 @@ function GreenPrimaryButton(props) {
             paddingBottom: 10,
             paddingRight: 20,
             marginTop: 10,
-            width: 300,
+            width: 250,
         },
         text: {
             color: WHITE_COLOR,
