@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
 import { AuthContext } from './helpers/AuthContext';
-import { getisFirstTime, isFirstTime } from './helpers/Storage';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeContainer from './containers/PassCodeContainer';
 import AuthenticationContainer from './containers/AuthenticationContainer';
@@ -143,8 +143,20 @@ function NavigationComponent() {
                   component={TabNavigator}
                 />
                 <Stack.Screen
-                  options={{ headerShown: false }}
-                  name="SettingsScreen"
+                 name="SettingsScreen"
+                  options={({ navigation })=>({
+                    headerLeft: () => (
+                      <MaterialIcons
+                        onPress={() => {
+                          navigation.goBack();
+                        }}
+                        style={styles.headerRightIcon}
+                        size={30}
+                        name="arrow-back"
+                        padding={30}
+                      />
+                    )
+                  })}
                   component={SettingsScreen}
                 />
                 <Stack.Screen
