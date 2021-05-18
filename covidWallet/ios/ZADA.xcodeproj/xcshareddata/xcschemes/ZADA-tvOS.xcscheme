@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-               BuildableName = "Vaccify-tvOS.app"
-               BlueprintName = "Vaccify-tvOS"
-               ReferencedContainer = "container:Vaccify.xcodeproj">
+               BuildableName = "ZADA-tvOS.app"
+               BlueprintName = "ZADA-tvOS"
+               ReferencedContainer = "container:ZADA.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
-               BuildableName = "Vaccify-tvOSTests.xctest"
-               BlueprintName = "Vaccify-tvOSTests"
-               ReferencedContainer = "container:Vaccify.xcodeproj">
+               BuildableName = "ZADA-tvOSTests.xctest"
+               BlueprintName = "ZADA-tvOSTests"
+               ReferencedContainer = "container:ZADA.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "Vaccify-tvOS.app"
-            BlueprintName = "Vaccify-tvOS"
-            ReferencedContainer = "container:Vaccify.xcodeproj">
+            BuildableName = "ZADA-tvOS.app"
+            BlueprintName = "ZADA-tvOS"
+            ReferencedContainer = "container:ZADA.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "Vaccify-tvOS.app"
-            BlueprintName = "Vaccify-tvOS"
-            ReferencedContainer = "container:Vaccify.xcodeproj">
+            BuildableName = "ZADA-tvOS.app"
+            BlueprintName = "ZADA-tvOS"
+            ReferencedContainer = "container:ZADA.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
