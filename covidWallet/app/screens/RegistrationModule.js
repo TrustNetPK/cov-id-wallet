@@ -20,15 +20,13 @@ import {
   GREEN_COLOR,
   WHITE_COLOR,
   GRAY_COLOR,
-  BLACK_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
-import randomString from '../helpers/RandomString';
 
 const {height, width} = Dimensions.get('window');
 
 function RegistrationModule({navigation}) {
-  const [activeOption, updateActiveOption] = useState('login');
+  const [activeOption, updateActiveOption] = useState('register');
   const [text, setText] = useState('');
   const selectionOnPress = userType => {
     updateActiveOption(userType);
@@ -39,15 +37,15 @@ function RegistrationModule({navigation}) {
   };
   React.useEffect(() => {
     SplashScreen.hide();
-  });
+    if (activeOption == 'register')
+      setText(
+        randomWords(12)
+          .toString()
+          .replace(/,/g, ' '),
+      );
+  }, [activeOption]);
   const nextHandler = () => {
-    console.log(randomWords(12).toString());
-    setText(
-      randomWords(12)
-        .toString()
-        .replace(/,/g, ' '),
-    );
-    //   navigation.navigate('SecurityScreen');
+    navigation.navigate('MultiFactorScreen');
   };
 
   return (
@@ -142,65 +140,109 @@ function RegistrationModule({navigation}) {
               />
             </TouchableOpacity>
           </View>
+          {activeOption == 'register' && (
+            <View>
+              <ScrollView showsVerticalScrollIndicator={true}>
+                <View style={styles.inputView}>
+                  <TextInput style={styles.TextInput} placeholder="Name" />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput style={styles.TextInput} placeholder="Email" />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput style={styles.TextInput} placeholder="Phone" />
+                </View>
+                <Text style={styles.secretMessage}>
+                  Secret phrase (please save in safe place)
+                </Text>
+                <View
+                  style={{
+                    backgroundColor: WHITE_COLOR,
+                    borderRadius: 10,
+                    width: '94%',
+                    height: 65,
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginTop: 8,
+                  }}>
+                  <TextInput
+                    style={styles.SecretTextInput}
+                    placeholder="Secret Phrase"
+                    onChangeText={text => setText(text.replace(',', ''))}
+                    defaultValue={text}
+                    multiline={true}
+                    editable={false}
+                  />
+                  <FontAwesome
+                    style={{flex: 1}}
+                    onPress={() => copyToClipboard()}
+                    style={styles.textRightIcon}
+                    name="copy"
+                    size={25}
+                  />
+                </View>
 
-          <View style={styles.inputView}>
-            <TextInput style={styles.TextInput} placeholder="Name" />
-          </View>
-          <View style={styles.inputView}>
-            <TextInput style={styles.TextInput} placeholder="Email" />
-          </View>
-          <View style={styles.inputView}>
-            <TextInput style={styles.TextInput} placeholder="Phone" />
-          </View>
-          <Text style={styles.secretMessage}>
-            Secret phrase (please save in safe place)
-          </Text>
-          <View
-            style={{
-              backgroundColor: WHITE_COLOR,
-              borderRadius: 10,
-              width: '94%',
-              height: 65,
-              flexDirection: 'row',
-              marginLeft: 10,
-              marginTop: 8,
-            }}>
-            <TextInput
-              style={styles.SecretTextInput}
-              placeholder="Secret Phrase"
-              onChangeText={text => setText(text.replace(',', ''))}
-              defaultValue={text}
-              multiline={true}
-            />
-            <FontAwesome
-              style={{flex: 1}}
-              onPress={() => copyToClipboard()}
-              style={styles.textRightIcon}
-              name="copy"
-              size={25}
-            />
-          </View>
-
-          <Text
-            style={{
-              color: GRAY_COLOR,
-              fontFamily: 'Poppins-Regular',
-              marginLeft: 20,
-              fontSize: 12,
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              marginTop: 10,
-              marginRight: 20,
-            }}>
-            We need your details as you ZADA WALLET will be based on it. We are
-            not going to send you ads or spam email, or sell your information to
-            a 3rd party.
-          </Text>
-          <TouchableOpacity style={styles.primaryButton} onPress={nextHandler}>
-            <Text style={styles.text}>CONTINUE</Text>
-          </TouchableOpacity>
-          {/* */}
+                <Text
+                  style={{
+                    color: GRAY_COLOR,
+                    fontFamily: 'Poppins-Regular',
+                    marginLeft: 20,
+                    fontSize: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    marginTop: 10,
+                    marginRight: 20,
+                  }}>
+                  We need your details as you ZADA WALLET will be based on it.
+                  We are not going to send you ads or spam email, or sell your
+                  information to a 3rd party.
+                </Text>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={nextHandler}>
+                  <Text style={styles.text}>CONTINUE</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          )}
+          {activeOption == 'login' && (
+            <View>
+              <ScrollView showsVerticalScrollIndicator={true}>
+                <View style={styles.inputView}>
+                  <TextInput style={styles.TextInput} placeholder="Name" />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput style={styles.TextInput} placeholder="Email" />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput style={styles.TextInput} placeholder="Phone" />
+                </View>
+                <Text style={styles.secretMessage}>Secret phrase</Text>
+                <View
+                  style={{
+                    backgroundColor: WHITE_COLOR,
+                    borderRadius: 10,
+                    width: '94%',
+                    height: 65,
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginTop: 8,
+                  }}>
+                  <TextInput
+                    style={styles.SecretTextInput}
+                    placeholder="Secret Phrase"
+                    multiline={true}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={nextHandler}>
+                  <Text style={styles.text}>CONTINUE</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
