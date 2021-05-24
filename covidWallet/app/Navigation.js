@@ -126,11 +126,6 @@ function NavigationComponent() {
           ) : (
             <>
               <Stack.Screen
-                options={{headerShown: false}}
-                name="AuthenticationContainer"
-                component={AuthenticationContainer}
-              />
-              <Stack.Screen
                 name="MainScreen"
                 options={({navigation}) => ({
                   headerStyle: {
@@ -175,6 +170,11 @@ function NavigationComponent() {
                 options={{headerShown: false}}
                 name="QRScreen"
                 component={QRScreen}
+              />
+              <Stack.Screen
+                options={{headerShown: false}}
+                name="AuthenticationContainer"
+                component={AuthenticationContainer}
               />
             </>
           )}
