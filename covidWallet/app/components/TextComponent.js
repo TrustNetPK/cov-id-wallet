@@ -7,11 +7,12 @@ function TextComponent({ text, onboarding }) {
 
   const styles = StyleSheet.create({
     TextGuide: {
-      color: onboarding ? 'black' : GRAY_COLOR,
-      marginTop: 14,
+      color: 'black',
+      marginTop: 0,
       fontSize: 16,
       marginLeft: 35,
       marginRight: 35,
+      fontFamily:'Poppins-Regular',
       justifyContent: 'center',
       alignItems: 'center',
       textAlign: 'center',

@@ -54,8 +54,8 @@ function ConnectionsScreen(props) {
       }
       {!isConnection &&
         <View style={styles.EmptyContainer}>
+          <TextComponent text="You have no connections yet." />
           <ImageBoxComponent source={require('../assets/images/connectionsempty.png')} />
-          <TextComponent text="Once you establish a connection, it will show up here. Go ahead and connect with someone." />
         </View>
       }
     </View>

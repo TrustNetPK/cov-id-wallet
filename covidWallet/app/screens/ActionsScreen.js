@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect, CommonActions } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, TouchableOpacityBase, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacityBase, Alert,ImageBackground } from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -12,9 +12,10 @@ import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
 import { authenticate } from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
 import { ScrollView } from 'react-native-gesture-handler';
+import BorderButton from '../components/BorderButton';
 const image = require('../assets/images/visa.jpg')
 
-function ActionsScreen(props) {
+function ActionsScreen({navigation}) {
   const [isAction, setAction] = useState(true);
   const [isModalVisible, setModalVisible] = useState(true);
   const [actionsList, setActionsList] = useState([]);
@@ -152,8 +153,14 @@ function ActionsScreen(props) {
       }
       {!isAction &&
         <View style={styles.EmptyContainer}>
-          <ImageBoxComponent source={require('../assets/images/action.gif')} />
           <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
+          <ImageBoxComponent source={require('../assets/images/action.png')} />
+          <TouchableOpacity activeOpacity={0.9} onPress={() => {
+                          navigation.navigate('QRScreen');
+                        }}>
+                          <BorderButton text="QR CODE"/>
+          </TouchableOpacity>
+          
         </View>
       }
     </View>
@@ -162,15 +169,15 @@ function ActionsScreen(props) {
 
 const styles = StyleSheet.create({
   EmptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex:1,
+    alignItems: 'center'
   },
-  Imagesize: {
-    marginBottom: 50,
-    height: 300,
-    width: 300,
-    resizeMode: 'contain'
+  bottom: {
+    width: 50, height: 50
   },
+  imageProps:{
+     
+  }
 });
 
 export default ActionsScreen;

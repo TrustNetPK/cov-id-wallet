@@ -44,8 +44,8 @@ def flipper_post_install(installer)
   end
 end
 
-target 'Vaccify' do
-  # Pods for Vaccify
+target 'ZADA' do
+  # Pods for ZADA
   pod 'Permission-Camera', :path => "../node_modules/react-native-permissions/ios/Camera.podspec"
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
@@ -83,7 +83,7 @@ target 'Vaccify' do
 
   pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
   pod 'react-native-fingerprint-scanner', :path => '../node_modules/react-native-fingerprint-scanner'
-  target 'VaccifyTests' do
+  target 'ZADATests' do
     inherit! :complete
     # Pods for testing
   end
@@ -100,10 +100,10 @@ target 'Vaccify' do
   end
 end
 
-target 'Vaccify-tvOS' do
-  # Pods for Vaccify-tvOS
+target 'ZADA-tvOS' do
+  # Pods for ZADA-tvOS
 
-  target 'Vaccify-tvOSTests' do
+  target 'ZADA-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end

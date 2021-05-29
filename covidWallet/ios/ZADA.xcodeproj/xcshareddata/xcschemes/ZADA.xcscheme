@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "Vaccify.app"
-               BlueprintName = "Vaccify"
-               ReferencedContainer = "container:Vaccify.xcodeproj">
+               BuildableName = "ZADA.app"
+               BlueprintName = "ZADA"
+               ReferencedContainer = "container:ZADA.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "VaccifyTests.xctest"
-               BlueprintName = "VaccifyTests"
-               ReferencedContainer = "container:Vaccify.xcodeproj">
+               BuildableName = "ZADATests.xctest"
+               BlueprintName = "ZADATests"
+               ReferencedContainer = "container:ZADA.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Vaccify.app"
-            BlueprintName = "Vaccify"
-            ReferencedContainer = "container:Vaccify.xcodeproj">
+            BuildableName = "ZADA.app"
+            BlueprintName = "ZADA"
+            ReferencedContainer = "container:ZADA.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Vaccify.app"
-            BlueprintName = "Vaccify"
-            ReferencedContainer = "container:Vaccify.xcodeproj">
+            BuildableName = "ZADA.app"
+            BlueprintName = "ZADA"
+            ReferencedContainer = "container:ZADA.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

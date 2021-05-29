@@ -38,15 +38,15 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow Vaccify to take Pictures?</string>
+	<string>Allow ZADA to take Pictures?</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Vaccify Wallet requires Secure ID access to allows you quick and secure access.</string>
+	<string>ZADA Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow Vaccify to use Microphone?</string>
+	<string>Allow ZADA to use Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow Vaccify to use Photo Library?</string>
+	<string>Allow ZADA to use Photo Library?</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -65,6 +65,9 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Merriweather-Bold.ttf</string>
+		<string>Poppins-Regular.ttf</string>
+		<string>Poppins-Bold.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

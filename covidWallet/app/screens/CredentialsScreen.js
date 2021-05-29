@@ -121,19 +121,18 @@ function CredentialsScreen(props) {
         </View>}
       {!isCredential &&
         <View style={styles.EmptyContainer}>
-          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
           <TextComponent text="There are no certificates in your wallet. Once you receive a certificate, it will show up here." />
-
+          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
         </View>}
 
-      <View style={{
+      {/* <View style={{
         position: 'absolute',
         bottom: '5%', right: '5%', alignItems: 'center', justifyContent: 'center'
       }}>
         <TouchableOpacity activeOpacity={.5} onPress={loadCreds}>
           <Image source={refresh_img} style={styles.refreshButton} />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View >
   );
 }
