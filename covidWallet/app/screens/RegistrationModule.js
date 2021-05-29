@@ -36,7 +36,6 @@ function RegistrationModule({navigation}) {
     ToastAndroid.show('Secret Key is copied to clipboard.', ToastAndroid.SHORT);
   };
   React.useEffect(() => {
-    SplashScreen.hide();
     if (activeOption == 'register')
       setText(
         randomWords(12)
@@ -144,13 +143,25 @@ function RegistrationModule({navigation}) {
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
                 <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Name" />
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Name"
+                    keyboardType="name-phone-pad"
+                  />
                 </View>
                 <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Email" />
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                  />
                 </View>
                 <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Phone" />
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Phone"
+                    keyboardType="phone-pad"
+                  />
                 </View>
                 <Text style={styles.secretMessage}>
                   Secret phrase (please save in safe place)
