@@ -223,6 +223,42 @@ function RegistrationModule({navigation}) {
     }
   };
 
+  const login = async () => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/login`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          phone: phone,
+          secretPhrase: text,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            console.log(JSON.stringify(data));
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              navigation.replace('MultiFactorScreen');
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
   return (
     <View
       style={{
