@@ -34,6 +34,7 @@ function RegistrationModule({navigation}) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [secret, setSecret] = useState('');
 
   const selectionOnPress = userType => {
     updateActiveOption(userType);
@@ -65,10 +66,12 @@ function RegistrationModule({navigation}) {
   };
 
   const submit = () => {
-    if (name == '' && phone == '' && email == '') {
+    console.log('Submit Button Called');
+    if (name == '' || phone == '' || email == '' || secret == '') {
       ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
     } else {
       if (activeOption == 'register') register();
+      else if (activeOption == 'login') login();
     }
   };
 
@@ -82,6 +85,42 @@ function RegistrationModule({navigation}) {
         },
         body: JSON.stringify({
           name: name,
+          email: email,
+          phone: phone,
+          secretPhrase: text,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            console.log(JSON.stringify(data));
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              navigation.replace('MultiFactorScreen');
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
+  const login = async () => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/login`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: email,
           phone: phone,
           secretPhrase: text,
@@ -254,6 +293,9 @@ function RegistrationModule({navigation}) {
                     defaultValue={text}
                     multiline={true}
                     editable={false}
+                    onChangeText={secret => {
+                      setSecret(secret);
+                    }}
                   />
                   <FontAwesome
                     style={{flex: 1}}
@@ -290,13 +332,34 @@ function RegistrationModule({navigation}) {
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
                 <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Name" />
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Name"
+                    keyboardType="name-phone-pad"
+                    onChangeText={name => {
+                      setName(name);
+                    }}
+                  />
                 </View>
                 <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Email" />
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    onChangeText={email => {
+                      setEmail(email);
+                    }}
+                  />
                 </View>
                 <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Phone" />
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Phone"
+                    keyboardType="phone-pad"
+                    onChangeText={phone => {
+                      setPhone(phone);
+                    }}
+                  />
                 </View>
                 <Text style={styles.secretMessage}>Secret phrase</Text>
                 <View
@@ -312,12 +375,14 @@ function RegistrationModule({navigation}) {
                   <TextInput
                     style={styles.SecretTextInput}
                     placeholder="Secret Phrase"
+                    keyboardType="name-phone-pad"
+                    onChangeText={secretPhrase => {
+                      setSecret(secretPhrase);
+                    }}
                     multiline={true}
                   />
                 </View>
-                <TouchableOpacity
-                  style={styles.primaryButton}
-                  onPress={nextHandler}>
+                <TouchableOpacity style={styles.primaryButton} onPress={submit}>
                   <Text style={styles.text}>CONTINUE</Text>
                 </TouchableOpacity>
               </ScrollView>
