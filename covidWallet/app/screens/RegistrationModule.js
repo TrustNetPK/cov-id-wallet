@@ -12,7 +12,6 @@ import {
   Clipboard,
   ScrollView,
 } from 'react-native';
-import SplashScreen from 'react-native-splash-screen';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
   PRIMARY_COLOR,
@@ -22,29 +21,92 @@ import {
   GRAY_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import {StackActions} from '@react-navigation/native';
+import ConstantsList from '../helpers/ConfigApp';
+import NetInfo from '@react-native-community/netinfo';
 
 const {height, width} = Dimensions.get('window');
 
 function RegistrationModule({navigation}) {
   const [activeOption, updateActiveOption] = useState('register');
   const [text, setText] = useState('');
+  const [networkState, setNetworkState] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+
   const selectionOnPress = userType => {
     updateActiveOption(userType);
   };
   const copyToClipboard = () => {
     Clipboard.setString(text);
-    ToastAndroid.show('Secret Key is copied to clipboard.', ToastAndroid.SHORT);
+    ToastAndroid.show(
+      'Secret Phrase is copied to clipboard.',
+      ToastAndroid.SHORT,
+    );
   };
   React.useEffect(() => {
+    NetInfo.fetch().then(networkState => {
+      setNetworkState(networkState.isConnected);
+    });
     if (activeOption == 'register')
       setText(
         randomWords(12)
           .toString()
           .replace(/,/g, ' '),
       );
-  }, [activeOption]);
+  }, [activeOption, networkState]);
+
   const nextHandler = () => {
-    navigation.navigate('MultiFactorScreen');
+    navigation.dispatch({
+      index: 0,
+      actions: [StackActions.replace({routeName: 'MultiFactorScreen'})],
+    });
+  };
+
+  const submit = () => {
+    if (name == '' && phone == '' && email == '') {
+      ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
+    } else {
+      if (activeOption == 'register') register();
+    }
+  };
+
+  const register = async () => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/register`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          phone: phone,
+          secretPhrase: text,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            console.log(JSON.stringify(data));
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              navigation.replace('MultiFactorScreen');
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
   };
 
   return (
@@ -147,6 +209,9 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Name"
                     keyboardType="name-phone-pad"
+                    onChangeText={name => {
+                      setName(name);
+                    }}
                   />
                 </View>
                 <View style={styles.inputView}>
@@ -154,6 +219,9 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Email"
                     keyboardType="email-address"
+                    onChangeText={email => {
+                      setEmail(email);
+                    }}
                   />
                 </View>
                 <View style={styles.inputView}>
@@ -161,6 +229,9 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Phone"
                     keyboardType="phone-pad"
+                    onChangeText={phone => {
+                      setPhone(phone);
+                    }}
                   />
                 </View>
                 <Text style={styles.secretMessage}>
@@ -209,9 +280,7 @@ function RegistrationModule({navigation}) {
                   We are not going to send you ads or spam email, or sell your
                   information to a 3rd party.
                 </Text>
-                <TouchableOpacity
-                  style={styles.primaryButton}
-                  onPress={nextHandler}>
+                <TouchableOpacity style={styles.primaryButton} onPress={submit}>
                   <Text style={styles.text}>CONTINUE</Text>
                 </TouchableOpacity>
               </ScrollView>
