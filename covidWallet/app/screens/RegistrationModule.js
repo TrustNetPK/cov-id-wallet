@@ -11,6 +11,7 @@ import {
   Dimensions,
   Clipboard,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
@@ -29,12 +30,12 @@ const {height, width} = Dimensions.get('window');
 
 function RegistrationModule({navigation}) {
   const [activeOption, updateActiveOption] = useState('register');
-  const [text, setText] = useState('');
   const [networkState, setNetworkState] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [secret, setSecret] = useState('');
+  const [progress, setProgress] = useState(false);
 
   const selectionOnPress = userType => {
     updateActiveOption(userType);
@@ -51,7 +52,7 @@ function RegistrationModule({navigation}) {
       setNetworkState(networkState.isConnected);
     });
     if (activeOption == 'register')
-      setText(
+      setSecret(
         randomWords(12)
           .toString()
           .replace(/,/g, ' '),
@@ -66,12 +67,13 @@ function RegistrationModule({navigation}) {
   };
 
   const submit = () => {
-    console.log('Submit Button Called');
     if (name == '' || phone == '' || email == '' || secret == '') {
       ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
     } else {
+      setProgress(true);
       if (activeOption == 'register') register();
       else if (activeOption == 'login') login();
+      else setProgress(false);
     }
   };
 
@@ -87,7 +89,7 @@ function RegistrationModule({navigation}) {
           name: name,
           email: email,
           phone: phone,
-          secretPhrase: text,
+          secretPhrase: secret,
         }),
       }).then(credsResult =>
         credsResult.json().then(data => {
@@ -101,6 +103,8 @@ function RegistrationModule({navigation}) {
             }
           } catch (error) {
             console.error(error);
+          } finally {
+            setProgress(false);
           }
         }),
       );
@@ -123,7 +127,7 @@ function RegistrationModule({navigation}) {
         body: JSON.stringify({
           email: email,
           phone: phone,
-          secretPhrase: text,
+          secretPhrase: secret,
         }),
       }).then(credsResult =>
         credsResult.json().then(data => {
@@ -133,10 +137,12 @@ function RegistrationModule({navigation}) {
             if (response.success == true) {
               navigation.replace('MultiFactorScreen');
             } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+              ToastAndroid.show(response.message, ToastAndroid.SHORT);
             }
           } catch (error) {
             console.error(error);
+          } finally {
+            setProgress(false);
           }
         }),
       );
@@ -290,7 +296,7 @@ function RegistrationModule({navigation}) {
                     style={styles.SecretTextInput}
                     placeholder="Secret Phrase"
                     onChangeText={text => setText(text.replace(',', ''))}
-                    defaultValue={text}
+                    defaultValue={secret}
                     multiline={true}
                     editable={false}
                     onChangeText={secret => {
@@ -322,9 +328,19 @@ function RegistrationModule({navigation}) {
                   We are not going to send you ads or spam email, or sell your
                   information to a 3rd party.
                 </Text>
-                <TouchableOpacity style={styles.primaryButton} onPress={submit}>
-                  <Text style={styles.text}>CONTINUE</Text>
-                </TouchableOpacity>
+                {progress ? (
+                  <ActivityIndicator
+                    style={styles.primaryButton}
+                    size="large"
+                    color={WHITE_COLOR}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={submit}>
+                    <Text style={styles.text}>CONTINUE</Text>
+                  </TouchableOpacity>
+                )}
               </ScrollView>
             </View>
           )}
@@ -382,9 +398,19 @@ function RegistrationModule({navigation}) {
                     multiline={true}
                   />
                 </View>
-                <TouchableOpacity style={styles.primaryButton} onPress={submit}>
-                  <Text style={styles.text}>CONTINUE</Text>
-                </TouchableOpacity>
+                {progress ? (
+                  <ActivityIndicator
+                    style={styles.primaryButton}
+                    size="large"
+                    color={WHITE_COLOR}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={submit}>
+                    <Text style={styles.text}>CONTINUE</Text>
+                  </TouchableOpacity>
+                )}
               </ScrollView>
             </View>
           )}
