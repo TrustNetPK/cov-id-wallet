@@ -1,9 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
+  ToastAndroid,
+  ActivityIndicator,
   TouchableOpacity,
   Dimensions,
   ScrollView,
@@ -18,16 +21,88 @@ import {
   BLACK_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import ConstantsList from '../helpers/ConfigApp';
 
 const {height, width} = Dimensions.get('window');
 
 function MultiFactorScreen({route, navigation}) {
+  const [emailConfirmationCode, setEmailConfirmationCode] = useState('');
+  const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
+  const [networkState, setNetworkState] = useState(false);
+  const [secret, setSecret] = useState('');
+  const [progress, setProgress] = useState(false);
+
   const nextHandler = () => {
     navigation.navigate('SecurityScreen');
   };
+
   React.useEffect(() => {
-    SplashScreen.hide();
-  });
+    NetInfo.fetch().then(networkState => {
+      setNetworkState(networkState.isConnected);
+    });
+  }, [networkState]);
+
+  const submit = () => {
+    if (
+      phoneConfirmationCode == '' ||
+      emailConfirmationCode == '' ||
+      secret == ''
+    ) {
+      ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
+    } else {
+      setProgress(true);
+      validateOTP();
+    }
+  };
+  const storeUserID = async userId => {
+    try {
+      console.log(userId);
+      await AsyncStorage.setItem('userId', userId);
+      console.log('asdas');
+      navigation.replace('SecurityScreen');
+    } catch (error) {
+      console.log(error);
+      // Error saving data
+    }
+  };
+  const validateOTP = async () => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/validateOTPs`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          otpsms: phoneConfirmationCode,
+          otpmail: emailConfirmationCode,
+          secretPhrase: secret,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            console.log(JSON.stringify(data));
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              storeUserID(response.userId);
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
   return (
     <View
       style={{
@@ -60,12 +135,20 @@ function MultiFactorScreen({route, navigation}) {
                 <TextInput
                   style={styles.TextInput}
                   placeholder="Phone Confirmation Code"
+                  keyboardType="number-pad"
+                  onChangeText={confirmationCode => {
+                    setPhoneConfirmationCode(confirmationCode);
+                  }}
                 />
               </View>
               <View style={styles.inputView}>
                 <TextInput
                   style={styles.TextInput}
                   placeholder="Email Confirmation Code"
+                  keyboardType="number-pad"
+                  onChangeText={confirmationCode => {
+                    setEmailConfirmationCode(confirmationCode);
+                  }}
                 />
               </View>
               <Text style={styles.textView}>
@@ -86,6 +169,10 @@ function MultiFactorScreen({route, navigation}) {
                   style={styles.SecretTextInput}
                   placeholder="Secret Phrase"
                   multiline={true}
+                  keyboardType="name-phone-pad"
+                  onChangeText={secretPhrase => {
+                    setSecret(secretPhrase);
+                  }}
                 />
               </View>
               <Text style={styles.textView}>
@@ -98,12 +185,17 @@ function MultiFactorScreen({route, navigation}) {
               <TouchableOpacity style={styles.borderButton}>
                 <Text style={styles.borderText}>RESEND SMS</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={nextHandler}>
-                <Text style={styles.text}>CONTINUE</Text>
-              </TouchableOpacity>
+              {progress ? (
+                <ActivityIndicator
+                  style={styles.primaryButton}
+                  size="large"
+                  color={WHITE_COLOR}
+                />
+              ) : (
+                <TouchableOpacity style={styles.primaryButton} onPress={submit}>
+                  <Text style={styles.text}>CONTINUE</Text>
+                </TouchableOpacity>
+              )}
             </ScrollView>
           </View>
         </View>

@@ -41,7 +41,7 @@ function RegistrationModule({navigation}) {
     updateActiveOption(userType);
   };
   const copyToClipboard = () => {
-    Clipboard.setString(text);
+    Clipboard.setString(secret);
     ToastAndroid.show(
       'Secret Phrase is copied to clipboard.',
       ToastAndroid.SHORT,
@@ -347,16 +347,6 @@ function RegistrationModule({navigation}) {
           {activeOption == 'login' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Name"
-                    keyboardType="name-phone-pad"
-                    onChangeText={name => {
-                      setName(name);
-                    }}
-                  />
-                </View>
                 <View style={styles.inputView}>
                   <TextInput
                     style={styles.TextInput}
