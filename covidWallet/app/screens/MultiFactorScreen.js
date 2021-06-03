@@ -11,7 +11,6 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
-import SplashScreen from 'react-native-splash-screen';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
@@ -22,6 +21,7 @@ import {
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {height, width} = Dimensions.get('window');
 
@@ -31,10 +31,9 @@ function MultiFactorScreen({route, navigation}) {
   const [networkState, setNetworkState] = useState(false);
   const [secret, setSecret] = useState('');
   const [progress, setProgress] = useState(false);
-
-  const nextHandler = () => {
-    navigation.navigate('SecurityScreen');
-  };
+  const [isAuthenticated, setAuthentication] = useState(false);
+  const [isWalletCreated, setWallet] = useState(false);
+  const [newUserId, setUserId] = useState('');
 
   React.useEffect(() => {
     NetInfo.fetch().then(networkState => {
@@ -56,13 +55,18 @@ function MultiFactorScreen({route, navigation}) {
   };
   const storeUserID = async userId => {
     try {
-      console.log(userId);
       await AsyncStorage.setItem('userId', userId);
-      console.log('asdas');
-      navigation.replace('SecurityScreen');
     } catch (error) {
       console.log(error);
-      // Error saving data
+    }
+  };
+
+  const storeUserToken = async userToken => {
+    try {
+      console.log(userToken);
+      await AsyncStorage.setItem('userToken', userToken);
+    } catch (error) {
+      console.log(error);
     }
   };
   const validateOTP = async () => {
@@ -81,10 +85,127 @@ function MultiFactorScreen({route, navigation}) {
       }).then(credsResult =>
         credsResult.json().then(data => {
           try {
-            console.log(JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
+              setUserId(response.userId);
               storeUserID(response.userId);
+              authenticateUser(response.userId);
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.warn('Valid OTP' + error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
+  const reAuthenticateUser = async userId => {
+    if (networkState) {
+      setAuthentication(true);
+      await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          secretPhrase: secret,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              storeUserToken(response.token);
+              navigation.replace('SecurityScreen');
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
+  const authenticateUser = async userId => {
+    if (networkState) {
+      setAuthentication(true);
+      await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          secretPhrase: secret,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              storeUserToken(response.token);
+              createWallet(response.token);
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
+  const createWallet = async userToken => {
+    if (networkState) {
+      setAuthentication(false);
+      await fetch(ConstantsList.BASE_URL + `/api/wallet/create`, {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer ' + userToken,
+        },
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              setWallet(true);
+              ToastAndroid.show(response.message, ToastAndroid.SHORT);
+              AsyncStorage.getItem('userId').then(userId => {
+                if (userId) {
+                  setWallet(true);
+                  reAuthenticateUser(userId);
+                }
+              });
+              setWallet(true);
             } else {
               ToastAndroid.show(response.error, ToastAndroid.SHORT);
             }
@@ -122,82 +243,105 @@ function MultiFactorScreen({route, navigation}) {
             justifyContent: 'space-around',
             borderRadius: 10,
           }}>
-          <View style={{marginLeft: 30, marginRight: 30}}>
-            <HeadingComponent text="Multi Factor Authentication to keep you safe!" />
-          </View>
-          <Text style={styles.textView}>
-            We have sent confirmation code to both of your email and your phone.
-            Please input them below.
-          </Text>
-          <View>
-            <ScrollView showsVerticalScrollIndicator={true}>
-              <View style={styles.inputView}>
-                <TextInput
-                  style={styles.TextInput}
-                  placeholder="Phone Confirmation Code"
-                  keyboardType="number-pad"
-                  onChangeText={confirmationCode => {
-                    setPhoneConfirmationCode(confirmationCode);
-                  }}
-                />
+          {isWalletCreated || isAuthenticated ? (
+            <>
+              <View style={{marginLeft: 30, marginRight: 30}}>
+                <HeadingComponent text="We're getting things ready!" />
               </View>
-              <View style={styles.inputView}>
-                <TextInput
-                  style={styles.TextInput}
-                  placeholder="Email Confirmation Code"
-                  keyboardType="number-pad"
-                  onChangeText={confirmationCode => {
-                    setEmailConfirmationCode(confirmationCode);
-                  }}
-                />
-              </View>
-              <Text style={styles.textView}>
-                And the secret phrase you saved in previous phrase step.
-              </Text>
-              <Text style={styles.secretMessage}>Your Secret phrase</Text>
-              <View
-                style={{
-                  backgroundColor: WHITE_COLOR,
-                  borderRadius: 10,
-                  width: '94%',
-                  height: 65,
-                  flexDirection: 'row',
-                  marginLeft: 10,
-                  marginTop: 8,
-                }}>
-                <TextInput
-                  style={styles.SecretTextInput}
-                  placeholder="Secret Phrase"
-                  multiline={true}
-                  keyboardType="name-phone-pad"
-                  onChangeText={secretPhrase => {
-                    setSecret(secretPhrase);
-                  }}
-                />
-              </View>
-              <Text style={styles.textView}>
-                The code expires in 5 minutes - tap 'Resend' if you need another
-                one
-              </Text>
-              <TouchableOpacity style={styles.borderButton}>
-                <Text style={styles.borderText}>RESEND EMAIL</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.borderButton}>
-                <Text style={styles.borderText}>RESEND SMS</Text>
-              </TouchableOpacity>
-              {progress ? (
-                <ActivityIndicator
-                  style={styles.primaryButton}
-                  size="large"
-                  color={WHITE_COLOR}
-                />
+              <Text style={styles.textView}>Thanks for your patience</Text>
+              <ActivityIndicator
+                style={styles.progressView}
+                size="large"
+                color={PRIMARY_COLOR}
+              />
+              {isAuthenticated ? (
+                <Text style={styles.opTextView}>Authenticating User...</Text>
               ) : (
-                <TouchableOpacity style={styles.primaryButton} onPress={submit}>
-                  <Text style={styles.text}>CONTINUE</Text>
-                </TouchableOpacity>
+                <Text style={styles.optextView}>Creating Wallet...</Text>
               )}
-            </ScrollView>
-          </View>
+            </>
+          ) : (
+            <>
+              <View style={{marginLeft: 30, marginRight: 30}}>
+                <HeadingComponent text="Multi Factor Authentication to keep you safe!" />
+              </View>
+              <Text style={styles.textView}>
+                We have sent confirmation code to both of your email and your
+                phone. Please input them below.
+              </Text>
+              <View>
+                <ScrollView showsVerticalScrollIndicator={true}>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Phone Confirmation Code"
+                      keyboardType="number-pad"
+                      onChangeText={confirmationCode => {
+                        setPhoneConfirmationCode(confirmationCode);
+                      }}
+                    />
+                  </View>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Email Confirmation Code"
+                      keyboardType="number-pad"
+                      onChangeText={confirmationCode => {
+                        setEmailConfirmationCode(confirmationCode);
+                      }}
+                    />
+                  </View>
+                  <Text style={styles.textView}>
+                    And the secret phrase you saved in previous phrase step.
+                  </Text>
+                  <Text style={styles.secretMessage}>Your Secret phrase</Text>
+                  <View
+                    style={{
+                      backgroundColor: WHITE_COLOR,
+                      borderRadius: 10,
+                      width: '94%',
+                      height: 65,
+                      flexDirection: 'row',
+                      marginLeft: 10,
+                      marginTop: 8,
+                    }}>
+                    <TextInput
+                      style={styles.SecretTextInput}
+                      placeholder="Secret Phrase"
+                      multiline={true}
+                      keyboardType="name-phone-pad"
+                      onChangeText={secretPhrase => {
+                        setSecret(secretPhrase);
+                      }}
+                    />
+                  </View>
+                  <Text style={styles.textView}>
+                    The code expires in 5 minutes - tap 'Resend' if you need
+                    another one
+                  </Text>
+                  <TouchableOpacity style={styles.borderButton}>
+                    <Text style={styles.borderText}>RESEND EMAIL</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.borderButton}>
+                    <Text style={styles.borderText}>RESEND SMS</Text>
+                  </TouchableOpacity>
+                  {progress ? (
+                    <ActivityIndicator
+                      style={styles.primaryButton}
+                      size="large"
+                      color={WHITE_COLOR}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.primaryButton}
+                      onPress={submit}>
+                      <Text style={styles.text}>CONTINUE</Text>
+                    </TouchableOpacity>
+                  )}
+                </ScrollView>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -326,6 +470,23 @@ const styles = StyleSheet.create({
   borderText: {
     fontFamily: 'Poppins-Bold',
     color: BLACK_COLOR,
+  },
+  progressView: {
+    marginTop: 5,
+    marginBottom: 10,
+    paddingTop: 5,
+    paddingLeft: 20,
+    paddingBottom: 5,
+    paddingRight: 20,
+  },
+  opTextView: {
+    fontFamily: 'Poppins-Bold',
+    color: BLACK_COLOR,
+    marginBottom: 20,
+    fontSize: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
   },
 });
 export default MultiFactorScreen;
