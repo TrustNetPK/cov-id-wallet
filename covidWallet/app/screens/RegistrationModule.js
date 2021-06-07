@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
@@ -67,8 +68,19 @@ function RegistrationModule({navigation}) {
   };
 
   const submit = () => {
-    if (name == '' || phone == '' || email == '' || secret == '') {
+    if (
+      activeOption == 'register' &&
+      (name == '' || phone == '' || email == '' || secret == '')
+    ) {
       ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
+      return;
+    }
+    if (
+      activeOption == 'login' &&
+      (phone == '' || email == '' || secret == '')
+    ) {
+      ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
+      return;
     } else {
       setProgress(true);
       if (activeOption == 'register') register();
@@ -116,6 +128,58 @@ function RegistrationModule({navigation}) {
     }
   };
 
+  const storeUserID = async userId => {
+    try {
+      await AsyncStorage.setItem('userId', userId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const storeUserToken = async userToken => {
+    try {
+      console.log(userToken);
+      await AsyncStorage.setItem('userToken', userToken);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const AuthenticateUser = async userId => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          secretPhrase: secret,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              storeUserToken(response.token);
+              navigation.replace('SecurityScreen');
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
   const login = async () => {
     if (networkState) {
       await fetch(ConstantsList.BASE_URL + `/api/login`, {
@@ -135,14 +199,13 @@ function RegistrationModule({navigation}) {
             console.log(JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
-              navigation.replace('MultiFactorScreen');
+              storeUserID(response.userId);
+              AuthenticateUser(response.userId);
             } else {
               ToastAndroid.show(response.message, ToastAndroid.SHORT);
             }
           } catch (error) {
             console.error(error);
-          } finally {
-            setProgress(false);
           }
         }),
       );
