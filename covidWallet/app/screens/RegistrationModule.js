@@ -173,6 +173,7 @@ function RegistrationModule({navigation}) {
         }),
       );
     } else {
+      setProgress(false);
       ToastAndroid.show(
         'Internet Connection is not available',
         ToastAndroid.LONG,
@@ -202,14 +203,17 @@ function RegistrationModule({navigation}) {
               storeUserID(response.userId);
               AuthenticateUser(response.userId);
             } else {
-              ToastAndroid.show(response.message, ToastAndroid.SHORT);
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
             }
           } catch (error) {
             console.error(error);
+          } finally {
+            setProgress(false);
           }
         }),
       );
     } else {
+      setProgress(false);
       ToastAndroid.show(
         'Internet Connection is not available',
         ToastAndroid.LONG,
