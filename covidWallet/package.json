@@ -19,6 +19,8 @@
     "@react-navigation/native": "^5.1.7",
     "@react-navigation/stack": "^5.2.14",
     "bcrypt-react-native": "^1.1.1",
+    "buffer": "^6.0.3",
+    "query-string": "^7.0.0",
     "random-words": "^1.1.1",
     "react": "16.11.0",
     "react-native": "0.62.2",
