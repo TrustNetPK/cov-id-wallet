@@ -38,14 +38,11 @@ function NavigationComponent() {
     try {
       const value = await AsyncStorage.getItem('isfirstTime').then(value => {
         setLoading(false);
-        console.log('Local Storage Values is ' + value);
         if (value == null) {
           getisFirstTime('true');
         } else {
           getisFirstTime(value);
         }
-
-        console.log('Value isa ' + isFirstTime);
       });
     } catch (error) {
       // Error retrieving data
@@ -54,17 +51,14 @@ function NavigationComponent() {
 
   React.useEffect(() => {
     SplashScreen.hide();
-    // if ((isFirstTime == null) || (isFirstTime == true) || (isFirstTime == undefined))
     retrieveData();
   }, [isFirstTime]);
 
   const authContext = React.useMemo(
     () => ({
-      //isFirstTimeFunction: () => dispatch({ type: 'FIRST_TIME' })
       isFirstTimeFunction: () => {
         storeData();
         getisFirstTime('false');
-        console.log('From IsFirstTime is ' + isFirstTime);
       },
     }),
     [],

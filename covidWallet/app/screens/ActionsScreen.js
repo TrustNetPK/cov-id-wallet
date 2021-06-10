@@ -1,14 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {useFocusEffect, CommonActions} from '@react-navigation/native';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacityBase,
-  Alert,
-  ImageBackground,
-} from 'react-native';
+import React, {useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import {View, StyleSheet} from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -38,8 +30,9 @@ function ActionsScreen({navigation}) {
   );
 
   const updateActionsList = () => {
-    getItem(ConstantsList.CERT_REQ)
+    getItem(ConstantsList.CONNEC_REQ)
       .then(actions => {
+        console.log(actions);
         if (actions != null) {
           let credActionsList = JSON.parse(actions);
           return credActionsList;
@@ -129,12 +122,12 @@ function ActionsScreen({navigation}) {
   const rejectModal = v => {
     let selectedItemObj = JSON.parse(selectedItem);
     setModalVisible(false);
-    deleteActionByConnId(
-      selectedItemObj.type,
-      selectedItemObj.invitation.connection_id,
-    ).then(actions => {
-      updateActionsList();
-    });
+    // deleteActionByConnId(
+    //   selectedItemObj.type,
+    //   selectedItemObj.invitation.connection_id,
+    // ).then(actions => {
+    //   updateActionsList();
+    // });
   };
 
   const dismissModal = v => {
@@ -144,52 +137,61 @@ function ActionsScreen({navigation}) {
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Actions" />
-      {isAction && (
-        <View>
-          <ScrollView showsVerticalScrollIndicator={true}>
-            <ModalComponent
-              data={modalData}
-              isVisible={isModalVisible}
-              toggleModal={toggleModal}
-              rejectModal={rejectModal}
-              dismissModal={dismissModal}
-              acceptModal={acceptModal}
-              modalType="action"
+      {isAction ? (
+        <>
+          <View>
+            <ScrollView showsVerticalScrollIndicator={true}>
+              <ModalComponent
+                data={modalData}
+                isVisible={isModalVisible}
+                toggleModal={toggleModal}
+                rejectModal={rejectModal}
+                dismissModal={dismissModal}
+                acceptModal={acceptModal}
+                modalType="action"
+              />
+              {actionsList !== undefined &&
+                actionsList.map((v, i) => {
+                  let header = String(
+                    v.type === 'connection_request'
+                      ? 'Connection Request'
+                      : 'Digital Proof Request',
+                  );
+                  let subtitle =
+                    'Click to view the ' +
+                    header.toLowerCase() +
+                    ' from ' +
+                    v.organizationName;
+                  let imgURI = {uri: v.imageUrl};
+                  return (
+                    <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
+                      <FlatCard
+                        image={imgURI}
+                        heading={header}
+                        text={subtitle}
+                      />
+                    </TouchableOpacity>
+                  );
+                })}
+            </ScrollView>
+          </View>
+        </>
+      ) : (
+        <>
+          <View style={styles.EmptyContainer}>
+            <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
+            <ImageBoxComponent
+              source={require('../assets/images/action.png')}
             />
-            {actionsList !== undefined &&
-              actionsList.map((v, i) => {
-                let header = String(
-                  v.type === 'connection_credential'
-                    ? 'Digital Certificate Request'
-                    : 'Digital Proof Request',
-                );
-                let subtitle =
-                  'Click to view the ' +
-                  header.toLowerCase() +
-                  ' from ' +
-                  v.org.name;
-                let imgURI = {uri: v.org.img};
-                return (
-                  <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
-                    <FlatCard image={imgURI} heading={header} text={subtitle} />
-                  </TouchableOpacity>
-                );
-              })}
-          </ScrollView>
-        </View>
-      )}
-      {!isAction && (
-        <View style={styles.EmptyContainer}>
-          <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
-          <ImageBoxComponent source={require('../assets/images/action.png')} />
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => {
-              navigation.navigate('QRScreen');
-            }}>
-            <BorderButton text="QR CODE" />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => {
+                navigation.navigate('QRScreen');
+              }}>
+              <BorderButton text="QR CODE" />
+            </TouchableOpacity>
+          </View>
+        </>
       )}
     </View>
   );
