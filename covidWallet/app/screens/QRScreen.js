@@ -12,6 +12,7 @@ import CustomProgressBar from '../components/CustomProgressBar';
 function QRScreen({navigation}) {
   const [scan, setScan] = useState(true);
   const [certificate_request, setCertificateRequest] = useState('');
+  const [connection_request, setConnectionRequest] = useState('');
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   var cr_arr = [];
@@ -31,7 +32,7 @@ function QRScreen({navigation}) {
           }
         }
 
-        setCertificateRequest(JSON.stringify(arr));
+        setConnectionRequest(JSON.stringify(cr_arr));
       })
       .catch(e => {
         setError('Error');
@@ -73,7 +74,6 @@ function QRScreen({navigation}) {
   }, []);
 
   const getResponseUrl = async (inviteID, qrJSON) => {
-    console.log(inviteID);
     let baseURL = 'https://trinsic.studio/url/';
     await fetch(baseURL + inviteID, {
       method: 'GET',

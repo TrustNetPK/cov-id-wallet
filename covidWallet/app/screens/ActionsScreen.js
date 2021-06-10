@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import {View, StyleSheet} from 'react-native';
 import FlatCard from '../components/FlatCard';
@@ -13,6 +13,8 @@ import {authenticate} from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
 import {ScrollView} from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {BLACK_COLOR} from '../theme/Colors';
 const image = require('../assets/images/visa.jpg');
 
 function ActionsScreen({navigation}) {
@@ -21,18 +23,33 @@ function ActionsScreen({navigation}) {
   const [actionsList, setActionsList] = useState([]);
   const [modalData, setModalData] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
-
+  const headerOptions = {
+    headerRight: () => (
+      <MaterialCommunityIcons
+        onPress={() => {
+          navigation.navigate('QRScreen');
+        }}
+        style={styles.headerRightIcon}
+        size={30}
+        name="qrcode"
+        padding={30}
+      />
+    ),
+  };
   useFocusEffect(
     React.useCallback(() => {
       updateActionsList();
       return;
     }, [isAction]),
   );
-
+  React.useLayoutEffect(() => {
+    navigation
+      .dangerouslyGetParent()
+      .setOptions(isAction ? headerOptions : undefined);
+  }, [isAction]);
   const updateActionsList = () => {
     getItem(ConstantsList.CONNEC_REQ)
       .then(actions => {
-        console.log(actions);
         if (actions != null) {
           let credActionsList = JSON.parse(actions);
           return credActionsList;
@@ -100,11 +117,7 @@ function ActionsScreen({navigation}) {
           'wallet-key': walletSecret,
         },
         body: JSON.stringify(selectedItemObj.invitation.invitation),
-      }).then(inviteResult =>
-        inviteResult.json().then(data => {
-          // console.log(data)
-        }),
-      );
+      }).then(inviteResult => inviteResult.json().then(data => {}));
       //Remove item from actions
       setModalVisible(false);
       deleteActionByConnId(
@@ -205,6 +218,10 @@ const styles = StyleSheet.create({
   bottom: {
     width: 50,
     height: 50,
+  },
+  headerRightIcon: {
+    padding: 10,
+    color: BLACK_COLOR,
   },
   imageProps: {},
 });
