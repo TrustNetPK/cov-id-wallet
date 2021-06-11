@@ -7,15 +7,14 @@ import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
 import {themeStyles} from '../theme/Styles';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import ModalComponent from '../components/ModalComponent';
+import ConfirmationDialog from '../components/ConfirmationDialog';
 import {getItem, deleteActionByConnId, saveItem} from '../helpers/Storage';
 import {authenticate} from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
 import {ScrollView} from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {BLACK_COLOR} from '../theme/Colors';
-const image = require('../assets/images/visa.jpg');
+import {BACKGROUND_COLOR, BLACK_COLOR} from '../theme/Colors';
 
 function ActionsScreen({navigation}) {
   const [isAction, setAction] = useState(false);
@@ -47,6 +46,7 @@ function ActionsScreen({navigation}) {
       .dangerouslyGetParent()
       .setOptions(isAction ? headerOptions : undefined);
   }, [isAction]);
+
   const updateActionsList = () => {
     getItem(ConstantsList.CONNEC_REQ)
       .then(actions => {
@@ -79,7 +79,7 @@ function ActionsScreen({navigation}) {
 
   const toggleModal = v => {
     setSelectedItem(JSON.stringify(v));
-    setModalData(v.data);
+    setModalData(JSON.parse(JSON.stringify(v)));
     setModalVisible(true);
   };
 
@@ -135,12 +135,11 @@ function ActionsScreen({navigation}) {
   const rejectModal = v => {
     let selectedItemObj = JSON.parse(selectedItem);
     setModalVisible(false);
-    // deleteActionByConnId(
-    //   selectedItemObj.type,
-    //   selectedItemObj.invitation.connection_id,
-    // ).then(actions => {
-    //   updateActionsList();
-    // });
+    deleteActionByConnId(selectedItemObj.type, selectedItemObj.data).then(
+      actions => {
+        updateActionsList();
+      },
+    );
   };
 
   const dismissModal = v => {
@@ -154,14 +153,16 @@ function ActionsScreen({navigation}) {
         <>
           <View>
             <ScrollView showsVerticalScrollIndicator={true}>
-              <ModalComponent
-                data={modalData}
+              <ConfirmationDialog
                 isVisible={isModalVisible}
                 toggleModal={toggleModal}
                 rejectModal={rejectModal}
+                data={modalData}
                 dismissModal={dismissModal}
                 acceptModal={acceptModal}
+                text=" has invited you to connect."
                 modalType="action"
+                isIconVisible={true}
               />
               {actionsList !== undefined &&
                 actionsList.map((v, i) => {
@@ -201,7 +202,12 @@ function ActionsScreen({navigation}) {
               onPress={() => {
                 navigation.navigate('QRScreen');
               }}>
-              <BorderButton text="QR CODE" />
+              <BorderButton
+                text="QR CODE"
+                color={BLACK_COLOR}
+                backgroundColor={BACKGROUND_COLOR}
+                isIconVisible={true}
+              />
             </TouchableOpacity>
           </View>
         </>

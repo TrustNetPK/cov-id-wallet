@@ -6,6 +6,8 @@ module.exports = Object.freeze({
   CONNEC_REQ: 'connection_request',
   PROOF_REQ: 'connection_proof',
   CONNECTIONS: 'connections',
+  USER_TOKEN: 'userToken',
+  USER_ID: 'userId',
   CREDENTIALS: 'credentials',
   API_SECRET: '',
 });

@@ -130,7 +130,7 @@ function RegistrationModule({navigation}) {
 
   const storeUserID = async userId => {
     try {
-      await AsyncStorage.setItem('userId', userId);
+      await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
     } catch (error) {
       console.log(error);
     }
@@ -138,7 +138,7 @@ function RegistrationModule({navigation}) {
   const storeUserToken = async userToken => {
     try {
       console.log(userToken);
-      await AsyncStorage.setItem('userToken', userToken);
+      await AsyncStorage.setItem(ConstantsList.USER_TOKEN, userToken);
     } catch (error) {
       console.log(error);
     }
