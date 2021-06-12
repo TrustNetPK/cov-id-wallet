@@ -4,8 +4,6 @@
 .history
 # Xcode
 #
-yarn.lock
-package-lock.json
 build/
 *.pbxuser
 !default.pbxuser

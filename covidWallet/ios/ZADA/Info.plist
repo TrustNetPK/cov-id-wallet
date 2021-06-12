@@ -42,7 +42,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>ZADA Wallet requires Secure ID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow ZADA to use Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
