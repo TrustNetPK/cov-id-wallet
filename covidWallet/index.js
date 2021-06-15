@@ -5,9 +5,14 @@ import PushNotification from "react-native-push-notification";
 import { AppRegistry, Platform } from 'react-native';
 import App from './App';
 import { name as appName } from './app.json';
-import { getAllDeliveredNotifications, receiveNotificationEventListener, onRegisterEventListener, onActionEventListener, onRegistrationErrorEventListener } from './app/helpers/Notifications';
+import { iOSforegroundTrigger, receiveNotificationEventListener, onRegisterEventListener, onActionEventListener, onRegistrationErrorEventListener } from './app/helpers/Notifications';
 
-
+//Run every 5 seconds
+if (Platform.OS === 'ios') {
+    setInterval(() => {
+        iOSforegroundTrigger();
+    }, 5000)
+}
 // Must be outside of any component LifeCycle (such as `componentDidMount`).
 PushNotification.configure({
     // (optional) Called when Token is generated (iOS and Android)
