@@ -46,23 +46,53 @@ function clearAllNotifications() {
 }
 
 function getAllDeliveredNotifications() {
-    return PushNotification.getDeliveredNotifications((notifications) => {
+    PushNotification.getDeliveredNotifications((notifications) => {
         console.log(notifications);
-        return notifications;
     });
 }
 
+//Android: Automatically triggered on notification arrival for android
+//IOS: Triggered on clicking notification from notification center
 function receiveNotificationEventListener(notification) {
     console.log("NEW NOTIFICATION:", notification);
 
     if (Platform.OS === 'ios') {
+        //TODO: Process IOS notification here
+        //MAKE SURE YOU DONT PROCESS IT TWICE AS iOSforegroundTrigger might also process it
+        //Use identifier to make sure you dont process twice
+
         notification.finish(PushNotificationIOS.FetchResult.NoData);
     }
 
     if (Platform.OS === 'android') {
         showLocalNotification(notification.data.title, notification.data.body, '0', true, true);
+        //TODO: Process Android notification here
         console.log(notification.data.type + ' : ' + notification.data.metadata);
     }
+}
+
+/*
+This function triggers automatically every 5 second *ONLY ON IOS*
+because receiveNotificationEventListener is not called automatically 
+when notification is received.
+*/
+function iOSforegroundTrigger() {
+    PushNotification.getDeliveredNotifications((notifications) => {
+        if (notifications.length !== 0) {
+
+            //TODO: Process IOS notification here   
+            //MAKE SURE YOU DONT PROCESS IT TWICE AS receiveNotificationEventListener might also process it
+            //Use identifier to make sure you dont process twice         
+            let notificationsProcessed = []
+            notifications.forEach((notification) => {
+                console.log(notification.userInfo.type + ' : ' + notification.userInfo.metadata);
+                notificationsProcessed.push(notification.identifier);
+            });
+            PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
+
+        }
+    });
+
 }
 
 function onRegisterEventListener(token) {
@@ -98,4 +128,5 @@ module.exports = {
     onActionEventListener: onActionEventListener,
     onRegistrationErrorEventListener: onRegistrationErrorEventListener,
     getAllDeliveredNotifications: getAllDeliveredNotifications,
+    iOSforegroundTrigger: iOSforegroundTrigger,
 };
