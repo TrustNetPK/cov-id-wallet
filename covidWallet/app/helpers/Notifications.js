@@ -2,12 +2,13 @@ import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import PushNotification from "react-native-push-notification";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from "react-native";
+const DROID_CHANNEL_ID = 'zada';
 
 //Usage: showNotification("Test", `Test.`, '0', true, true);
 function showLocalNotification(title, message, id, vibrate, sound, ongoing = false) {
     PushNotification.localNotification({
         /* Android Only Properties */
-        id: id,
+        channelId: id,
         autoCancel: true,
         vibrate: vibrate,
         vibration: vibrate ? 300 : undefined,
@@ -65,7 +66,7 @@ function receiveNotificationEventListener(notification) {
     }
 
     if (Platform.OS === 'android') {
-        showLocalNotification(notification.data.title, notification.data.body, '0', true, true);
+        showLocalNotification(notification.data.title, notification.data.body, DROID_CHANNEL_ID, true, true);
         //TODO: Process Android notification here
         console.log(notification.data.type + ' : ' + notification.data.metadata);
     }
@@ -129,4 +130,5 @@ module.exports = {
     onRegistrationErrorEventListener: onRegistrationErrorEventListener,
     getAllDeliveredNotifications: getAllDeliveredNotifications,
     iOSforegroundTrigger: iOSforegroundTrigger,
+    DROID_CHANNEL_ID: DROID_CHANNEL_ID,
 };

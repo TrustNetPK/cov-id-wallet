@@ -5,13 +5,37 @@ import PushNotification from "react-native-push-notification";
 import { AppRegistry, Platform } from 'react-native';
 import App from './App';
 import { name as appName } from './app.json';
-import { iOSforegroundTrigger, receiveNotificationEventListener, onRegisterEventListener, onActionEventListener, onRegistrationErrorEventListener } from './app/helpers/Notifications';
+import { DROID_CHANNEL_ID, iOSforegroundTrigger, receiveNotificationEventListener, onRegisterEventListener, onActionEventListener, onRegistrationErrorEventListener } from './app/helpers/Notifications';
+
+
 
 //Run every 5 seconds
 if (Platform.OS === 'ios') {
     setInterval(() => {
         iOSforegroundTrigger();
     }, 5000)
+}
+
+if (Platform.OS === 'android') {
+    PushNotification.getChannels(function (channel_ids) {
+        console.log(channel_ids); // ['channel_id_1']
+    });
+    PushNotification.channelExists(DROID_CHANNEL_ID, function (exists) {
+        if (!exists) {
+            PushNotification.createChannel(
+                {
+                    channelId: DROID_CHANNEL_ID, // (required)
+                    channelName: "zada-channel", // (required)
+                    channelDescription: "A channel zada", // (optional) default: undefined.
+                    playSound: true, // (optional) default: true
+                    soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
+                    importance: 4, // (optional) default: 4. Int value of the Android notification importance
+                    vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+                },
+                (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+            );
+        }
+    });
 }
 // Must be outside of any component LifeCycle (such as `componentDidMount`).
 PushNotification.configure({
