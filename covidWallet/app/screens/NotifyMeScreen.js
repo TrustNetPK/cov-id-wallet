@@ -1,28 +1,35 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {PRIMARY_COLOR} from '../theme/Colors';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
-import {AuthContext} from '../Navigation';
+import { AuthContext } from '../Navigation';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
+import PushNotification from "react-native-push-notification";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const img = require('../assets/images/notifications.png');
 
-function NotifyMeScreen({navigation}) {
-  const {isFirstTimeFunction} = React.useContext(AuthContext);
-  storeData = async () => {
-    try {
-      await AsyncStorage.setItem('isfirstTime', 'false');
-      isFirstTimeFunction({});
-    } catch (error) {
-      // Error saving data
-    }
-  };
-  nextHandler = () => {
-    storeData();
-  };
+function NotifyMeScreen({ navigation }) {
+  const { isFirstTimeFunction } = React.useContext(AuthContext);
+
+
+  function enableNotifications() {
+
+    PushNotification.checkPermissions((permissions) => {
+      console.log(permissions);
+      if (permissions.badge !== true || permissions.alert !== true || permissions.sound !== false) {
+        //activate notification permision if disabled
+        PushNotification.requestPermissions();
+      }
+    });
+    AsyncStorage.setItem('isfirstTime', 'false').then(() => {
+      isFirstTimeFunction();
+    });
+  }
 
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <View
         style={{
           flex: 4,
@@ -37,17 +44,17 @@ function NotifyMeScreen({navigation}) {
           such as when you recieve a new digital certificate."
         />
       </View>
-      <View style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
         <ImageBoxComponent source={img} />
       </View>
-      <View style={{flex: 3, alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <GreenPrimaryButton
           text="ENABLE NOTIFICATIONS"
-          nextHandler={isFirstTimeFunction}
+          nextHandler={enableNotifications}
         />
-        <TouchableOpacity onPress={isFirstTimeFunction}>
+        {/* <TouchableOpacity onPress={isFirstTimeFunction}>
           <Text style={styles.TextContainerEnd}>Continue without alerts</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
