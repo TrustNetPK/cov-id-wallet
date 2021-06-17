@@ -1,6 +1,6 @@
 import React, {useLayoutEffect, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, ToastAndroid} from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -120,12 +120,12 @@ function ActionsScreen({navigation}) {
           } catch (error) {
             console.error(error);
           } finally {
-            setProgress(false);
+            // setProgress(false);
           }
         }),
       );
     } else {
-      setProgress(false);
+      //  setProgress(false);
       ToastAndroid.show(
         'Internet Connection is not available',
         ToastAndroid.LONG,
