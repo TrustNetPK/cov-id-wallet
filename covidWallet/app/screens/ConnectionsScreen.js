@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import {View, Text, Image, StyleSheet} from 'react-native';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/Styles';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {themeStyles} from '../theme/Styles';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
-import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
+import {getItem, deleteActionByConnId, saveItem} from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 
 function ConnectionsScreen(props) {
@@ -18,46 +18,53 @@ function ConnectionsScreen(props) {
 
   useFocusEffect(
     React.useCallback(() => {
-      updateConnectionsList()
-      return
-    }, [isConnection])
+      updateConnectionsList();
+      return;
+    }, [isConnection]),
   );
 
   const updateConnectionsList = () => {
-    getItem(ConstantsList.CONNECTIONS).then((connections) => {
-      if (connections != null) {
-        let connectionsList = JSON.parse(connections)
-        setConnectionsList(connectionsList)
-        setConnection(true);
-      } else {
-        setConnection(false);
-      }
-    }).catch(e => { })
-  }
+    getItem(ConstantsList.CONNECTIONS)
+      .then(connections => {
+        if (connections != null) {
+          let connectionsList = JSON.parse(connections);
+          setConnectionsList(connectionsList);
+          setConnection(true);
+        } else {
+          setConnection(false);
+        }
+      })
+      .catch(e => {});
+  };
 
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Connections" />
-      {isConnection &&
+      {isConnection && (
         <View>
-          {
-            connectionsList.map((v, i) => {
-              let imgURI = { uri: v.org.img };
-              let header = v.org.name;
-              let subtitle = "The connection between you and " + header.toLowerCase() + " is secure and encrypted.";
-              return <TouchableOpacity key={i} >
+          {connectionsList.map((v, i) => {
+            let imgURI = {uri: v.imageUrl};
+            let header = v.organizationName;
+            let subtitle =
+              'The connection between you and ' +
+              header.toLowerCase() +
+              ' is secure and encrypted.';
+            return (
+              <TouchableOpacity key={i}>
                 <FlatCard image={imgURI} heading={header} text={subtitle} />
               </TouchableOpacity>
-            })
-          }
+            );
+          })}
         </View>
-      }
-      {!isConnection &&
+      )}
+      {!isConnection && (
         <View style={styles.EmptyContainer}>
           <TextComponent text="You have no connections yet." />
-          <ImageBoxComponent source={require('../assets/images/connectionsempty.png')} />
+          <ImageBoxComponent
+            source={require('../assets/images/connectionsempty.png')}
+          />
         </View>
-      }
+      )}
     </View>
   );
 }

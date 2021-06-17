@@ -11,6 +11,7 @@ import ConfirmationDialog from '../components/ConfirmationDialog';
 import {getItem, deleteActionByConnId, saveItem} from '../helpers/Storage';
 import {authenticate} from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
+import NetInfo from '@react-native-community/netinfo';
 import {ScrollView} from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -22,6 +23,11 @@ function ActionsScreen({navigation}) {
   const [actionsList, setActionsList] = useState([]);
   const [modalData, setModalData] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
+  const [hasToken, setTokenExpired] = useState(true);
+  const [Uid, storeUid] = useState();
+  const [secret, storeSecret] = useState('');
+  const [networkState, setNetworkState] = useState(false);
+
   const headerOptions = {
     headerRight: () => (
       <MaterialCommunityIcons
@@ -35,6 +41,11 @@ function ActionsScreen({navigation}) {
       />
     ),
   };
+  React.useEffect(() => {
+    NetInfo.fetch().then(networkState => {
+      setNetworkState(networkState.isConnected);
+    });
+  });
   useFocusEffect(
     React.useCallback(() => {
       updateActionsList();
@@ -83,6 +94,45 @@ function ActionsScreen({navigation}) {
     setModalVisible(true);
   };
 
+  const AuthenticateUser = () => {
+    if (networkState) {
+      fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: Uid,
+          secretPhrase: secret,
+        }),
+      }).then(credsResult =>
+        credsResult.json().then(data => {
+          try {
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              saveItem(ConstantsList.USER_TOKEN, response.token);
+              ToastAndroid.show('Token has been refreshed', ToastAndroid.SHORT);
+              acceptModal();
+            } else {
+              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      setProgress(false);
+      ToastAndroid.show(
+        'Internet Connection is not available',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
   const acceptModal = async v => {
     let selectedItemObj = JSON.parse(selectedItem);
     //Move item to connection screen
@@ -99,37 +149,55 @@ function ActionsScreen({navigation}) {
       }
     }
     await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
+    //======For FingerPrint Authentication
+    // let authResult = await authenticate();
+    // if (authResult == true) {
+    //fetch wallet credentials
+    //=========================================
+    let baseURL = 'https://trinsic.studio/url/';
+    let inviteUrl = baseURL + modalData.data;
+    let userToken = await getItem(ConstantsList.USER_TOKEN);
+    let userID = await getItem(ConstantsList.USER_ID);
+    let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+    storeUid(userID);
+    storeSecret(walletSecret);
+    // make API call
+    await fetch(ConstantsList.BASE_URL + `/api/connection/accept_connection`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Authorization: 'Bearer ' + userToken,
+      },
+      body: JSON.stringify({
+        inviteUrl: inviteUrl,
+      }),
+    })
+      .then(inviteResult =>
+        inviteResult.json().then(data => {
+          if (data.success == false && data.hasTokenExpired == true) {
+            if (hasToken) AuthenticateUser();
+            setTokenExpired(false);
+          } else {
+            console.log('Token Available');
+            //Remove item from actions
+            setModalVisible(false);
+            deleteActionByConnId(
+              selectedItemObj.type,
+              selectedItemObj.data,
+            ).then(actions => {
+              updateActionsList();
+            });
+          }
+        }),
+      )
+      .catch(e => console.log(e));
 
-    let authResult = await authenticate();
-    if (authResult == true) {
-      //fetch wallet credentials
-      let walletName = await getItem(ConstantsList.WALLET_NAME);
-      let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-
-      //make API call
-      await fetch(ConstantsList.BASE_URL + `/connections/receive-invitation`, {
-        method: 'POST',
-        headers: {
-          'X-API-Key': ConstantsList.API_SECRET,
-          'Content-Type': 'application/json; charset=utf-8',
-          Server: 'Python/3.6 aiohttp/3.6.2',
-          'wallet-name': walletName,
-          'wallet-key': walletSecret,
-        },
-        body: JSON.stringify(selectedItemObj.invitation.invitation),
-      }).then(inviteResult => inviteResult.json().then(data => {}));
-      //Remove item from actions
-      setModalVisible(false);
-      deleteActionByConnId(
-        selectedItemObj.type,
-        selectedItemObj.invitation.connection_id,
-      ).then(actions => {
-        updateActionsList();
-      });
-    } else {
-      // do nothing
-      setModalVisible(false);
-    }
+    //======For FingerPrint Authentication
+    // } else {
+    //   // do nothing
+    //   setModalVisible(false);
+    // }
+    //================================
   };
 
   const rejectModal = v => {

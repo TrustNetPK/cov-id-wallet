@@ -26,7 +26,6 @@ export const getItem = async key => {
 export const deleteActionByConnId = async (key, connID) => {
   return getItem(key).then(action => {
     let QRJsonList = JSON.parse(action);
-    console.log('QR JSON Data' + QRJsonList);
     let newQRList = [];
     QRJsonList.forEach(element => {
       if (element.data != connID) {

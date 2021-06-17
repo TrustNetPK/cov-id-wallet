@@ -26,6 +26,7 @@ import HeadingComponent from '../components/HeadingComponent';
 import {StackActions} from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
+import {saveItem} from '../helpers/Storage';
 
 const {height, width} = Dimensions.get('window');
 
@@ -201,6 +202,7 @@ function RegistrationModule({navigation}) {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               storeUserID(response.userId);
+              saveItem(ConstantsList.WALLET_SECRET, secret);
               AuthenticateUser(response.userId);
             } else {
               ToastAndroid.show(response.error, ToastAndroid.SHORT);
