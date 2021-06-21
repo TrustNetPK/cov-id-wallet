@@ -27,6 +27,7 @@ import {StackActions} from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
 import {saveItem} from '../helpers/Storage';
+import randomString from '../helpers/RandomString';
 
 const {height, width} = Dimensions.get('window');
 
@@ -39,7 +40,7 @@ function RegistrationModule({navigation}) {
   const [secret, setSecret] = useState('');
   const [progress, setProgress] = useState(false);
 
-  const selectionOnPress = userType => {
+  const selectionOnPress = (userType) => {
     updateActiveOption(userType);
   };
   const copyToClipboard = () => {
@@ -50,15 +51,10 @@ function RegistrationModule({navigation}) {
     );
   };
   React.useEffect(() => {
-    NetInfo.fetch().then(networkState => {
+    NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
-    if (activeOption == 'register')
-      setSecret(
-        randomWords(12)
-          .toString()
-          .replace(/,/g, ' '),
-      );
+    if (activeOption == 'register') setSecret(randomString(12));
   }, [activeOption, networkState]);
 
   const nextHandler = () => {
@@ -104,8 +100,8 @@ function RegistrationModule({navigation}) {
           phone: phone,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             console.log(JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
@@ -129,14 +125,14 @@ function RegistrationModule({navigation}) {
     }
   };
 
-  const storeUserID = async userId => {
+  const storeUserID = async (userId) => {
     try {
       await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
     } catch (error) {
       console.log(error);
     }
   };
-  const storeUserToken = async userToken => {
+  const storeUserToken = async (userToken) => {
     try {
       console.log(userToken);
       await AsyncStorage.setItem(ConstantsList.USER_TOKEN, userToken);
@@ -144,7 +140,7 @@ function RegistrationModule({navigation}) {
       console.log(error);
     }
   };
-  const AuthenticateUser = async userId => {
+  const AuthenticateUser = async (userId) => {
     if (networkState) {
       await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
         method: 'POST',
@@ -156,8 +152,8 @@ function RegistrationModule({navigation}) {
           userId: userId,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
@@ -195,8 +191,8 @@ function RegistrationModule({navigation}) {
           phone: phone,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             console.log(JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
@@ -216,42 +212,6 @@ function RegistrationModule({navigation}) {
       );
     } else {
       setProgress(false);
-      ToastAndroid.show(
-        'Internet Connection is not available',
-        ToastAndroid.LONG,
-      );
-    }
-  };
-
-  const login = async () => {
-    if (networkState) {
-      await fetch(ConstantsList.BASE_URL + `/api/login`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          phone: phone,
-          secretPhrase: text,
-        }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
-          try {
-            console.log(JSON.stringify(data));
-            let response = JSON.parse(JSON.stringify(data));
-            if (response.success == true) {
-              navigation.replace('MultiFactorScreen');
-            } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
-            }
-          } catch (error) {
-            console.error(error);
-          }
-        }),
-      );
-    } else {
       ToastAndroid.show(
         'Internet Connection is not available',
         ToastAndroid.LONG,
@@ -359,7 +319,7 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Name"
                     keyboardType="name-phone-pad"
-                    onChangeText={name => {
+                    onChangeText={(name) => {
                       setName(name);
                     }}
                   />
@@ -369,7 +329,7 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Email"
                     keyboardType="email-address"
-                    onChangeText={email => {
+                    onChangeText={(email) => {
                       setEmail(email);
                     }}
                   />
@@ -379,7 +339,7 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Phone"
                     keyboardType="phone-pad"
-                    onChangeText={phone => {
+                    onChangeText={(phone) => {
                       setPhone(phone);
                     }}
                   />
@@ -392,19 +352,16 @@ function RegistrationModule({navigation}) {
                     backgroundColor: WHITE_COLOR,
                     borderRadius: 10,
                     width: '94%',
-                    height: 65,
+                    height: 45,
                     flexDirection: 'row',
                     marginLeft: 10,
                     marginTop: 8,
                   }}>
                   <TextInput
-                    style={styles.SecretTextInput}
+                    style={styles.TextInput}
                     placeholder="Secret Phrase"
-                    onChangeText={text => setText(text.replace(',', ''))}
                     defaultValue={secret}
-                    multiline={true}
-                    editable={false}
-                    onChangeText={secret => {
+                    onChangeText={(secret) => {
                       setSecret(secret);
                     }}
                   />
@@ -416,6 +373,35 @@ function RegistrationModule({navigation}) {
                     size={25}
                   />
                 </View>
+                {/* <View
+                  style={{
+                    backgroundColor: WHITE_COLOR,
+                    borderRadius: 10,
+                    width: '94%',
+                    height: 65,
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginTop: 8,
+                  }}>
+                  <TextInput
+                    style={styles.SecretTextInput}
+                    placeholder="Secret Phrase"
+                    onChangeText={(text) => setText(text.replace(',', ''))}
+                    defaultValue={secret}
+                    multiline={true}
+                    editable={false}
+                    onChangeText={(secret) => {
+                      setSecret(secret);
+                    }}
+                  />
+                  <FontAwesome
+                    style={{flex: 1}}
+                    onPress={() => copyToClipboard()}
+                    style={styles.textRightIcon}
+                    name="copy"
+                    size={25}
+                  />
+                </View> */}
 
                 <Text
                   style={{
@@ -457,7 +443,7 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Email"
                     keyboardType="email-address"
-                    onChangeText={email => {
+                    onChangeText={(email) => {
                       setEmail(email);
                     }}
                   />
@@ -467,32 +453,32 @@ function RegistrationModule({navigation}) {
                     style={styles.TextInput}
                     placeholder="Phone"
                     keyboardType="phone-pad"
-                    onChangeText={phone => {
+                    onChangeText={(phone) => {
                       setPhone(phone);
                     }}
                   />
                 </View>
-                <Text style={styles.secretMessage}>Secret phrase</Text>
+
                 <View
                   style={{
                     backgroundColor: WHITE_COLOR,
                     borderRadius: 10,
                     width: '94%',
-                    height: 65,
+                    height: 45,
                     flexDirection: 'row',
                     marginLeft: 10,
                     marginTop: 8,
                   }}>
                   <TextInput
-                    style={styles.SecretTextInput}
+                    style={styles.TextInput}
                     placeholder="Secret Phrase"
-                    keyboardType="name-phone-pad"
-                    onChangeText={secretPhrase => {
-                      setSecret(secretPhrase);
+                    secureTextEntry={true}
+                    onChangeText={(secret) => {
+                      setSecret(secret);
                     }}
-                    multiline={true}
                   />
                 </View>
+
                 {progress ? (
                   <ActivityIndicator
                     style={styles.primaryButton}

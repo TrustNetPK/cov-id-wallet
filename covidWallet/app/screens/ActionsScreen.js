@@ -42,7 +42,7 @@ function ActionsScreen({navigation}) {
     ),
   };
   React.useEffect(() => {
-    NetInfo.fetch().then(networkState => {
+    NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
   });
@@ -60,18 +60,18 @@ function ActionsScreen({navigation}) {
 
   const updateActionsList = () => {
     getItem(ConstantsList.CONNEC_REQ)
-      .then(actions => {
+      .then((actions) => {
         if (actions != null) {
           let credActionsList = JSON.parse(actions);
           return credActionsList;
         }
       })
-      .then(credlist => {
+      .then((credlist) => {
         var finalObj = [];
         if (credlist != undefined) {
           finalObj = finalObj.concat(credlist);
         }
-        getItem(ConstantsList.PROOF_REQ).then(actions2 => {
+        getItem(ConstantsList.PROOF_REQ).then((actions2) => {
           if (actions2 != null) {
             let proofActionsList = JSON.parse(actions2);
             finalObj = finalObj.concat(proofActionsList);
@@ -85,10 +85,10 @@ function ActionsScreen({navigation}) {
           }
         });
       })
-      .catch(e => {});
+      .catch((e) => {});
   };
 
-  const toggleModal = v => {
+  const toggleModal = (v) => {
     setSelectedItem(JSON.stringify(v));
     setModalData(JSON.parse(JSON.stringify(v)));
     setModalVisible(true);
@@ -106,8 +106,8 @@ function ActionsScreen({navigation}) {
           userId: Uid,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
@@ -133,7 +133,7 @@ function ActionsScreen({navigation}) {
     }
   };
 
-  const acceptModal = async v => {
+  const acceptModal = async (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
     //Move item to connection screen
     let conns = [];
@@ -172,8 +172,8 @@ function ActionsScreen({navigation}) {
         inviteUrl: inviteUrl,
       }),
     })
-      .then(inviteResult =>
-        inviteResult.json().then(data => {
+      .then((inviteResult) =>
+        inviteResult.json().then((data) => {
           if (data.success == false && data.hasTokenExpired == true) {
             if (hasToken) AuthenticateUser();
             setTokenExpired(false);
@@ -184,13 +184,13 @@ function ActionsScreen({navigation}) {
             deleteActionByConnId(
               selectedItemObj.type,
               selectedItemObj.data,
-            ).then(actions => {
+            ).then((actions) => {
               updateActionsList();
             });
           }
         }),
       )
-      .catch(e => console.log(e));
+      .catch((e) => console.log(e));
 
     //======For FingerPrint Authentication
     // } else {
@@ -200,17 +200,17 @@ function ActionsScreen({navigation}) {
     //================================
   };
 
-  const rejectModal = v => {
+  const rejectModal = (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
     setModalVisible(false);
     deleteActionByConnId(selectedItemObj.type, selectedItemObj.data).then(
-      actions => {
+      (actions) => {
         updateActionsList();
       },
     );
   };
 
-  const dismissModal = v => {
+  const dismissModal = (v) => {
     setModalVisible(false);
   };
 

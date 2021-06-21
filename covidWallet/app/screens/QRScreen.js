@@ -21,7 +21,7 @@ function QRScreen({navigation}) {
 
   useEffect(() => {
     getItem(ConstantsList.CONNEC_REQ)
-      .then(data => {
+      .then((data) => {
         if (data == null) {
           cr_arr = [];
         } else {
@@ -34,12 +34,12 @@ function QRScreen({navigation}) {
 
         setConnectionRequest(JSON.stringify(cr_arr));
       })
-      .catch(e => {
+      .catch((e) => {
         setError('Error');
       });
 
     getItem(ConstantsList.CERT_REQ)
-      .then(data => {
+      .then((data) => {
         if (data == null) {
           arr = [];
         } else {
@@ -51,12 +51,12 @@ function QRScreen({navigation}) {
         }
         setCertificateRequest(JSON.stringify(arr));
       })
-      .catch(e => {
+      .catch((e) => {
         setError('Error');
       });
 
     getItem(ConstantsList.PROOF_REQ)
-      .then(data => {
+      .then((data) => {
         if (data == null) {
           arr2 = [];
         } else {
@@ -68,7 +68,7 @@ function QRScreen({navigation}) {
         }
         setProofRequest(JSON.stringify(arr2));
       })
-      .catch(e => {
+      .catch((e) => {
         setError('Error');
       });
   }, []);
@@ -80,7 +80,7 @@ function QRScreen({navigation}) {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
       },
-    }).then(response => {
+    }).then((response) => {
       const parsed = queryString.parse(response.url, true);
       let urlData = Object.values(parsed)[0];
       var data = JSON.parse(Buffer.from(urlData, 'base64').toString());
@@ -90,14 +90,16 @@ function QRScreen({navigation}) {
       saveItem(ConstantsList.CONNEC_REQ, JSON.stringify(cr_arr))
         .then(() => {
           setProgress(false);
-          Alert.alert(
-            'ZADA',
-            'Connection has been added in Actions',
-            [{text: 'OK', onPress: () => navigation.navigate('MainScreen')}],
-            {cancelable: false},
-          );
+          navigation.navigate('MainScreen');
+          //========Showing Dialog after Success
+          // Alert.alert(
+          //   'ZADA',
+          //   'Connection has been added in Actions',
+          //   [{text: 'OK', onPress: () => navigation.navigate('MainScreen')}],
+          //   {cancelable: false},
+          // );
         })
-        .catch(e => {
+        .catch((e) => {
           setProgress(false);
           Alert.alert(
             'ZADA',
@@ -109,7 +111,7 @@ function QRScreen({navigation}) {
     });
   };
 
-  const onSuccess = e => {
+  const onSuccess = (e) => {
     let title = '';
     try {
       cr_arr = JSON.parse(connection_request);
@@ -127,7 +129,7 @@ function QRScreen({navigation}) {
       arr.push(qrJSON);
       saveItem(ConstantsList.CERT_REQ, JSON.stringify(arr))
         .then(() => {})
-        .catch(e => {});
+        .catch((e) => {});
     } else if (qrJSON.type == 'connection_request') {
       setProgress(true);
       getResponseUrl(qrJSON.data, qrJSON);
@@ -136,7 +138,7 @@ function QRScreen({navigation}) {
       arr2.push(qrJSON);
       saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
         .then(() => {})
-        .catch(e => {});
+        .catch((e) => {});
     } else {
       title = 'Invalid QR Code';
     }
@@ -167,7 +169,7 @@ function QRScreen({navigation}) {
               />
             </View>
           }
-          ref={node => {
+          ref={(node) => {
             scanner = node;
           }}
           onRead={onSuccess}

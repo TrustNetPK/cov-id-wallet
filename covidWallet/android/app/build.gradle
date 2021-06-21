@@ -130,7 +130,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "pk.net.trust.vaccify"
+        applicationId "com.zadanetwork.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

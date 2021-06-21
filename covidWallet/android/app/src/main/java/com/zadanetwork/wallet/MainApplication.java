@@ -1,4 +1,4 @@
-package pk.net.trust.vaccify;
+package com.zadanetwork.wallet;
 
 import android.app.Application;
 import android.content.Context;

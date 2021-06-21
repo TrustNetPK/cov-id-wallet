@@ -1,4 +1,4 @@
-package pk.net.trust.vaccify; // ← Make sure that is your package name
+package com.zadanetwork.wallet; // ← Make sure that is your package name
 
 import android.content.Intent;
 import android.os.Bundle;
