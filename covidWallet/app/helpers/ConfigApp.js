@@ -7,6 +7,7 @@ module.exports = Object.freeze({
   PROOF_REQ: 'connection_proof',
   CONNECTIONS: 'connections',
   USER_TOKEN: 'userToken',
+  DEVICE_TOKEN: 'deviceToken',
   USER_ID: 'userId',
   CREDENTIALS: 'credentials',
   API_SECRET: '',
