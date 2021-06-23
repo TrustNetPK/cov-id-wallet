@@ -9,7 +9,7 @@ import queryString from 'query-string';
 import {Buffer} from 'buffer';
 import CustomProgressBar from '../components/CustomProgressBar';
 
-function QRScreen({navigation}) {
+function QRScreen({route, navigation}) {
   const [scan, setScan] = useState(true);
   const [certificate_request, setCertificateRequest] = useState('');
   const [connection_request, setConnectionRequest] = useState('');
@@ -31,11 +31,22 @@ function QRScreen({navigation}) {
             cr_arr = [];
           }
         }
-
         setConnectionRequest(JSON.stringify(cr_arr));
+        if (route.params != undefined) {
+          setScan(false);
+          const {request} = route.params;
+          console.log(typeof request.metadata);
+          console.log(request);
+          console.log(typeof JSON.stringify(request));
+          const qrJSON = JSON.parse(JSON.stringify(request));
+          if (request.type == 'connection_request') {
+            setProgress(true);
+            getResponseUrl(request.metadata, qrJSON);
+          }
+        }
       })
       .catch((e) => {
-        setError('Error');
+        console.log('Error is ' + e);
       });
 
     getItem(ConstantsList.CERT_REQ)
@@ -52,7 +63,7 @@ function QRScreen({navigation}) {
         setCertificateRequest(JSON.stringify(arr));
       })
       .catch((e) => {
-        setError('Error');
+        console.log('Error is ' + e);
       });
 
     getItem(ConstantsList.PROOF_REQ)
@@ -69,7 +80,7 @@ function QRScreen({navigation}) {
         setProofRequest(JSON.stringify(arr2));
       })
       .catch((e) => {
-        setError('Error');
+        console.log('Error is ' + e);
       });
   }, []);
 
@@ -82,6 +93,7 @@ function QRScreen({navigation}) {
       },
     }).then((response) => {
       const parsed = queryString.parse(response.url, true);
+      console.log(parsed);
       let urlData = Object.values(parsed)[0];
       var data = JSON.parse(Buffer.from(urlData, 'base64').toString());
       qrJSON.organizationName = data.label;
@@ -132,7 +144,7 @@ function QRScreen({navigation}) {
         .catch((e) => {});
     } else if (qrJSON.type == 'connection_request') {
       setProgress(true);
-      getResponseUrl(qrJSON.data, qrJSON);
+      getResponseUrl(qrJSON.metadata, qrJSON);
     } else if (qrJSON.type == 'connection_proof') {
       title = 'Digital Proof Request Added';
       arr2.push(qrJSON);

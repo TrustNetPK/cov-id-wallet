@@ -1,6 +1,6 @@
 import React, {useLayoutEffect, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
-import {View, StyleSheet, ToastAndroid} from 'react-native';
+import {View, StyleSheet, ToastAndroid, Linking} from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -16,6 +16,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {BACKGROUND_COLOR, BLACK_COLOR} from '../theme/Colors';
+import {request} from 'react-native-permissions';
 
 function ActionsScreen({navigation}) {
   const [isAction, setAction] = useState(false);
@@ -27,7 +28,8 @@ function ActionsScreen({navigation}) {
   const [Uid, storeUid] = useState();
   const [secret, storeSecret] = useState('');
   const [networkState, setNetworkState] = useState(false);
-
+  const [deepLink, setDeepLink] = useState(false);
+  var requestArray = [];
   const headerOptions = {
     headerRight: () => (
       <MaterialCommunityIcons
@@ -41,11 +43,40 @@ function ActionsScreen({navigation}) {
       />
     ),
   };
+
+  const getUrl = async () => {
+    const initialUrl = await Linking.getInitialURL();
+    console.log('Initial Url' + initialUrl);
+    if (initialUrl === null) {
+      setDeepLink(true);
+      return;
+    } else {
+      const parsed = initialUrl.split('/');
+      console.log(parsed[3] + '---' + parsed[4]);
+      var item = {};
+      item['type'] = parsed[3];
+      item['metadata'] = parsed[4];
+      requestArray.push(item);
+      const requestJson = JSON.parse(JSON.stringify(item));
+      console.log(JSON.parse(JSON.stringify(item)));
+      setDeepLink(true);
+      navigation.navigate('QRScreen', {
+        request: requestJson,
+      });
+    }
+
+    if (initialUrl.includes('Details')) {
+      Alert.alert(initialUrl);
+      //RootNavigation.navigate('Details');
+    }
+  };
+
   React.useEffect(() => {
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
-  });
+    if (!deepLink) getUrl();
+  }, [deepLink]);
   useFocusEffect(
     React.useCallback(() => {
       updateActionsList();
@@ -155,7 +186,7 @@ function ActionsScreen({navigation}) {
     //fetch wallet credentials
     //=========================================
     let baseURL = 'https://trinsic.studio/url/';
-    let inviteUrl = baseURL + modalData.data;
+    let inviteUrl = baseURL + modalData.metadata;
     let userToken = await getItem(ConstantsList.USER_TOKEN);
     let userID = await getItem(ConstantsList.USER_ID);
     let walletSecret = await getItem(ConstantsList.WALLET_SECRET);

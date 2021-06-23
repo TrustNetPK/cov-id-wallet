@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Linking} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
@@ -24,6 +24,9 @@ import LoadingScreen from './screens/LoadingScreen';
 const Stack = createStackNavigator();
 
 function NavigationComponent() {
+  const linking = {
+    prefixes: ['https://zadanetwork.com', 'zadanetwork://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
+  };
   const [isFirstTime, getisFirstTime] = React.useState('true');
   const [isLoading, setLoading] = useState(true);
   const storeData = async () => {
@@ -36,7 +39,7 @@ function NavigationComponent() {
 
   const retrieveData = async () => {
     try {
-      const value = await AsyncStorage.getItem('isfirstTime').then(value => {
+      const value = await AsyncStorage.getItem('isfirstTime').then((value) => {
         setLoading(false);
         if (value == null) {
           getisFirstTime('true');
@@ -65,7 +68,7 @@ function NavigationComponent() {
   );
   return (
     <AuthContext.Provider value={authContext}>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         {isLoading ? (
           <Stack.Navigator>
             <Stack.Screen
@@ -158,6 +161,7 @@ function NavigationComponent() {
             <Stack.Screen
               options={{headerShown: false}}
               name="QRScreen"
+              path="/scanqr/:pathParam1?/:pathParam2?" //npx uri-scheme open https://zadanetwork.com/type=connection_data --android
               component={QRScreen}
             />
             <Stack.Screen
