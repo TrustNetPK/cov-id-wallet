@@ -1,14 +1,18 @@
-
 import * as React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+import {View, Text, StyleSheet, Image} from 'react-native';
+import {BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR} from '../theme/Colors';
 
 function FlatCard(props) {
   return (
     <View style={styles.card}>
       <View style={styles.container}>
         <View style={styles.row1}>
-          <Image source={props.image} style={styles.logo} />
+          <Image
+            source={{
+              uri: props.imageURL, // remove braces
+            }}
+            style={styles.logo}
+          />
         </View>
         <View style={styles.row2}>
           <Text style={styles.heading}>{props.heading}</Text>
@@ -35,7 +39,7 @@ const styles = StyleSheet.create({
   heading: {
     color: BLACK_COLOR,
     fontSize: 15,
-    paddingLeft: 10
+    paddingLeft: 10,
   },
   card: {
     width: '100%',
@@ -46,13 +50,13 @@ const styles = StyleSheet.create({
     backgroundColor: WHITE_COLOR,
     borderRadius: 20,
     borderColor: SECONDARY_COLOR,
-    borderWidth: 0.5
+    borderWidth: 0.5,
   },
   logo: {
     width: 50,
     backgroundColor: WHITE_COLOR,
     height: 50,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   row1: {
     width: '25%',

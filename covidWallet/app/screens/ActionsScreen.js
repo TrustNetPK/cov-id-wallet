@@ -9,14 +9,12 @@ import {themeStyles} from '../theme/Styles';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import {getItem, deleteActionByConnId, saveItem} from '../helpers/Storage';
-import {authenticate} from '../helpers/Authenticate';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
 import {ScrollView} from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {BACKGROUND_COLOR, BLACK_COLOR} from '../theme/Colors';
-import {request} from 'react-native-permissions';
 
 function ActionsScreen({navigation}) {
   const [isAction, setAction] = useState(false);
@@ -46,19 +44,16 @@ function ActionsScreen({navigation}) {
 
   const getUrl = async () => {
     const initialUrl = await Linking.getInitialURL();
-    console.log('Initial Url' + initialUrl);
     if (initialUrl === null) {
       setDeepLink(true);
       return;
     } else {
       const parsed = initialUrl.split('/');
-      console.log(parsed[3] + '---' + parsed[4]);
       var item = {};
       item['type'] = parsed[3];
       item['metadata'] = parsed[4];
       requestArray.push(item);
       const requestJson = JSON.parse(JSON.stringify(item));
-      console.log(JSON.parse(JSON.stringify(item)));
       setDeepLink(true);
       navigation.navigate('QRScreen', {
         request: requestJson,
@@ -87,9 +82,20 @@ function ActionsScreen({navigation}) {
     navigation
       .dangerouslyGetParent()
       .setOptions(isAction ? headerOptions : undefined);
-  }, [isAction]);
+  }, [isAction, navigation]);
 
   const updateActionsList = () => {
+    var connList = null;
+    getItem(ConstantsList.CONNECTIONS)
+      .then((connectionList) => {
+        if (connectionList != null) {
+          let cList = JSON.parse(connectionList);
+          return cList;
+        }
+      })
+      .then((connections) => {
+        if (connections != undefined) connList = connections;
+      });
     getItem(ConstantsList.CONNEC_REQ)
       .then((actions) => {
         if (actions != null) {
@@ -102,10 +108,30 @@ function ActionsScreen({navigation}) {
         if (credlist != undefined) {
           finalObj = finalObj.concat(credlist);
         }
-        getItem(ConstantsList.PROOF_REQ).then((actions2) => {
+        getItem(ConstantsList.CRED_REQ).then((actions2) => {
           if (actions2 != null) {
-            let proofActionsList = JSON.parse(actions2);
-            finalObj = finalObj.concat(proofActionsList);
+            let credentialRequestList = JSON.parse(actions2);
+            if (
+              credentialRequestList != null ||
+              credentialRequestList != undefined
+            ) {
+              for (let j = 0; j < credentialRequestList.length; j++) {
+                if (connList != null) {
+                  for (let k = 0; k < connList.length; k++) {
+                    if (
+                      credentialRequestList[j].connectionId ===
+                      connList[k].connectionId
+                    ) {
+                      credentialRequestList[j].imageUrl = connList[k].imageUrl;
+                      credentialRequestList[j].organizationName =
+                        connList[k].name;
+                    }
+                    console.log(connList[k].connectionId);
+                  }
+                }
+              }
+            }
+            finalObj = finalObj.concat(credentialRequestList);
           }
 
           if (finalObj.length > 0) {
@@ -143,7 +169,6 @@ function ActionsScreen({navigation}) {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               saveItem(ConstantsList.USER_TOKEN, response.token);
-              ToastAndroid.show('Token has been refreshed', ToastAndroid.SHORT);
               acceptModal();
             } else {
               ToastAndroid.show(response.error, ToastAndroid.SHORT);
@@ -166,27 +191,8 @@ function ActionsScreen({navigation}) {
 
   const acceptModal = async (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
-    //Move item to connection screen
-    let conns = [];
-    let data = await getItem(ConstantsList.CONNECTIONS);
-    if (data == null) {
-      conns = conns.concat(selectedItemObj);
-    } else {
-      try {
-        conns = JSON.parse(data);
-        conns = conns.concat(selectedItemObj);
-      } catch (e) {
-        conns = [];
-      }
-    }
-    await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
-    //======For FingerPrint Authentication
-    // let authResult = await authenticate();
-    // if (authResult == true) {
-    //fetch wallet credentials
-    //=========================================
     let baseURL = 'https://trinsic.studio/url/';
-    let inviteUrl = baseURL + modalData.metadata;
+    let iUrl = baseURL + modalData.metadata;
     let userToken = await getItem(ConstantsList.USER_TOKEN);
     let userID = await getItem(ConstantsList.USER_ID);
     let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
@@ -196,28 +202,49 @@ function ActionsScreen({navigation}) {
     await fetch(ConstantsList.BASE_URL + `/api/connection/accept_connection`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Content-Type': 'application/json',
         Authorization: 'Bearer ' + userToken,
       },
       body: JSON.stringify({
-        inviteUrl: inviteUrl,
+        inviteUrl: iUrl,
       }),
     })
       .then((inviteResult) =>
         inviteResult.json().then((data) => {
           if (data.success == false && data.hasTokenExpired == true) {
-            if (hasToken) AuthenticateUser();
-            setTokenExpired(false);
-          } else {
-            console.log('Token Available');
-            //Remove item from actions
+            getItem(ConstantsList.USER_ID).then((userID) => {
+              getItem(ConstantsList.WALLET_SECRET).then((walletSecret) => {
+                if (hasToken) AuthenticateUser(userID, walletSecret);
+                setTokenExpired(false);
+              });
+            });
+          } else if (data.success == true) {
             setModalVisible(false);
             deleteActionByConnId(
               selectedItemObj.type,
-              selectedItemObj.data,
+              selectedItemObj.metadata,
             ).then((actions) => {
               updateActionsList();
             });
+            //Move item to connection screen
+            let conns = [];
+            getItem(ConstantsList.CONNECTIONS).then((connectionsdata) => {
+              if (connectionsdata == null) {
+                conns = conns.concat(data.connection);
+              } else {
+                try {
+                  conns = JSON.parse(connectionsdata);
+                  conns = conns.concat(data.connection);
+                } catch (e) {
+                  console.log('Error Occurred ' + e);
+                  conns = [];
+                }
+              }
+              saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
+            });
+          } else {
+            //Remove item from actions
+            setModalVisible(false);
           }
         }),
       )
@@ -234,7 +261,7 @@ function ActionsScreen({navigation}) {
   const rejectModal = (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
     setModalVisible(false);
-    deleteActionByConnId(selectedItemObj.type, selectedItemObj.data).then(
+    deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata).then(
       (actions) => {
         updateActionsList();
       },
@@ -268,18 +295,19 @@ function ActionsScreen({navigation}) {
                   let header = String(
                     v.type === 'connection_request'
                       ? 'Connection Request'
-                      : 'Digital Proof Request',
+                      : 'Credential Request',
                   );
                   let subtitle =
                     'Click to view the ' +
                     header.toLowerCase() +
                     ' from ' +
                     v.organizationName;
-                  let imgURI = {uri: v.imageUrl};
+                  let imgURI = v.imageUrl;
+                  console.log('Image Url ' + imgURI);
                   return (
                     <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
                       <FlatCard
-                        image={imgURI}
+                        imageURL={imgURI}
                         heading={header}
                         text={subtitle}
                       />
@@ -304,6 +332,7 @@ function ActionsScreen({navigation}) {
               <BorderButton
                 text="QR CODE"
                 color={BLACK_COLOR}
+                textColor={BLACK_COLOR}
                 backgroundColor={BACKGROUND_COLOR}
                 isIconVisible={true}
               />

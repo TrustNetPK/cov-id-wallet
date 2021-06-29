@@ -25,7 +25,7 @@ function ConnectionsScreen(props) {
 
   const updateConnectionsList = () => {
     getItem(ConstantsList.CONNECTIONS)
-      .then(connections => {
+      .then((connections) => {
         if (connections != null) {
           let connectionsList = JSON.parse(connections);
           setConnectionsList(connectionsList);
@@ -34,7 +34,7 @@ function ConnectionsScreen(props) {
           setConnection(false);
         }
       })
-      .catch(e => {});
+      .catch((e) => {});
   };
 
   return (
@@ -43,15 +43,16 @@ function ConnectionsScreen(props) {
       {isConnection && (
         <View>
           {connectionsList.map((v, i) => {
-            let imgURI = {uri: v.imageUrl};
-            let header = v.organizationName;
+            console.log(JSON.stringify(v));
+            let imgURI = v.imageUrl;
+            let header = v.name;
             let subtitle =
               'The connection between you and ' +
               header.toLowerCase() +
               ' is secure and encrypted.';
             return (
               <TouchableOpacity key={i}>
-                <FlatCard image={imgURI} heading={header} text={subtitle} />
+                <FlatCard imageURL={imgURI} heading={header} text={subtitle} />
               </TouchableOpacity>
             );
           })}

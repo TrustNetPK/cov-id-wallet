@@ -1,7 +1,7 @@
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const savePassCode = async PassCode => {
+export const savePassCode = async (PassCode) => {
   return await AsyncStorage.setItem('@passCode', PassCode);
 };
 
@@ -19,31 +19,35 @@ export const saveItem = async (key, value) => {
   return await AsyncStorage.setItem(key, value);
 };
 
-export const getItem = async key => {
+export const getItem = async (key) => {
   return await AsyncStorage.getItem(key);
 };
 
 export const deleteActionByConnId = async (key, connID) => {
-  return getItem(key).then(action => {
+  return getItem(key).then((action) => {
     let QRJsonList = JSON.parse(action);
     let newQRList = [];
-    QRJsonList.forEach(element => {
-      if (element.data != connID) {
+    QRJsonList.forEach((element) => {
+      if (element.metadata != connID) {
         newQRList.push(element);
       }
     });
-    saveItem(key, JSON.stringify(newQRList)).then(action => {});
+    saveItem(key, JSON.stringify(newQRList)).then((action) => {});
     return newQRList.length;
   });
 };
 
-export const isFirstTime = async value => {
+export const searchConnectionByOrganizationName = async (organizationName) => {
+  await getItem(ConstantsList.CONNECTIONS).then((action) => {});
+};
+
+export const isFirstTime = async (value) => {
   return await AsyncStorage.setItem('isFirstTime', value);
 };
 
 export const getisFirstTime = async () => {
   try {
-    await AsyncStorage.getItem('isFirstTime').then(value => {
+    await AsyncStorage.getItem('isFirstTime').then((value) => {
       return value;
     });
   } catch (e) {

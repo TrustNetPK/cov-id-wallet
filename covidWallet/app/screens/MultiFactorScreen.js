@@ -22,6 +22,7 @@ import {
 import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {saveItem} from '../helpers/Storage';
 
 const {height, width} = Dimensions.get('window');
 
@@ -36,7 +37,7 @@ function MultiFactorScreen({route, navigation}) {
   const [newUserId, setUserId] = useState('');
 
   React.useEffect(() => {
-    NetInfo.fetch().then(networkState => {
+    NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
   }, [networkState]);
@@ -53,7 +54,7 @@ function MultiFactorScreen({route, navigation}) {
       validateOTP();
     }
   };
-  const storeUserID = async userId => {
+  const storeUserID = async (userId) => {
     try {
       await AsyncStorage.setItem('userId', userId);
     } catch (error) {
@@ -61,7 +62,7 @@ function MultiFactorScreen({route, navigation}) {
     }
   };
 
-  const storeUserToken = async userToken => {
+  const storeUserToken = async (userToken) => {
     try {
       console.log(userToken);
       await AsyncStorage.setItem('userToken', userToken);
@@ -82,8 +83,8 @@ function MultiFactorScreen({route, navigation}) {
           otpmail: emailConfirmationCode,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
@@ -108,7 +109,7 @@ function MultiFactorScreen({route, navigation}) {
     }
   };
 
-  const reAuthenticateUser = async userId => {
+  const reAuthenticateUser = async (userId) => {
     if (networkState) {
       setAuthentication(true);
       await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
@@ -121,13 +122,15 @@ function MultiFactorScreen({route, navigation}) {
           userId: userId,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               storeUserToken(response.token);
-              navigation.replace('SecurityScreen');
+              saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
+                navigation.replace('SecurityScreen');
+              });
             } else {
               ToastAndroid.show(response.error, ToastAndroid.SHORT);
             }
@@ -146,7 +149,7 @@ function MultiFactorScreen({route, navigation}) {
     }
   };
 
-  const authenticateUser = async userId => {
+  const authenticateUser = async (userId) => {
     if (networkState) {
       setAuthentication(true);
       await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
@@ -159,8 +162,8 @@ function MultiFactorScreen({route, navigation}) {
           userId: userId,
           secretPhrase: secret,
         }),
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
@@ -184,7 +187,7 @@ function MultiFactorScreen({route, navigation}) {
     }
   };
 
-  const createWallet = async userToken => {
+  const createWallet = async (userToken) => {
     if (networkState) {
       setAuthentication(false);
       await fetch(ConstantsList.BASE_URL + `/api/wallet/create`, {
@@ -192,14 +195,14 @@ function MultiFactorScreen({route, navigation}) {
         headers: {
           Authorization: 'Bearer ' + userToken,
         },
-      }).then(credsResult =>
-        credsResult.json().then(data => {
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
           try {
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               setWallet(true);
               ToastAndroid.show(response.message, ToastAndroid.SHORT);
-              AsyncStorage.getItem('userId').then(userId => {
+              AsyncStorage.getItem('userId').then((userId) => {
                 if (userId) {
                   setWallet(true);
                   reAuthenticateUser(userId);
@@ -276,7 +279,7 @@ function MultiFactorScreen({route, navigation}) {
                       style={styles.TextInput}
                       placeholder="Phone Confirmation Code"
                       keyboardType="number-pad"
-                      onChangeText={confirmationCode => {
+                      onChangeText={(confirmationCode) => {
                         setPhoneConfirmationCode(confirmationCode);
                       }}
                     />
@@ -286,7 +289,7 @@ function MultiFactorScreen({route, navigation}) {
                       style={styles.TextInput}
                       placeholder="Email Confirmation Code"
                       keyboardType="number-pad"
-                      onChangeText={confirmationCode => {
+                      onChangeText={(confirmationCode) => {
                         setEmailConfirmationCode(confirmationCode);
                       }}
                     />
@@ -310,7 +313,7 @@ function MultiFactorScreen({route, navigation}) {
                       placeholder="Secret Phrase"
                       multiline={true}
                       keyboardType="name-phone-pad"
-                      onChangeText={secretPhrase => {
+                      onChangeText={(secretPhrase) => {
                         setSecret(secretPhrase);
                       }}
                     />

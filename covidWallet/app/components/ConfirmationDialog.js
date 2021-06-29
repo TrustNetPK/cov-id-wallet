@@ -7,6 +7,8 @@ import {
   GRAY_COLOR,
   BLACK_COLOR,
   BACKGROUND_COLOR,
+  GREEN_COLOR,
+  RED_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from './HeadingComponent';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -120,7 +122,8 @@ function ConfirmationDialog(props) {
                 nextHandler={props.rejectModal}
                 text="REJECT"
                 color={BLACK_COLOR}
-                backgroundColor={WHITE_COLOR}
+                textColor={WHITE_COLOR}
+                backgroundColor={RED_COLOR}
                 isIconVisible={false}
               />
             )}
@@ -129,7 +132,8 @@ function ConfirmationDialog(props) {
                 nextHandler={props.acceptModal}
                 text="ACCEPT"
                 color={BLACK_COLOR}
-                backgroundColor={WHITE_COLOR}
+                textColor={WHITE_COLOR}
+                backgroundColor={GREEN_COLOR}
               />
             )}
           </View>

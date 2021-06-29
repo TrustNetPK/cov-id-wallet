@@ -24,7 +24,7 @@ function BorderButton(props) {
     },
     text: {
       alignSelf: 'center',
-      color: BLACK_COLOR,
+      color: props.textColor,
       fontSize: 15,
       fontFamily: 'Poppins-Regular',
     },

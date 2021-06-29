@@ -4,6 +4,7 @@ module.exports = Object.freeze({
   WALLET_NAME: 'wallet_name',
   CERT_REQ: 'connection_credential',
   CONNEC_REQ: 'connection_request',
+  CRED_REQ: 'credential_offer',
   PROOF_REQ: 'connection_proof',
   CONNECTIONS: 'connections',
   USER_TOKEN: 'userToken',
