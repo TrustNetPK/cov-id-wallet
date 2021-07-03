@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import randomWords from 'random-words';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView } from 'react-native';
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ToastAndroid,
   Dimensions,
   Clipboard,
   ScrollView,
@@ -23,15 +22,17 @@ import {
   GRAY_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
-import {StackActions} from '@react-navigation/native';
+import { StackActions } from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
-import {saveItem} from '../helpers/Storage';
+import { saveItem } from '../helpers/Storage';
 import randomString from '../helpers/RandomString';
+import { showMessage } from '../helpers/Toast';
+import { AuthenticateUser } from '../helpers/Authenticate'
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-function RegistrationModule({navigation}) {
+function RegistrationModule({ navigation }) {
   const [activeOption, updateActiveOption] = useState('register');
   const [networkState, setNetworkState] = useState(false);
   const [name, setName] = useState('');
@@ -45,22 +46,19 @@ function RegistrationModule({navigation}) {
   };
   const copyToClipboard = () => {
     Clipboard.setString(secret);
-    ToastAndroid.show(
-      'Secret Phrase is copied to clipboard.',
-      ToastAndroid.SHORT,
-    );
+    showMessage('ZADA Wallet', 'Secret Phrase is copied to clipboard.')
   };
   React.useEffect(() => {
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
-    if (activeOption == 'register') setSecret(randomString(12));
+    if (activeOption == 'register') setSecret(randomString(24));
   }, [activeOption, networkState]);
 
   const nextHandler = () => {
     navigation.dispatch({
       index: 0,
-      actions: [StackActions.replace({routeName: 'MultiFactorScreen'})],
+      actions: [StackActions.replace({ routeName: 'MultiFactorScreen' })],
     });
   };
 
@@ -69,14 +67,14 @@ function RegistrationModule({navigation}) {
       activeOption == 'register' &&
       (name == '' || phone == '' || email == '' || secret == '')
     ) {
-      ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
+      showMessage('ZADA Wallet', 'Fill the empty fields')
       return;
     }
     if (
       activeOption == 'login' &&
       (phone == '' || email == '' || secret == '')
     ) {
-      ToastAndroid.show('Fill the empty fields', ToastAndroid.SHORT);
+      showMessage('ZADA Wallet', 'Fill the empty fields')
       return;
     } else {
       setProgress(true);
@@ -100,15 +98,17 @@ function RegistrationModule({navigation}) {
           phone: phone,
           secretPhrase: secret,
         }),
-      }).then((credsResult) =>
-        credsResult.json().then((data) => {
+      }).then((registerResult) =>
+        registerResult.json().then((data) => {
           try {
-            console.log(JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
-              navigation.replace('MultiFactorScreen');
+              saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
+                navigation.replace('MultiFactorScreen');
+              });
             } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+              showMessage('ZADA Wallet', response.error)
+              setProgress(false);
             }
           } catch (error) {
             console.error(error);
@@ -118,10 +118,7 @@ function RegistrationModule({navigation}) {
         }),
       );
     } else {
-      ToastAndroid.show(
-        'Internet Connection is not available',
-        ToastAndroid.LONG,
-      );
+      showMessage('ZADA Wallet', 'Internet Connection is not available')
     }
   };
 
@@ -129,52 +126,21 @@ function RegistrationModule({navigation}) {
     try {
       await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
-  const storeUserToken = async (userToken) => {
-    try {
-      console.log(userToken);
-      await AsyncStorage.setItem(ConstantsList.USER_TOKEN, userToken);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const AuthenticateUser = async (userId) => {
+  const authenticateUserToken = async () => {
     if (networkState) {
-      await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userId,
-          secretPhrase: secret,
-        }),
-      }).then((credsResult) =>
-        credsResult.json().then((data) => {
-          try {
-            let response = JSON.parse(JSON.stringify(data));
-            if (response.success == true) {
-              storeUserToken(response.token);
-              navigation.replace('SecurityScreen');
-            } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
-            }
-          } catch (error) {
-            console.error(error);
-          } finally {
-            setProgress(false);
-          }
-        }),
-      );
+      let resp = await AuthenticateUser();
+      setProgress(false);
+      if (resp.success) {
+        navigation.replace('SecurityScreen');
+      } else {
+        showMessage('ZADA Wallet', resp.message);
+      }
     } else {
       setProgress(false);
-      ToastAndroid.show(
-        'Internet Connection is not available',
-        ToastAndroid.LONG,
-      );
+      showMessage('ZADA Wallet', 'Internet Connection is not available')
     }
   };
 
@@ -199,9 +165,10 @@ function RegistrationModule({navigation}) {
             if (response.success == true) {
               storeUserID(response.userId);
               saveItem(ConstantsList.WALLET_SECRET, secret);
-              AuthenticateUser(response.userId);
+              authenticateUserToken();
             } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
+              showMessage('ZADA Wallet', response.error)
+              setProgress(false);
             }
           } catch (error) {
             console.error(error);
@@ -212,168 +179,171 @@ function RegistrationModule({navigation}) {
       );
     } else {
       setProgress(false);
-      ToastAndroid.show(
-        'Internet Connection is not available',
-        ToastAndroid.LONG,
-      );
+      showMessage('ZADA Wallet', 'Internet Connection is not available')
     }
   };
 
   return (
+
     <View
       style={{
         flex: 1,
         alignItems: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <ScrollView
-        contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
-        <View
-          style={{
-            backgroundColor: BACKGROUND_COLOR,
-            alignContent: 'center',
-            width: width - 40,
-            justifyContent: 'space-around',
-            borderRadius: 10,
-          }}>
-          <View style={{marginLeft: 50, marginRight: 50}}>
-            <HeadingComponent text="Let's Get Started!" />
-          </View>
+      <KeyboardAvoidingView behavior="padding" enabled>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+          <View
+            style={{
+              backgroundColor: BACKGROUND_COLOR,
+              alignContent: 'center',
+              width: width - 40,
+              justifyContent: 'space-around',
+              borderRadius: 10,
+            }}>
+            <View style={{ marginLeft: 50, marginRight: 50 }}>
+              <HeadingComponent text="Let's Get Started!" />
+            </View>
 
-          <View style={styles.headerContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                selectionOnPress('register');
-              }}>
-              <Image
-                style={{
-                  height: 50,
-                  width: '50%',
-                  resizeMode: 'contain',
-                  alignSelf: 'center',
-                  tintColor: activeOption == 'register' ? GREEN_COLOR : 'grey',
-                }}
-                source={require('../assets/images/register.png')}
-              />
-              <Text
-                style={{
-                  width: 150,
-                  height: 30,
-                  textAlignVertical: 'center',
-                  textAlign: 'center',
-                  fontFamily: 'Poppins-Regular',
-                  color: 'grey',
-                }}>
-                Register Account
-              </Text>
-              <View
-                style={{
-                  borderBottomColor:
-                    activeOption == 'register' ? GREEN_COLOR : 'grey',
-                  borderBottomWidth: 4,
-                }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                selectionOnPress('login');
-              }}>
-              <Image
+            <View style={styles.headerContainer}>
+              <TouchableOpacity
                 onPress={() => {
-                  selectionOnPress('login');
-                }}
-                style={{
-                  height: 50,
-                  width: 50,
-                  resizeMode: 'contain',
-                  alignSelf: 'center',
-                  tintColor: activeOption == 'login' ? GREEN_COLOR : 'grey',
-                }}
-                source={require('../assets/images/already.png')}
-              />
-              <Text
-                style={{
-                  width: 150,
-                  textAlign: 'center',
-                  textAlignVertical: 'center',
-                  fontFamily: 'Poppins-Regular',
-                  height: 30,
-                  color: 'grey',
+                  selectionOnPress('register');
                 }}>
-                Login
+                <Image
+                  style={{
+                    height: 50,
+                    width: '50%',
+                    resizeMode: 'contain',
+                    alignSelf: 'center',
+                    tintColor: activeOption == 'register' ? GREEN_COLOR : 'grey',
+                  }}
+                  source={require('../assets/images/register.png')}
+                />
+                <Text
+                  style={{
+                    width: 150,
+                    height: 30,
+                    textAlignVertical: 'center',
+                    textAlign: 'center',
+                    fontFamily: 'Poppins-Regular',
+                    color: 'grey',
+                  }}>
+                  Register Account
               </Text>
-              <View
-                style={{
-                  borderBottomColor:
-                    activeOption == 'login' ? GREEN_COLOR : 'grey',
-                  borderBottomWidth: 4,
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-          {activeOption == 'register' && (
-            <View>
-              <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Name"
-                    keyboardType="name-phone-pad"
-                    onChangeText={(name) => {
-                      setName(name);
-                    }}
-                  />
-                </View>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Email"
-                    keyboardType="email-address"
-                    onChangeText={(email) => {
-                      setEmail(email);
-                    }}
-                  />
-                </View>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Phone"
-                    keyboardType="phone-pad"
-                    onChangeText={(phone) => {
-                      setPhone(phone);
-                    }}
-                  />
-                </View>
-                <Text style={styles.secretMessage}>
-                  Secret phrase (please save in safe place)
-                </Text>
                 <View
                   style={{
-                    backgroundColor: WHITE_COLOR,
-                    borderRadius: 10,
-                    width: '94%',
-                    height: 45,
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginTop: 8,
+                    borderBottomColor:
+                      activeOption == 'register' ? GREEN_COLOR : 'grey',
+                    borderBottomWidth: 4,
+                  }}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  selectionOnPress('login');
+                }}>
+                <Image
+                  onPress={() => {
+                    selectionOnPress('login');
+                  }}
+                  style={{
+                    height: 50,
+                    width: 50,
+                    resizeMode: 'contain',
+                    alignSelf: 'center',
+                    tintColor: activeOption == 'login' ? GREEN_COLOR : 'grey',
+                  }}
+                  source={require('../assets/images/already.png')}
+                />
+                <Text
+                  style={{
+                    width: 150,
+                    textAlign: 'center',
+                    textAlignVertical: 'center',
+                    fontFamily: 'Poppins-Regular',
+                    height: 30,
+                    color: 'grey',
                   }}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Secret Phrase"
-                    defaultValue={secret}
-                    onChangeText={(secret) => {
-                      setSecret(secret);
-                    }}
-                  />
-                  <FontAwesome
-                    style={{flex: 1}}
-                    onPress={() => copyToClipboard()}
-                    style={styles.textRightIcon}
-                    name="copy"
-                    size={25}
-                  />
-                </View>
-                {/* <View
+                  Login
+              </Text>
+                <View
+                  style={{
+                    borderBottomColor:
+                      activeOption == 'login' ? GREEN_COLOR : 'grey',
+                    borderBottomWidth: 4,
+                  }}
+                />
+              </TouchableOpacity>
+            </View>
+            {activeOption == 'register' && (
+              <View>
+                <ScrollView showsVerticalScrollIndicator={true}>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Name"
+                      keyboardType="default"
+                      placeholderTextColor="grey"
+                      onChangeText={(name) => {
+                        setName(name);
+                      }}
+                    />
+                  </View>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Email"
+                      keyboardType="email-address"
+                      placeholderTextColor="grey"
+                      onChangeText={(email) => {
+                        setEmail(email);
+                      }}
+                    />
+                  </View>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Phone"
+                      keyboardType="phone-pad"
+                      placeholderTextColor="grey"
+                      onChangeText={(phone) => {
+                        setPhone(phone);
+                      }}
+                    />
+                  </View>
+                  <Text style={styles.secretMessage}>
+                    Secret phrase (please save in safe place)
+                </Text>
+                  <View
+                    style={{
+                      backgroundColor: WHITE_COLOR,
+                      borderRadius: 10,
+                      width: '94%',
+                      height: 45,
+                      flexDirection: 'row',
+                      marginLeft: 10,
+                      marginTop: 8,
+                    }}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Secret Phrase"
+                      placeholderTextColor="grey"
+                      defaultValue={secret}
+                      onChangeText={(secret) => {
+                        setSecret(secret);
+                      }}
+                    />
+                    <FontAwesome
+                      style={{ flex: 1 }}
+                      onPress={() => copyToClipboard()}
+                      style={styles.textRightIcon}
+                      name="copy"
+                      size={25}
+                    />
+                  </View>
+                  {/* <View
                   style={{
                     backgroundColor: WHITE_COLOR,
                     borderRadius: 10,
@@ -403,101 +373,106 @@ function RegistrationModule({navigation}) {
                   />
                 </View> */}
 
-                <Text
-                  style={{
-                    color: GRAY_COLOR,
-                    fontFamily: 'Poppins-Regular',
-                    marginLeft: 20,
-                    fontSize: 12,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    marginTop: 10,
-                    marginRight: 20,
-                  }}>
-                  We need your details as you ZADA WALLET will be based on it.
-                  We are not going to send you ads or spam email, or sell your
-                  information to a 3rd party.
+                  <Text
+                    style={{
+                      color: GRAY_COLOR,
+                      fontFamily: 'Poppins-Regular',
+                      marginLeft: 20,
+                      fontSize: 12,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                      marginTop: 10,
+                      marginRight: 20,
+                    }}>
+                    We need your details as you ZADA WALLET will be based on it.
+                    We are not going to send you ads or spam email, or sell your
+                    information to a 3rd party.
                 </Text>
-                {progress ? (
-                  <ActivityIndicator
-                    style={styles.primaryButton}
-                    size="large"
-                    color={WHITE_COLOR}
-                  />
-                ) : (
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={submit}>
-                    <Text style={styles.text}>CONTINUE</Text>
-                  </TouchableOpacity>
-                )}
-              </ScrollView>
-            </View>
-          )}
-          {activeOption == 'login' && (
-            <View>
-              <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Email"
-                    keyboardType="email-address"
-                    onChangeText={(email) => {
-                      setEmail(email);
-                    }}
-                  />
-                </View>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Phone"
-                    keyboardType="phone-pad"
-                    onChangeText={(phone) => {
-                      setPhone(phone);
-                    }}
-                  />
-                </View>
+                  {progress ? (
+                    <ActivityIndicator
+                      style={styles.primaryButton}
+                      size="large"
+                      color={WHITE_COLOR}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.primaryButton}
+                      onPress={submit}>
+                      <Text style={styles.text}>CONTINUE</Text>
+                    </TouchableOpacity>
+                  )}
+                </ScrollView>
+              </View>
+            )}
+            {activeOption == 'login' && (
+              <View>
+                <ScrollView showsVerticalScrollIndicator={true}>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Email"
+                      keyboardType="email-address"
+                      placeholderTextColor="grey"
+                      onChangeText={(email) => {
+                        setEmail(email);
+                      }}
+                    />
+                  </View>
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Phone"
+                      keyboardType="phone-pad"
+                      placeholderTextColor="grey"
+                      onChangeText={(phone) => {
+                        setPhone(phone);
+                      }}
+                    />
+                  </View>
 
-                <View
-                  style={{
-                    backgroundColor: WHITE_COLOR,
-                    borderRadius: 10,
-                    width: '94%',
-                    height: 45,
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginTop: 8,
-                  }}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Secret Phrase"
-                    secureTextEntry={true}
-                    onChangeText={(secret) => {
-                      setSecret(secret);
-                    }}
-                  />
-                </View>
+                  <View
+                    style={{
+                      backgroundColor: WHITE_COLOR,
+                      borderRadius: 10,
+                      width: '94%',
+                      height: 45,
+                      flexDirection: 'row',
+                      marginLeft: 10,
+                      marginTop: 8,
+                    }}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Secret Phrase"
+                      placeholderTextColor="grey"
+                      secureTextEntry={true}
+                      onChangeText={(secret) => {
+                        setSecret(secret);
+                      }}
+                    />
+                  </View>
 
-                {progress ? (
-                  <ActivityIndicator
-                    style={styles.primaryButton}
-                    size="large"
-                    color={WHITE_COLOR}
-                  />
-                ) : (
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={submit}>
-                    <Text style={styles.text}>CONTINUE</Text>
-                  </TouchableOpacity>
-                )}
-              </ScrollView>
-            </View>
-          )}
-        </View>
-      </ScrollView>
+                  {progress ? (
+                    <ActivityIndicator
+                      style={styles.primaryButton}
+                      size="large"
+                      color={WHITE_COLOR}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.primaryButton}
+                      onPress={submit}>
+                      <Text style={styles.text}>CONTINUE</Text>
+                    </TouchableOpacity>
+                  )}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView >
     </View>
+
   );
 }
 
@@ -511,6 +486,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   secretMessage: {
+    marginTop: 15,
     marginLeft: 15,
     color: 'grey',
   },
@@ -592,7 +568,7 @@ const styles = StyleSheet.create({
   },
   textRightIcon: {
     alignSelf: 'center',
-    padding: 5,
+    padding: 8,
     color: GRAY_COLOR,
   },
 });

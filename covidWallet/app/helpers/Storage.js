@@ -32,13 +32,27 @@ export const deleteActionByConnId = async (key, connID) => {
         newQRList.push(element);
       }
     });
-    saveItem(key, JSON.stringify(newQRList)).then((action) => {});
+    saveItem(key, JSON.stringify(newQRList)).then((action) => { });
+    return newQRList.length;
+  });
+};
+
+export const deleteActionByCredId = async (key, credentialId) => {
+  return getItem(key).then((action) => {
+    let QRJsonList = JSON.parse(action);
+    let newQRList = [];
+    QRJsonList.forEach((element) => {
+      if (element.credentialId != credentialId) {
+        newQRList.push(element);
+      }
+    });
+    saveItem(key, JSON.stringify(newQRList)).then((action) => { });
     return newQRList.length;
   });
 };
 
 export const searchConnectionByOrganizationName = async (organizationName) => {
-  await getItem(ConstantsList.CONNECTIONS).then((action) => {});
+  await getItem(ConstantsList.CONNECTIONS).then((action) => { });
 };
 
 export const isFirstTime = async (value) => {

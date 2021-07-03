@@ -6,6 +6,7 @@
 #import "RNSplashScreen.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+#import <React/RCTLinkingManager.h>
 
 #if DEBUG
 #import <FlipperKit/FlipperClient.h>

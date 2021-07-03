@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   StyleSheet,
@@ -6,9 +6,8 @@ import {
   Text,
   Alert,
   TouchableOpacity,
-  ToastAndroid,
 } from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {
   getItem,
@@ -17,11 +16,13 @@ import {
 } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import queryString from 'query-string';
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
 import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
+import { showMessage } from '../helpers/Toast';
+import { AuthenticateUser } from '../helpers/Authenticate'
 
-function QRScreen({route, navigation}) {
+function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
   const [networkState, setNetworkState] = useState(false);
   const [certificate_request, setCertificateRequest] = useState('');
@@ -58,10 +59,7 @@ function QRScreen({route, navigation}) {
         setConnectionRequest(JSON.stringify(cr_arr));
         if (route.params != undefined) {
           setScan(false);
-          const {request} = route.params;
-          console.log(typeof request.metadata);
-          console.log(request);
-          console.log(typeof JSON.stringify(request));
+          const { request } = route.params;
           const qrJSON = JSON.parse(JSON.stringify(request));
           if (request.type == 'connection_request') {
             setProgress(true);
@@ -153,7 +151,7 @@ function QRScreen({route, navigation}) {
                 onPress: () => navigation.navigate('MainScreen'),
               },
             ],
-            {cancelable: false},
+            { cancelable: false },
           );
         } else {
           cr_arr.push(qrJSON);
@@ -170,176 +168,132 @@ function QRScreen({route, navigation}) {
     });
   };
 
-  const AuthenticateUser = (walletSecret, userID) => {
-    if (networkState) {
-      fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+  const getCredential = async () => {
+    let resp = await AuthenticateUser();
+    if (resp.success) {
+      await fetch(
+        ConstantsList.BASE_URL +
+        '/api/credential/get_credential' +
+        `?credentialId=${credentialID}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + resp.token,
+          },
         },
-        body: JSON.stringify({
-          userId: userID,
-          secretPhrase: walletSecret,
-        }),
-      }).then((credsResult) =>
-        credsResult.json().then((data) => {
-          try {
-            console.log('Authenticate Response ' + JSON.stringify(data));
-            let response = JSON.parse(JSON.stringify(data));
-            if (response.success == true) {
-              saveItem(ConstantsList.USER_TOKEN, response.token).then(() => {
-                setDialogTitle('Fetching Credential Details');
-                getCredential(response.token);
-              });
-            } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
-              navigation.navigate('MainScreen');
-            }
-          } catch (error) {
-            console.error(error);
-          } finally {
+      ).then((credential) =>
+        credential.json().then((data) => {
+          if (data.success == false) {
             setProgress(false);
+            Alert.alert(
+              'ZADA',
+              data.message,
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.navigate('MainScreen'),
+                },
+              ],
+              { cancelable: false },
+            );
+          } else if (data.success == true) {
+            let qrJSON = data.credential;
+            qrJSON.type = 'credential_offer';
+            cred_arr.push(qrJSON);
+            saveItem(ConstantsList.CRED_REQ, JSON.stringify(cred_arr))
+              .then(() => {
+                setProgress(false);
+                navigation.navigate('MainScreen');
+              })
+              .catch((e) => {
+                setProgress(false);
+                Alert.alert(
+                  'ZADA',
+                  'Failed in fetching details of credential',
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => navigation.navigate('MainScreen'),
+                    },
+                  ],
+                  { cancelable: false },
+                );
+              });
+          } else {
+            setProgress(false);
+            Alert.alert(
+              'ZADA',
+              'Failed to fetch details of credential',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.navigate('MainScreen'),
+                },
+              ],
+              { cancelable: false },
+            );
           }
         }),
       );
     } else {
-      //  setProgress(false);
-      ToastAndroid.show(
-        'Internet Connection is not available',
-        ToastAndroid.LONG,
-      );
+      showMessage('ZADA Wallet', resp.message);
     }
-  };
-
-  const getCredential = async (userToken) => {
-    console.log('Credential ID ===>' + credentialID);
-    console.log('User ID ==>' + userToken);
-    await fetch(
-      ConstantsList.BASE_URL +
-        '/api/credential/get_credential' +
-        `?credentialId=${credentialID}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + userToken,
-        },
-      },
-    ).then((credentialRequest) =>
-      credentialRequest.json().then((data) => {
-        console.log(JSON.stringify(data));
-        if (data.success == false && data.hasTokenExpired == true) {
-          //Refresh the Token
-          setDialogTitle('Refreshing User Token');
-          getItem(ConstantsList.USER_ID).then((userID) => {
-            getItem(ConstantsList.WALLET_SECRET).then((walletSecret) => {
-              console.log('UID ====>' + userID);
-              console.log('SEcret Phrase ====>' + walletSecret);
-              if (hasToken) {
-                hasToken = false;
-                AuthenticateUser(walletSecret, userID);
-              }
-            });
-          });
-        } else if (data.success == true) {
-          let qrJSON = data.credential;
-          qrJSON.type = 'credential_offer';
-          // qrJSON.connectionId = '151b5e1a-cefe-4f91-b9a3-bd5d54cc9668';
-          cred_arr.push(qrJSON);
-          saveItem(ConstantsList.CRED_REQ, JSON.stringify(cred_arr))
-            .then(() => {
-              setProgress(false);
-              //navigation.navigate('MainScreen');
-              //========Showing Dialog after Success
-              Alert.alert(
-                'ZADA',
-                'Credential has been added in Actions',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => navigation.navigate('MainScreen'),
-                  },
-                ],
-                {cancelable: false},
-              );
-            })
-            .catch((e) => {
-              setProgress(false);
-              Alert.alert(
-                'ZADA',
-                'Failed in fetching details of connection',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => navigation.navigate('MainScreen'),
-                  },
-                ],
-                {cancelable: false},
-              );
-            });
-        } else {
-          setProgress(false);
-          Alert.alert(
-            'ZADA',
-            'Failed to fetch Details of Credentials',
-            [
-              {
-                text: 'OK',
-                onPress: () => navigation.navigate('MainScreen'),
-              },
-            ],
-            {cancelable: false},
-          );
-        }
-      }),
-    );
   };
 
   const onSuccess = (e) => {
-    let title = '';
     try {
-      cr_arr = JSON.parse(connection_request);
-      cred_arr = JSON.parse(credential_request);
-      arr2 = JSON.parse(proof_request);
-    } catch {
-      cr_arr = [];
-      cred_arr = [];
-      arr2 = [];
-    }
+      let title = '';
+      try {
+        cr_arr = JSON.parse(connection_request);
+        cred_arr = JSON.parse(credential_request);
+        arr2 = JSON.parse(proof_request);
+      } catch {
+        cr_arr = [];
+        cred_arr = [];
+        arr2 = [];
+      }
 
-    const qrJSON = JSON.parse(e.data);
-    // if (qrJSON.type == 'connection_credential') {
-    if (qrJSON.type == 'credential_offer') {
+      const qrJSON = JSON.parse(e.data);
+      // if (qrJSON.type == 'connection_credential') {
+      if (qrJSON.type == 'credential_offer') {
+        setScan(false);
+        setProgress(true);
+
+        setDialogTitle('Fetching Credential Details');
+        credentialID = qrJSON.metadata;
+        getCredential();
+      } else if (qrJSON.type == 'connection_request') {
+        setDialogTitle('Fetching Connection Details');
+        setScan(false);
+        setProgress(true);
+        getResponseUrl(qrJSON.metadata, qrJSON);
+      } else if (qrJSON.type == 'connection_proof') {
+        title = 'Digital Proof Request Added';
+        arr2.push(qrJSON);
+        saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
+          .then(() => { })
+          .catch((e) => { });
+      } else {
+        title = 'Invalid QR Code';
+      }
       setScan(false);
-      setProgress(true);
-
-      setDialogTitle('Fetching Credential Details');
-      credentialID = qrJSON.metadata;
-      getItem(ConstantsList.USER_TOKEN).then((uToken) => {
-        userToken = uToken;
-        getCredential(userToken);
-      });
-
-      // cred_arr.push(qrJSON);
-      // saveItem(ConstantsList.CRED_REQ, JSON.stringify(cred_arr))
-      //   .then(() => {})
-      //   .catch((e) => {});
-    } else if (qrJSON.type == 'connection_request') {
-      setDialogTitle('Fetching Connection Details');
+    } catch (error) {
+      setProgress(false);
       setScan(false);
-      setProgress(true);
-      getResponseUrl(qrJSON.metadata, qrJSON);
-    } else if (qrJSON.type == 'connection_proof') {
-      title = 'Digital Proof Request Added';
-      arr2.push(qrJSON);
-      saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
-        .then(() => {})
-        .catch((e) => {});
-    } else {
-      title = 'Invalid QR Code';
+      Alert.alert(
+        'ZADA',
+        'Invalid QR Code, Please try with a different QR',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('MainScreen'),
+          },
+        ],
+        { cancelable: false },
+      );
+
     }
-    setScan(false);
   };
   return (
     <View style={styles.MainContainer}>

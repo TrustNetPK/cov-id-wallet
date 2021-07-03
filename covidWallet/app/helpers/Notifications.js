@@ -1,9 +1,11 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Platform} from 'react-native';
-import {saveItem} from './Storage';
+import { Platform } from 'react-native';
+import { saveItem } from './Storage';
 import ConstantsList from '../helpers/ConfigApp';
+import { AuthenticateUser } from '../helpers/Authenticate';
+import { addCredentialToActionList } from '../helpers/Credential';
 const DROID_CHANNEL_ID = 'zada';
 
 //Usage: showNotification("Test", `Test.`, '0', true, true);
@@ -28,7 +30,7 @@ function showLocalNotification(
 
     /* iOS only properties */
     //alertAction: 'view',
-    userInfo: {id: id}, // required for ios local notification
+    userInfo: { id: id }, // required for ios local notification
 
     /* iOS and Android properties */
     title: title,
@@ -69,7 +71,10 @@ function receiveNotificationEventListener(notification) {
     //TODO: Process IOS notification here
     //MAKE SURE YOU DONT PROCESS IT TWICE AS iOSforegroundTrigger might also process it
     //Use identifier to make sure you dont process twice
-
+    if (notification.data.type === 'credential_offer') {
+      let x = addCredentialToActionList(notification.data.metadata);
+      console.log('HX2' + x);
+    }
     notification.finish(PushNotificationIOS.FetchResult.NoData);
   }
 
@@ -102,6 +107,10 @@ function iOSforegroundTrigger() {
         console.log(
           notification.userInfo.type + ' : ' + notification.userInfo.metadata,
         );
+        if (notification.userInfo.type === 'credential_offer') {
+          let x = addCredentialToActionList(notification.userInfo.metadata);
+          console.log('HX1' + x);
+        }
         notificationsProcessed.push(notification.identifier);
       });
       PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
@@ -111,16 +120,16 @@ function iOSforegroundTrigger() {
 
 function onRegisterEventListener(token) {
   console.log('TOKEN:', token);
-  const pushToken = JSON.parse(JSON.stringify(token));
-  saveItem(ConstantsList.DEVICE_TOKEN, pushToken.token);
   PushNotification.checkPermissions((permissions) => {
-    console.log(permissions);
     if (permissions.badge !== true || permissions.alert !== true) {
       //activate notification permision if disabled
     }
   });
 
-  //TODO: make API call to middleware /api/enableNotifications with
+  AuthenticateUser().then((response) => {
+    registerDeviceToken(Platform.OS, token.token, response.token);
+  });
+
 }
 
 function onActionEventListener(notification) {
@@ -132,6 +141,29 @@ function onActionEventListener(notification) {
 function onRegistrationErrorEventListener(err) {
   console.error(err.message, err);
 }
+
+function registerDeviceToken(devicePlatform, devicePushToken, userToken) {
+  fetch(ConstantsList.BASE_URL + '/api/enableNotifications', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + userToken,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      platform: devicePlatform,
+      deviceToken: devicePushToken,
+    }),
+  }).then((registerDevice) =>
+    registerDevice.json().then((data) => {
+      try {
+        console.log('Response ' + JSON.stringify(data));
+      } catch (error) {
+        console.error(error);
+      }
+    }),
+  );
+};
 
 module.exports = {
   showLocalNotification: showLocalNotification,

@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
-import {StyleSheet, Linking} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import React, { useState } from 'react';
+import { StyleSheet, Linking } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
-import {AuthContext} from './helpers/AuthContext';
+import { AuthContext } from './helpers/AuthContext';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeContainer from './containers/PassCodeContainer';
@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingsScreen from './screens/SettingsScreen';
 import QRScreen from './screens/QRScreen';
-import {BLACK_COLOR, BACKGROUND_COLOR} from './theme/Colors';
+import { BLACK_COLOR, BACKGROUND_COLOR } from './theme/Colors';
 import RegistrationModule from './screens/RegistrationModule';
 import MultiFactorScreen from './screens/MultiFactorScreen';
 import LoadingScreen from './screens/LoadingScreen';
@@ -25,7 +25,7 @@ const Stack = createStackNavigator();
 
 function NavigationComponent() {
   const linking = {
-    prefixes: ['https://zadanetwork.com', 'zadanetwork://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
+    prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
   };
   const [isFirstTime, getisFirstTime] = React.useState('true');
   const [isLoading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ function NavigationComponent() {
         {isLoading ? (
           <Stack.Navigator>
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="LoadingScreen"
               component={LoadingScreen}
             />
@@ -80,37 +80,37 @@ function NavigationComponent() {
         ) : isFirstTime === 'true' ? (
           <Stack.Navigator>
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="WelcomeScreen"
               component={WelcomeScreen}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="RegistrationScreen"
               component={RegistrationModule}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="MultiFactorScreen"
               component={MultiFactorScreen}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="PassCodeContainer"
               component={PassCodeContainer}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="SecurityScreen"
               component={SecurityScreen}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="SecureidContainer"
               component={SecureIdContainer}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="NotifyMeScreen"
               component={NotifyMeScreen}
             />
@@ -119,7 +119,7 @@ function NavigationComponent() {
           <Stack.Navigator>
             <Stack.Screen
               name="MainScreen"
-              options={({navigation}) => ({
+              options={({ navigation }) => ({
                 headerStyle: {
                   backgroundColor: BACKGROUND_COLOR,
                   elevation: 0,
@@ -143,7 +143,7 @@ function NavigationComponent() {
             />
             <Stack.Screen
               name="SettingsScreen"
-              options={({navigation}) => ({
+              options={({ navigation }) => ({
                 headerLeft: () => (
                   <MaterialIcons
                     onPress={() => {
@@ -159,13 +159,13 @@ function NavigationComponent() {
               component={SettingsScreen}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="QRScreen"
               path="/scanqr/:pathParam1?/:pathParam2?" //npx uri-scheme open https://zadanetwork.com/type=connection_data --android
               component={QRScreen}
             />
             <Stack.Screen
-              options={{headerShown: false}}
+              options={{ headerShown: false }}
               name="AuthenticationContainer"
               component={AuthenticationContainer}
             />
@@ -184,4 +184,4 @@ const styles = StyleSheet.create({
 });
 
 export default NavigationComponent;
-export {AuthContext};
+export { AuthContext };

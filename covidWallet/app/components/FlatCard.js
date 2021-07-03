@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
-import {BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR} from '../theme/Colors';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
 function FlatCard(props) {
   return (
@@ -33,13 +33,16 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 11,
-    paddingLeft: 12,
+    paddingLeft: 1,
+    marginTop: 4,
     color: SECONDARY_COLOR,
   },
   heading: {
     color: BLACK_COLOR,
-    fontSize: 15,
-    paddingLeft: 10,
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: 4,
+    paddingLeft: 1,
   },
   card: {
     width: '100%',
@@ -57,6 +60,7 @@ const styles = StyleSheet.create({
     backgroundColor: WHITE_COLOR,
     height: 50,
     resizeMode: 'contain',
+    marginTop: 5
   },
   row1: {
     width: '25%',

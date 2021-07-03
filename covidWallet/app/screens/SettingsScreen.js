@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, FlatList, Linking, Alert } from 'react-native';
 import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {PRIMARY_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR } from '../theme/Colors';
 
 var settingLocalData = {
   GENERAL: {
@@ -12,7 +12,7 @@ var settingLocalData = {
       key: '11',
     },
     Network: {
-      value: 'BCovrin Test Network',
+      value: 'ZADA Test Network',
       type: 'Radio',
       key: '12',
       options: ['Soverin', 'non-soverin'],
@@ -163,15 +163,15 @@ export default function SettingsScreen({ navigation }) {
           );
         }}
       />
-       <View style={styles.footer}>
-        <Text style={styles.footerText} >In Collaboration with &nbsp; 
+      <View style={styles.footer}>
+        <Text style={styles.footerText} >In Collaboration with &nbsp;
         <Text
-    style={{ color: PRIMARY_COLOR,}}
-    onPress={() => {Linking.openURL('https://trust.net.pk/')}}
-  >
-    TrustNet Pakistan 
+            style={{ color: PRIMARY_COLOR, }}
+            onPress={() => { Linking.openURL('https://trust.net.pk/') }}
+          >
+            TrustNet Pakistan
   </Text>
-        
+
         </Text>
       </View>
     </View>
@@ -180,7 +180,7 @@ export default function SettingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop:0,
+    paddingTop: 0,
     paddingLeft: 5,
     paddingRight: 5,
     backgroundColor: '#f7f7f7',
@@ -213,18 +213,18 @@ const styles = StyleSheet.create({
     marginRight: 60,
     padding: 10,
   },
-  footer:{
-    justifyContent:'center',
-    textAlign:'center',
-    alignContent:'center',
-    backgroundColor:'white',
+  footer: {
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignContent: 'center',
+    backgroundColor: 'white',
   },
-  footerText:{
-    textAlign:'center',
-    color:'black',
-    padding:10,
-    fontSize:15,
-    margin:10,
-    fontFamily:'Poppins-Bold'
+  footerText: {
+    textAlign: 'center',
+    color: 'black',
+    padding: 10,
+    fontSize: 15,
+    margin: 10,
+    fontFamily: 'Poppins-Bold'
   }
 });

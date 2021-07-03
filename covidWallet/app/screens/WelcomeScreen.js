@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View, Text, Linking, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
@@ -11,7 +11,7 @@ import HeadingComponent from '../components/HeadingComponent';
 
 const img = require('../assets/images/t&c.png');
 
-function WelcomeScreen({navigation}) {
+function WelcomeScreen({ navigation }) {
   const nextHandler = () => {
     navigation.navigate('RegistrationScreen');
   };
@@ -29,7 +29,11 @@ function WelcomeScreen({navigation}) {
           flex: 1,
           backgroundColor: BACKGROUND_COLOR,
           alignContent: 'center',
-          margin: 30,
+          // margin: 30,
+          marginLeft: 25,
+          marginRight: 25,
+          marginTop: 150,
+          marginBottom: 150,
           borderRadius: 10,
         }}>
         <View
@@ -39,14 +43,14 @@ function WelcomeScreen({navigation}) {
             justifyContent: 'center',
             textAlign: 'center',
           }}>
-          <View style={{marginTop: 20, marginLeft: 25, marginRight: 25}}>
+          <View style={{ marginTop: 20, marginLeft: 25, marginRight: 25 }}>
             <HeadingComponent text="Zada is your Digital ID Wallet!" />
           </View>
           <TextComponent
             onboarding={true}
             text="Securely prove who you are and only share the information you want."
           />
-          <View style={{paddingTop: 10}} />
+          <View style={{ paddingTop: 10 }} />
           <TextComponent
             onboarding={true}
             text="All certificates and IDs safely stored on your phone, where only you can access them."
@@ -79,7 +83,7 @@ function WelcomeScreen({navigation}) {
               By continuing below you confirm that you have read and agree to
               &nbsp;
               <Text
-                style={{color: PRIMARY_COLOR}}
+                style={{ color: PRIMARY_COLOR }}
                 onPress={() => {
                   Linking.openURL('https://zada.io/privacy-policy/');
                 }}>
@@ -87,7 +91,7 @@ function WelcomeScreen({navigation}) {
               </Text>
               &nbsp;and&nbsp;
               <Text
-                style={{color: PRIMARY_COLOR}}
+                style={{ color: PRIMARY_COLOR }}
                 onPress={() => {
                   Linking.openURL('https://zada.io/privacy-policy/');
                 }}>

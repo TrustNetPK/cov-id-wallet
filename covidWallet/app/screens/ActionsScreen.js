@@ -1,22 +1,25 @@
-import React, {useLayoutEffect, useState} from 'react';
-import {useFocusEffect} from '@react-navigation/native';
-import {View, StyleSheet, ToastAndroid, Linking} from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, StyleSheet, ActivityIndicator, Linking } from 'react-native';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
-import {themeStyles} from '../theme/Styles';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import { themeStyles } from '../theme/Styles';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import ConfirmationDialog from '../components/ConfirmationDialog';
-import {getItem, deleteActionByConnId, saveItem} from '../helpers/Storage';
+import { getItem, deleteActionByConnId, saveItem, deleteActionByCredId } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
-import {ScrollView} from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {BACKGROUND_COLOR, BLACK_COLOR} from '../theme/Colors';
+import { BACKGROUND_COLOR, BLACK_COLOR } from '../theme/Colors';
+import { AuthenticateUser } from '../helpers/Authenticate';
+import { showMessage } from '../helpers/Toast';
 
-function ActionsScreen({navigation}) {
+function ActionsScreen({ navigation }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [isAction, setAction] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [actionsList, setActionsList] = useState([]);
@@ -142,7 +145,7 @@ function ActionsScreen({navigation}) {
           }
         });
       })
-      .catch((e) => {});
+      .catch((e) => { });
   };
 
   const toggleModal = (v) => {
@@ -151,121 +154,109 @@ function ActionsScreen({navigation}) {
     setModalVisible(true);
   };
 
-  const AuthenticateUser = () => {
-    if (networkState) {
-      fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: Uid,
-          secretPhrase: secret,
-        }),
-      }).then((credsResult) =>
-        credsResult.json().then((data) => {
-          try {
-            let response = JSON.parse(JSON.stringify(data));
-            if (response.success == true) {
-              saveItem(ConstantsList.USER_TOKEN, response.token);
-              acceptModal();
-            } else {
-              ToastAndroid.show(response.error, ToastAndroid.SHORT);
-            }
-          } catch (error) {
-            console.error(error);
-          } finally {
-            // setProgress(false);
-          }
-        }),
-      );
-    } else {
-      //  setProgress(false);
-      ToastAndroid.show(
-        'Internet Connection is not available',
-        ToastAndroid.LONG,
-      );
-    }
-  };
-
   const acceptModal = async (v) => {
-    let selectedItemObj = JSON.parse(selectedItem);
-    let baseURL = 'https://trinsic.studio/url/';
-    let iUrl = baseURL + modalData.metadata;
-    let userToken = await getItem(ConstantsList.USER_TOKEN);
-    let userID = await getItem(ConstantsList.USER_ID);
-    let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-    storeUid(userID);
-    storeSecret(walletSecret);
-    // make API call
-    await fetch(ConstantsList.BASE_URL + `/api/connection/accept_connection`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + userToken,
-      },
-      body: JSON.stringify({
-        inviteUrl: iUrl,
-      }),
-    })
-      .then((inviteResult) =>
-        inviteResult.json().then((data) => {
-          if (data.success == false && data.hasTokenExpired == true) {
-            getItem(ConstantsList.USER_ID).then((userID) => {
-              getItem(ConstantsList.WALLET_SECRET).then((walletSecret) => {
-                if (hasToken) AuthenticateUser(userID, walletSecret);
-                setTokenExpired(false);
-              });
-            });
-          } else if (data.success == true) {
-            setModalVisible(false);
-            deleteActionByConnId(
-              selectedItemObj.type,
-              selectedItemObj.metadata,
-            ).then((actions) => {
-              updateActionsList();
-            });
-            //Move item to connection screen
-            let conns = [];
-            getItem(ConstantsList.CONNECTIONS).then((connectionsdata) => {
-              if (connectionsdata == null) {
-                conns = conns.concat(data.connection);
+    if (networkState) {
+      setIsLoading(true);
+      let resp = await AuthenticateUser();
+      if (resp.success) {
+        let selectedItemObj = JSON.parse(selectedItem);
+        let baseURL = 'https://trinsic.studio/url/';
+        let iUrl = baseURL + modalData.metadata;
+        let userToken = resp.token;
+        let userID = await getItem(ConstantsList.USER_ID);
+        let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+        storeUid(userID);
+        storeSecret(walletSecret);
+        // make API call
+        setModalVisible(false);
+        await fetch(ConstantsList.BASE_URL + `/api/connection/accept_connection`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + userToken,
+          },
+          body: JSON.stringify({
+            inviteUrl: iUrl,
+          }),
+        })
+          .then((inviteResult) =>
+            inviteResult.json().then((data) => {
+              if (data.success == false) {
+                setIsLoading(false);
+                showMessage('ZADA Wallet', data.message);
+              } else if (data.success == true) {
+                setIsLoading(false);
+                setModalVisible(false);
+                deleteActionByConnId(
+                  selectedItemObj.type,
+                  selectedItemObj.metadata,
+                ).then((actions) => {
+                  updateActionsList();
+                });
+                //Move item to connection screen
+                let conns = [];
+                getItem(ConstantsList.CONNECTIONS).then((connectionsdata) => {
+                  if (connectionsdata == null) {
+                    conns = conns.concat(data.connection);
+                  } else {
+                    try {
+                      conns = JSON.parse(connectionsdata);
+                      conns = conns.concat(data.connection);
+                    } catch (e) {
+                      console.log('Error Occurred ' + e);
+                      conns = [];
+                    }
+                  }
+                  saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
+                });
               } else {
-                try {
-                  conns = JSON.parse(connectionsdata);
-                  conns = conns.concat(data.connection);
-                } catch (e) {
-                  console.log('Error Occurred ' + e);
-                  conns = [];
-                }
+                //Remove item from actions
+                setModalVisible(false);
+                setIsLoading(false);
               }
-              saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
-            });
-          } else {
-            //Remove item from actions
-            setModalVisible(false);
-          }
-        }),
-      )
-      .catch((e) => console.log(e));
+            }),
+          )
+          .catch((e) => {
+            setIsLoading(false);
+            console.log(e)
+          });
 
-    //======For FingerPrint Authentication
-    // } else {
-    //   // do nothing
-    //   setModalVisible(false);
-    // }
-    //================================
+        //======For FingerPrint Authentication
+        // } else {
+        //   // do nothing
+        //   setModalVisible(false);
+        // }
+        //================================
+      } else {
+        showMessage('ZADA Wallet', resp.message);
+        setIsLoading(false);
+      }
+    }
+    else {
+      showMessage('ZADA Wallet', 'Internet Connection is not available')
+    }
   };
 
   const rejectModal = (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
     setModalVisible(false);
-    deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata).then(
-      (actions) => {
-        updateActionsList();
-      },
-    );
+
+    if (selectedItemObj.type === 'connection_request') {
+      deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata).then(
+        (actions) => {
+          updateActionsList();
+        },
+      );
+    }
+
+    if (selectedItemObj.credentialId !== undefined) {
+      deleteActionByCredId(ConstantsList.CRED_REQ, selectedItemObj.credentialId).then(
+        (actions) => {
+          updateActionsList();
+        },
+      );
+    }
+
   };
 
   const dismissModal = (v) => {
@@ -277,7 +268,7 @@ function ActionsScreen({navigation}) {
       <HeadingComponent text="Actions" />
       {isAction ? (
         <>
-          <View>
+          <View pointerEvents={isLoading ? 'none' : 'auto'}>
             <ScrollView showsVerticalScrollIndicator={true}>
               <ConfirmationDialog
                 isVisible={isModalVisible}
@@ -303,7 +294,6 @@ function ActionsScreen({navigation}) {
                     ' from ' +
                     v.organizationName;
                   let imgURI = v.imageUrl;
-                  console.log('Image Url ' + imgURI);
                   return (
                     <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
                       <FlatCard
@@ -340,6 +330,9 @@ function ActionsScreen({navigation}) {
           </View>
         </>
       )}
+      {isLoading && <View style={{ marginBottom: 24, marginTop: 24 }}>
+        <ActivityIndicator color={"#000"} />
+      </View>}
     </View>
   );
 }

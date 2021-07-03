@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import Modal from 'react-native-modal';
 import {
@@ -11,7 +11,7 @@ import {
   RED_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from './HeadingComponent';
-import {ScrollView} from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import CredentialsCard from './CredentialsCard';
 import BorderButton from './BorderButton';
 
@@ -107,9 +107,9 @@ function ConfirmationDialog(props) {
               }}
             />
           </View>
-          <View>
+          <View style={{ marginTop: 10, marginBottom: 10 }}>
             <Text style={styles.TextGuide}>
-              <Text style={{fontWeight: 'bold'}}>
+              <Text style={{ fontWeight: 'bold' }}>
                 {props.data.organizationName}
               </Text>
               {props.text}
