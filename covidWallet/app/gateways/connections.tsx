@@ -26,13 +26,14 @@ export async function get_all_connections() {
   }
 }
 
-// // Accept Connection
+// Accept Connection
 export async function accept_connection(metadata: string) {
   try {
     let baseURL = 'https://trinsic.studio/url/';
     let obj = {
       inviteUrl: baseURL + metadata,
     };
+
     let headers = {
       'Content-Type': 'application/json',
       Authorization: 'Bearer ' + (await getToken()),

@@ -226,6 +226,7 @@ function ActionsScreen({ navigation }) {
       setIsLoading(true);
       let resp = await AuthenticateUser();
       if (resp.success) {
+        let selectedItemObj = JSON.parse(selectedItem)
         let userID = await getItem(ConstantsList.USER_ID);
         let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
         storeUid(userID);
@@ -236,9 +237,9 @@ function ActionsScreen({ navigation }) {
 
         try {
           // Accept connection Api call.
-          let result = await accept_connection(selectedItem.metadata);
+          let result = await accept_connection(selectedItemObj.metadata);
           if (result.data.success) {
-            await deleteActionByConnId(selectedItem.type, selectedItem.metadata)
+            await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
             updateActionsList();
           } else {
             showMessage('ZADA Wallet', result.data.error);
@@ -376,13 +377,12 @@ function ActionsScreen({ navigation }) {
                     v.organizationName;
                   let imgURI = v.imageUrl;
                   return (
-                    <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
-                      <FlatCard
-                        imageURL={imgURI}
-                        heading={header}
-                        text={subtitle}
-                      />
-                    </TouchableOpacity>
+                    <FlatCard
+                      onPress={() => toggleModal(v)}
+                      imageURL={imgURI}
+                      heading={header}
+                      text={subtitle}
+                    />
                   );
                 })}
             </ScrollView>
@@ -415,8 +415,9 @@ function ActionsScreen({ navigation }) {
             </View>
           </View>
         </>
-      )}
-    </View>
+      )
+      }
+    </View >
   );
 }
 
