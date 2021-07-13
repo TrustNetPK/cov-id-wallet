@@ -4,7 +4,6 @@ import http_client from './http_client';
 async function getToken() {
   let resp = await AuthenticateUser();
   if (resp.success) {
-    console.log('token => ', resp.token);
     return resp.token;
   } else {
     return '';
