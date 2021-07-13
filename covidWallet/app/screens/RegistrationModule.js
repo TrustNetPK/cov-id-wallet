@@ -12,6 +12,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -28,7 +29,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { saveItem } from '../helpers/Storage';
 import randomString from '../helpers/RandomString';
 import { showMessage } from '../helpers/Toast';
-import { AuthenticateUser } from '../helpers/Authenticate'
+import { AuthenticateUser } from '../helpers/Authenticate';
 
 const { height, width } = Dimensions.get('window');
 
@@ -46,7 +47,7 @@ function RegistrationModule({ navigation }) {
   };
   const copyToClipboard = () => {
     Clipboard.setString(secret);
-    showMessage('ZADA Wallet', 'Secret Phrase is copied to clipboard.')
+    showMessage('ZADA Wallet', 'Secret Phrase is copied to clipboard.');
   };
   React.useEffect(() => {
     NetInfo.fetch().then((networkState) => {
@@ -67,14 +68,14 @@ function RegistrationModule({ navigation }) {
       activeOption == 'register' &&
       (name == '' || phone == '' || email == '' || secret == '')
     ) {
-      showMessage('ZADA Wallet', 'Fill the empty fields')
+      showMessage('ZADA Wallet', 'Fill the empty fields');
       return;
     }
     if (
       activeOption == 'login' &&
       (phone == '' || email == '' || secret == '')
     ) {
-      showMessage('ZADA Wallet', 'Fill the empty fields')
+      showMessage('ZADA Wallet', 'Fill the empty fields');
       return;
     } else {
       setProgress(true);
@@ -94,7 +95,7 @@ function RegistrationModule({ navigation }) {
         },
         body: JSON.stringify({
           name: name,
-          email: email,
+          email: email.toLocaleLowerCase(),
           phone: phone,
           secretPhrase: secret,
         }),
@@ -107,7 +108,7 @@ function RegistrationModule({ navigation }) {
                 navigation.replace('MultiFactorScreen');
               });
             } else {
-              showMessage('ZADA Wallet', response.error)
+              showMessage('ZADA Wallet', response.error);
               setProgress(false);
             }
           } catch (error) {
@@ -118,7 +119,7 @@ function RegistrationModule({ navigation }) {
         }),
       );
     } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+      showMessage('ZADA Wallet', 'Internet Connection is not available');
     }
   };
 
@@ -140,7 +141,7 @@ function RegistrationModule({ navigation }) {
       }
     } else {
       setProgress(false);
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+      showMessage('ZADA Wallet', 'Internet Connection is not available');
     }
   };
 
@@ -153,7 +154,7 @@ function RegistrationModule({ navigation }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
+          email: email.toLocaleLowerCase(),
           phone: phone,
           secretPhrase: secret,
         }),
@@ -167,7 +168,7 @@ function RegistrationModule({ navigation }) {
               saveItem(ConstantsList.WALLET_SECRET, secret);
               authenticateUserToken();
             } else {
-              showMessage('ZADA Wallet', response.error)
+              showMessage('ZADA Wallet', response.error);
               setProgress(false);
             }
           } catch (error) {
@@ -179,171 +180,170 @@ function RegistrationModule({ navigation }) {
       );
     } else {
       setProgress(false);
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+      showMessage('ZADA Wallet', 'Internet Connection is not available');
     }
   };
 
   return (
-
     <View
       style={{
         flex: 1,
         alignItems: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <KeyboardAvoidingView behavior="padding" enabled>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-          <View
-            style={{
-              backgroundColor: BACKGROUND_COLOR,
-              alignContent: 'center',
-              width: width - 40,
-              justifyContent: 'space-around',
-              borderRadius: 10,
-            }}>
-            <View style={{ marginLeft: 50, marginRight: 50 }}>
-              <HeadingComponent text="Let's Get Started!" />
-            </View>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+        <View
+          style={{
+            backgroundColor: BACKGROUND_COLOR,
+            alignContent: 'center',
+            width: width - 40,
+            justifyContent: 'space-around',
+            borderRadius: 10,
+          }}>
+          <View style={{ marginLeft: 50, marginRight: 50 }}>
+            <HeadingComponent text="Let's Get Started!" />
+          </View>
 
-            <View style={styles.headerContainer}>
-              <TouchableOpacity
-                onPress={() => {
-                  selectionOnPress('register');
+          <View style={styles.headerContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                selectionOnPress('register');
+              }}>
+              <Image
+                style={{
+                  height: 50,
+                  width: '50%',
+                  resizeMode: 'contain',
+                  alignSelf: 'center',
+                  tintColor: activeOption == 'register' ? GREEN_COLOR : 'grey',
+                }}
+                source={require('../assets/images/register.png')}
+              />
+              <Text
+                style={{
+                  width: 150,
+                  height: 30,
+                  textAlignVertical: 'center',
+                  textAlign: 'center',
+                  fontFamily: 'Poppins-Regular',
+                  color: 'grey',
                 }}>
-                <Image
-                  style={{
-                    height: 50,
-                    width: '50%',
-                    resizeMode: 'contain',
-                    alignSelf: 'center',
-                    tintColor: activeOption == 'register' ? GREEN_COLOR : 'grey',
-                  }}
-                  source={require('../assets/images/register.png')}
-                />
-                <Text
-                  style={{
-                    width: 150,
-                    height: 30,
-                    textAlignVertical: 'center',
-                    textAlign: 'center',
-                    fontFamily: 'Poppins-Regular',
-                    color: 'grey',
-                  }}>
-                  Register Account
+                Register Account
               </Text>
-                <View
-                  style={{
-                    borderBottomColor:
-                      activeOption == 'register' ? GREEN_COLOR : 'grey',
-                    borderBottomWidth: 4,
-                  }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
+              <View
+                style={{
+                  borderBottomColor:
+                    activeOption == 'register' ? GREEN_COLOR : 'grey',
+                  borderBottomWidth: 4,
+                }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                selectionOnPress('login');
+              }}>
+              <Image
                 onPress={() => {
                   selectionOnPress('login');
+                }}
+                style={{
+                  height: 50,
+                  width: 50,
+                  resizeMode: 'contain',
+                  alignSelf: 'center',
+                  tintColor: activeOption == 'login' ? GREEN_COLOR : 'grey',
+                }}
+                source={require('../assets/images/already.png')}
+              />
+              <Text
+                style={{
+                  width: 150,
+                  textAlign: 'center',
+                  textAlignVertical: 'center',
+                  fontFamily: 'Poppins-Regular',
+                  height: 30,
+                  color: 'grey',
                 }}>
-                <Image
-                  onPress={() => {
-                    selectionOnPress('login');
-                  }}
-                  style={{
-                    height: 50,
-                    width: 50,
-                    resizeMode: 'contain',
-                    alignSelf: 'center',
-                    tintColor: activeOption == 'login' ? GREEN_COLOR : 'grey',
-                  }}
-                  source={require('../assets/images/already.png')}
-                />
-                <Text
-                  style={{
-                    width: 150,
-                    textAlign: 'center',
-                    textAlignVertical: 'center',
-                    fontFamily: 'Poppins-Regular',
-                    height: 30,
-                    color: 'grey',
-                  }}>
-                  Login
+                Login
               </Text>
+              <View
+                style={{
+                  borderBottomColor:
+                    activeOption == 'login' ? GREEN_COLOR : 'grey',
+                  borderBottomWidth: 4,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+          {activeOption == 'register' && (
+            <View>
+              <ScrollView showsVerticalScrollIndicator={true}>
+                <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Name"
+                    keyboardType="default"
+                    placeholderTextColor="grey"
+                    onChangeText={(name) => {
+                      setName(name);
+                    }}
+                  />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    placeholderTextColor="grey"
+                    onChangeText={(email) => {
+                      setEmail(email);
+                    }}
+                  />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Phone"
+                    keyboardType="phone-pad"
+                    placeholderTextColor="grey"
+                    onChangeText={(phone) => {
+                      setPhone(phone);
+                    }}
+                  />
+                </View>
+                <Text style={styles.secretMessage}>
+                  Secret phrase (please save in safe place)
+                </Text>
                 <View
                   style={{
-                    borderBottomColor:
-                      activeOption == 'login' ? GREEN_COLOR : 'grey',
-                    borderBottomWidth: 4,
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
-            {activeOption == 'register' && (
-              <View>
-                <ScrollView showsVerticalScrollIndicator={true}>
-                  <View style={styles.inputView}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Name"
-                      keyboardType="default"
-                      placeholderTextColor="grey"
-                      onChangeText={(name) => {
-                        setName(name);
-                      }}
-                    />
-                  </View>
-                  <View style={styles.inputView}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Email"
-                      keyboardType="email-address"
-                      placeholderTextColor="grey"
-                      onChangeText={(email) => {
-                        setEmail(email);
-                      }}
-                    />
-                  </View>
-                  <View style={styles.inputView}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Phone"
-                      keyboardType="phone-pad"
-                      placeholderTextColor="grey"
-                      onChangeText={(phone) => {
-                        setPhone(phone);
-                      }}
-                    />
-                  </View>
-                  <Text style={styles.secretMessage}>
-                    Secret phrase (please save in safe place)
-                </Text>
-                  <View
-                    style={{
-                      backgroundColor: WHITE_COLOR,
-                      borderRadius: 10,
-                      width: '94%',
-                      height: 45,
-                      flexDirection: 'row',
-                      marginLeft: 10,
-                      marginTop: 8,
-                    }}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Secret Phrase"
-                      placeholderTextColor="grey"
-                      defaultValue={secret}
-                      onChangeText={(secret) => {
-                        setSecret(secret);
-                      }}
-                    />
-                    <FontAwesome
-                      style={{ flex: 1 }}
-                      onPress={() => copyToClipboard()}
-                      style={styles.textRightIcon}
-                      name="copy"
-                      size={25}
-                    />
-                  </View>
-                  {/* <View
+                    backgroundColor: WHITE_COLOR,
+                    borderRadius: 10,
+                    width: '94%',
+                    height: 45,
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginTop: 8,
+                  }}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Secret Phrase"
+                    placeholderTextColor="grey"
+                    defaultValue={secret}
+                    onChangeText={(secret) => {
+                      setSecret(secret);
+                    }}
+                  />
+                  <FontAwesome
+                    style={{ flex: 1 }}
+                    onPress={() => copyToClipboard()}
+                    style={styles.textRightIcon}
+                    name="copy"
+                    size={25}
+                  />
+                </View>
+                {/* <View
                   style={{
                     backgroundColor: WHITE_COLOR,
                     borderRadius: 10,
@@ -373,106 +373,104 @@ function RegistrationModule({ navigation }) {
                   />
                 </View> */}
 
-                  <Text
-                    style={{
-                      color: GRAY_COLOR,
-                      fontFamily: 'Poppins-Regular',
-                      marginLeft: 20,
-                      fontSize: 12,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      textAlign: 'center',
-                      marginTop: 10,
-                      marginRight: 20,
-                    }}>
-                    We need your details as you ZADA WALLET will be based on it.
-                    We are not going to send you ads or spam email, or sell your
-                    information to a 3rd party.
+                <Text
+                  style={{
+                    color: GRAY_COLOR,
+                    fontFamily: 'Poppins-Regular',
+                    marginLeft: 20,
+                    fontSize: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    marginTop: 10,
+                    marginRight: 20,
+                  }}>
+                  We need your details as you ZADA WALLET will be based on it.
+                  We are not going to send you ads or spam email, or sell your
+                  information to a 3rd party.
                 </Text>
-                  {progress ? (
-                    <ActivityIndicator
-                      style={styles.primaryButton}
-                      size="large"
-                      color={WHITE_COLOR}
-                    />
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.primaryButton}
-                      onPress={submit}>
-                      <Text style={styles.text}>CONTINUE</Text>
-                    </TouchableOpacity>
-                  )}
-                </ScrollView>
-              </View>
-            )}
-            {activeOption == 'login' && (
-              <View>
-                <ScrollView showsVerticalScrollIndicator={true}>
-                  <View style={styles.inputView}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Email"
-                      keyboardType="email-address"
-                      placeholderTextColor="grey"
-                      onChangeText={(email) => {
-                        setEmail(email);
-                      }}
-                    />
-                  </View>
-                  <View style={styles.inputView}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Phone"
-                      keyboardType="phone-pad"
-                      placeholderTextColor="grey"
-                      onChangeText={(phone) => {
-                        setPhone(phone);
-                      }}
-                    />
-                  </View>
+                {progress ? (
+                  <ActivityIndicator
+                    style={styles.primaryButton}
+                    size="large"
+                    color={WHITE_COLOR}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={submit}>
+                    <Text style={styles.text}>CONTINUE</Text>
+                  </TouchableOpacity>
+                )}
+              </ScrollView>
+            </View>
+          )}
+          {activeOption == 'login' && (
+            <View>
+              <ScrollView showsVerticalScrollIndicator={true}>
+                <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    placeholderTextColor="grey"
+                    onChangeText={(email) => {
+                      setEmail(email);
+                    }}
+                  />
+                </View>
+                <View style={styles.inputView}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Phone"
+                    keyboardType="phone-pad"
+                    placeholderTextColor="grey"
+                    onChangeText={(phone) => {
+                      setPhone(phone);
+                    }}
+                  />
+                </View>
 
-                  <View
-                    style={{
-                      backgroundColor: WHITE_COLOR,
-                      borderRadius: 10,
-                      width: '94%',
-                      height: 45,
-                      flexDirection: 'row',
-                      marginLeft: 10,
-                      marginTop: 8,
-                    }}>
-                    <TextInput
-                      style={styles.TextInput}
-                      placeholder="Secret Phrase"
-                      placeholderTextColor="grey"
-                      secureTextEntry={true}
-                      onChangeText={(secret) => {
-                        setSecret(secret);
-                      }}
-                    />
-                  </View>
+                <View
+                  style={{
+                    backgroundColor: WHITE_COLOR,
+                    borderRadius: 10,
+                    width: '94%',
+                    height: 45,
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginTop: 8,
+                  }}>
+                  <TextInput
+                    style={styles.TextInput}
+                    placeholder="Secret Phrase"
+                    placeholderTextColor="grey"
+                    secureTextEntry={true}
+                    onChangeText={(secret) => {
+                      setSecret(secret);
+                    }}
+                  />
+                </View>
 
-                  {progress ? (
-                    <ActivityIndicator
-                      style={styles.primaryButton}
-                      size="large"
-                      color={WHITE_COLOR}
-                    />
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.primaryButton}
-                      onPress={submit}>
-                      <Text style={styles.text}>CONTINUE</Text>
-                    </TouchableOpacity>
-                  )}
-                </ScrollView>
-              </View>
-            )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView >
+                {progress ? (
+                  <ActivityIndicator
+                    style={styles.primaryButton}
+                    size="large"
+                    color={WHITE_COLOR}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={submit}>
+                    <Text style={styles.text}>CONTINUE</Text>
+                  </TouchableOpacity>
+                )}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
     </View>
-
   );
 }
 

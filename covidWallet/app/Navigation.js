@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Linking } from 'react-native';
+import { StyleSheet, Linking, Platform, View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
-import { AuthContext } from './helpers/AuthContext';
+import { AuthContext } from './context/AuthContext';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SplashScreen from 'react-native-splash-screen';
 import PassCodeContainer from './containers/PassCodeContainer';
@@ -15,13 +15,20 @@ import NotifyMeScreen from './screens/NotifyMeScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingsScreen from './screens/SettingsScreen';
+import DetailsScreen from './screens/DetailsScreen';
 import QRScreen from './screens/QRScreen';
 import { BLACK_COLOR, BACKGROUND_COLOR } from './theme/Colors';
 import RegistrationModule from './screens/RegistrationModule';
 import MultiFactorScreen from './screens/MultiFactorScreen';
 import LoadingScreen from './screens/LoadingScreen';
+import { RefreshContextProvider } from './context/RefreshContextProvider';
 
 const Stack = createStackNavigator();
+
+const navigationAnimation =
+  Platform.OS == "ios"
+    ? TransitionPresets.DefaultTransition
+    : TransitionPresets.RevealFromBottomAndroid;
 
 function NavigationComponent() {
   const linking = {
@@ -68,110 +75,144 @@ function NavigationComponent() {
   );
   return (
     <AuthContext.Provider value={authContext}>
-      <NavigationContainer linking={linking}>
-        {isLoading ? (
-          <Stack.Navigator>
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="LoadingScreen"
-              component={LoadingScreen}
-            />
-          </Stack.Navigator>
-        ) : isFirstTime === 'true' ? (
-          <Stack.Navigator>
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="WelcomeScreen"
-              component={WelcomeScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="RegistrationScreen"
-              component={RegistrationModule}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="MultiFactorScreen"
-              component={MultiFactorScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="PassCodeContainer"
-              component={PassCodeContainer}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="SecurityScreen"
-              component={SecurityScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="SecureidContainer"
-              component={SecureIdContainer}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="NotifyMeScreen"
-              component={NotifyMeScreen}
-            />
-          </Stack.Navigator>
-        ) : (
-          <Stack.Navigator>
-            <Stack.Screen
-              name="MainScreen"
-              options={({ navigation }) => ({
-                headerStyle: {
-                  backgroundColor: BACKGROUND_COLOR,
-                  elevation: 0,
-                  shadowOpacity: 0,
-                  borderBottomWidth: 0,
-                },
-                title: false,
-                headerLeft: () => (
-                  <FontAwesome
-                    onPress={() => {
-                      navigation.navigate('SettingsScreen');
-                    }}
-                    style={styles.headerRightIcon}
-                    size={30}
-                    name="navicon"
-                    padding={30}
-                  />
-                ),
-              })}
-              component={TabNavigator}
-            />
-            <Stack.Screen
-              name="SettingsScreen"
-              options={({ navigation }) => ({
-                headerLeft: () => (
-                  <MaterialIcons
-                    onPress={() => {
-                      navigation.goBack();
-                    }}
-                    style={styles.headerRightIcon}
-                    size={30}
-                    name="arrow-back"
-                    padding={30}
-                  />
-                ),
-              })}
-              component={SettingsScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="QRScreen"
-              path="/scanqr/:pathParam1?/:pathParam2?" //npx uri-scheme open https://zadanetwork.com/type=connection_data --android
-              component={QRScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="AuthenticationContainer"
-              component={AuthenticationContainer}
-            />
-          </Stack.Navigator>
-        )}
-      </NavigationContainer>
+      <RefreshContextProvider>
+        <NavigationContainer linking={linking}>
+          {isLoading ? (
+            <Stack.Navigator>
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="LoadingScreen"
+                component={LoadingScreen}
+              />
+            </Stack.Navigator>
+          ) : isFirstTime === 'true' ? (
+            <Stack.Navigator screenOptions={{ ...navigationAnimation }}>
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="WelcomeScreen"
+                component={WelcomeScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="RegistrationScreen"
+                component={RegistrationModule}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="MultiFactorScreen"
+                component={MultiFactorScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="PassCodeContainer"
+                component={PassCodeContainer}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="SecurityScreen"
+                component={SecurityScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="SecureidContainer"
+                component={SecureIdContainer}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="NotifyMeScreen"
+                component={NotifyMeScreen}
+              />
+            </Stack.Navigator>
+          ) : (
+            <Stack.Navigator screenOptions={{ ...navigationAnimation }}>
+              <Stack.Screen
+                name="MainScreen"
+                options={({ navigation }) => ({
+                  headerStyle: {
+                    backgroundColor: BACKGROUND_COLOR,
+                    elevation: 0,
+                    shadowOpacity: 0,
+                    borderBottomWidth: 0,
+                  },
+                  title: false,
+                  headerLeft: () => (
+                    <FontAwesome
+                      onPress={() => {
+                        navigation.navigate('SettingsScreen');
+                      }}
+                      style={styles.headerRightIcon}
+                      size={30}
+                      name="navicon"
+                      padding={30}
+                    />
+                  ),
+                })}
+                component={TabNavigator}
+              />
+              <Stack.Screen
+                name="SettingsScreen"
+                options={({ navigation }) => ({
+                  headerLeft: () => (
+                    <MaterialIcons
+                      onPress={() => {
+                        navigation.goBack();
+                      }}
+                      style={styles.headerRightIcon}
+                      size={30}
+                      name="arrow-back"
+                      padding={30}
+                    />
+                  ),
+                })}
+                component={SettingsScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="DetailsScreen"
+                component={DetailsScreen}
+                options={({ navigation }) => ({
+                  headerTintColor: "black",
+                  headerStyle: {
+                    backgroundColor: BACKGROUND_COLOR,
+                  },
+                  headerTitle: () => (
+                    <Text style={{
+                      fontSize: 24,
+                      color: BLACK_COLOR,
+                      textAlign: "center",
+                    }}>Details</Text>
+                  ),
+                  // headerLeft: () => (
+                  //   <MaterialIcons
+                  //     onPress={() => {
+                  //       navigation.goBack();
+                  //     }}
+                  //     style={styles.headerRightIcon}
+                  //     size={30}
+                  //     name="arrow-back"
+                  //     padding={30}
+                  //   />
+                  // ),
+                  headerRight: () => (
+                    <View />
+                  ),
+                })}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="QRScreen"
+                path="/scanqr/:pathParam1?/:pathParam2?" //npx uri-scheme open https://zadanetwork.com/type=connection_data --android
+                component={QRScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="AuthenticationContainer"
+                component={AuthenticationContainer}
+              />
+            </Stack.Navigator>
+          )}
+        </NavigationContainer>
+      </RefreshContextProvider>
     </AuthContext.Provider>
   );
 }

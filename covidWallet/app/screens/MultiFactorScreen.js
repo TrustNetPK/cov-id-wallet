@@ -25,6 +25,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveItem, getItem } from '../helpers/Storage';
 import { showMessage } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
+import { validateOTP } from '../gateways/auth';
 
 const { height, width } = Dimensions.get('window');
 
@@ -53,54 +54,33 @@ function MultiFactorScreen({ route, navigation }) {
       showMessage('ZADA Wallet', 'Fill the empty fields');
     } else {
       setProgress(true);
-      validateOTP();
-    }
-  };
-  const storeUserID = async (userId) => {
-    try {
-      await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
-    } catch (error) {
-      console.log(error.message);
+      validate();
     }
   };
 
-
-  const validateOTP = async () => {
+  const validate = async () => {
     if (networkState) {
       let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
       if (walletSecret !== secret) {
         showMessage('ZADA Wallet', 'Your wallet secret is mismatching, Please try again!');
       } else {
-        await fetch(ConstantsList.BASE_URL + `/api/validateOTPs`, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            otpsms: phoneConfirmationCode,
-            otpmail: emailConfirmationCode,
-            secretPhrase: secret,
-          }),
-        }).then((otpResult) =>
-          otpResult.json().then((data) => {
-            try {
-              let response = JSON.parse(JSON.stringify(data));
-              if (response.success == true) {
-                storeUserID(response.userId).then(() => {
-                  authenticateUser();
-                })
-              } else {
-                showMessage('ZADA Wallet', response.error);
-              }
-            } catch (error) {
-              console.warn('Valid OTP' + error);
-            } finally {
-              setProgress(false);
-            }
-          }),
-        );
+
+        // Validate OTP Api call.
+        try {
+          let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, secret);
+
+          if (result.data.success) {
+            await saveItem(ConstantsList.USER_ID, result.data.userId)
+            await authenticateUser();
+          } else {
+            showMessage('ZADA Wallet', result.data.error);
+          }
+
+        } catch (e) {
+          console.log(e)
+        }
       }
+      setProgress(false);
     } else {
       showMessage('ZADA Wallet', 'Internet Connection is not available')
     }
@@ -215,7 +195,7 @@ function MultiFactorScreen({ route, navigation }) {
                 <Text style={styles.textView}>
                   We have sent confirmation code to both of your email and your
                   phone. Please input them below.
-              </Text>
+                </Text>
                 <View>
                   <ScrollView showsVerticalScrollIndicator={true}>
                     <View style={styles.inputView}>
@@ -242,7 +222,7 @@ function MultiFactorScreen({ route, navigation }) {
                     </View>
                     <Text style={styles.textView}>
                       And the secret phrase you saved in previous phrase step.
-                  </Text>
+                    </Text>
                     <Text style={styles.secretMessage}>Your Secret phrase</Text>
                     <View
                       style={styles.inputView}>
@@ -259,7 +239,7 @@ function MultiFactorScreen({ route, navigation }) {
                     </View>
                     <Text style={styles.textView}>
                       The code expires in 5 minutes - Go back to retry again incase code expires.
-                  </Text>
+                    </Text>
                     {/* <TouchableOpacity style={styles.borderButton}>
                     <Text style={styles.borderText}>RESEND EMAIL</Text>
                   </TouchableOpacity>

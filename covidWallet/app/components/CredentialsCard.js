@@ -1,30 +1,33 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
+// import {} from 'linera'
 
 const image = require('../assets/images/card-bg.png')
 const card_badge = require('../assets/images/badge.png')
+const planeImage = require('../assets/images/plane.png')
 
 function CredentialsCard(props) {
     return (
         <View>
             <View style={styles.card}>
-                <ImageBackground source={image} style={styles.image} imageStyle={{ borderRadius: 15 }}>
+                <ImageBackground resizeMode={"cover"} source={planeImage} style={styles.image} imageStyle={{ borderRadius: 15 }}>
+                    <Image source={image} style={styles.frontLayer} />
                     <View style={styles.container}>
                         <View style={styles.cardTextContainer}>
-                            <Text style={styles.card_text}>{props.card_title}</Text>
+                            {/* <Text style={styles.card_text}>{props.card_title}</Text> */}
                             <Text style={styles.card_text}>{props.card_type}</Text>
                         </View>
-                        <View style={styles.imageContainer}>
+                        {/* <View style={styles.imageContainer}>
                             <Image source={card_badge} style={styles.logo} />
-                        </View>
+                        </View> */}
                     </View>
                     <View style={styles.container}>
                         <View style={styles.item1}>
-                            <Image source={props.card_logo} style={{ width: 50, height: 50 }} />
+                            <Image source={props.card_logo} style={{ width: 50, height: 50, borderRadius: 4, }} />
                         </View>
                         <View style={styles.item2}>
-                            <Text style={styles.card_small_text}>Issued by</Text>
-                            <Text style={styles.card_small_text}>{props.issuer}</Text>
+                            <Text style={[styles.card_small_text, { color: '#ffffff90' }]}>Issued by</Text>
+                            <Text style={styles.card_small_text}>{props.card_title}</Text>
                         </View>
                     </View>
                 </ImageBackground>
@@ -67,8 +70,10 @@ const styles = StyleSheet.create({
     },
     item2: {
         width: '80%',
-        padding: 20,
-        justifyContent: 'center',
+        paddingTop: 24,
+        paddingLeft: 8,
+        paddingBottom: 24,
+        justifyContent: 'space-around',
     },
     imageContainer: {
 
@@ -87,8 +92,15 @@ const styles = StyleSheet.create({
     image: {
         flex: 1,
         borderRadius: 20,
-        justifyContent: "center"
+        justifyContent: "center",
     },
+    frontLayer: {
+        position: "absolute",
+        width: '100%',
+        height: "100%",
+        opacity: 0.9,
+        borderRadius: 15,
+    }
 });
 
 export default CredentialsCard;

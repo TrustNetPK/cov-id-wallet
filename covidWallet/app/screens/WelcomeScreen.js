@@ -1,10 +1,18 @@
 import * as React from 'react';
-import { View, Text, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from 'react-native';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
   GREEN_COLOR,
   WHITE_COLOR,
+  SECONDARY_COLOR,
 } from '../theme/Colors';
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
@@ -26,19 +34,20 @@ function WelcomeScreen({ navigation }) {
       }}>
       <View
         style={{
-          flex: 1,
+          // flex: 1,
           backgroundColor: BACKGROUND_COLOR,
           alignContent: 'center',
           // margin: 30,
           marginLeft: 25,
           marginRight: 25,
-          marginTop: 150,
-          marginBottom: 150,
+          // marginTop: 150,
+          // marginBottom: 150,
           borderRadius: 10,
         }}>
         <View
           style={{
-            flex: 5,
+            // height: 400,
+            paddingBottom: 8,
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
@@ -99,10 +108,22 @@ function WelcomeScreen({ navigation }) {
               </Text>
             </Text>
           </View>
+        </View>
+
+        <View
+          style={{
+            alignSelf: 'stretch',
+            justifyContent: 'center',
+            alignItems: "center",
+            borderRadius: 20,
+            paddingTop: 20,
+            paddingBottom: 20,
+          }}>
           <TouchableOpacity style={styles.primaryButton} onPress={nextHandler}>
             <Text style={styles.text}>CONTINUE</Text>
           </TouchableOpacity>
         </View>
+
       </View>
     </View>
   );
@@ -151,7 +172,6 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingBottom: 10,
     paddingRight: 20,
-    marginTop: 10,
     width: 250,
   },
   text: {

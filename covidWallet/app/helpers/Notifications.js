@@ -1,10 +1,8 @@
+import React, { useContext, useEffect } from 'react';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { saveItem } from './Storage';
-import ConstantsList from '../helpers/ConfigApp';
-import { AuthenticateUser } from '../helpers/Authenticate';
+import { registerDeviceToken } from '../gateways/auth';
 import { addCredentialToActionList } from '../helpers/Credential';
 const DROID_CHANNEL_ID = 'zada';
 
@@ -64,7 +62,7 @@ function getAllDeliveredNotifications() {
 
 //Android: Automatically triggered on notification arrival for android
 //IOS: Triggered on clicking notification from notification center
-function receiveNotificationEventListener(notification) {
+async function receiveNotificationEventListener(notification) {
   console.log('NEW NOTIFICATION:', notification);
 
   if (Platform.OS === 'ios') {
@@ -72,7 +70,7 @@ function receiveNotificationEventListener(notification) {
     //MAKE SURE YOU DONT PROCESS IT TWICE AS iOSforegroundTrigger might also process it
     //Use identifier to make sure you dont process twice
     if (notification.data.type === 'credential_offer') {
-      let x = addCredentialToActionList(notification.data.metadata);
+      let x = await addCredentialToActionList(notification.data.metadata);
       console.log('HX2' + x);
     }
     notification.finish(PushNotificationIOS.FetchResult.NoData);
@@ -86,6 +84,8 @@ function receiveNotificationEventListener(notification) {
       true,
       true,
     );
+    let x = await addCredentialToActionList(notification.data.metadata);
+    console.log('HX2' + x);
     //TODO: Process Android notification here
     console.log(notification.data.type + ' : ' + notification.data.metadata);
   }
@@ -118,17 +118,19 @@ function iOSforegroundTrigger() {
   });
 }
 
-function onRegisterEventListener(token) {
+async function onRegisterEventListener(token) {
   console.log('TOKEN:', token);
   PushNotification.checkPermissions((permissions) => {
     if (permissions.badge !== true || permissions.alert !== true) {
       //activate notification permision if disabled
     }
   });
+  try {
+    await registerDeviceToken(Platform.OS, token.token);
+  } catch (e) {
+    console.log(e)
+  }
 
-  AuthenticateUser().then((response) => {
-    registerDeviceToken(Platform.OS, token.token, response.token);
-  });
 
 }
 
@@ -142,28 +144,73 @@ function onRegistrationErrorEventListener(err) {
   console.error(err.message, err);
 }
 
-function registerDeviceToken(devicePlatform, devicePushToken, userToken) {
-  fetch(ConstantsList.BASE_URL + '/api/enableNotifications', {
-    method: 'POST',
-    headers: {
-      Authorization: 'Bearer ' + userToken,
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      platform: devicePlatform,
-      deviceToken: devicePushToken,
-    }),
-  }).then((registerDevice) =>
-    registerDevice.json().then((data) => {
-      try {
-        console.log('Response ' + JSON.stringify(data));
-      } catch (error) {
-        console.error(error);
+function initNotifications(localReceiveNotificationEventListener) {
+  // NOTIFICATION START
+
+  //Run every 5 seconds
+  if (Platform.OS === 'ios') {
+    setInterval(() => {
+      iOSforegroundTrigger();
+    }, 5000)
+  }
+
+  if (Platform.OS === 'android') {
+    PushNotification.getChannels(function (channel_ids) {
+      console.log(channel_ids); // ['channel_id_1']
+    });
+    PushNotification.channelExists(DROID_CHANNEL_ID, function (exists) {
+      if (!exists) {
+        PushNotification.createChannel(
+          {
+            channelId: DROID_CHANNEL_ID, // (required)
+            channelName: "zada-channel", // (required)
+            channelDescription: "A channel zada", // (optional) default: undefined.
+            playSound: true, // (optional) default: true
+            soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
+            importance: 4, // (optional) default: 4. Int value of the Android notification importance
+            vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+          },
+          (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+        );
       }
-    }),
-  );
-};
+    });
+  }
+  // Must be outside of any component LifeCycle (such as `componentDidMount`).
+  PushNotification.configure({
+    // (optional) Called when Token is generated (iOS and Android)
+
+    onRegister: onRegisterEventListener,
+
+    // (required) Called when a remote is received or opened, or local notification is opened
+    onNotification: (notification) => localReceiveNotificationEventListener(notification),
+
+    // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
+    onAction: onActionEventListener,
+
+    // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
+    onRegistrationError: onRegistrationErrorEventListener,
+
+    // IOS ONLY (optional): default: all - Permissions to register.
+    permissions: {
+      alert: true,
+      badge: true,
+      sound: true,
+    },
+
+    // Should the initial notification be popped automatically
+    // default: true
+    popInitialNotification: true,
+
+    /**
+     * (optional) default: true
+     * - Specified if permissions (ios) and token (android and ios) will requested or not,
+     * - if not, you must call PushNotificationsHandler.requestPermissions() later
+     * - if you are not using remote notification or do not have Firebase installed, use this:
+     *     requestPermissions: Platform.OS === 'ios'
+     */
+    requestPermissions: false,
+  });
+}
 
 module.exports = {
   showLocalNotification: showLocalNotification,
@@ -177,5 +224,6 @@ module.exports = {
   onRegistrationErrorEventListener: onRegistrationErrorEventListener,
   getAllDeliveredNotifications: getAllDeliveredNotifications,
   iOSforegroundTrigger: iOSforegroundTrigger,
+  initNotifications: initNotifications,
   DROID_CHANNEL_ID: DROID_CHANNEL_ID,
 };

@@ -90,7 +90,8 @@ function ConfirmationDialog(props) {
     <View>
       <Modal
         hideModalContentWhileAnimating={true}
-        useNativeDriver={false}
+        useNativeDriver={true}
+        onBackdropPress={props.dismissModal}
         isVisible={props.isVisible}>
         <View style={styles.ModalChildContainer}>
           <View
@@ -139,7 +140,7 @@ function ConfirmationDialog(props) {
           </View>
         </View>
       </Modal>
-    </View>
+    </View >
   );
 }
 

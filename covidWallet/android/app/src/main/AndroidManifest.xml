@@ -73,6 +73,16 @@
                     android:host="zadanetwork.com"
                     android:scheme="https" />
             </intent-filter>
+             <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="zadanetwork.com"
+                    android:scheme="zada" />
+            </intent-filter>
         </activity>
 
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />

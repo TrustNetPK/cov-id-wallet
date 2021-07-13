@@ -1,10 +1,10 @@
 import React from 'react';
-import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import Modal from 'react-native-modal';
-import {WHITE_COLOR, GRAY_COLOR} from '../theme/Colors';
+import { WHITE_COLOR, GRAY_COLOR } from '../theme/Colors';
 import HeadingComponent from './HeadingComponent';
-import {ScrollView} from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import CredentialsCard from './CredentialsCard';
 
 const card_logo = require('../assets/images/visa.jpg');
@@ -64,7 +64,7 @@ function ModalComponent(props) {
     <View style={styles.ModalComponent}>
       <Modal
         hideModalContentWhileAnimating={true}
-        useNativeDriver={false}
+        useNativeDriver={true}
         isVisible={props.isVisible}>
         <View style={styles.ModalChildContainer}>
           {props.credentials && (

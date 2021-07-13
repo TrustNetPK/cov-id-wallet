@@ -41,6 +41,79 @@ function QRScreen({ route, navigation }) {
   var userToken = '';
   var isConnected = false;
 
+  // useEffect(() => {
+  //   NetInfo.fetch().then((networkState) => {
+  //     setNetworkState(networkState.isConnected);
+  //   });
+  //   getItem(ConstantsList.CONNEC_REQ)
+  //     .then((data) => {
+  //       if (data == null) {
+  //         cr_arr = [];
+  //       } else {
+  //         try {
+  //           cr_arr = JSON.parse(data);
+  //         } catch (e) {
+  //           cr_arr = [];
+  //         }
+  //       }
+  //       setConnectionRequest(JSON.stringify(cr_arr));
+  //       if (route.params != undefined) {
+  //         setScan(false);
+  //         const { request } = route.params;
+  //         const qrJSON = JSON.parse(JSON.stringify(request));
+  //         if (request.type == 'connection_request') {
+  //           setProgress(true);
+  //           getResponseUrl(request.metadata, qrJSON);
+  //         }
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       console.log('Error is ' + e);
+  //     });
+
+  //   getItem(ConstantsList.CRED_REQ)
+  //     .then((data) => {
+  //       if (data == null) {
+  //         cred_arr = [];
+  //       } else {
+  //         try {
+  //           cred_arr = JSON.parse(data);
+  //         } catch (e) {
+  //           cred_arr = [];
+  //         }
+  //       }
+  //       setCredentialRequest(JSON.stringify(cred_arr));
+  //     })
+  //     .catch((e) => {
+  //       console.log('Error is ' + e);
+  //     });
+
+  //   getItem(ConstantsList.PROOF_REQ)
+  //     .then((data) => {
+  //       if (data == null) {
+  //         arr2 = [];
+  //       } else {
+  //         try {
+  //           arr2 = JSON.parse(data);
+  //         } catch (e) {
+  //           arr2 = [];
+  //         }
+  //       }
+  //       setProofRequest(JSON.stringify(arr2));
+  //     })
+  //     .catch((e) => {
+  //       console.log('Error is ' + e);
+  //     });
+  // }, [
+  //   // networkState,
+  //   // connection_request,
+  //   // credential_request,
+  //   // proof_request,
+  //   // progress,
+  //   // dialogTitle,
+  //   // scan,
+  // ]);
+
   useEffect(() => {
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
@@ -104,15 +177,7 @@ function QRScreen({ route, navigation }) {
       .catch((e) => {
         console.log('Error is ' + e);
       });
-  }, [
-    networkState,
-    connection_request,
-    credential_request,
-    proof_request,
-    progress,
-    dialogTitle,
-    scan,
-  ]);
+  }, [])
 
   const getResponseUrl = async (inviteID, qrJSON) => {
     console.log('Get TResponse URL function Called');
@@ -130,6 +195,7 @@ function QRScreen({ route, navigation }) {
       qrJSON.imageUrl = data.imageUrl;
       getItem(ConstantsList.CONNECTIONS).then((connectionList) => {
         let QRConnList = JSON.parse(connectionList);
+        console.log('QRConnList => ', QRConnList)
         let connectionExists = false;
         if (QRConnList != null) {
           for (let j = 0; j < QRConnList.length; j++) {
