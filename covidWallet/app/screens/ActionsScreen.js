@@ -260,8 +260,8 @@ function ActionsScreen({ navigation }) {
               conns = [];
             }
             saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
-            setIsLoading(false);
           }
+          setIsLoading(false);
         }
         catch (e) {
           setIsLoading(false);
