@@ -29,34 +29,6 @@ export async function login(email: string, password: string) {
   // }
 }
 
-// await fetch(ConstantsList.BASE_URL + `/api/validateOTPs`, {
-//   method: 'POST',
-//   headers: {
-//     Accept: 'application/json',
-//     'Content-Type': 'application/json',
-//   },
-//   body: JSON.stringify({
-//     otpsms: phoneConfirmationCode,
-//     otpmail: emailConfirmationCode,
-//     secretPhrase: secret,
-//   }),
-// }).then((otpResult) =>
-//   otpResult.json().then((data) => {
-//     try {
-//       let response = JSON.parse(JSON.stringify(data));
-//       if (response.success == true) {
-
-//       } else {
-//         showMessage('ZADA Wallet', response.error);
-//       }
-//     } catch (error) {
-//       console.warn('Valid OTP' + error);
-//     } finally {
-//       setProgress(false);
-//     }
-//   }),
-// );
-
 // Validate OTP
 export async function validateOTP(
   phoneConfirmationCode: string,
@@ -69,7 +41,7 @@ export async function validateOTP(
       otpmail: emailConfirmationCode,
       secretPhrase: secret,
     };
-    console.log(obj)
+    console.log(obj);
 
     let headers = {
       'Content-Type': 'application/json',

@@ -10,6 +10,7 @@ async function getToken() {
   }
 }
 
+// Get All Connections
 export async function get_all_connections() {
   try {
     const result = await http_client({
@@ -41,6 +42,30 @@ export async function accept_connection(metadata: string) {
     const result = await http_client({
       method: 'POST',
       url: '/api/connection/accept_connection',
+      data: obj,
+      headers,
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Delete Connection
+export async function delete_connection(connectionId: string) {
+  try {
+    let obj = {
+      connectionId,
+    };
+
+    let headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + (await getToken()),
+    };
+
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/connection/delete_connection',
       data: obj,
       headers,
     });

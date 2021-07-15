@@ -1,5 +1,4 @@
 import http_client from './http_client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthenticateUser} from '../helpers/Authenticate';
 
 async function getToken() {
@@ -11,12 +10,12 @@ async function getToken() {
   }
 }
 
-// Get Specific Credential
-export async function get_credential(credentialID: string) {
+// Get All Verification Proposals API
+export async function get_all_verification_proposals() {
   try {
     const result = await http_client({
       method: 'GET',
-      url: '/api/credential/get_credential' + `?credentialId=${credentialID}`,
+      url: '/api/credential/get_all_verification_proposals',
       headers: {
         Authorization: 'Bearer ' + (await getToken()),
       },
@@ -27,12 +26,19 @@ export async function get_credential(credentialID: string) {
   }
 }
 
-// Get All Crendentials API
-export async function get_all_credentials() {
+// Get All Credentials for Verification Proposals API
+export async function get_all_credentials_for_verification(
+  verificationId: string,
+) {
   try {
+    let obj = {
+      verificationId,
+    };
+
     const result = await http_client({
       method: 'GET',
-      url: '/api/credential/get_all_credentials',
+      url: '/api/credential/get_all_credentials_for_verification',
+      params: obj,
       headers: {
         Authorization: 'Bearer ' + (await getToken()),
       },
@@ -43,21 +49,22 @@ export async function get_all_credentials() {
   }
 }
 
-// Accept Crendentials API
-export async function accept_credential(credentialId: string) {
+// Delete Verification
+export async function delete_verification(verificationId: string) {
   try {
-    const params = new URLSearchParams();
-    params.append('credentialId', credentialId);
+    let obj = {
+      verificationId,
+    };
 
     let headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
       Authorization: 'Bearer ' + (await getToken()),
     };
 
     const result = await http_client({
       method: 'POST',
-      url: '/api/credential/accept_credential',
-      data: params,
+      url: '/api/credential/delete_verification',
+      data: obj,
       headers,
     });
     return result;
@@ -66,21 +73,28 @@ export async function accept_credential(credentialId: string) {
   }
 }
 
-// Delete Crendentials API
-export async function delete_credential(credentialId: string) {
+// Delete Verification
+export async function submit_verification(
+  verificationId: string,
+  credentialId: string,
+  policyName: string,
+) {
   try {
-    const params = new URLSearchParams();
-    params.append('credentialId', credentialId);
+    let obj = {
+      verificationId,
+      credentialId,
+      policyName,
+    };
 
     let headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
       Authorization: 'Bearer ' + (await getToken()),
     };
 
     const result = await http_client({
       method: 'POST',
-      url: '/api/credential/delete_credential',
-      data: params,
+      url: '/api/credential/submit_verification',
+      data: obj,
       headers,
     });
     return result;
