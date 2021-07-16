@@ -30,7 +30,7 @@ function QRScreen({ route, navigation }) {
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('Fetching Details');
-  
+
   var cr_arr = [];
   var cred_arr = [];
   var arr2 = [];
@@ -319,8 +319,10 @@ function QRScreen({ route, navigation }) {
         cred_arr = [];
         arr2 = [];
       }
-
-      const qrJSON = JSON.parse(e.data);
+      let extract = e.data.toString();
+      extract = extract.replaceAll('\\', '');
+      const qrJSON = JSON.parse(extract);
+      console.log(qrJSON);
       // if (qrJSON.type == 'connection_credential') {
       if (qrJSON.type == 'credential_offer') {
         setScan(false);
@@ -345,6 +347,7 @@ function QRScreen({ route, navigation }) {
       }
       setScan(false);
     } catch (error) {
+      console.log(error.message);
       setProgress(false);
       setScan(false);
       Alert.alert(
