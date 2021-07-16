@@ -162,7 +162,7 @@ function ActionDialog(props) {
                             </View>
                         }
                         {
-                            values != undefined && Object.keys(values).map((e, i) => {
+                            values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
                                 return (
                                     renderTitleInput(e, i)
                                 )
