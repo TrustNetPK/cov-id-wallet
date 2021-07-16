@@ -1,35 +1,42 @@
 import React, { useLayoutEffect, useContext, useEffect, useState } from 'react';
+import { View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, StyleSheet, ActivityIndicator, Linking, Platform } from 'react-native';
+
+import NetInfo from '@react-native-community/netinfo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { SwipeListView } from 'react-native-swipe-list-view';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
+import ActionDialog from '../components/Dialogs/ActionDialog';
 import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/Styles';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import ConfirmationDialog from '../components/ConfirmationDialog';
-import CredConfirmationDialog from '../components/CredConfirmationDialog';
-import { getItem, deleteActionByConnId, saveItem, deleteActionByCredId } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
-import NetInfo from '@react-native-community/netinfo';
-import { ScrollView } from 'react-native-gesture-handler';
 import BorderButton from '../components/BorderButton';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BACKGROUND_COLOR, BLACK_COLOR } from '../theme/Colors';
+
+import { themeStyles } from '../theme/Styles';
+import { BACKGROUND_COLOR, BLACK_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+
+import { getItem, deleteActionByConnId, saveItem, deleteActionByCredId, deleteActionByVerID, searchConnectionByOrganizationName } from '../helpers/Storage';
+import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
+
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { showMessage } from '../helpers/Toast';
-import { RefreshContext } from '../context/RefreshContextProvider';
-import { accept_credential, get_all_credentials } from '../gateways/credentials';
+import { biometricVerification } from '../helpers/Biometric';
+import { getActionHeader, getActionText } from '../helpers/ActionList';
+
+import { accept_credential } from '../gateways/credentials';
 import { accept_connection } from '../gateways/connections';
-import { initNotifications, receiveNotificationEventListener } from '../helpers/Notifications';
-// import { useCredentials } from '../hooks/addCredentialToActionList'
+import { delete_verification, submit_verification } from '../gateways/verifications';
+import TouchableComponent from '../components/Buttons/TouchableComponent';
+import useNotification from '../hooks/useNotification';
 
 function ActionsScreen({ navigation }) {
-  //Context
-  const { refreshState, setRefreshState } = useContext(RefreshContext);
-  // let useCred = useCredentials();
+
+  // Notification hook
+  const { notificationReceived } = useNotification();
+
+  // States
   const [isLoading, setIsLoading] = useState(false);
-  const [credModalVisible, setCredModalVisible] = useState(false);
   const [isAction, setAction] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [actionsList, setActionsList] = useState([]);
@@ -41,6 +48,8 @@ function ActionsScreen({ navigation }) {
   const [networkState, setNetworkState] = useState(false);
   const [deepLink, setDeepLink] = useState(false);
   var requestArray = [];
+
+  // Setting right icon
   const headerOptions = {
     headerRight: () => (
       <MaterialCommunityIcons
@@ -65,9 +74,6 @@ function ActionsScreen({ navigation }) {
 
 
   useEffect(() => {
-    // Setting up notifications
-    initNotifications(localReceiveNotificationEventListener);
-
     // Setting listener for deeplink
     if (!deepLink) {
       Linking.addEventListener('url', ({ url }) => {
@@ -77,20 +83,14 @@ function ActionsScreen({ navigation }) {
     return () => Linking.removeAllListeners();
   }, [])
 
-  function onRegister(token) {
-    console.log(token);
-  }
 
-  function onNotif(notification) {
-    console.log('notification => ', notification);
-  }
 
+  // Update Actionlist if notificationReceived is true.
   useEffect(() => {
-    if (refreshState) {
-      setRefreshState(false);
+    if (notificationReceived) {
       updateActionsList();
     }
-  }, [refreshState])
+  }, [notificationReceived])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -106,11 +106,6 @@ function ActionsScreen({ navigation }) {
       .setOptions(isAction ? headerOptions : undefined);
   }, [isAction, navigation]);
 
-  // Notification Receiver
-  const localReceiveNotificationEventListener = async (notification) => {
-    await receiveNotificationEventListener(notification);
-    setRefreshState(true);
-  }
 
   const getUrl = async (url) => {
     let initialUrl = '';
@@ -139,89 +134,76 @@ function ActionsScreen({ navigation }) {
 
     if (initialUrl.includes('Details')) {
       Alert.alert(initialUrl);
-      //RootNavigation.navigate('Details');
     }
   };
 
-  const updateActionsList = () => {
-    var connList = null;
-    getItem(ConstantsList.CONNECTIONS)
-      .then((connectionList) => {
-        if (connectionList != null) {
-          let cList = JSON.parse(connectionList);
-          return cList;
-        }
-      })
-      .then((connections) => {
-        if (connections != undefined) connList = connections;
-      });
-    getItem(ConstantsList.CONNEC_REQ)
-      .then((actions) => {
-        if (actions != null) {
-          let credActionsList = JSON.parse(actions);
-          return credActionsList;
-        }
-      })
-      .then((credlist) => {
-        var finalObj = [];
-        if (credlist != undefined) {
-          finalObj = finalObj.concat(credlist);
-        }
-        getItem(ConstantsList.CRED_REQ).then((actions2) => {
-          if (actions2 != null) {
-            let credentialRequestList = JSON.parse(actions2);
-            if (
-              credentialRequestList != null ||
-              credentialRequestList != undefined
-            ) {
-              for (let j = 0; j < credentialRequestList.length; j++) {
-                if (connList != null) {
-                  for (let k = 0; k < connList.length; k++) {
-                    if (
-                      credentialRequestList[j].connectionId ===
-                      connList[k].connectionId
-                    ) {
-                      credentialRequestList[j].imageUrl = connList[k].imageUrl;
-                      credentialRequestList[j].organizationName =
-                        connList[k].name;
-                    }
-                    console.log(connList[k].connectionId);
-                  }
-                }
-              }
-            }
-            finalObj = finalObj.concat(credentialRequestList);
-          }
+  const updateActionsList = async () => {
 
-          if (finalObj.length > 0) {
-            setActionsList(finalObj);
-            setAction(true);
-          } else {
-            setAction(false);
-          }
-        });
-      })
-      .catch((e) => {
-        console.log(e)
-      });
+    let finalObj = [];
+
+    /** CONNECTION OFFER */
+    // Get Connection List
+    let connectionList = JSON.parse(await getItem(ConstantsList.CONNECTIONS) || null);
+
+    // Return if no connections exist
+    if (connectionList == null) return;
+
+    // Get Connection Request
+    let connection_request = JSON.parse(await getItem(ConstantsList.CONN_REQ) || null);
+
+    // If connection_request available
+    if (connection_request != null) {
+      finalObj = finalObj.concat(connection_request)
+    };
+
+
+    /** CREDENTIALS OFFER */
+    // Get Credential Offers
+    let credential_offer = JSON.parse(await getItem(ConstantsList.CRED_OFFER) || null);
+
+    // If credential_offer available
+    if (credential_offer != null) {
+      finalObj = finalObj.concat(credential_offer)
+    };
+
+
+    /** VERIFICATION OFFER */
+    // Get verification Offers
+    let verification_offers = JSON.parse(await getItem(ConstantsList.VER_REQ) || null);
+
+    // If credential_offer available
+    if (verification_offers != null) {
+      finalObj = finalObj.concat(verification_offers)
+    };
+
+    // SetState ActionList
+    if (finalObj.length > 0) {
+      setActionsList(finalObj);
+      setAction(true);
+    } else {
+      setAction(false);
+    }
   };
 
   const toggleModal = (v) => {
     setSelectedItem(JSON.stringify(v));
 
-    let data = {};
-    data = JSON.parse(JSON.stringify(v));
+    let data = JSON.parse(JSON.stringify(v));
 
-    if (data.type == ConstantsList.CONNEC_REQ) {
-      setModalData(data);
-      setModalVisible(true);
-    } else if (data.type == ConstantsList.CRED_REQ) {
-      setModalData(data);
-      setCredModalVisible(true);
-    }
+    setModalData(data);
+    setModalVisible(true);
   };
 
   const acceptModal = async (v) => {
+    if (v.type == CRED_OFFER) handleCredentialRequest(v);
+
+    else if (v.type == VER_REQ) handleVerificationRequests(v);
+
+    else if (v.type == CONN_REQ) handleConnectionRequest(v);
+  }
+
+  // Handle Connection Request
+  const handleConnectionRequest = async () => {
     if (networkState) {
       setIsLoading(true);
       let resp = await AuthenticateUser();
@@ -277,16 +259,20 @@ function ActionsScreen({ navigation }) {
     }
   }
 
-  const acceptCredModal = async () => {
+  // Handle Credential Request
+  const handleCredentialRequest = async () => {
     let selectedItemObj = JSON.parse(selectedItem);
     try {
-      setCredModalVisible(false);
+      setModalVisible(false);
       setIsLoading(true);
 
       // Accept credentials Api call.
       let result = await accept_credential(selectedItemObj.credentialId);
       if (result.data.success) {
-        await deleteActionByCredId(ConstantsList.CRED_REQ, selectedItemObj.credentialId)
+        // Delete Action
+        await deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId)
+
+        // Update ActionList
         updateActionsList();
       } else {
         console.log(result.data);
@@ -299,35 +285,118 @@ function ActionsScreen({ navigation }) {
     }
   }
 
-  const rejectModal = (v) => {
+
+  // Handle Verification Request
+  const handleVerificationRequests = async (data) => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    let credential_arr = JSON.parse(await getItem(CRED_OFFER) || null);
+
+    // Return if null
+    if (credential_arr == null) return
+
+    // Biometric Verification
+    let BioResult = await biometricVerification();
+
+
+    if (BioResult) {
+      setModalVisible(false);
+      setIsLoading(true);
+      try {
+
+        let policyName = selectedItemObj.policy.attributes[0].policyName;
+
+        // Submit Verification Api call
+        let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
+        if (result.data.success) {
+          await deleteActionByVerID(selectedItemObj.verificationId)
+          updateActionsList();
+        } else {
+          showMessage('Zada', result.data.error)
+        }
+        setIsLoading(false);
+      } catch (e) {
+        setIsLoading(false);
+        console.log(e)
+      }
+    } else {
+      console.log('failed')
+    }
+  }
+
+
+  // Reject Modal
+  const rejectModal = async (v) => {
     let selectedItemObj = JSON.parse(selectedItem);
     setModalVisible(false);
 
-    if (selectedItemObj.type === ConstantsList.CONNEC_REQ) {
-      deleteActionByConnId(ConstantsList.CONNEC_REQ, selectedItemObj.metadata).then(
+    if (selectedItemObj.type === ConstantsList.CONN_REQ) {
+      deleteActionByConnId(ConstantsList.CONN_REQ, selectedItemObj.metadata).then(
         (actions) => {
           updateActionsList();
         },
       );
     }
 
-    if (selectedItemObj.type === ConstantsList.CRED_REQ) {
-      setCredModalVisible(false);
-      deleteActionByCredId(ConstantsList.CRED_REQ, selectedItemObj.credentialId).then(
+    if (selectedItemObj.type === ConstantsList.CRED_OFFER) {
+      setModalVisible(false);
+      deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId).then(
         (actions) => {
           updateActionsList();
         },
       );
     }
+
+    if (selectedItemObj.type === ConstantsList.VER_REQ) {
+      // Biometric Verification
+      let BioResult = await biometricVerification();
+
+      if (BioResult) {
+        setIsLoading(true);
+        setModalVisible(false);
+        try {
+
+          // Submit Verification Api call
+          let result = await delete_verification(selectedItemObj.verificationId);
+
+          if (result.data.success) {
+            await deleteActionByVerID(selectedItemObj.verificationId)
+            updateActionsList();
+          } else {
+            showMessage('Zada', result.data.error)
+          }
+
+          setIsLoading(false);
+
+        } catch (e) {
+          setIsLoading(false);
+          console.log(e)
+        }
+      } else {
+        console.log('failed')
+      }
+    }
   };
+
 
   const dismissModal = (v) => {
     setModalVisible(false);
+    setModalVisible(false);
   };
 
-  const dismissCredModal = () => {
-    setCredModalVisible(false)
+  async function handleDeletePressed(v) {
+    // Get connection id
+    console.log('conenctionId => ', v)
+    // try {
+    //   let result = await delete_connection();
+    // }
   }
+
+  function onSwipeValueChange(v) {
+    console.log(v);
+    // console.log(Math.abs(v.value / 75))
+    // animatedScaling[key].setValue(Math.abs(value));
+  }
+
 
   return (
     <View style={themeStyles.mainContainer}>
@@ -340,52 +409,69 @@ function ActionsScreen({ navigation }) {
       {isAction ? (
         <>
           <View pointerEvents={isLoading ? 'none' : 'auto'}>
-            <ScrollView showsVerticalScrollIndicator={true}>
-              <ConfirmationDialog
+            {
+              isModalVisible &&
+              <ActionDialog
                 isVisible={isModalVisible}
                 toggleModal={toggleModal}
                 rejectModal={rejectModal}
                 data={modalData}
                 dismissModal={dismissModal}
                 acceptModal={acceptModal}
-                text=" has invited you to connect."
                 modalType="action"
                 isIconVisible={true}
               />
-              <CredConfirmationDialog
-                isVisible={credModalVisible}
-                toggleModal={toggleModal}
-                rejectModal={rejectModal}
-                data={modalData}
-                dismissModal={dismissCredModal}
-                acceptModal={acceptCredModal}
-                text=" has sent you a credential offer do you want to accept it?"
-                modalType="action"
-                isIconVisible={true}
-              />
-              {actionsList !== undefined &&
-                actionsList.map((v, i) => {
-                  let header = String(
-                    v.type === 'connection_request'
-                      ? 'Connection Request'
-                      : 'Credential Request',
-                  );
-                  let subtitle =
-                    'Click to view the ' +
-                    header.toLowerCase() +
-                    ' from ' +
-                    v.organizationName;
-                  let imgURI = v.imageUrl;
-                  return (
-                    <FlatCard
-                      onPress={() => toggleModal(v)}
-                      imageURL={imgURI}
-                      heading={header}
-                      text={subtitle}
-                    />
-                  );
-                })}
-            </ScrollView>
+            }
+            <SwipeListView
+              useFlatList
+              disableRightSwipe
+              data={actionsList}
+              contentContainerStyle={{
+                flexGrow: 1,
+                paddingBottom: 50,
+              }}
+              keyExtractor={item => item.index}
+              renderItem={(rowData, rowMap) => {
+                let header = getActionHeader(rowData.item.type);
+                let subtitle =
+                  'Click to view the ' +
+                  header.toLowerCase() +
+                  ' from ' +
+                  rowData.item.organizationName;
+                let imgURI = rowData.item.imageUrl;
+                return (
+                  <FlatCard
+                    onPress={() => toggleModal(rowData.item)}
+                    imageURL={imgURI}
+                    heading={header}
+                    text={subtitle}
+                  />
+                )
+              }}
+              renderHiddenItem={({ item, index }) => (
+                <View key={index} style={styles.rowBack}>
+                  <TextComponent text="" />
+                  <Animated.View>
+                    <TouchableComponent onPress={() => handleDeletePressed(item)} activeOpacity={0.8}
+                      style={[
+                        styles.swipeableViewStyle,
+                        // {
+                        //   transform: [{ scale: animatedScaling }]
+                        // }
+                      ]}
+                    >
+                      <MaterialCommunityIcons
+                        size={30}
+                        name="delete"
+                        padding={30}
+                      />
+                    </TouchableComponent>
+                  </Animated.View>
+                </View>
+              )}
+              leftOpenValue={75}
+              rightOpenValue={-75}
+            />
           </View>
         </>
       ) : (
@@ -399,19 +485,14 @@ function ActionsScreen({ navigation }) {
               flex: 1,
               justifyContent: "center"
             }}>
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={() => {
-                  navigation.navigate('QRScreen');
-                }}>
-                <BorderButton
-                  text="QR CODE"
-                  color={BLACK_COLOR}
-                  textColor={BLACK_COLOR}
-                  backgroundColor={BACKGROUND_COLOR}
-                  isIconVisible={true}
-                />
-              </TouchableOpacity>
+              <BorderButton
+                nextHandler={() => navigation.navigate('QRScreen')}
+                text="QR CODE"
+                color={BLACK_COLOR}
+                textColor={BLACK_COLOR}
+                backgroundColor={BACKGROUND_COLOR}
+                isIconVisible={true}
+              />
             </View>
           </View>
         </>
@@ -435,6 +516,29 @@ const styles = StyleSheet.create({
     color: BLACK_COLOR,
   },
   imageProps: {},
+  rowBack: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingLeft: 15,
+  },
+  swipeableViewStyle: {
+    width: 60,
+    height: 60,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    shadowColor: SECONDARY_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 5,
+    flexDirection: 'row',
+    marginBottom: 8,
+  }
 });
 
 export default ActionsScreen;

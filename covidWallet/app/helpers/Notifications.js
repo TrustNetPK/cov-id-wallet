@@ -3,7 +3,8 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
 import { Platform } from 'react-native';
 import { registerDeviceToken } from '../gateways/auth';
-import { addCredentialToActionList } from '../helpers/Credential';
+import { addCredentialToActionList, addVerificationToActionList } from './ActionList';
+import { CRED_OFFER, VER_REQ } from './ConfigApp';
 const DROID_CHANNEL_ID = 'zada';
 
 //Usage: showNotification("Test", `Test.`, '0', true, true);
@@ -65,18 +66,26 @@ function getAllDeliveredNotifications() {
 async function receiveNotificationEventListener(notification) {
   console.log('NEW NOTIFICATION:', notification);
 
-  if (Platform.OS === 'ios') {
-    //TODO: Process IOS notification here
-    //MAKE SURE YOU DONT PROCESS IT TWICE AS iOSforegroundTrigger might also process it
-    //Use identifier to make sure you dont process twice
-    if (notification.data.type === 'credential_offer') {
-      let x = await addCredentialToActionList(notification.data.metadata);
-      console.log('HX2' + x);
-    }
-    notification.finish(PushNotificationIOS.FetchResult.NoData);
+  let result = '';
+  switch (notification.data.type) {
+    case CRED_OFFER:
+      result = await addCredentialToActionList(notification.data.metadata);
+      console.log('HX2' + result);
+      break;
+
+    case VER_REQ:
+      result = await addVerificationToActionList(notification.data.metadata);
+      console.log(result);
+      break;
+
+    default:
+      break;
   }
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS === 'ios') {
+    notification.finish(PushNotificationIOS.FetchResult.NoData);
+  } else {
+    //TODO: Process Android notification here
     showLocalNotification(
       notification.data.title,
       notification.data.body,
@@ -84,10 +93,6 @@ async function receiveNotificationEventListener(notification) {
       true,
       true,
     );
-    let x = await addCredentialToActionList(notification.data.metadata);
-    console.log('HX2' + x);
-    //TODO: Process Android notification here
-    console.log(notification.data.type + ' : ' + notification.data.metadata);
   }
 }
 
@@ -147,17 +152,18 @@ function onRegistrationErrorEventListener(err) {
 function initNotifications(localReceiveNotificationEventListener) {
   // NOTIFICATION START
 
-  //Run every 5 seconds
-  if (Platform.OS === 'ios') {
-    setInterval(() => {
-      iOSforegroundTrigger();
-    }, 5000)
-  }
+  // //Run every 5 seconds
+  // if (Platform.OS === 'ios') {
+  //   setInterval(() => {
+  //     checkNotificationIOS();
+  //   }, 5000)
+  // }
 
   if (Platform.OS === 'android') {
     PushNotification.getChannels(function (channel_ids) {
       console.log(channel_ids); // ['channel_id_1']
     });
+
     PushNotification.channelExists(DROID_CHANNEL_ID, function (exists) {
       if (!exists) {
         PushNotification.createChannel(
@@ -208,7 +214,7 @@ function initNotifications(localReceiveNotificationEventListener) {
      * - if you are not using remote notification or do not have Firebase installed, use this:
      *     requestPermissions: Platform.OS === 'ios'
      */
-    requestPermissions: false,
+    requestPermissions: Platform.OS !== 'ios',
   });
 }
 

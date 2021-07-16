@@ -27,7 +27,7 @@ function CredentialsCard(props) {
                         </View>
                         <View style={styles.item2}>
                             <Text style={[styles.card_small_text, { color: '#ffffff90' }]}>Issued by</Text>
-                            <Text style={styles.card_small_text}>{props.card_title}</Text>
+                            <Text style={styles.card_small_text}>{props.issuer}</Text>
                         </View>
                     </View>
                 </ImageBackground>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Platform, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
@@ -12,6 +12,7 @@ import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
 import { showMessage } from '../helpers/Toast';
+import { addVerificationToActionList } from '../helpers/ActionList';
 
 function ConnectionsScreen(props) {
   const [isConnection, setConnection] = useState(true);
@@ -21,6 +22,7 @@ function ConnectionsScreen(props) {
 
   useEffect(() => {
     getAllConnections();
+    addVerificationToActionList()
   }, [])
 
   useFocusEffect(
@@ -74,9 +76,8 @@ function ConnectionsScreen(props) {
         </View>
       }
       {isConnection && (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingTop: 8, }}>
           {connectionsList.map((v, i) => {
-            console.log(JSON.stringify(v));
             let imgURI = v.imageUrl;
             let header = v.name;
             let subtitle =
@@ -84,22 +85,25 @@ function ConnectionsScreen(props) {
               header.toLowerCase() +
               ' is secure and encrypted.';
             return (
-              <TouchableOpacity key={i}>
-                <FlatCard imageURL={imgURI} heading={header} text={subtitle} />
-              </TouchableOpacity>
+              <View key={i}>
+                <FlatCard onPress={() => { }} imageURL={imgURI} heading={header} text={subtitle} />
+              </View>
             );
           })}
         </ScrollView>
-      )}
-      {!isConnection && (
-        <View style={styles.EmptyContainer}>
-          <TextComponent text="You have no connections yet." />
-          <ImageBoxComponent
-            source={require('../assets/images/connectionsempty.png')}
-          />
-        </View>
-      )}
-    </View>
+      )
+      }
+      {
+        !isConnection && (
+          <View style={styles.EmptyContainer}>
+            <TextComponent text="You have no connections yet." />
+            <ImageBoxComponent
+              source={require('../assets/images/connectionsempty.png')}
+            />
+          </View>
+        )
+      }
+    </View >
   );
 }
 

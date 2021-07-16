@@ -55,7 +55,7 @@ function CredentialsScreen(props) {
       credentialsList.forEach((cred, i) => {
         let item = connectionsList.find(c => c.connectionId == cred.connectionId)
         credentialsList[i].imageUrl = item.imageUrl
-        credentialsList[i].name = item.name
+        credentialsList[i].organizationName = item.name
       });
 
       // Set data
@@ -82,17 +82,11 @@ function CredentialsScreen(props) {
 
 
   const toggleModal = (v) => {
-    // setModalData(v)
-    // setModalVisible(!isModalVisible);
     props.navigation.navigate("DetailsScreen", {
       data: v
     });
   };
 
-  const dismissModal = (v) => {
-    // setCredential(false);
-    setModalVisible(false);
-  };
 
   const loadCreds = async () => {
     try {
@@ -100,11 +94,11 @@ function CredentialsScreen(props) {
       let result = await get_all_credentials();
       if (result.data.success) {
         let credArr = result.data.credentials;
-        saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credArr)).then(() => {
-          setCredential(true);
-        })
+        await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credArr));
+        setCredential(true);
+        updateCredentialsList();
       } else {
-        showMessage('ZADA Wallet', resp.message);
+        showMessage('ZADA Wallet', result.data.message);
       }
       setIsLoading(false);
     } catch (e) {
@@ -168,7 +162,7 @@ function CredentialsScreen(props) {
             // let issuedBy = v.attrs.vaccinator_org;
             let imgURI = { uri: v.imageUrl };
             let vaccineName = v.name;
-            let issuedBy = "{issuer name}";
+            let issuedBy = v.organizationName;
 
 
             return <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
@@ -205,7 +199,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   CredentialsCardContainer: {
-    paddingTop: 5
+    paddingTop: 5,
   },
   refreshButton: {
     width: 60,

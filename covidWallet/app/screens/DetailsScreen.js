@@ -1,18 +1,66 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, Linking, Alert } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, FlatList, Linking, Alert } from 'react-native';
 import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import CredentialsCard from '../components/CredentialsCard';
-import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
+import { delete_credential } from '../gateways/credentials';
+import { showMessage, showAskDialog } from '../helpers/Toast';
+import { deleteCredentialByCredId } from '../helpers/Storage';
 
 export default function DetailsScreen(props) {
 
+    // Constants
     const data = props.route.params.data;
     const vaccineName = data.name
     const imgURI = { uri: data.imageUrl }
-    const issuedBy = "{issuer_name}"
+    const issuedBy = data.organizationName
+
+    // States
+    const [isLoading, setIsLoading] = useState(false)
+
+    useLayoutEffect(() => {
+        // Setting delete Icon
+        props.navigation.setOptions({
+            headerRight: () => (
+                <MaterialIcons
+                    onPress={() => !isLoading ? showAlert() : {}}
+                    style={styles.headerRightIcon}
+                    size={25}
+                    name="delete"
+                    padding={30}
+                />
+            ),
+        })
+    })
+
+    async function onSuccess() {
+        try {
+            setIsLoading(true)
+
+            // Delete credentials Api
+            let result = await delete_credential(data.credentialId);
+            if (result.data.success) {
+                deleteCredentialByCredId(data.credentialId);
+                showMessage('ZADA Wallet', 'Credentials deleted successfully!');
+                props.navigation.goBack();
+            } else {
+                showMessage('ZADA Wallet', result.data.message);
+            }
+
+            setIsLoading(false)
+        } catch (e) {
+            console.log(e);
+            setIsLoading(false)
+        }
+    }
+
+    function onReject() { }
+
+    async function showAlert() {
+        showAskDialog("Are you sure?", "Are you sure you want to delete this credential?", onSuccess, onReject);
+    }
 
     function renderTitleInput(title, index) {
         let value = Object.values(data.values)[index];
@@ -42,20 +90,11 @@ export default function DetailsScreen(props) {
 
     return (
         <View style={[themeStyles.mainContainer]}>
-            {/* <View style={{ flexDirection: "row", }}>
-                <TouchableOpacity
-                    onPress={() => props.navigation.goBack()}
-                    style={{
-                        width: '12%',
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}>
-                    <Ionicons name="ios-arrow-back" size={24} color="black" />
-                </TouchableOpacity>
-                <View style={{ justifyContent: "center", width: '80%' }}>
-                    <HeadingComponent text="Details" />
+            {isLoading &&
+                <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
+                    <ActivityIndicator color={"#000"} size={"large"} />
                 </View>
-            </View> */}
+            }
             <View style={styles.container}>
                 <View style={styles.CredentialsCardContainer}>
                     <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
@@ -79,6 +118,10 @@ export default function DetailsScreen(props) {
 }
 
 const styles = StyleSheet.create({
+    headerRightIcon: {
+        padding: 10,
+        color: BLACK_COLOR
+    },
     container: {
         paddingTop: 0,
         paddingLeft: 5,

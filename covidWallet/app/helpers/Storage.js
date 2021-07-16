@@ -23,6 +23,8 @@ export const getItem = async (key) => {
   return await AsyncStorage.getItem(key);
 };
 
+
+// Delete action by Connection ID.
 export const deleteActionByConnId = async (key, connID) => {
   return getItem(key).then((action) => {
     let QRJsonList = JSON.parse(action);
@@ -37,6 +39,8 @@ export const deleteActionByConnId = async (key, connID) => {
   });
 };
 
+
+// Delete action by Credential ID.
 export const deleteActionByCredId = async (key, credentialId) => {
   return getItem(key).then((action) => {
     let QRJsonList = JSON.parse(action);
@@ -51,8 +55,46 @@ export const deleteActionByCredId = async (key, credentialId) => {
   });
 };
 
+
+// Delete action by verification ID.
+export const deleteActionByVerID = async (verificationId) => {
+
+  let verification_request = JSON.parse(await getItem(ConstantsList.VER_REQ) || null);
+
+  verification_request = verification_request.filter((c) => {
+    return c.verificationId != verificationId
+  })
+
+  await saveItem(ConstantsList.VER_REQ, JSON.stringify(verification_request))
+};
+
+
+// Delete Credential by credential ID.
+export const deleteCredentialByCredId = async (credentialId) => {
+
+  let credentials = await getItem(ConstantsList.CREDENTIALS)
+  let credentialsArr = JSON.parse(credentials)
+
+  credentialsArr = credentialsArr.filter((c) => {
+    return c.credentialId != credentialId
+  })
+
+  await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsArr))
+};
+
+
+// Search Connection by Organization Name.
 export const searchConnectionByOrganizationName = async (organizationName) => {
-  await getItem(ConstantsList.CONNECTIONS).then((action) => { });
+
+  let connections = JSON.parse(await getItem(ConstantsList.CONNECTIONS) || null)
+
+  if (connections == null) return
+
+  console.log('connecitons => ', connections)
+  let obj = connections.find((e) => e.name == organizationName);
+  console.log(obj)
+
+  return obj
 };
 
 export const isFirstTime = async (value) => {

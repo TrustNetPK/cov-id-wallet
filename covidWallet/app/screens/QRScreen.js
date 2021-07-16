@@ -12,7 +12,6 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {
   getItem,
   saveItem,
-  searchConnectionByOrganizationName,
 } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import queryString from 'query-string';
@@ -21,18 +20,17 @@ import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
 import { showMessage } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
+import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
 
 function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
   const [networkState, setNetworkState] = useState(false);
-  const [certificate_request, setCertificateRequest] = useState('');
   const [connection_request, setConnectionRequest] = useState('');
   const [credential_request, setCredentialRequest] = useState('');
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('Fetching Details');
-  // const [credentialID, setCredentialID] = useState('cvc');
-  // const [hasToken, setTokenExpired] = useState(true);
+  
   var cr_arr = [];
   var cred_arr = [];
   var arr2 = [];
@@ -45,7 +43,7 @@ function QRScreen({ route, navigation }) {
   //   NetInfo.fetch().then((networkState) => {
   //     setNetworkState(networkState.isConnected);
   //   });
-  //   getItem(ConstantsList.CONNEC_REQ)
+  //   getItem(ConstantsList.CONN_REQ)
   //     .then((data) => {
   //       if (data == null) {
   //         cr_arr = [];
@@ -71,7 +69,7 @@ function QRScreen({ route, navigation }) {
   //       console.log('Error is ' + e);
   //     });
 
-  //   getItem(ConstantsList.CRED_REQ)
+  //   getItem(ConstantsList.CRED_OFFER)
   //     .then((data) => {
   //       if (data == null) {
   //         cred_arr = [];
@@ -118,7 +116,7 @@ function QRScreen({ route, navigation }) {
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
-    getItem(ConstantsList.CONNEC_REQ)
+    getItem(ConstantsList.CONN_REQ)
       .then((data) => {
         if (data == null) {
           cr_arr = [];
@@ -144,7 +142,7 @@ function QRScreen({ route, navigation }) {
         console.log('Error is ' + e);
       });
 
-    getItem(ConstantsList.CRED_REQ)
+    getItem(ConstantsList.CRED_OFFER)
       .then((data) => {
         if (data == null) {
           cred_arr = [];
@@ -221,7 +219,7 @@ function QRScreen({ route, navigation }) {
           );
         } else {
           cr_arr.push(qrJSON);
-          saveItem(ConstantsList.CONNEC_REQ, JSON.stringify(cr_arr))
+          saveItem(ConstantsList.CONN_REQ, JSON.stringify(cr_arr))
             .then(() => {
               setProgress(false);
               navigation.navigate('MainScreen');
@@ -249,7 +247,7 @@ function QRScreen({ route, navigation }) {
           },
         },
       ).then((credential) =>
-        credential.json().then((data) => {
+        credential.json().then(async (data) => {
           if (data.success == false) {
             setProgress(false);
             Alert.alert(
@@ -265,9 +263,11 @@ function QRScreen({ route, navigation }) {
             );
           } else if (data.success == true) {
             let qrJSON = data.credential;
-            qrJSON.type = 'credential_offer';
+            qrJSON.type = ConstantsList.CRED_OFFER;
+            qrJSON = await addImageAndNameFromConnectionList(qrJSON);
+            console.log('qrJSON => ', qrJSON);
             cred_arr.push(qrJSON);
-            saveItem(ConstantsList.CRED_REQ, JSON.stringify(cred_arr))
+            saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr))
               .then(() => {
                 setProgress(false);
                 navigation.navigate('MainScreen');

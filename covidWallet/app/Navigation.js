@@ -193,9 +193,7 @@ function NavigationComponent() {
                   //     padding={30}
                   //   />
                   // ),
-                  headerRight: () => (
-                    <View />
-                  ),
+
                 })}
               />
               <Stack.Screen
