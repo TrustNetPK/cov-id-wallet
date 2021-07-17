@@ -16,7 +16,7 @@ import BorderButton from '../components/BorderButton';
 import { themeStyles } from '../theme/Styles';
 import { BACKGROUND_COLOR, BLACK_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
-import { getItem, deleteActionByConnId, saveItem, deleteActionByCredId, deleteActionByVerID, searchConnectionByOrganizationName } from '../helpers/Storage';
+import { getItem, ls_addConnection, deleteActionByConnId, saveItem, deleteActionByCredId, deleteActionByVerID, ls_addCredential } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
 
 import { AuthenticateUser } from '../helpers/Authenticate';
@@ -222,27 +222,15 @@ function ActionsScreen({ navigation }) {
           let result = await accept_connection(selectedItemObj.metadata);
           if (result.data.success) {
             await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
+            // Update connection screen.
+            await ls_addConnection(result.data.connection)
+
             updateActionsList();
           } else {
             showMessage('ZADA Wallet', result.data.error);
             return
           }
 
-          // Update connection screen.
-          let conns = [];
-          let connectionsdata = await getItem(ConstantsList.CONNECTIONS)
-          if (connectionsdata == null) {
-            conns = conns.concat(result.data.connection);
-          } else {
-            try {
-              conns = JSON.parse(connectionsdata);
-              conns = conns.concat(result.data.connection);
-            } catch (e) {
-              console.log('Error Occurred ' + e);
-              conns = [];
-            }
-            saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
-          }
           setIsLoading(false);
         }
         catch (e) {
@@ -271,6 +259,9 @@ function ActionsScreen({ navigation }) {
       if (result.data.success) {
         // Delete Action
         await deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId)
+
+        // Save credential to local storage
+        // ls_addCredential(selectedItemObj);
 
         // Update ActionList
         updateActionsList();
@@ -430,7 +421,9 @@ function ActionsScreen({ navigation }) {
                 flexGrow: 1,
                 paddingBottom: 50,
               }}
-              keyExtractor={item => item.index}
+              keyExtractor={(rowData, index) => {
+                return index;
+              }}
               renderItem={(rowData, rowMap) => {
                 let header = getActionHeader(rowData.item.type);
                 let subtitle =

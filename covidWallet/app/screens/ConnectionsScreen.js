@@ -32,18 +32,14 @@ function ConnectionsScreen(props) {
     }, [isConnection]),
   );
 
-  const updateConnectionsList = () => {
-    getItem(ConstantsList.CONNECTIONS)
-      .then((connections) => {
-        if (connections != null) {
-          let connectionsList = JSON.parse(connections);
-          setConnectionsList(connectionsList);
-          setConnection(true);
-        } else {
-          setConnection(false);
-        }
-      })
-      .catch((e) => { });
+  const updateConnectionsList = async () => {
+    let connections = (JSON.parse(await getItem(ConstantsList.CONNECTIONS)) || []);
+    if (connections.length > 0) {
+      setConnectionsList(connections);
+      setConnection(true);
+    } else {
+      setConnection(false);
+    }
   };
 
   const getAllConnections = async () => {
@@ -52,10 +48,13 @@ function ConnectionsScreen(props) {
       let result = await get_all_connections();
       if (result.data.success) {
         let connectionsList = result.data.connections;
+
         if (connectionsList.length > 0) {
-          await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(result.data.connections));
+          await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsList));
+          updateConnectionsList()
+        } else {
+          setConnection(false);
         }
-        updateConnectionsList()
       } else {
         showMessage('ZADA Wallet', resp.message);
       }
@@ -75,11 +74,11 @@ function ConnectionsScreen(props) {
           <ActivityIndicator color={"#000"} size={"large"} />
         </View>
       }
-      {isConnection && (
+      {connectionsList.length > 0 ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingTop: 8, }}>
           {connectionsList.map((v, i) => {
             let imgURI = v.imageUrl;
-            let header = v.name;
+            let header = v.name != undefined ? v.name : "";
             let subtitle =
               'The connection between you and ' +
               header.toLowerCase() +
@@ -91,10 +90,8 @@ function ConnectionsScreen(props) {
             );
           })}
         </ScrollView>
-      )
-      }
-      {
-        !isConnection && (
+      ) :
+        (
           <View style={styles.EmptyContainer}>
             <TextComponent text="You have no connections yet." />
             <ImageBoxComponent

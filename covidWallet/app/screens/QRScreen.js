@@ -6,6 +6,7 @@ import {
   Text,
   Alert,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -320,7 +321,9 @@ function QRScreen({ route, navigation }) {
         arr2 = [];
       }
       let extract = e.data.toString();
-      extract = extract.replaceAll('\\', '');
+      if (Platform.OS == "ios") {
+        extract = extract.replaceAll('\\', '');
+      }
       const qrJSON = JSON.parse(extract);
       console.log(qrJSON);
       // if (qrJSON.type == 'connection_credential') {

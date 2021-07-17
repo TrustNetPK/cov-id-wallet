@@ -63,21 +63,6 @@ function CredentialsScreen(props) {
     } catch (e) {
       console.log('error: updateCredentialList => ', e)
     }
-    // getItem(ConstantsList.CREDENTIALS).then((connections) => {
-    //   if (connections != null) {
-    //     let connectionsList = JSON.parse(connections);
-    //     if (connectionsList.length === 0) {
-    //       setCredential(false);
-    //     }
-    //     else {
-    //       setCredential(true);
-    //       setCredentialList(connectionsList);
-    //     }
-
-    //   } else {
-    //     setCredential(false);
-    //   }
-    // }).catch(e => { })
   }
 
 
@@ -165,7 +150,7 @@ function CredentialsScreen(props) {
             let issuedBy = v.organizationName;
 
 
-            return <TouchableOpacity key={i} onPress={() => toggleModal(v)}>
+            return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
               <View style={styles.CredentialsCardContainer}>
                 <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
               </View>

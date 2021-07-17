@@ -23,6 +23,48 @@ export const getItem = async (key) => {
   return await AsyncStorage.getItem(key);
 };
 
+// Add Connection
+export const ls_addConnection = async (new_conn) => {
+  let conns = [];
+  let connectionsdata = await getItem(ConstantsList.CONNECTIONS)
+  console.log('connectionsdata => ', connectionsdata);
+  if (connectionsdata == null) {
+    conns = conns.concat(new_conn);
+  } else {
+    try {
+      conns = JSON.parse(connectionsdata);
+      conns = conns.concat(new_conn);
+    } catch (e) {
+      console.log('Error Occurred ' + e);
+      conns = [];
+    }
+    console.log('conns => ', conns);
+  }
+  await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
+}
+
+// Add Credential
+export const ls_addCredential = async (new_cred) => {
+
+  let cred = [];
+
+  let credentialsdata = JSON.parse(await getItem(ConstantsList.CREDENTIALS) || [])
+  let connectionsList = JSON.parse(await getItem(ConstantsList.CONNECTIONS) || []);
+
+  if (connectionsList.length === 0) return
+
+  if (credentialsdata.length === 0) {
+    cred = cred.concat(new_cred);
+  } else {
+    cred.forEach((cred, i) => {
+      let item = connectionsList.find(c => c.connectionId == cred.connectionId)
+      credentialsList[i].imageUrl = item.imageUrl
+      credentialsList[i].organizationName = item.name
+    });
+  }
+  await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(cred));
+}
+
 
 // Delete action by Connection ID.
 export const deleteActionByConnId = async (key, connID) => {
@@ -38,7 +80,6 @@ export const deleteActionByConnId = async (key, connID) => {
     return newQRList.length;
   });
 };
-
 
 // Delete action by Credential ID.
 export const deleteActionByCredId = async (key, credentialId) => {
