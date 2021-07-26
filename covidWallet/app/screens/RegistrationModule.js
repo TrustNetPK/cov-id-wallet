@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Alert, KeyboardAvoidingView } from 'react-native';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
+import PhoneInput from "react-native-phone-number-input";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -30,16 +31,28 @@ import { saveItem } from '../helpers/Storage';
 import randomString from '../helpers/RandomString';
 import { showMessage } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
+import { InputComponent } from '../components/Input/inputComponent';
+import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
 
 const { height, width } = Dimensions.get('window');
 
 function RegistrationModule({ navigation }) {
   const [activeOption, updateActiveOption] = useState('register');
   const [networkState, setNetworkState] = useState(false);
+
   const [name, setName] = useState('');
+  const [nameError, setNameError] = useState('');
+
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const phoneInput = useRef(null);
   const [phone, setPhone] = useState('');
+
+
   const [secret, setSecret] = useState('');
+  const [secretError, setSecretError] = useState('');
+
   const [progress, setProgress] = useState(false);
 
   const selectionOnPress = (userType) => {
@@ -53,7 +66,13 @@ function RegistrationModule({ navigation }) {
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
-    if (activeOption == 'register') setSecret(randomString(24));
+    if (activeOption == 'register') {
+      setPhone('');
+      setSecret(randomString(24))
+      setSecretError('')
+    } else {
+      setSecret('');
+    }
   }, [activeOption, networkState]);
 
   const nextHandler = () => {
@@ -64,25 +83,65 @@ function RegistrationModule({ navigation }) {
   };
 
   const submit = () => {
-    if (
-      activeOption == 'register' &&
-      (name == '' || phone == '' || email == '' || secret == '')
-    ) {
-      showMessage('ZADA Wallet', 'Fill the empty fields');
-      return;
+
+    // Check if name is valid.
+    if (!nameRegex.test(name) && activeOption == 'register') {
+      setNameError("Please enter a name between 2-20 alphabetical characters long. No numbers or special characters.")
+      return
     }
-    if (
-      activeOption == 'login' &&
-      (phone == '' || email == '' || secret == '')
-    ) {
-      showMessage('ZADA Wallet', 'Fill the empty fields');
-      return;
-    } else {
-      setProgress(true);
-      if (activeOption == 'register') register();
-      else if (activeOption == 'login') login();
-      else setProgress(false);
+    setNameError('');
+
+    // Check if email is valid
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.")
+      return
     }
+    setEmailError('');
+
+    // Check if phone number is valid
+    const checkValid = phoneInput.current?.isValidNumber(phone);
+    if (!checkValid) {
+      Alert.alert('Zada', 'Please enter a valid phone number.');
+      return
+    }
+
+    // Check if secret 
+    if (secret == "") {
+      setSecretError('Secret is required.')
+      return
+    }
+
+    if (!validateIfLowerCased(secret)) {
+      setSecretError('Secret must be in lowercase.')
+      return
+    }
+
+    setSecretError('');
+
+    setProgress(true);
+    if (activeOption == 'register') register();
+    else if (activeOption == 'login') login();
+    else setProgress(false);
+
+    // if (
+    //   activeOption == 'register' &&
+    //   (name == '' || phone == '' || email == '' || secret == '')
+    // ) {
+    //   showMessage('ZADA Wallet', 'Fill the empty fields');
+    //   return;
+    // }
+    // if (
+    //   activeOption == 'login' &&
+    //   (phone == '' || email == '' || secret == '')
+    // ) {
+    //   showMessage('ZADA Wallet', 'Fill the empty fields');
+    //   return;
+    // } else {
+    //   setProgress(true);
+    //   if (activeOption == 'register') register();
+    //   else if (activeOption == 'login') login();
+    //   else setProgress(false);
+    // }
   };
 
   const register = async () => {
@@ -184,6 +243,115 @@ function RegistrationModule({ navigation }) {
     }
   };
 
+  // const onChangeCountry = (country) => {
+  //   setCode(`+${country.callingCode[0]}`);
+  //   setCountry(country.name);
+  //   setCountryPicker(false);
+  // };
+
+  function renderPhoneNumberInput() {
+    return (
+      <PhoneInput
+        ref={phoneInput}
+        defaultValue={phone}
+        defaultCode="PK"
+        layout="second"
+        containerStyle={{
+          flexDirection: "row",
+          backgroundColor: WHITE_COLOR,
+          borderRadius: 10,
+          height: 45,
+          marginTop: 8,
+          alignSelf: "center",
+          width: '88%',
+          marginLeft: 4,
+        }}
+        textInputStyle={{ fontSize: 14, height: 45 }}
+        countryPickerButtonStyle={{ width: 65, borderRightColor: "00000040", borderRightWidth: 0.5 }}
+        textContainerStyle={{ fontSize: 16, padding: 0, borderRadius: 10, backgroundColor: WHITE_COLOR }}
+        codeTextStyle={{ fontSize: 14, textAlign: "center", textAlignVertical: "center", padding: 0, margin: 0 }}
+        onChangeText={(text) => {
+          // setPhone(text);
+        }}
+        onChangeFormattedText={(text) => {
+          // console.log(text);
+          setPhone(text);
+        }}
+        disableArrowIcon
+        withShadow
+      />
+    )
+
+  }
+
+  // function renderPhoneNumberInput() {
+  //   return (
+  //     <View style={
+  //       {
+  //         // width: '88%',
+  //         // alignSelf: "center",
+  //         marginRight: 22,
+  //         marginLeft: 20,
+  //         flexDirection: "row",
+  //         backgroundColor: WHITE_COLOR,
+  //         borderRadius: 10,
+  //         height: 45,
+  //         marginTop: 8,
+  //         paddingLeft: 8,
+  //         borderBottomWidth: 0,
+  //       }
+  //     }>
+  //       <TouchableOpacity
+  //         onPress={() => setCountryPicker(true)}
+  //         style={{
+  //           justifyContent: "center"
+  //         }}
+  //       >
+  //         <Text style={{
+  //           width: 50, textAlign: "center",
+  //         }}>
+  //           {code}
+  //         </Text>
+  //       </TouchableOpacity>
+
+  //       <View
+  //         style={{
+  //           height: 40,
+  //           alignSelf: "center",
+  //           width: 0.5,
+  //           backgroundColor: '#00000020'
+  //         }}
+  //       />
+  //       <CountryPicker
+  //         countryCode={null}
+  //         onSelect={onChangeCountry}
+  //         visible={countryPicker}
+  //         onClose={() => setCountryPicker(false)}
+  //         withModal
+  //         withFilter
+  //         withCloseButton
+  //         containerButtonStyle={{
+  //           height: 0,
+  //           width: 0,
+  //         }}
+  //       />
+  //       <InputComponent
+  //         placeholderText="Phone"
+  //         errorMessage={phoneError}
+  //         value={phone}
+  //         isSecureText={false}
+  //         inputContainerStyle={{
+  //           backgroundColor: WHITE_COLOR,
+  //           height: 45,
+  //           width: '75%',
+  //           borderBottomWidth: 0,
+  //         }}
+  //         setStateValue={(text) => setPhone(text)}
+  //       />
+  //     </View >
+  //   )
+  // }
+
   return (
     <View
       style={{
@@ -280,8 +448,16 @@ function RegistrationModule({ navigation }) {
           {activeOption == 'register' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput
+                <View >
+                  <InputComponent
+                    placeholderText="Name"
+                    errorMessage={nameError}
+                    value={name}
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => setName(text)}
+                  />
+                  {/* <TextInput
                     style={styles.TextInput}
                     placeholder="Name"
                     keyboardType="default"
@@ -289,10 +465,19 @@ function RegistrationModule({ navigation }) {
                     onChangeText={(name) => {
                       setName(name);
                     }}
-                  />
+                  /> */}
                 </View>
-                <View style={styles.inputView}>
-                  <TextInput
+                <View>
+                  <InputComponent
+                    placeholderText="Email"
+                    errorMessage={emailError}
+                    value={email}
+                    keyboardType="email-address"
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => setEmail(text)}
+                  />
+                  {/* <TextInput
                     style={styles.TextInput}
                     placeholder="Email"
                     keyboardType="email-address"
@@ -300,9 +485,10 @@ function RegistrationModule({ navigation }) {
                     onChangeText={(email) => {
                       setEmail(email);
                     }}
-                  />
+                  /> */}
                 </View>
-                <View style={styles.inputView}>
+                {renderPhoneNumberInput()}
+                {/* <View style={styles.inputView}>
                   <TextInput
                     style={styles.TextInput}
                     placeholder="Phone"
@@ -312,36 +498,37 @@ function RegistrationModule({ navigation }) {
                       setPhone(phone);
                     }}
                   />
-                </View>
+                </View> */}
                 <Text style={styles.secretMessage}>
                   Secret phrase (please save in safe place)
                 </Text>
-                <View
-                  style={{
-                    backgroundColor: WHITE_COLOR,
-                    borderRadius: 10,
-                    width: '94%',
-                    height: 45,
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginTop: 8,
-                  }}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Secret Phrase"
-                    placeholderTextColor="grey"
-                    defaultValue={secret}
-                    onChangeText={(secret) => {
-                      setSecret(secret);
+                <View>
+                  <InputComponent
+                    placeholderText="Secret Phrase"
+                    errorMessage={secretError}
+                    value={secret}
+                    keyboardType="default"
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => {
+                      setSecret(text.replace(',', ''))
+                      if (text.length < 1) {
+                        setSecretError('Secret is required.')
+                      } else {
+                        setSecretError('')
+                      }
                     }}
                   />
-                  <FontAwesome
-                    style={{ flex: 1 }}
-                    onPress={() => copyToClipboard()}
-                    style={styles.textRightIcon}
-                    name="copy"
-                    size={25}
-                  />
+                  {
+                    secretError == "" &&
+                    <FontAwesome
+                      style={{ height: 50, zIndex: 10 }}
+                      onPress={() => copyToClipboard()}
+                      style={styles.textRightIcon}
+                      name="copy"
+                      size={25}
+                    />
+                  }
                 </View>
                 {/* <View
                   style={{
@@ -408,46 +595,34 @@ function RegistrationModule({ navigation }) {
           {activeOption == 'login' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Email"
+                <View>
+                  <InputComponent
+                    placeholderText="Email"
+                    errorMessage={emailError}
+                    value={email}
                     keyboardType="email-address"
-                    placeholderTextColor="grey"
-                    onChangeText={(email) => {
-                      setEmail(email);
-                    }}
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => setEmail(text)}
                   />
                 </View>
-                <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Phone"
-                    keyboardType="phone-pad"
-                    placeholderTextColor="grey"
-                    onChangeText={(phone) => {
-                      setPhone(phone);
-                    }}
-                  />
-                </View>
+                {renderPhoneNumberInput()}
 
-                <View
-                  style={{
-                    backgroundColor: WHITE_COLOR,
-                    borderRadius: 10,
-                    width: '94%',
-                    height: 45,
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginTop: 8,
-                  }}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Secret Phrase"
-                    placeholderTextColor="grey"
-                    secureTextEntry={true}
-                    onChangeText={(secret) => {
-                      setSecret(secret);
+                <View>
+                  <InputComponent
+                    placeholderText="Secret Phrase"
+                    errorMessage={secretError}
+                    value={secret}
+                    keyboardType="default"
+                    isSecureText={true}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => {
+                      setSecret(text.replace(',', ''))
+                      if (text.length < 1) {
+                        setSecretError('Secret is required.')
+                      } else {
+                        setSecretError('')
+                      }
                     }}
                   />
                 </View>
@@ -482,10 +657,12 @@ const styles = StyleSheet.create({
     height: 45,
     marginLeft: 10,
     marginTop: 8,
+    paddingLeft: 16,
+    borderBottomWidth: 0,
   },
   secretMessage: {
     marginTop: 15,
-    marginLeft: 15,
+    marginLeft: 24,
     color: 'grey',
   },
   SecretTextInput: {
@@ -566,8 +743,11 @@ const styles = StyleSheet.create({
   },
   textRightIcon: {
     alignSelf: 'center',
-    padding: 8,
+    // padding: 8,
     color: GRAY_COLOR,
+    position: "absolute",
+    right: '10%',
+    top: '30%'
   },
 });
 

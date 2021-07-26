@@ -1,5 +1,6 @@
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get_all_credentials } from '../gateways/credentials';
 
 export const savePassCode = async (PassCode) => {
   return await AsyncStorage.setItem('@passCode', PassCode);
@@ -63,6 +64,20 @@ export const ls_addCredential = async (new_cred) => {
     });
   }
   await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(cred));
+}
+
+export const ls_updateCredentials = async () => {
+  try {
+    let result = await get_all_credentials();
+    if (result.data.success) {
+      let credArr = result.data.credentials;
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credArr));
+    } else {
+      showMessage('ZADA Wallet', result.data.message);
+    }
+  } catch (e) {
+    throw e
+  }
 }
 
 

@@ -10,7 +10,6 @@ export const addCredentialToActionList = async (credentialID) => {
   let resp = await AuthenticateUser();
   let cred_arr = [];
   let cred_arr_archive = await getItem(ConstantsList.CRED_OFFER);
-  console.log(cred_arr_archive);
   if (cred_arr_archive !== null) {
     cred_arr = JSON.parse(cred_arr_archive);
   }
@@ -29,12 +28,8 @@ export const addCredentialToActionList = async (credentialID) => {
         cred_arr.push(obj);
 
         // Adding item to credentials.
-        saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr)).then(
-          () => {
-            return result.data;
-          },
-        );
-
+        await saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr));
+        return result.data;
       } else {
         return result.data;
       }
@@ -136,7 +131,7 @@ export function getActionHeader(v) {
     case ConstantsList.CONN_REQ:
       return 'Connection Request'
     case ConstantsList.CRED_OFFER:
-      return 'Credential Request'
+      return 'Certificate Request'
     case ConstantsList.VER_REQ:
       return 'Verification Request'
     default:
@@ -149,7 +144,7 @@ export function getActionText(v) {
     case ConstantsList.CONN_REQ:
       return ' has invited you to connect.'
     case ConstantsList.CRED_OFFER:
-      return ' has sent you a credential offer do you want to accept it?'
+      return ' has sent you a certificate request do you want to accept it?'
     case ConstantsList.VER_REQ:
       return ' has sent you a request for data verification'
     default:

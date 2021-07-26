@@ -89,8 +89,10 @@ function ActionDialog(props) {
                 style={{
                     marginLeft: 16,
                     marginRight: 16,
+                    marginTop: 4,
+                    marginBottom: 4,
                 }}>
-                <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 4, }}>{title}</Text>
+                <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
                 <View style={{
                     paddingLeft: 16,
                     paddingRight: 16,
@@ -150,13 +152,14 @@ function ActionDialog(props) {
                             </Text>
                         </View>
                     }
-                    <KeyboardAwareScrollView style={{
-                        maxHeight: 250,
-                    }}>
+                    <KeyboardAwareScrollView
+                        style={{
+                            maxHeight: 250,
+                        }}>
                         {spinner &&
                             <View style={{
                                 zIndex: 10, justifyContent: "center",
-                                alignItems: "center"
+                                alignItems: "center",
                             }}>
                                 <ActivityIndicator color={"#000"} size={"small"} />
                             </View>
@@ -256,7 +259,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         flexWrap: 'wrap',
-        marginBottom: 30,
+        padding: 16,
     },
     Imagesize: {
         height: 50,

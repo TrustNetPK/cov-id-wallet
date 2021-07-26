@@ -59,7 +59,7 @@ export default function DetailsScreen(props) {
     function onReject() { }
 
     async function showAlert() {
-        showAskDialog("Are you sure?", "Are you sure you want to delete this credential?", onSuccess, onReject);
+        showAskDialog("Are you sure?", "Are you sure you want to delete this certificate?", onSuccess, onReject);
     }
 
     function renderTitleInput(title, index) {
@@ -104,6 +104,7 @@ export default function DetailsScreen(props) {
 
             <KeyboardAwareScrollView style={{
                 maxHeight: '70%',
+                marginTop: 16,
             }}>
                 {
                     data.values != undefined && Object.keys(data.values).map((e, i) => {

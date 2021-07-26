@@ -14,26 +14,23 @@ import HeadingComponent from '../components/HeadingComponent';
 import BorderButton from '../components/BorderButton';
 
 import { themeStyles } from '../theme/Styles';
-import { BACKGROUND_COLOR, BLACK_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 
-import { getItem, ls_addConnection, deleteActionByConnId, saveItem, deleteActionByCredId, deleteActionByVerID, ls_addCredential } from '../helpers/Storage';
+import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
 
 import { AuthenticateUser } from '../helpers/Authenticate';
-import { showMessage } from '../helpers/Toast';
+import { showMessage, showAskDialog } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
-import { getActionHeader, getActionText } from '../helpers/ActionList';
+import { getActionHeader } from '../helpers/ActionList';
 
 import { accept_credential } from '../gateways/credentials';
 import { accept_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
-import TouchableComponent from '../components/Buttons/TouchableComponent';
 import useNotification from '../hooks/useNotification';
+import useCredentials from '../hooks/useCredentials';
 
 function ActionsScreen({ navigation }) {
-
-  // Notification hook
-  const { notificationReceived } = useNotification();
 
   // States
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +44,12 @@ function ActionsScreen({ navigation }) {
   const [secret, storeSecret] = useState('');
   const [networkState, setNetworkState] = useState(false);
   const [deepLink, setDeepLink] = useState(false);
+
+  // Credentials hook
+  const { credentials } = useCredentials(!isLoading);
+  // Notification hook
+  const { notificationReceived } = useNotification();
+
   var requestArray = [];
 
   // Setting right icon
@@ -63,7 +66,6 @@ function ActionsScreen({ navigation }) {
       />
     ),
   };
-
 
   useEffect(() => {
     NetInfo.fetch().then((networkState) => {
@@ -247,7 +249,7 @@ function ActionsScreen({ navigation }) {
     }
   }
 
-  // Handle Credential Request
+  // Handle Certificate Request
   const handleCredentialRequest = async () => {
     let selectedItemObj = JSON.parse(selectedItem);
     try {
@@ -317,7 +319,13 @@ function ActionsScreen({ navigation }) {
 
   // Reject Modal
   const rejectModal = async (v) => {
-    let selectedItemObj = JSON.parse(selectedItem);
+    let selectedItemObj = {};
+    if (v.connectionId != undefined) {
+      selectedItemObj = v
+    } else {
+      selectedItemObj = JSON.parse(selectedItem);
+    }
+
     setModalVisible(false);
 
     if (selectedItemObj.type === ConstantsList.CONN_REQ) {
@@ -374,18 +382,22 @@ function ActionsScreen({ navigation }) {
     setModalVisible(false);
   };
 
-  async function handleDeletePressed(v) {
-    // Get connection id
-    console.log('conenctionId => ', v)
-    // try {
-    //   let result = await delete_connection();
-    // }
-  }
+  // async function handleDeletePressed(v) {
+  //   // Get connection id
+  //   console.log('conenctionId => ', v)
+  //   // try {
+  //   //   let result = await delete_connection();
+  //   // }
+  // }
 
   function onSwipeValueChange(v) {
     console.log(v);
     // console.log(Math.abs(v.value / 75))
     // animatedScaling[key].setValue(Math.abs(value));
+  }
+
+  const onDeletePressed = (item) => {
+    showAskDialog("Are you sure?", "Are you sure you want to delete this request?", () => rejectModal(item), () => { });
   }
 
 
@@ -445,7 +457,7 @@ function ActionsScreen({ navigation }) {
                 <View key={index} style={styles.rowBack}>
                   <TextComponent text="" />
                   <Animated.View>
-                    <TouchableComponent onPress={() => handleDeletePressed(item)} activeOpacity={0.8}
+                    <TouchableOpacity onPress={() => onDeletePressed(item)} activeOpacity={0.8}
                       style={[
                         styles.swipeableViewStyle,
                         // {
@@ -457,8 +469,9 @@ function ActionsScreen({ navigation }) {
                         size={30}
                         name="delete"
                         padding={30}
+                        color={RED_COLOR}
                       />
-                    </TouchableComponent>
+                    </TouchableOpacity>
                   </Animated.View>
                 </View>
               )}
