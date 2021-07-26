@@ -1,9 +1,11 @@
 # OSX
 #
 .DS_Store
-
+.history
 # Xcode
 #
+yarn.lock
+package-lock.json
 build/
 *.pbxuser
 !default.pbxuser
@@ -20,6 +22,9 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+android/app/google-services.json
+yarn.lock
+.history
 
 # Android/IntelliJ
 #
@@ -28,6 +33,7 @@ build/
 .gradle
 local.properties
 *.iml
+google-services.json
 
 # node.js
 #

@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ConstantsList from '../helpers/ConfigApp';
+import { getItem, saveItem } from '../helpers/Storage';
 
 var localPassCode = 0;
 var isSuccessful = false;
@@ -79,3 +81,86 @@ export const authenticate = async () => {
         return response;
     }
 }
+
+const storeUserAuth = async (userAuth) => {
+    try {
+        await AsyncStorage.setItem(ConstantsList.USER_AUTH, JSON.stringify(userAuth));
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+
+const getUserCurrentAuth = async () => {
+    try {
+        let auth = await AsyncStorage.getItem(ConstantsList.USER_AUTH);
+        return JSON.parse(auth);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const getIsAuthExpired = async () => {
+    try {
+        let nowUnixEpoch = Math.round(Date.now() / 1000);
+        let userAuth = await getUserCurrentAuth();
+        if (userAuth !== null) {
+            let expUnixEpoch = userAuth.exp;
+            if ((expUnixEpoch - nowUnixEpoch) <= 120) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const AuthenticateUser = async (forceAuthenticate) => {
+    try {
+
+        if (forceAuthenticate === undefined) {
+            forceAuthenticate = false;
+        }
+        let isAuthExpired = await getIsAuthExpired();
+        if (isAuthExpired || forceAuthenticate) {
+            let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+            let userID = await getItem(ConstantsList.USER_ID);
+            return await fetch(ConstantsList.BASE_URL + `/api/authenticate`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userID,
+                    secretPhrase: walletSecret,
+                }),
+            }).then((response) =>
+                response.json().then((data) => {
+                    try {
+                        let response = JSON.parse(JSON.stringify(data));
+                        if (response.success == true) {
+                            storeUserAuth(response);
+                            return { success: true, token: response.token }
+                        } else {
+                            return { success: false, message: response.error }
+                        }
+                    } catch (error) {
+                        return { success: false, message: error.message }
+                    }
+                }),
+            );
+        } else {
+            let userAuth = await getUserCurrentAuth();
+            return { success: true, token: userAuth.token }
+        }
+    } catch (error) {
+        return { success: false, message: error.message }
+    }
+
+};

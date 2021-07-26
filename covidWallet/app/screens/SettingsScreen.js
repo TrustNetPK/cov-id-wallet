@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, FlatList, Linking, Alert } from 'react-native';
 import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView';
-import HeadingComponent from '../components/HeadingComponent';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PRIMARY_COLOR } from '../theme/Colors';
 
 var settingLocalData = {
   GENERAL: {
@@ -13,57 +12,33 @@ var settingLocalData = {
       key: '11',
     },
     Network: {
-      value: 'BCovrin Test Network',
+      value: 'ZADA Test Network',
       type: 'Radio',
       key: '12',
       options: ['Soverin', 'non-soverin'],
     },
     key: '1',
   },
-  SECURITY: {
-    'Biometric Security': {
-      value: true,
-      key: '21',
-      type: 'Boolean',
-    },
-    'Change Code': {
-      value: 'None',
-      key: '22',
-      type: 'Link',
-      to: '',
-    },
-    key: '2',
-  },
   SUPPORT: {
     'Contact us': {
       value: 'None',
       type: 'Link',
       key: '31',
-      to: 'mailto:support@trust.net.pk',
+      to: 'mailto:support@zada.com',
     },
     'License and agreements': {
       value: 'None',
       type: 'Link',
       key: '32',
-      to: 'https://vaccify.pk/terms-policy',
+      to: 'https://zada.io/privacy-policy/',
     },
     'About us': {
       value: 'None',
       type: 'Link',
       key: '33',
-      to: 'https://vaccify.pk',
+      to: 'https://zada.io/',
     },
     key: '3',
-  },
-
-  DEMO: {
-    'Reset Wallet': {
-      value: 'None',
-      type: 'Link',
-      key: '34',
-      to: 'reset',
-    },
-    key: '4',
   },
 };
 
@@ -77,17 +52,7 @@ export default function SettingsScreen({ navigation }) {
   };
   return (
     <View style={styles.container}>
-      <View style={styles.headingContainer}>
-        <MaterialIcons
-          onPress={() => {
-            navigation.goBack();
-          }}
-          name="arrow-back"
-          size={30}
-          style={styles.backButton}
-        />
-        <HeadingComponent text="Settings" />
-      </View>
+      {/* */}
       <FlatList
         data={Object.keys(settingsData)}
         keyExtractor={(item, index) => settingsData[item].key}
@@ -198,14 +163,24 @@ export default function SettingsScreen({ navigation }) {
           );
         }}
       />
+      <View style={styles.footer}>
+        <Text style={styles.footerText} >In Collaboration with &nbsp;
+        <Text
+            style={{ color: PRIMARY_COLOR, }}
+            onPress={() => { Linking.openURL('https://trust.net.pk/') }}
+          >
+            TrustNet Pakistan
+  </Text>
+
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingTop: 20,
+    paddingTop: 0,
     paddingLeft: 5,
     paddingRight: 5,
     backgroundColor: '#f7f7f7',
@@ -228,11 +203,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   headingContainer: {
-    flex: 1,
-    marginTop: 5,
     flexDirection: 'row',
     alignContent: 'center',
-    marginBottom: -20,
   },
   backButton: {
     color: 'black',
@@ -241,4 +213,18 @@ const styles = StyleSheet.create({
     marginRight: 60,
     padding: 10,
   },
+  footer: {
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignContent: 'center',
+    backgroundColor: 'white',
+  },
+  footerText: {
+    textAlign: 'center',
+    color: 'black',
+    padding: 10,
+    fontSize: 15,
+    margin: 10,
+    fontFamily: 'Poppins-Bold'
+  }
 });

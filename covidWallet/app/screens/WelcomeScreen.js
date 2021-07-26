@@ -1,127 +1,129 @@
 import * as React from 'react';
-import { View, Text, Linking, StyleSheet, ActivityIndicator } from 'react-native';
-import { useState, useEffect } from 'react';
-import RadioForm, { RadioButton } from 'react-native-simple-radio-button';
-import PrimaryButton from '../components/PrimaryButton';
-import { PRIMARY_COLOR } from '../theme/Colors';
-import ImageBoxComponent from '../components/ImageBoxComponent';
+import {
+  View,
+  Text,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from 'react-native';
+import {
+  PRIMARY_COLOR,
+  BACKGROUND_COLOR,
+  GREEN_COLOR,
+  WHITE_COLOR,
+  SECONDARY_COLOR,
+} from '../theme/Colors';
 import TextComponent from '../components/TextComponent';
-import ConstantsList from '../helpers/ConfigApp';
-import randomString from '../helpers/RandomString';
-import { saveItem } from '../helpers/Storage';
+import HeadingComponent from '../components/HeadingComponent';
 
 const img = require('../assets/images/t&c.png');
 
-var radio_props = [{ label: '', value: 0 }];
-
 function WelcomeScreen({ navigation }) {
-  const [error, setError] = useState('');
-  const [isChecked, setChecked] = useState(false);
-  const [isLoading, setLoading] = useState(true);
-  const [wallet_name, setWalletName] = useState(randomString(8));
-  const [isRadio, setRadio] = useState('false');
-
-  useEffect(() => {
-    fetch(ConstantsList.BASE_URL + `/create_wallet`, {
-      method: 'POST',
-      headers: {
-        'X-API-Key': ConstantsList.API_SECRET,
-        'Content-Type': 'application/json; charset=utf-8',
-        Server: 'Python/3.6 aiohttp/3.6.2',
-      },
-      body: JSON.stringify({
-        wallet_name: wallet_name,
-        seed: randomString(32),
-      }),
-    })
-      .then(resp =>
-        resp.json().then(data => {
-          let wSecret = data.wallet_secret;
-          // save data in async storage
-          saveItem(ConstantsList.WALLET_SECRET, wSecret)
-            .then(() => {
-              saveItem(ConstantsList.WALLET_NAME, wallet_name)
-                .then(() => {
-                  setLoading(false);
-                })
-                .catch(e => {
-                  setError('Error');
-                });
-            })
-            .catch(e => {
-              setError('Error');
-            });
-        }),
-      )
-      .catch(e => {
-        setError(e);
-      });
-  }, []);
-
-  const checkHandler = () => {
-    if (!isChecked) {
-      setChecked(true);
-      setRadio('true');
-    }
-  };
-
   const nextHandler = () => {
-    setError('');
-    if (!isChecked) {
-      setError('Please agree with the terms and conditions.');
-    } else {
-      navigation.navigate('SecurityScreen');
-    }
+    navigation.navigate('RegistrationScreen');
   };
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
-        <ImageBoxComponent source={img} />
-      </View>
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: PRIMARY_COLOR,
+      }}>
       <View
         style={{
-          flex: 2,
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
+          // flex: 1,
+          backgroundColor: BACKGROUND_COLOR,
+          alignContent: 'center',
+          // margin: 30,
+          marginLeft: 25,
+          marginRight: 25,
+          // marginTop: 150,
+          // marginBottom: 150,
+          borderRadius: 10,
         }}>
-        <Text style={styles.TextContainerHead} />
-        <TextComponent
-          onboarding={true}
-          text="Let's create your self-soverign identity. This app helps you exchange secure digital certificates."
-        />
-      </View>
-      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-        <View style={styles.checkboxContainer}>
-          <RadioForm
-            radio_props={radio_props}
-            buttonSize={10}
-            initial={-1}
-            checked={isChecked}
-            onPress={checkHandler}
-            style={styles.checkbox}
+        <View
+          style={{
+            // height: 400,
+            paddingBottom: 8,
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}>
+          <View style={{ marginTop: 20, marginLeft: 25, marginRight: 25 }}>
+            <HeadingComponent text="Zada is your Digital ID Wallet!" />
+          </View>
+          <TextComponent
+            onboarding={true}
+            text="Securely prove who you are and only share the information you want."
           />
-          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={styles.link}>
-              I agree to TrustNet Pakistan’s
+          <View style={{ paddingTop: 10 }} />
+          <TextComponent
+            onboarding={true}
+            text="All certificates and IDs safely stored on your phone, where only you can access them."
+          />
+          <View
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+            }}>
+            <Text
+              style={{
+                color: 'black',
+                fontFamily: 'Merriweather-Bold',
+                paddingTop: 30,
+              }}>
+              We provide your privacy and data.
+            </Text>
+            <Text
+              style={{
+                color: 'black',
+                fontFamily: 'Poppins-Regular',
+                marginLeft: 20,
+                fontSize: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                marginRight: 20,
+              }}>
+              By continuing below you confirm that you have read and agree to
+              &nbsp;
               <Text
-                style={styles.linkText}
-                onPress={() =>
-                  Linking.openURL('https://vaccify.pk/terms-policy')
-                }>
-                {' '}
-                {'\n'}Terms of Services and Privacy Policy.
+                style={{ color: PRIMARY_COLOR }}
+                onPress={() => {
+                  Linking.openURL('https://zada.io/privacy-policy/');
+                }}>
+                ZADA General Terms and Conditions
+              </Text>
+              &nbsp;and&nbsp;
+              <Text
+                style={{ color: PRIMARY_COLOR }}
+                onPress={() => {
+                  Linking.openURL('https://zada.io/privacy-policy/');
+                }}>
+                Privacy Policy.
               </Text>
             </Text>
           </View>
         </View>
-        {error.length > 0 ? <Text style={styles.ErrorBox}>{error}</Text> : null}
-        {isLoading ? (
-          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
-        ) : (
-            <PrimaryButton text="Continue" nextHandler={nextHandler} />
-          )}
+
+        <View
+          style={{
+            alignSelf: 'stretch',
+            justifyContent: 'center',
+            alignItems: "center",
+            borderRadius: 20,
+            paddingTop: 20,
+            paddingBottom: 20,
+          }}>
+          <TouchableOpacity style={styles.primaryButton} onPress={nextHandler}>
+            <Text style={styles.text}>CONTINUE</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
     </View>
   );
@@ -129,13 +131,10 @@ function WelcomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   TextContainerHead: {
-    paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
     color: 'black',
-    fontWeight: 'bold',
     fontSize: 32,
-    flexDirection: 'column',
   },
   ErrorBox: {
     color: 'red',
@@ -147,9 +146,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingLeft: 0,
     paddingRight: 0,
+    color: PRIMARY_COLOR,
   },
   checkbox: {
     paddingTop: '2%',
+    color: PRIMARY_COLOR,
   },
   linkText: {
     color: PRIMARY_COLOR,
@@ -160,8 +161,23 @@ const styles = StyleSheet.create({
   link: {
     color: 'black',
     fontSize: 14,
-
     marginBottom: 20,
+  },
+  primaryButton: {
+    borderColor: GREEN_COLOR,
+    borderWidth: 2,
+    borderRadius: 20,
+    backgroundColor: GREEN_COLOR,
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    paddingRight: 20,
+    width: 250,
+  },
+  text: {
+    color: WHITE_COLOR,
+    alignSelf: 'center',
+    fontFamily: 'Merriweather-Bold',
   },
 });
 
