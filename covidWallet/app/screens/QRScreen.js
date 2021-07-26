@@ -1,138 +1,400 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import {
   StyleSheet,
   View,
   Text,
   Alert,
   TouchableOpacity,
-
+  Platform,
 } from 'react-native';
-
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
-
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import { getItem, saveItem } from '../helpers/Storage';
+import {
+  getItem,
+  saveItem,
+} from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
-function QRScreen({ navigation }) {
+import queryString from 'query-string';
+import { Buffer } from 'buffer';
+import NetInfo from '@react-native-community/netinfo';
+import CustomProgressBar from '../components/CustomProgressBar';
+import { showMessage } from '../helpers/Toast';
+import { AuthenticateUser } from '../helpers/Authenticate'
+import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
+
+function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
-  const [certificate_request, setCertificateRequest] = useState("");
-  const [proof_request, setProofRequest] = useState("");
-  var arr = [];
+  const [networkState, setNetworkState] = useState(false);
+  const [connection_request, setConnectionRequest] = useState('');
+  const [credential_request, setCredentialRequest] = useState('');
+  const [proof_request, setProofRequest] = useState('');
+  const [progress, setProgress] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('Fetching Details');
+
+  var cr_arr = [];
+  var cred_arr = [];
   var arr2 = [];
+  var hasToken = true;
+  var credentialID = '';
+  var userToken = '';
+  var isConnected = false;
+
+  // useEffect(() => {
+  //   NetInfo.fetch().then((networkState) => {
+  //     setNetworkState(networkState.isConnected);
+  //   });
+  //   getItem(ConstantsList.CONN_REQ)
+  //     .then((data) => {
+  //       if (data == null) {
+  //         cr_arr = [];
+  //       } else {
+  //         try {
+  //           cr_arr = JSON.parse(data);
+  //         } catch (e) {
+  //           cr_arr = [];
+  //         }
+  //       }
+  //       setConnectionRequest(JSON.stringify(cr_arr));
+  //       if (route.params != undefined) {
+  //         setScan(false);
+  //         const { request } = route.params;
+  //         const qrJSON = JSON.parse(JSON.stringify(request));
+  //         if (request.type == 'connection_request') {
+  //           setProgress(true);
+  //           getResponseUrl(request.metadata, qrJSON);
+  //         }
+  //       }
+  //     })
+  //     .catch((e) => {
+  //       console.log('Error is ' + e);
+  //     });
+
+  //   getItem(ConstantsList.CRED_OFFER)
+  //     .then((data) => {
+  //       if (data == null) {
+  //         cred_arr = [];
+  //       } else {
+  //         try {
+  //           cred_arr = JSON.parse(data);
+  //         } catch (e) {
+  //           cred_arr = [];
+  //         }
+  //       }
+  //       setCredentialRequest(JSON.stringify(cred_arr));
+  //     })
+  //     .catch((e) => {
+  //       console.log('Error is ' + e);
+  //     });
+
+  //   getItem(ConstantsList.PROOF_REQ)
+  //     .then((data) => {
+  //       if (data == null) {
+  //         arr2 = [];
+  //       } else {
+  //         try {
+  //           arr2 = JSON.parse(data);
+  //         } catch (e) {
+  //           arr2 = [];
+  //         }
+  //       }
+  //       setProofRequest(JSON.stringify(arr2));
+  //     })
+  //     .catch((e) => {
+  //       console.log('Error is ' + e);
+  //     });
+  // }, [
+  //   // networkState,
+  //   // connection_request,
+  //   // credential_request,
+  //   // proof_request,
+  //   // progress,
+  //   // dialogTitle,
+  //   // scan,
+  // ]);
 
   useEffect(() => {
-    getItem(ConstantsList.CERT_REQ).then((data) => {
-      if (data == null) {
-        arr = [];
-      }
-      else {
-        try {
-          arr = JSON.parse(data);
+    NetInfo.fetch().then((networkState) => {
+      setNetworkState(networkState.isConnected);
+    });
+    getItem(ConstantsList.CONN_REQ)
+      .then((data) => {
+        if (data == null) {
+          cr_arr = [];
+        } else {
+          try {
+            cr_arr = JSON.parse(data);
+          } catch (e) {
+            cr_arr = [];
+          }
         }
-        catch (e) {
-          arr = [];
+        setConnectionRequest(JSON.stringify(cr_arr));
+        if (route.params != undefined) {
+          setScan(false);
+          const { request } = route.params;
+          const qrJSON = JSON.parse(JSON.stringify(request));
+          if (request.type == 'connection_request') {
+            setProgress(true);
+            getResponseUrl(request.metadata, qrJSON);
+          }
         }
-      }
+      })
+      .catch((e) => {
+        console.log('Error is ' + e);
+      });
 
-      setCertificateRequest(JSON.stringify(arr));
-    }).catch(e => {
-      setError('Error');
-    })
-
-    getItem(ConstantsList.PROOF_REQ).then((data) => {
-      if (data == null) {
-        arr2 = [];
-      }
-      else {
-        try {
-          arr2 = JSON.parse(data);
+    getItem(ConstantsList.CRED_OFFER)
+      .then((data) => {
+        if (data == null) {
+          cred_arr = [];
+        } else {
+          try {
+            cred_arr = JSON.parse(data);
+          } catch (e) {
+            cred_arr = [];
+          }
         }
-        catch (e) {
+        setCredentialRequest(JSON.stringify(cred_arr));
+      })
+      .catch((e) => {
+        console.log('Error is ' + e);
+      });
+
+    getItem(ConstantsList.PROOF_REQ)
+      .then((data) => {
+        if (data == null) {
           arr2 = [];
+        } else {
+          try {
+            arr2 = JSON.parse(data);
+          } catch (e) {
+            arr2 = [];
+          }
         }
-      }
-      setProofRequest(JSON.stringify(arr2));
-    }).catch(e => {
-      setError('Error');
-    })
+        setProofRequest(JSON.stringify(arr2));
+      })
+      .catch((e) => {
+        console.log('Error is ' + e);
+      });
+  }, [])
 
-  }, []);
+  const getResponseUrl = async (inviteID, qrJSON) => {
+    console.log('Get TResponse URL function Called');
+    let baseURL = 'https://trinsic.studio/url/';
+    await fetch(baseURL + inviteID, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    }).then((response) => {
+      const parsed = queryString.parse(response.url, true);
+      let urlData = Object.values(parsed)[0];
+      var data = JSON.parse(Buffer.from(urlData, 'base64').toString());
+      qrJSON.organizationName = data.label;
+      qrJSON.imageUrl = data.imageUrl;
+      getItem(ConstantsList.CONNECTIONS).then((connectionList) => {
+        let QRConnList = JSON.parse(connectionList);
+        console.log('QRConnList => ', QRConnList)
+        let connectionExists = false;
+        if (QRConnList != null) {
+          for (let j = 0; j < QRConnList.length; j++) {
+            //Connection Request Found in Connection List
+            if (QRConnList[j].name === data.label) {
+              connectionExists = true;
+              break;
+            } else connectionExists = false;
+          } // for Loop Ends
+        }
+        if (connectionExists) {
+          setProgress(false);
+          Alert.alert(
+            'ZADA',
+            'Connection with ' + data.label + ' has already been created',
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation.navigate('MainScreen'),
+              },
+            ],
+            { cancelable: false },
+          );
+        } else {
+          cr_arr.push(qrJSON);
+          saveItem(ConstantsList.CONN_REQ, JSON.stringify(cr_arr))
+            .then(() => {
+              setProgress(false);
+              navigation.navigate('MainScreen');
+            })
+            .catch((e) => {
+              setProgress(false);
+            });
+        }
+      });
+    });
+  };
+
+  const getCredential = async () => {
+    let resp = await AuthenticateUser();
+    if (resp.success) {
+      await fetch(
+        ConstantsList.BASE_URL +
+        '/api/credential/get_credential' +
+        `?credentialId=${credentialID}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + resp.token,
+          },
+        },
+      ).then((credential) =>
+        credential.json().then(async (data) => {
+          if (data.success == false) {
+            setProgress(false);
+            Alert.alert(
+              'ZADA',
+              data.message,
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.navigate('MainScreen'),
+                },
+              ],
+              { cancelable: false },
+            );
+          } else if (data.success == true) {
+            let qrJSON = data.credential;
+            qrJSON.type = ConstantsList.CRED_OFFER;
+            qrJSON = await addImageAndNameFromConnectionList(qrJSON);
+            console.log('qrJSON => ', qrJSON);
+            cred_arr.push(qrJSON);
+            saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr))
+              .then(() => {
+                setProgress(false);
+                navigation.navigate('MainScreen');
+              })
+              .catch((e) => {
+                setProgress(false);
+                Alert.alert(
+                  'ZADA',
+                  'Failed in fetching details of credential',
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => navigation.navigate('MainScreen'),
+                    },
+                  ],
+                  { cancelable: false },
+                );
+              });
+          } else {
+            setProgress(false);
+            Alert.alert(
+              'ZADA',
+              'Failed to fetch details of credential',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.navigate('MainScreen'),
+                },
+              ],
+              { cancelable: false },
+            );
+          }
+        }),
+      );
+    } else {
+      showMessage('ZADA Wallet', resp.message);
+    }
+  };
 
   const onSuccess = (e) => {
-    let title = "";
     try {
-      arr = JSON.parse(certificate_request);
-      arr2 = JSON.parse(proof_request);
+      let title = '';
+      try {
+        cr_arr = JSON.parse(connection_request);
+        cred_arr = JSON.parse(credential_request);
+        arr2 = JSON.parse(proof_request);
+      } catch {
+        cr_arr = [];
+        cred_arr = [];
+        arr2 = [];
+      }
+      let extract = e.data.toString();
+      if (Platform.OS == "ios") {
+        extract = extract.replaceAll('\\', '');
+      }
+      const qrJSON = JSON.parse(extract);
+      console.log(qrJSON);
+      // if (qrJSON.type == 'connection_credential') {
+      if (qrJSON.type == 'credential_offer') {
+        setScan(false);
+        setProgress(true);
+
+        setDialogTitle('Fetching Credential Details');
+        credentialID = qrJSON.metadata;
+        getCredential();
+      } else if (qrJSON.type == 'connection_request') {
+        setDialogTitle('Fetching Connection Details');
+        setScan(false);
+        setProgress(true);
+        getResponseUrl(qrJSON.metadata, qrJSON);
+      } else if (qrJSON.type == 'connection_proof') {
+        title = 'Digital Proof Request Added';
+        arr2.push(qrJSON);
+        saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
+          .then(() => { })
+          .catch((e) => { });
+      } else {
+        title = 'Invalid QR Code';
+      }
+      setScan(false);
+    } catch (error) {
+      console.log(error.message);
+      setProgress(false);
+      setScan(false);
+      Alert.alert(
+        'ZADA',
+        'Invalid QR Code, Please try with a different QR',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('MainScreen'),
+          },
+        ],
+        { cancelable: false },
+      );
+
     }
-    catch{
-      arr = [];
-      arr2 = [];
-    }
-
-    const qrJSON = JSON.parse(e.data);
-    if (qrJSON.type == "connection_credential") {
-      title = "Digital Certificate Request Added";
-      arr.push(qrJSON);
-      saveItem(ConstantsList.CERT_REQ, JSON.stringify(arr)).then(() => {
-      }).catch(e => {
-
-      })
-    }
-    else if (qrJSON.type == "connection_proof") {
-      title = "Digital Proof Request Added";
-      arr2.push(qrJSON)
-      saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2)).then(() => {
-
-      }).catch(e => {
-
-      })
-    }
-    else {
-      title = "Invalid QR Code";
-    }
-    Alert.alert(
-      'Vaccify',
-      title,
-      [
-        { text: 'OK', onPress: () => navigation.navigate('MainScreen') }
-      ],
-      { cancelable: false }
-
-    );
-    setScan(false);
-    //setScan(false);
-
-  }
+  };
   return (
     <View style={styles.MainContainer}>
-      {scan &&
+      {scan ? (
         <QRCodeScanner
           reactivate={true}
           showMarker={true}
           customMarker={
-            <View style={
-              {
+            <View
+              style={{
                 flex: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: 'transparent'
-              }
-            }>
-              <View style={
-                {
+                backgroundColor: 'transparent',
+              }}>
+              <View
+                style={{
                   height: 250,
                   width: 250,
                   borderWidth: 2,
                   borderColor: 'white',
-                  backgroundColor: 'transparent'
-                }
-              } />
+                  backgroundColor: 'transparent',
+                }}
+              />
             </View>
           }
-          ref={(node) => { scanner = node }}
+          ref={(node) => {
+            scanner = node;
+          }}
           onRead={onSuccess}
           topContent={
             <Text style={styles.textBold}>
@@ -140,20 +402,31 @@ function QRScreen({ navigation }) {
             </Text>
           }
           bottomContent={
-            <TouchableOpacity style={styles.buttonTouchable} onPress={() => {
-              navigation.navigate('MainScreen')
-            }}>
+            <TouchableOpacity
+              style={styles.buttonTouchable}
+              onPress={() => {
+                navigation.navigate('MainScreen');
+              }}>
               <Text style={styles.buttonText}>Cancel Scan</Text>
             </TouchableOpacity>
           }
-
         />
-      }
-
+      ) : (
+        progress && (
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'transparent',
+            }}>
+            <CustomProgressBar isVisible={true} text={dialogTitle} />
+          </View>
+        )
+      )}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -167,14 +440,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: '600',
-    color: '#fff'
+    color: '#fff',
   },
   buttonText: {
     fontSize: 21,
-    color: '#4178CD'
+    color: '#4178CD',
   },
   buttonTouchable: {
-    padding: 16
+    padding: 16,
   },
 
   centerText: {
@@ -193,9 +466,8 @@ const styles = StyleSheet.create({
   Imagesize: {
     alignItems: 'center',
     marginBottom: 20,
-    marginTop: 40
+    marginTop: 40,
   },
-
 
   RoundButtonStyle: {
     flexDirection: 'row',
@@ -213,8 +485,7 @@ const styles = StyleSheet.create({
     margin: 5,
     height: 15,
     width: 15,
-    marginLeft: 15
-
+    marginLeft: 15,
   },
   TextGuide: {
     color: 'black',

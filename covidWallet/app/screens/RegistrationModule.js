@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import randomWords from 'random-words';
+import React, { useRef, useState } from 'react';
+import { Alert, KeyboardAvoidingView } from 'react-native';
 import {
   View,
   Text,
@@ -7,13 +7,15 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ToastAndroid,
   Dimensions,
   Clipboard,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import SplashScreen from 'react-native-splash-screen';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
+import PhoneInput from "react-native-phone-number-input";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
@@ -22,30 +24,333 @@ import {
   GRAY_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
+import { StackActions } from '@react-navigation/native';
+import ConstantsList from '../helpers/ConfigApp';
+import NetInfo from '@react-native-community/netinfo';
+import { saveItem } from '../helpers/Storage';
+import randomString from '../helpers/RandomString';
+import { showMessage } from '../helpers/Toast';
+import { AuthenticateUser } from '../helpers/Authenticate';
+import { InputComponent } from '../components/Input/inputComponent';
+import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-function RegistrationModule({navigation}) {
+function RegistrationModule({ navigation }) {
   const [activeOption, updateActiveOption] = useState('register');
-  const [text, setText] = useState('');
-  const selectionOnPress = userType => {
+  const [networkState, setNetworkState] = useState(false);
+
+  const [name, setName] = useState('');
+  const [nameError, setNameError] = useState('');
+
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const phoneInput = useRef(null);
+  const [phone, setPhone] = useState('');
+
+
+  const [secret, setSecret] = useState('');
+  const [secretError, setSecretError] = useState('');
+
+  const [progress, setProgress] = useState(false);
+
+  const selectionOnPress = (userType) => {
     updateActiveOption(userType);
   };
   const copyToClipboard = () => {
-    Clipboard.setString(text);
-    ToastAndroid.show('Secret Key is copied to clipboard.', ToastAndroid.SHORT);
+    Clipboard.setString(secret);
+    showMessage('ZADA Wallet', 'Secret Phrase is copied to clipboard.');
   };
   React.useEffect(() => {
-    if (activeOption == 'register')
-      setText(
-        randomWords(12)
-          .toString()
-          .replace(/,/g, ' '),
-      );
-  }, [activeOption]);
+    NetInfo.fetch().then((networkState) => {
+      setNetworkState(networkState.isConnected);
+    });
+    if (activeOption == 'register') {
+      setPhone('');
+      setSecret(randomString(24))
+      setSecretError('')
+    } else {
+      setSecret('');
+    }
+  }, [activeOption, networkState]);
+
   const nextHandler = () => {
-    navigation.navigate('MultiFactorScreen');
+    navigation.dispatch({
+      index: 0,
+      actions: [StackActions.replace({ routeName: 'MultiFactorScreen' })],
+    });
   };
+
+  const submit = () => {
+
+    // Check if name is valid.
+    if (!nameRegex.test(name) && activeOption == 'register') {
+      setNameError("Please enter a name between 2-20 alphabetical characters long. No numbers or special characters.")
+      return
+    }
+    setNameError('');
+
+    // Check if email is valid
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.")
+      return
+    }
+    setEmailError('');
+
+    // Check if phone number is valid
+    const checkValid = phoneInput.current?.isValidNumber(phone);
+    if (!checkValid) {
+      Alert.alert('Zada', 'Please enter a valid phone number.');
+      return
+    }
+
+    // Check if secret 
+    if (secret == "") {
+      setSecretError('Secret is required.')
+      return
+    }
+
+    if (!validateIfLowerCased(secret)) {
+      setSecretError('Secret must be in lowercase.')
+      return
+    }
+
+    setSecretError('');
+
+    setProgress(true);
+    if (activeOption == 'register') register();
+    else if (activeOption == 'login') login();
+    else setProgress(false);
+
+    // if (
+    //   activeOption == 'register' &&
+    //   (name == '' || phone == '' || email == '' || secret == '')
+    // ) {
+    //   showMessage('ZADA Wallet', 'Fill the empty fields');
+    //   return;
+    // }
+    // if (
+    //   activeOption == 'login' &&
+    //   (phone == '' || email == '' || secret == '')
+    // ) {
+    //   showMessage('ZADA Wallet', 'Fill the empty fields');
+    //   return;
+    // } else {
+    //   setProgress(true);
+    //   if (activeOption == 'register') register();
+    //   else if (activeOption == 'login') login();
+    //   else setProgress(false);
+    // }
+  };
+
+  const register = async () => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/register`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email.toLocaleLowerCase(),
+          phone: phone,
+          secretPhrase: secret,
+        }),
+      }).then((registerResult) =>
+        registerResult.json().then((data) => {
+          try {
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
+                navigation.replace('MultiFactorScreen');
+              });
+            } else {
+              showMessage('ZADA Wallet', response.error);
+              setProgress(false);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      showMessage('ZADA Wallet', 'Internet Connection is not available');
+    }
+  };
+
+  const storeUserID = async (userId) => {
+    try {
+      await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const authenticateUserToken = async () => {
+    if (networkState) {
+      let resp = await AuthenticateUser();
+      setProgress(false);
+      if (resp.success) {
+        navigation.replace('SecurityScreen');
+      } else {
+        showMessage('ZADA Wallet', resp.message);
+      }
+    } else {
+      setProgress(false);
+      showMessage('ZADA Wallet', 'Internet Connection is not available');
+    }
+  };
+
+  const login = async () => {
+    if (networkState) {
+      await fetch(ConstantsList.BASE_URL + `/api/login`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.toLocaleLowerCase(),
+          phone: phone,
+          secretPhrase: secret,
+        }),
+      }).then((credsResult) =>
+        credsResult.json().then((data) => {
+          try {
+            console.log(JSON.stringify(data));
+            let response = JSON.parse(JSON.stringify(data));
+            if (response.success == true) {
+              storeUserID(response.userId);
+              saveItem(ConstantsList.WALLET_SECRET, secret);
+              authenticateUserToken();
+            } else {
+              showMessage('ZADA Wallet', response.error);
+              setProgress(false);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setProgress(false);
+          }
+        }),
+      );
+    } else {
+      setProgress(false);
+      showMessage('ZADA Wallet', 'Internet Connection is not available');
+    }
+  };
+
+  // const onChangeCountry = (country) => {
+  //   setCode(`+${country.callingCode[0]}`);
+  //   setCountry(country.name);
+  //   setCountryPicker(false);
+  // };
+
+  function renderPhoneNumberInput() {
+    return (
+      <PhoneInput
+        ref={phoneInput}
+        defaultValue={phone}
+        defaultCode="PK"
+        layout="second"
+        containerStyle={{
+          flexDirection: "row",
+          backgroundColor: WHITE_COLOR,
+          borderRadius: 10,
+          height: 45,
+          marginTop: 8,
+          alignSelf: "center",
+          width: '88%',
+          marginLeft: 4,
+        }}
+        textInputStyle={{ fontSize: 14, height: 45 }}
+        countryPickerButtonStyle={{ width: 65, borderRightColor: "00000040", borderRightWidth: 0.5 }}
+        textContainerStyle={{ fontSize: 16, padding: 0, borderRadius: 10, backgroundColor: WHITE_COLOR }}
+        codeTextStyle={{ fontSize: 14, textAlign: "center", textAlignVertical: "center", padding: 0, margin: 0 }}
+        onChangeText={(text) => {
+          // setPhone(text);
+        }}
+        onChangeFormattedText={(text) => {
+          // console.log(text);
+          setPhone(text);
+        }}
+        disableArrowIcon
+        withShadow
+      />
+    )
+
+  }
+
+  // function renderPhoneNumberInput() {
+  //   return (
+  //     <View style={
+  //       {
+  //         // width: '88%',
+  //         // alignSelf: "center",
+  //         marginRight: 22,
+  //         marginLeft: 20,
+  //         flexDirection: "row",
+  //         backgroundColor: WHITE_COLOR,
+  //         borderRadius: 10,
+  //         height: 45,
+  //         marginTop: 8,
+  //         paddingLeft: 8,
+  //         borderBottomWidth: 0,
+  //       }
+  //     }>
+  //       <TouchableOpacity
+  //         onPress={() => setCountryPicker(true)}
+  //         style={{
+  //           justifyContent: "center"
+  //         }}
+  //       >
+  //         <Text style={{
+  //           width: 50, textAlign: "center",
+  //         }}>
+  //           {code}
+  //         </Text>
+  //       </TouchableOpacity>
+
+  //       <View
+  //         style={{
+  //           height: 40,
+  //           alignSelf: "center",
+  //           width: 0.5,
+  //           backgroundColor: '#00000020'
+  //         }}
+  //       />
+  //       <CountryPicker
+  //         countryCode={null}
+  //         onSelect={onChangeCountry}
+  //         visible={countryPicker}
+  //         onClose={() => setCountryPicker(false)}
+  //         withModal
+  //         withFilter
+  //         withCloseButton
+  //         containerButtonStyle={{
+  //           height: 0,
+  //           width: 0,
+  //         }}
+  //       />
+  //       <InputComponent
+  //         placeholderText="Phone"
+  //         errorMessage={phoneError}
+  //         value={phone}
+  //         isSecureText={false}
+  //         inputContainerStyle={{
+  //           backgroundColor: WHITE_COLOR,
+  //           height: 45,
+  //           width: '75%',
+  //           borderBottomWidth: 0,
+  //         }}
+  //         setStateValue={(text) => setPhone(text)}
+  //       />
+  //     </View >
+  //   )
+  // }
 
   return (
     <View
@@ -54,8 +359,9 @@ function RegistrationModule({navigation}) {
         alignItems: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <ScrollView
-        contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
         <View
           style={{
             backgroundColor: BACKGROUND_COLOR,
@@ -64,7 +370,7 @@ function RegistrationModule({navigation}) {
             justifyContent: 'space-around',
             borderRadius: 10,
           }}>
-          <View style={{marginLeft: 50, marginRight: 50}}>
+          <View style={{ marginLeft: 50, marginRight: 50 }}>
             <HeadingComponent text="Let's Get Started!" />
           </View>
 
@@ -142,31 +448,89 @@ function RegistrationModule({navigation}) {
           {activeOption == 'register' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput
+                <View >
+                  <InputComponent
+                    placeholderText="Name"
+                    errorMessage={nameError}
+                    value={name}
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => setName(text)}
+                  />
+                  {/* <TextInput
                     style={styles.TextInput}
                     placeholder="Name"
-                    keyboardType="name-phone-pad"
-                  />
+                    keyboardType="default"
+                    placeholderTextColor="grey"
+                    onChangeText={(name) => {
+                      setName(name);
+                    }}
+                  /> */}
                 </View>
-                <View style={styles.inputView}>
-                  <TextInput
+                <View>
+                  <InputComponent
+                    placeholderText="Email"
+                    errorMessage={emailError}
+                    value={email}
+                    keyboardType="email-address"
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => setEmail(text)}
+                  />
+                  {/* <TextInput
                     style={styles.TextInput}
                     placeholder="Email"
                     keyboardType="email-address"
-                  />
+                    placeholderTextColor="grey"
+                    onChangeText={(email) => {
+                      setEmail(email);
+                    }}
+                  /> */}
                 </View>
-                <View style={styles.inputView}>
+                {renderPhoneNumberInput()}
+                {/* <View style={styles.inputView}>
                   <TextInput
                     style={styles.TextInput}
                     placeholder="Phone"
                     keyboardType="phone-pad"
+                    placeholderTextColor="grey"
+                    onChangeText={(phone) => {
+                      setPhone(phone);
+                    }}
                   />
-                </View>
+                </View> */}
                 <Text style={styles.secretMessage}>
                   Secret phrase (please save in safe place)
                 </Text>
-                <View
+                <View>
+                  <InputComponent
+                    placeholderText="Secret Phrase"
+                    errorMessage={secretError}
+                    value={secret}
+                    keyboardType="default"
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => {
+                      setSecret(text.replace(',', ''))
+                      if (text.length < 1) {
+                        setSecretError('Secret is required.')
+                      } else {
+                        setSecretError('')
+                      }
+                    }}
+                  />
+                  {
+                    secretError == "" &&
+                    <FontAwesome
+                      style={{ height: 50, zIndex: 10 }}
+                      onPress={() => copyToClipboard()}
+                      style={styles.textRightIcon}
+                      name="copy"
+                      size={25}
+                    />
+                  }
+                </View>
+                {/* <View
                   style={{
                     backgroundColor: WHITE_COLOR,
                     borderRadius: 10,
@@ -179,10 +543,13 @@ function RegistrationModule({navigation}) {
                   <TextInput
                     style={styles.SecretTextInput}
                     placeholder="Secret Phrase"
-                    onChangeText={text => setText(text.replace(',', ''))}
-                    defaultValue={text}
+                    onChangeText={(text) => setText(text.replace(',', ''))}
+                    defaultValue={secret}
                     multiline={true}
                     editable={false}
+                    onChangeText={(secret) => {
+                      setSecret(secret);
+                    }}
                   />
                   <FontAwesome
                     style={{flex: 1}}
@@ -191,7 +558,7 @@ function RegistrationModule({navigation}) {
                     name="copy"
                     size={25}
                   />
-                </View>
+                </View> */}
 
                 <Text
                   style={{
@@ -209,53 +576,75 @@ function RegistrationModule({navigation}) {
                   We are not going to send you ads or spam email, or sell your
                   information to a 3rd party.
                 </Text>
-                <TouchableOpacity
-                  style={styles.primaryButton}
-                  onPress={nextHandler}>
-                  <Text style={styles.text}>CONTINUE</Text>
-                </TouchableOpacity>
+                {progress ? (
+                  <ActivityIndicator
+                    style={styles.primaryButton}
+                    size="large"
+                    color={WHITE_COLOR}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={submit}>
+                    <Text style={styles.text}>CONTINUE</Text>
+                  </TouchableOpacity>
+                )}
               </ScrollView>
             </View>
           )}
           {activeOption == 'login' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Name" />
-                </View>
-                <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Email" />
-                </View>
-                <View style={styles.inputView}>
-                  <TextInput style={styles.TextInput} placeholder="Phone" />
-                </View>
-                <Text style={styles.secretMessage}>Secret phrase</Text>
-                <View
-                  style={{
-                    backgroundColor: WHITE_COLOR,
-                    borderRadius: 10,
-                    width: '94%',
-                    height: 65,
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginTop: 8,
-                  }}>
-                  <TextInput
-                    style={styles.SecretTextInput}
-                    placeholder="Secret Phrase"
-                    multiline={true}
+                <View>
+                  <InputComponent
+                    placeholderText="Email"
+                    errorMessage={emailError}
+                    value={email}
+                    keyboardType="email-address"
+                    isSecureText={false}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => setEmail(text)}
                   />
                 </View>
-                <TouchableOpacity
-                  style={styles.primaryButton}
-                  onPress={nextHandler}>
-                  <Text style={styles.text}>CONTINUE</Text>
-                </TouchableOpacity>
+                {renderPhoneNumberInput()}
+
+                <View>
+                  <InputComponent
+                    placeholderText="Secret Phrase"
+                    errorMessage={secretError}
+                    value={secret}
+                    keyboardType="default"
+                    isSecureText={true}
+                    inputContainerStyle={styles.inputView}
+                    setStateValue={(text) => {
+                      setSecret(text.replace(',', ''))
+                      if (text.length < 1) {
+                        setSecretError('Secret is required.')
+                      } else {
+                        setSecretError('')
+                      }
+                    }}
+                  />
+                </View>
+
+                {progress ? (
+                  <ActivityIndicator
+                    style={styles.primaryButton}
+                    size="large"
+                    color={WHITE_COLOR}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={submit}>
+                    <Text style={styles.text}>CONTINUE</Text>
+                  </TouchableOpacity>
+                )}
               </ScrollView>
             </View>
           )}
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -268,9 +657,12 @@ const styles = StyleSheet.create({
     height: 45,
     marginLeft: 10,
     marginTop: 8,
+    paddingLeft: 16,
+    borderBottomWidth: 0,
   },
   secretMessage: {
-    marginLeft: 15,
+    marginTop: 15,
+    marginLeft: 24,
     color: 'grey',
   },
   SecretTextInput: {
@@ -351,8 +743,11 @@ const styles = StyleSheet.create({
   },
   textRightIcon: {
     alignSelf: 'center',
-    padding: 5,
+    // padding: 8,
     color: GRAY_COLOR,
+    position: "absolute",
+    right: '10%',
+    top: '30%'
   },
 });
 

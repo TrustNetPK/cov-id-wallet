@@ -1,4 +1,4 @@
-package pk.net.trust.vaccify;
+package com.zadanetwork.wallet;
 
 import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
