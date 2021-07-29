@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Linking, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, Linking, Alert, Switch } from 'react-native';
 import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {PRIMARY_COLOR } from '../theme/Colors';
+import { PRIMARY_COLOR } from '../theme/Colors';
+import { getItem, saveItem } from '../helpers/Storage';
+import { BIOMETRIC_ENABLED } from '../helpers/ConfigApp';
+import useBiometric from '../hooks/useBiometric';
+import { showMessage } from '../helpers/Toast';
+
 
 var settingLocalData = {
   GENERAL: {
@@ -12,10 +17,14 @@ var settingLocalData = {
       key: '11',
     },
     Network: {
-      value: 'BCovrin Test Network',
+      value: 'ZADA Test Network',
       type: 'Radio',
       key: '12',
       options: ['Soverin', 'non-soverin'],
+    },
+    Biometric: {
+      value: false,
+      type: 'Boolean'
     },
     key: '1',
   },
@@ -42,14 +51,62 @@ var settingLocalData = {
   },
 };
 
-export default function SettingsScreen({ navigation }) {
+export default function SettingsScreen(props) {
   const [settingsData, setSettingsData] = useState(settingLocalData);
 
-  const toggleSwitch = (parent, child) => {
+  useEffect(() => {
+    const updatevalues = async () => {
+      let biometric = JSON.parse(await getItem(BIOMETRIC_ENABLED) || 'false');
+      const tempSettings = { ...settingsData };
+      tempSettings.GENERAL.Biometric.value = biometric;
+      setSettingsData({ ...tempSettings });
+    }
+
+    updatevalues();
+  }, [])
+
+  const toggleSwitch = async (parent, child) => {
+    // If child == 'Biometric'
+    if (child == 'Biometric') {
+      props.route.params.oneTimeAuthentication((e) => biometricResult(e, parent, child))
+      return
+    }
+
+    // Updating UI
     const tempSettings = { ...settingsData };
     tempSettings[parent][child].value = !tempSettings[parent][child].value;
     setSettingsData({ ...tempSettings });
   };
+
+  const biometricResult = async (result, parent, child) => {
+    if (result) {
+      // Updating UI
+      const tempSettings = { ...settingsData };
+      tempSettings[parent][child].value = !tempSettings[parent][child].value;
+      setSettingsData({ ...tempSettings });
+
+      // Saving preference in asyncstorage.
+      await saveItem(BIOMETRIC_ENABLED, JSON.stringify(tempSettings[parent][child].value))
+
+      // Display message.
+      if (tempSettings[parent][child].value) {
+        // Display message.
+        showMessage(
+          'ZADA Wallet',
+          'Biometric enabled!',
+        );
+      } else {
+        showMessage(
+          'ZADA Wallet',
+          'Biometric disabled!',
+        );
+      }
+
+    } else {
+      console.log('biometric false')
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* */}
@@ -163,15 +220,15 @@ export default function SettingsScreen({ navigation }) {
           );
         }}
       />
-       <View style={styles.footer}>
-        <Text style={styles.footerText} >In Collaboration with &nbsp; 
-        <Text
-    style={{ color: PRIMARY_COLOR,}}
-    onPress={() => {Linking.openURL('https://trust.net.pk/')}}
-  >
-    TrustNet Pakistan 
-  </Text>
-        
+      <View style={styles.footer}>
+        <Text style={styles.footerText} >In Collaboration with &nbsp;
+          <Text
+            style={{ color: PRIMARY_COLOR, }}
+            onPress={() => { Linking.openURL('https://trust.net.pk/') }}
+          >
+            TrustNet Pakistan
+          </Text>
+
         </Text>
       </View>
     </View>
@@ -180,7 +237,7 @@ export default function SettingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop:0,
+    paddingTop: 0,
     paddingLeft: 5,
     paddingRight: 5,
     backgroundColor: '#f7f7f7',
@@ -213,18 +270,18 @@ const styles = StyleSheet.create({
     marginRight: 60,
     padding: 10,
   },
-  footer:{
-    justifyContent:'center',
-    textAlign:'center',
-    alignContent:'center',
-    backgroundColor:'white',
+  footer: {
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignContent: 'center',
+    backgroundColor: 'white',
   },
-  footerText:{
-    textAlign:'center',
-    color:'black',
-    padding:10,
-    fontSize:15,
-    margin:10,
-    fontFamily:'Poppins-Bold'
+  footerText: {
+    textAlign: 'center',
+    color: 'black',
+    padding: 10,
+    fontSize: 15,
+    margin: 10,
+    fontFamily: 'Poppins-Bold'
   }
 });

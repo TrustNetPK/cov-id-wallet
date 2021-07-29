@@ -1,20 +1,30 @@
-
 import * as React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { BLACK_COLOR, WHITE_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+import TouchableComponent from './Buttons/TouchableComponent';
 
 function FlatCard(props) {
   return (
-    <View style={styles.card}>
-      <View style={styles.container}>
-        <View style={styles.row1}>
-          <Image source={props.image} style={styles.logo} />
-        </View>
-        <View style={styles.row2}>
-          <Text style={styles.heading}>{props.heading}</Text>
-          <Text style={styles.text}>{props.text}</Text>
-        </View>
+    <View style={{ paddingLeft: 4, paddingRight: 4 }}>
+      <View style={styles.card}>
+        <TouchableComponent android_ripple={{ borderless: false }} style={styles.touchableStyle} onPress={() => props.onPress()}>
+          <View style={styles.container}>
+            <View style={styles.row1}>
+              <Image
+                source={{
+                  uri: props.imageURL, // remove braces
+                }}
+                style={styles.logo}
+              />
+            </View>
+            <View style={styles.row2}>
+              <Text style={styles.heading}>{props.heading}</Text>
+              <Text style={styles.text}>{props.text}</Text>
+            </View>
+          </View>
+        </TouchableComponent>
       </View>
+
     </View>
   );
 }
@@ -29,30 +39,44 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 11,
-    paddingLeft: 12,
+    paddingLeft: 1,
+    marginTop: 4,
     color: SECONDARY_COLOR,
   },
   heading: {
     color: BLACK_COLOR,
-    fontSize: 15,
-    paddingLeft: 10
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: 4,
+    paddingLeft: 1,
   },
   card: {
     width: '100%',
     flex: 0,
-    marginTop: 7,
-    paddingTop: 10,
-    paddingBottom: 15,
     backgroundColor: WHITE_COLOR,
-    borderRadius: 20,
+    borderRadius: 15,
     borderColor: SECONDARY_COLOR,
-    borderWidth: 0.5
+
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    shadowColor: SECONDARY_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 1,
+    elevation: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
   logo: {
     width: 50,
     backgroundColor: WHITE_COLOR,
     height: 50,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
+    marginTop: 5,
+    borderRadius: 4,
   },
   row1: {
     width: '25%',
@@ -62,6 +86,11 @@ const styles = StyleSheet.create({
     width: '75%',
     paddingRight: 10,
   },
+  touchableStyle: {
+    paddingTop: 8,
+    paddingBottom: 12,
+    borderRadius: 16,
+  }
 });
 
 export default FlatCard;

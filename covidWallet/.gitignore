@@ -1,9 +1,11 @@
 # OSX
 #
 .DS_Store
-
+.history
 # Xcode
 #
+yarn.lock
+package-lock.json
 build/
 *.pbxuser
 !default.pbxuser
@@ -31,6 +33,7 @@ build/
 .gradle
 local.properties
 *.iml
+google-services.json
 
 # node.js
 #
