@@ -94,9 +94,6 @@ function SecurityScreen({ navigation }) {
 
 
   nextHandler = () => {
-    // Saving preference in asyncstorage.
-    saveItem(BIOMETRIC_ENABLED, JSON.stringify(true));
-
     navigation.navigate('NotifyMeScreen');
   }
 
