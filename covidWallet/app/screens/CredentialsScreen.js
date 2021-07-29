@@ -50,11 +50,12 @@ function CredentialsScreen(props) {
             let imgURI = { uri: v.imageUrl };
             let vaccineName = v.name;
             let issuedBy = v.organizationName;
+            let card_type = v.type;
 
 
             return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
               <View style={styles.CredentialsCardContainer}>
-                <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
+                <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
               </View>
             </TouchableOpacity>
           })

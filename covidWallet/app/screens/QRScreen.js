@@ -192,6 +192,7 @@ function QRScreen({ route, navigation }) {
       var data = JSON.parse(Buffer.from(urlData, 'base64').toString());
       qrJSON.organizationName = data.label;
       qrJSON.imageUrl = data.imageUrl;
+      qrJSON.connectionId = data['@id'];
       getItem(ConstantsList.CONNECTIONS).then((connectionList) => {
         let QRConnList = JSON.parse(connectionList);
         console.log('QRConnList => ', QRConnList)

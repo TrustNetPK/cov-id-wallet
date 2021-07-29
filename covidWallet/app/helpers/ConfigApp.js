@@ -14,4 +14,5 @@ module.exports = Object.freeze({
   USER_ID: 'userId',
   CREDENTIALS: 'credentials',
   API_SECRET: '',
+  BIOMETRIC_ENABLED: 'biometric_enabled'
 });

@@ -22,6 +22,7 @@ import RegistrationModule from './screens/RegistrationModule';
 import MultiFactorScreen from './screens/MultiFactorScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import { RefreshContextProvider } from './context/RefreshContextProvider';
+import useBiometric from './hooks/useBiometric';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,10 @@ function NavigationComponent() {
   const linking = {
     prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
   };
+
+  // Biometric Hook
+  const { authStatus, oneTimeAuthentication } = useBiometric();
+
   const [isFirstTime, getisFirstTime] = React.useState('true');
   const [isLoading, setLoading] = useState(true);
   const storeData = async () => {
@@ -138,7 +143,7 @@ function NavigationComponent() {
                   headerLeft: () => (
                     <FontAwesome
                       onPress={() => {
-                        navigation.navigate('SettingsScreen');
+                        navigation.navigate('SettingsScreen', { oneTimeAuthentication });
                       }}
                       style={styles.headerRightIcon}
                       size={30}

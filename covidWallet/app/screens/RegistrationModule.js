@@ -354,6 +354,7 @@ function RegistrationModule({ navigation }) {
 
   return (
     <View
+      pointerEvents={progress ? "none" : "auto"}
       style={{
         flex: 1,
         alignItems: 'center',
@@ -474,6 +475,7 @@ function RegistrationModule({ navigation }) {
                     value={email}
                     keyboardType="email-address"
                     isSecureText={false}
+                    autoCapitalize={'none'}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => setEmail(text)}
                   />
@@ -509,6 +511,7 @@ function RegistrationModule({ navigation }) {
                     value={secret}
                     keyboardType="default"
                     isSecureText={false}
+                    autoCapitalize={'none'}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => {
                       setSecret(text.replace(',', ''))
@@ -579,7 +582,7 @@ function RegistrationModule({ navigation }) {
                 {progress ? (
                   <ActivityIndicator
                     style={styles.primaryButton}
-                    size="large"
+                    size="small"
                     color={WHITE_COLOR}
                   />
                 ) : (
@@ -600,6 +603,7 @@ function RegistrationModule({ navigation }) {
                     placeholderText="Email"
                     errorMessage={emailError}
                     value={email}
+                    autoCapitalize={'none'}
                     keyboardType="email-address"
                     isSecureText={false}
                     inputContainerStyle={styles.inputView}
@@ -615,6 +619,7 @@ function RegistrationModule({ navigation }) {
                     value={secret}
                     keyboardType="default"
                     isSecureText={true}
+                    autoCapitalize={'none'}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => {
                       setSecret(text.replace(',', ''))
@@ -630,7 +635,7 @@ function RegistrationModule({ navigation }) {
                 {progress ? (
                   <ActivityIndicator
                     style={styles.primaryButton}
-                    size="large"
+                    size="small"
                     color={WHITE_COLOR}
                   />
                 ) : (

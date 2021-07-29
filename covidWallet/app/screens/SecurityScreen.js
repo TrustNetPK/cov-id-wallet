@@ -6,6 +6,8 @@ import PrimaryButton from '../components/PrimaryButton';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
+import { saveItem } from '../helpers/Storage';
+import { BIOMETRIC_ENABLED } from '../helpers/ConfigApp';
 
 const img = require('../assets/images/security.png');
 
@@ -29,7 +31,7 @@ function SecurityScreen({ navigation }) {
     }
     else {
       //TODO: Skip the SecureID Process if Sensor not Available
-      navigation.navigate('PassCodeContainer');
+      navigation.navigate('NotifyMeScreen');
     }
   }
 
@@ -92,7 +94,10 @@ function SecurityScreen({ navigation }) {
 
 
   nextHandler = () => {
-    navigation.replace('PassCodeContainer');
+    // Saving preference in asyncstorage.
+    saveItem(BIOMETRIC_ENABLED, JSON.stringify(true));
+
+    navigation.navigate('NotifyMeScreen');
   }
 
   return (
