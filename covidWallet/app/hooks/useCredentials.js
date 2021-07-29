@@ -27,6 +27,9 @@ const useCredentials = (isCredential) => {
                 let item = connectionsList.find(c => c.connectionId == cred.connectionId)
                 credentialsList[i].imageUrl = item.imageUrl
                 credentialsList[i].organizationName = item.name
+                if (!credentialsList[i].hasOwnProperty('type')) {
+                    credentialsList[i].type = "Digital Certificate"
+                }
             });
 
             // Set data

@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 
 const image = require('../assets/images/card-bg.png')
 const card_badge = require('../assets/images/badge.png')
-const planeImage = require('../assets/images/plane.png')
+const planeImage = require('../assets/images/world_map.png')
 
 function CredentialsCard(props) {
     return (
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
         position: "absolute",
         width: '100%',
         height: "100%",
-        opacity: 0.9,
+        opacity: 0.8,
         borderRadius: 15,
     }
 });

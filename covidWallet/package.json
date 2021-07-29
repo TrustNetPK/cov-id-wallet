@@ -22,10 +22,12 @@
     "@types/react-native-vector-icons": "^6.4.8",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
+    "expo-local-authentication": "^11.1.1",
     "query-string": "^7.0.0",
     "random-words": "^1.1.1",
     "react": "17.0.1",
     "react-native": "0.64.2",
+    "react-native-appstate-hook": "^1.0.5",
     "react-native-camera": "^3.43.6",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-elements": "^3.4.2",
@@ -44,6 +46,7 @@
     "react-native-simple-radio-button": "^2.7.4",
     "react-native-splash-screen": "^3.2.0",
     "react-native-swipe-list-view": "^3.2.9",
+    "react-native-unimodules": "^0.14.6",
     "react-native-vector-icons": "6.6.0"
   },
   "devDependencies": {

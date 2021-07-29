@@ -96,32 +96,32 @@ async function receiveNotificationEventListener(notification) {
   }
 }
 
-/*
-This function triggers automatically every 5 second *ONLY ON IOS*
-because receiveNotificationEventListener is not called automatically 
-when notification is received.
-*/
-function iOSforegroundTrigger() {
-  PushNotification.getDeliveredNotifications((notifications) => {
-    if (notifications.length !== 0) {
-      //TODO: Process IOS notification here
-      //MAKE SURE YOU DONT PROCESS IT TWICE AS receiveNotificationEventListener might also process it
-      //Use identifier to make sure you dont process twice
-      let notificationsProcessed = [];
-      notifications.forEach((notification) => {
-        console.log(
-          notification.userInfo.type + ' : ' + notification.userInfo.metadata,
-        );
-        if (notification.userInfo.type === 'credential_offer') {
-          let x = addCredentialToActionList(notification.userInfo.metadata);
-          console.log('HX1' + x);
-        }
-        notificationsProcessed.push(notification.identifier);
-      });
-      PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
-    }
-  });
-}
+// /*
+// This function triggers automatically every 5 second *ONLY ON IOS*
+// because receiveNotificationEventListener is not called automatically 
+// when notification is received.
+// */
+// function iOSforegroundTrigger() {
+//   PushNotification.getDeliveredNotifications((notifications) => {
+//     if (notifications.length !== 0) {
+//       //TODO: Process IOS notification here
+//       //MAKE SURE YOU DONT PROCESS IT TWICE AS receiveNotificationEventListener might also process it
+//       //Use identifier to make sure you dont process twice
+//       let notificationsProcessed = [];
+//       notifications.forEach((notification) => {
+//         console.log(
+//           notification.userInfo.type + ' : ' + notification.userInfo.metadata,
+//         );
+//         if (notification.userInfo.type === 'credential_offer') {
+//           let x = addCredentialToActionList(notification.userInfo.metadata);
+//           console.log('HX1' + x);
+//         }
+//         notificationsProcessed.push(notification.identifier);
+//       });
+//       PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
+//     }
+//   });
+// }
 
 async function onRegisterEventListener(token) {
   console.log('TOKEN:', token);
@@ -229,7 +229,7 @@ module.exports = {
   onActionEventListener: onActionEventListener,
   onRegistrationErrorEventListener: onRegistrationErrorEventListener,
   getAllDeliveredNotifications: getAllDeliveredNotifications,
-  iOSforegroundTrigger: iOSforegroundTrigger,
+  // iOSforegroundTrigger: iOSforegroundTrigger,
   initNotifications: initNotifications,
   DROID_CHANNEL_ID: DROID_CHANNEL_ID,
 };

@@ -25,7 +25,7 @@ import { biometricVerification } from '../helpers/Biometric';
 import { getActionHeader } from '../helpers/ActionList';
 
 import { accept_credential } from '../gateways/credentials';
-import { accept_connection } from '../gateways/connections';
+import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
 import useCredentials from '../hooks/useCredentials';
@@ -329,6 +329,10 @@ function ActionsScreen({ navigation }) {
     setModalVisible(false);
 
     if (selectedItemObj.type === ConstantsList.CONN_REQ) {
+      // Delete connection api call.
+      delete_connection(selectedItemObj.connectionId);
+
+      // Delete connection locally.
       deleteActionByConnId(ConstantsList.CONN_REQ, selectedItemObj.metadata).then(
         (actions) => {
           updateActionsList();
@@ -389,7 +393,6 @@ function ActionsScreen({ navigation }) {
   //   //   let result = await delete_connection();
   //   // }
   // }
-
   function onSwipeValueChange(v) {
     console.log(v);
     // console.log(Math.abs(v.value / 75))

@@ -1,6 +1,6 @@
 import { ToastAndroid, Platform, Alert } from 'react-native';
 
-function showMessage(title, message) {
+export function showMessage(title, message) {
   if (Platform.OS === 'android') {
     ToastAndroid.show(message, ToastAndroid.SHORT);
   } else {
@@ -8,7 +8,7 @@ function showMessage(title, message) {
   }
 }
 
-function showAskDialog(title, message, onSuccessPress, onRejectPress) {
+export function showAskDialog(title, message, onSuccessPress, onRejectPress) {
   Alert.alert(
     title,
     message,
@@ -31,8 +31,3 @@ function showAskDialog(title, message, onSuccessPress, onRejectPress) {
     },
   );
 }
-
-module.exports = {
-  showMessage,
-  showAskDialog,
-};

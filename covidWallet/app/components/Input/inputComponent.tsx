@@ -29,6 +29,7 @@ interface InputIProps {
   onBlur?: Function;
   infoText?: string;
   inputContainerStyle?: any;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 export function InputComponent(props: InputIProps) {
@@ -91,6 +92,9 @@ export function InputComponent(props: InputIProps) {
         // errorMessage={showErrorMessage ? props.errorMessage : ''}
         leftIcon={renderLeftIcon()}
         onBlur={() => (props.onBlur ? props.onBlur() : {})}
+        autoCapitalize={
+          props.autoCapitalize ? props.autoCapitalize : 'sentences'
+        }
         keyboardType={
           props.keyboardType != undefined ? props.keyboardType : 'default'
         }

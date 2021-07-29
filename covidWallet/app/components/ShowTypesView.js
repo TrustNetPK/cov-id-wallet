@@ -35,8 +35,8 @@ export function BooleanTypeView({
     <View style={styles.container}>
       <Text style={styles.startItem}>{startValue}</Text>
       <Switch
-        trackColor={{false: '#81b0ff', true: '#81b0ff'}}
-        thumbColor={endValue ? '#3ab6ae' : '#3ab6ff'}
+        trackColor={{false: '#81b0ff', true: '#3ab6ae'}}
+        // thumbColor={endValue ? '#3ab6ae' : '#3ab6ff'}
         ios_backgroundColor="#ffffff"
         onValueChange={() => valueHandler(parentValue, startValue)}
         value={endValue}
