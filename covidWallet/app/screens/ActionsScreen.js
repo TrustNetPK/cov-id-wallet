@@ -82,6 +82,7 @@ function ActionsScreen({ navigation }) {
         getUrl(url);
       });
     }
+
     return () => Linking.removeAllListeners();
   }, [])
 
@@ -261,9 +262,6 @@ function ActionsScreen({ navigation }) {
       if (result.data.success) {
         // Delete Action
         await deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId)
-
-        // Save credential to local storage
-        // ls_addCredential(selectedItemObj);
 
         // Update ActionList
         updateActionsList();
@@ -495,7 +493,9 @@ function ActionsScreen({ navigation }) {
               justifyContent: "center"
             }}>
               <BorderButton
-                nextHandler={() => navigation.navigate('QRScreen')}
+                nextHandler={() => {
+                  navigation.navigate('QRScreen')
+                }}
                 text="QR CODE"
                 color={BLACK_COLOR}
                 textColor={BLACK_COLOR}

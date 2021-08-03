@@ -203,6 +203,11 @@ function NavigationComponent() {
               />
               <Stack.Screen
                 options={{ headerShown: false }}
+                name="RegistrationScreen"
+                component={RegistrationModule}
+              />
+              <Stack.Screen
+                options={{ headerShown: false }}
                 name="QRScreen"
                 path="/scanqr/:pathParam1?/:pathParam2?" //npx uri-scheme open https://zadanetwork.com/type=connection_data --android
                 component={QRScreen}

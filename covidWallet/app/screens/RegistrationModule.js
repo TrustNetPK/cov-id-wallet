@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView } from 'react-native';
+import { Alert } from 'react-native';
 import {
   View,
   Text,
@@ -68,7 +68,7 @@ function RegistrationModule({ navigation }) {
     });
     if (activeOption == 'register') {
       setPhone('');
-      setSecret(randomString(24))
+      // setSecret(randomString(24))
       setSecretError('')
     } else {
       setSecret('');
@@ -123,25 +123,6 @@ function RegistrationModule({ navigation }) {
     else if (activeOption == 'login') login();
     else setProgress(false);
 
-    // if (
-    //   activeOption == 'register' &&
-    //   (name == '' || phone == '' || email == '' || secret == '')
-    // ) {
-    //   showMessage('ZADA Wallet', 'Fill the empty fields');
-    //   return;
-    // }
-    // if (
-    //   activeOption == 'login' &&
-    //   (phone == '' || email == '' || secret == '')
-    // ) {
-    //   showMessage('ZADA Wallet', 'Fill the empty fields');
-    //   return;
-    // } else {
-    //   setProgress(true);
-    //   if (activeOption == 'register') register();
-    //   else if (activeOption == 'login') login();
-    //   else setProgress(false);
-    // }
   };
 
   const register = async () => {
@@ -243,11 +224,6 @@ function RegistrationModule({ navigation }) {
     }
   };
 
-  // const onChangeCountry = (country) => {
-  //   setCode(`+${country.callingCode[0]}`);
-  //   setCountry(country.name);
-  //   setCountryPicker(false);
-  // };
 
   function renderPhoneNumberInput() {
     return (
@@ -283,74 +259,6 @@ function RegistrationModule({ navigation }) {
     )
 
   }
-
-  // function renderPhoneNumberInput() {
-  //   return (
-  //     <View style={
-  //       {
-  //         // width: '88%',
-  //         // alignSelf: "center",
-  //         marginRight: 22,
-  //         marginLeft: 20,
-  //         flexDirection: "row",
-  //         backgroundColor: WHITE_COLOR,
-  //         borderRadius: 10,
-  //         height: 45,
-  //         marginTop: 8,
-  //         paddingLeft: 8,
-  //         borderBottomWidth: 0,
-  //       }
-  //     }>
-  //       <TouchableOpacity
-  //         onPress={() => setCountryPicker(true)}
-  //         style={{
-  //           justifyContent: "center"
-  //         }}
-  //       >
-  //         <Text style={{
-  //           width: 50, textAlign: "center",
-  //         }}>
-  //           {code}
-  //         </Text>
-  //       </TouchableOpacity>
-
-  //       <View
-  //         style={{
-  //           height: 40,
-  //           alignSelf: "center",
-  //           width: 0.5,
-  //           backgroundColor: '#00000020'
-  //         }}
-  //       />
-  //       <CountryPicker
-  //         countryCode={null}
-  //         onSelect={onChangeCountry}
-  //         visible={countryPicker}
-  //         onClose={() => setCountryPicker(false)}
-  //         withModal
-  //         withFilter
-  //         withCloseButton
-  //         containerButtonStyle={{
-  //           height: 0,
-  //           width: 0,
-  //         }}
-  //       />
-  //       <InputComponent
-  //         placeholderText="Phone"
-  //         errorMessage={phoneError}
-  //         value={phone}
-  //         isSecureText={false}
-  //         inputContainerStyle={{
-  //           backgroundColor: WHITE_COLOR,
-  //           height: 45,
-  //           width: '75%',
-  //           borderBottomWidth: 0,
-  //         }}
-  //         setStateValue={(text) => setPhone(text)}
-  //       />
-  //     </View >
-  //   )
-  // }
 
   return (
     <View

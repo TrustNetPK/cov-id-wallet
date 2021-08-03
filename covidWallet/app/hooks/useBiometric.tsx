@@ -69,8 +69,11 @@ const useBiometric = () => {
       if (!authStatus && !authVisible) {
         setAuthVisible(true);
 
-        let result = await authenticateUser();
-        setAuthStatus(result);
+        // Timeout for setAuthStatus
+        setTimeout(async () => {
+          let result = await authenticateUser();
+          setAuthStatus(result);
+        }, 500);
 
         setAuthVisible(false);
       }

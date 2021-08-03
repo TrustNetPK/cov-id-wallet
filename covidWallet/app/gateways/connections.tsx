@@ -1,3 +1,7 @@
+import {
+  analytics_log_accept_connection_request,
+  analytics_log_reject_connection_request,
+} from '../helpers/analytics';
 import {AuthenticateUser} from '../helpers/Authenticate';
 import http_client from './http_client';
 
@@ -45,6 +49,10 @@ export async function accept_connection(metadata: string) {
       data: obj,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_accept_connection_request();
+
     return result;
   } catch (error) {
     throw error;
@@ -69,6 +77,10 @@ export async function delete_connection(connectionId: string) {
       data: obj,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_reject_connection_request();
+
     return result;
   } catch (error) {
     throw error;

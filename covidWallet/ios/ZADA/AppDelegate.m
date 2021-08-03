@@ -1,5 +1,6 @@
 #import "AppDelegate.h"
-
+@import Firebase;
+@import UIKit;
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -66,6 +67,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [FIRApp configure];
 #if DEBUG
   InitializeFlipper(application);
 #endif
@@ -95,7 +97,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  
   return YES;
 }
 

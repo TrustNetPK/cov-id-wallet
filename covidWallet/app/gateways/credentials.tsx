@@ -1,6 +1,10 @@
 import http_client from './http_client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthenticateUser} from '../helpers/Authenticate';
+import {
+  analytics_log_accept_credential_request,
+  analytics_log_reject_credential_request,
+} from '../helpers/analytics';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -60,6 +64,10 @@ export async function accept_credential(credentialId: string) {
       data: params,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_accept_credential_request();
+
     return result;
   } catch (error) {
     throw error;
@@ -83,6 +91,10 @@ export async function delete_credential(credentialId: string) {
       data: params,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_reject_credential_request();
+
     return result;
   } catch (error) {
     throw error;

@@ -1,5 +1,9 @@
 import http_client from './http_client';
 import {AuthenticateUser} from '../helpers/Authenticate';
+import {
+  analytics_log_accept_verification_request,
+  analytics_log_reject_verification_request,
+} from '../helpers/analytics';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -67,6 +71,10 @@ export async function delete_verification(verificationId: string) {
       data: obj,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_reject_verification_request();
+
     return result;
   } catch (error) {
     throw error;
@@ -97,6 +105,10 @@ export async function submit_verification(
       data: obj,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_accept_verification_request();
+
     return result;
   } catch (error) {
     throw error;

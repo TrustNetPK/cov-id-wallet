@@ -178,7 +178,7 @@ function MultiFactorScreen({ route, navigation }) {
                 <Text style={styles.textView}>Thanks for your patience</Text>
                 <ActivityIndicator
                   style={styles.progressView}
-                  size="large"
+                  size="small"
                   color={PRIMARY_COLOR}
                 />
                 {isAuthenticated ? (
@@ -231,6 +231,7 @@ function MultiFactorScreen({ route, navigation }) {
                         placeholderTextColor="grey"
                         placeholder="Secret Phrase"
                         multiline={false}
+                        autoCapitalize={"none"}
                         keyboardType="name-phone-pad"
                         onChangeText={(secretPhrase) => {
                           setSecret(secretPhrase);
@@ -249,7 +250,7 @@ function MultiFactorScreen({ route, navigation }) {
                     {progress ? (
                       <ActivityIndicator
                         style={styles.primaryButton}
-                        size="large"
+                        size="small"
                         color={WHITE_COLOR}
                       />
                     ) : (

@@ -17,7 +17,7 @@ var settingLocalData = {
       key: '11',
     },
     Network: {
-      value: 'ZADA Test Network',
+      value: 'Sovrin Network',
       type: 'Radio',
       key: '12',
       options: ['Soverin', 'non-soverin'],
@@ -43,9 +43,14 @@ var settingLocalData = {
     },
     'About us': {
       value: 'None',
-      type: 'Link',
+      type: 'Text',
       key: '33',
       to: 'https://zada.io/',
+    },
+    'Logout': {
+      value: 'None',
+      type: 'Text',
+      key: '34',
     },
     key: '3',
   },
@@ -105,6 +110,12 @@ export default function SettingsScreen(props) {
     } else {
       console.log('biometric false')
     }
+  }
+
+  const onLogoutPressed = async () => {
+    AsyncStorage.clear();
+    props.navigation.popToTop();
+    props.navigation.replace("RegistrationScreen");
   }
 
   return (
@@ -201,16 +212,29 @@ export default function SettingsScreen(props) {
                           />
                         );
                       } else {
-                        return (
-                          <TextTypeView
-                            startValue={item}
-                            endValue="Edit"
-                            endIcon="right"
-                            onHandlePress={() => {
-                              childData.to && Linking.openURL(childData.to);
-                            }}
-                          />
-                        );
+                        if (item != 'Logout') {
+                          return (
+                            <TextTypeView
+                              startValue={item}
+                              endValue="Edit"
+                              endIcon="right"
+                              onHandlePress={() => {
+                                childData.to && Linking.openURL(childData.to);
+                              }}
+                            />
+                          );
+                        } else {
+                          return (
+                            <TextTypeView
+                              startValue={item}
+                              endValue="Edit"
+                              endIcon="right"
+                              onHandlePress={() => {
+                                onLogoutPressed()
+                              }}
+                            />
+                          );
+                        }
                       }
                     }
                   }
@@ -237,6 +261,7 @@ export default function SettingsScreen(props) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingTop: 0,
     paddingLeft: 5,
     paddingRight: 5,

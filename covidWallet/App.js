@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React from 'react';
 import { StatusBar } from 'react-native';
 import NavigationComponent from './app/Navigation';
 import { PRIMARY_COLOR } from './app/theme/Colors';
