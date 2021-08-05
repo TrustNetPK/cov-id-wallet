@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Platform, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { SwipeListView } from 'react-native-swipe-list-view';
+
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import ModalComponent from '../components/ModalComponent';
 import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
-import { showMessage } from '../helpers/Toast';
+import { showAskDialog, showMessage } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
+import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
 function ConnectionsScreen(props) {
   const [isConnection, setConnection] = useState(true);
   const [connectionsList, setConnectionsList] = useState([]);
+  const [clickedConnection, setClickedConnection] = useState();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -66,6 +72,19 @@ function ConnectionsScreen(props) {
 
   }
 
+  async function onSuccessPress() {
+    console.log('accepted!')
+  }
+
+  function onRejectPress() {
+    console.log('rejected!')
+  }
+
+  function onDeletePressed(e) {
+    setClickedConnection(e);
+    showAskDialog("Are you sure you want to delete this connection?", "This will also delete all certificates issued by this connection.", onSuccessPress, onRejectPress)
+  }
+
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Connections" />
@@ -74,7 +93,80 @@ function ConnectionsScreen(props) {
           <ActivityIndicator color={"#000"} size={"large"} />
         </View>
       }
-      {connectionsList.length > 0 ? (
+
+      {
+        connectionsList.length > 0 ?
+          <>
+            <View pointerEvents={isLoading ? 'none' : 'auto'}>
+              {
+                isModalVisible &&
+                <ActionDialog
+                  isVisible={isModalVisible}
+                  toggleModal={toggleModal}
+                  rejectModal={rejectModal}
+                  data={modalData}
+                  dismissModal={dismissModal}
+                  acceptModal={acceptModal}
+                  modalType="action"
+                  isIconVisible={true}
+                />
+              }
+              <SwipeListView
+                useFlatList
+                disableRightSwipe
+                data={connectionsList}
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  paddingBottom: 50,
+                }}
+                keyExtractor={(rowData, index) => {
+                  return index;
+                }}
+                renderItem={(rowData, rowMap) => {
+                  let imgURI = rowData.item.imageUrl;
+                  let header = rowData.item.name != undefined ? rowData.item.name : "";
+                  let subtitle =
+                    'The connection between you and ' +
+                    header.toLowerCase() +
+                    ' is secure and encrypted.';
+                  return (
+                    <FlatCard onPress={() => { }} imageURL={imgURI} heading={header} text={subtitle} />
+                  );
+                }}
+                renderHiddenItem={({ item, index }) => (
+                  <View key={index} style={styles.rowBack}>
+                    <TextComponent text="" />
+                    <Animated.View>
+                      <TouchableOpacity onPress={() => onDeletePressed(item)} activeOpacity={0.8}
+                        style={[
+                          styles.swipeableViewStyle,
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          size={30}
+                          name="delete"
+                          padding={30}
+                          color={RED_COLOR}
+                        />
+                      </TouchableOpacity>
+                    </Animated.View>
+                  </View>
+                )}
+                leftOpenValue={75}
+                rightOpenValue={-75}
+              />
+            </View>
+          </>
+          :
+          <View style={styles.EmptyContainer}>
+            <TextComponent text="You have no connections yet." />
+            <ImageBoxComponent
+              source={require('../assets/images/connectionsempty.png')}
+            />
+          </View>
+      }
+
+      {/* {connectionsList.length > 0 ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingTop: 8, }}>
           {connectionsList.map((v, i) => {
             let imgURI = v.imageUrl;
@@ -99,7 +191,7 @@ function ConnectionsScreen(props) {
             />
           </View>
         )
-      }
+      } */}
     </View >
   );
 }
@@ -113,6 +205,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rowBack: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingLeft: 15,
+  },
+  swipeableViewStyle: {
+    width: 60,
+    height: 60,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    shadowColor: SECONDARY_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 5,
+    flexDirection: 'row',
+    marginBottom: 8,
+  }
 });
 
 export default ConnectionsScreen;
