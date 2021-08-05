@@ -31,6 +31,7 @@
     "react-native": "0.64.2",
     "react-native-appstate-hook": "^1.0.5",
     "react-native-camera": "^3.43.6",
+    "react-native-collapsible": "^1.6.0",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-elements": "^3.4.2",
     "react-native-fingerprint-scanner": "^5.0.0",

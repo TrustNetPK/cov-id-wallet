@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Text, View, AlertIOS, Alert, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { Text, View, AlertIOS, Alert, StyleSheet, Image, ActivityIndicator, FlatList } from 'react-native';
 import Modal from 'react-native-modal';
 import {
     WHITE_COLOR,
@@ -16,6 +16,8 @@ import { showMessage } from '../../helpers/Toast';
 import { get_all_credentials_for_verification } from '../../gateways/verifications';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { getActionText } from '../../helpers/ActionList';
+import CustomAccordian from './components/CustomAccordian';
+import RadioButton from './components/RadioButton';
 
 
 function ActionDialog(props) {
@@ -24,7 +26,9 @@ function ActionDialog(props) {
     const [visible, setVisible] = useState(props.isVisible);
     const [spinner, setSpinner] = useState(false);
     const [values, setValues] = useState();
-    const [credential, setCredential] = useState({});
+    const [credential, setCredential] = useState([]);
+    const [selectedCred, setSelectedCred] = useState({});
+    const [counter, setCounter] = useState(0);
 
     useLayoutEffect(() => {
         async function getAllCredForVeri() {
@@ -32,10 +36,10 @@ function ActionDialog(props) {
                 setSpinner(true)
 
                 let result = await get_all_credentials_for_verification(props.data.verificationId);
-
+                console.log(result.data.availableCredentials[0].availableCredentials)
                 if (result.data.success) {
                     let val = result.data.availableCredentials[0].availableCredentials[0].values
-                    let cred = result.data.availableCredentials[0].availableCredentials[0];
+                    let cred = result.data.availableCredentials[0].availableCredentials;
 
                     setCredential(cred);
                     setValues(val)
@@ -63,12 +67,22 @@ function ActionDialog(props) {
     function acceptHandler() {
         let val = values
 
+        // If value is empty
         if (val == undefined) return
 
-        if (props.data.type == VER_REQ) {
-            val = credential;
+        // If no certificate is selected.
+        if (Object.keys(selectedCred).length === 0) {
+            alert('Please select a certificate');
+            return
         }
+
+        if (props.data.type == VER_REQ) {
+            val = selectedCred;
+        }
+
+        // Adding type.
         val.type = props.data.type
+
         props.acceptModal(val);
     }
 
@@ -79,6 +93,13 @@ function ActionDialog(props) {
             props.dismissModal()
         }, 500);
 
+    }
+    useEffect(() => {
+        setCounter((counter) => counter + 1)
+    }, [selectedCred])
+
+    function setSelected(e) {
+        setSelectedCred(e);
     }
 
     function renderTitleInput(title, index) {
@@ -152,25 +173,51 @@ function ActionDialog(props) {
                             </Text>
                         </View>
                     }
+                    {/* {spinner &&
+                        <View style={{
+                            zIndex: 10, justifyContent: "center",
+                            alignItems: "center",
+                        }}>
+                            <ActivityIndicator color={"#000"} size={"small"} />
+                        </View>
+                    } */}
+                    {/* {
+                        <FlatList
+                            data={credential}
+                            extraData={counter}
+                            keyExtractor={(item, index) => {
+                                return index;
+                            }}
+                            renderItem={({ item, index }) => {
+                                return (
+                                    <RadioButton isChecked={selectedCred == item} item={item} setSelected={setSelected}>
+                                        <CustomAccordian item />
+                                    </RadioButton>
+                                )
+                            }}
+                        />
+                    } */}
                     <KeyboardAwareScrollView
                         style={{
                             maxHeight: 250,
                         }}>
-                        {spinner &&
+                        {spinner ?
                             <View style={{
                                 zIndex: 10, justifyContent: "center",
                                 alignItems: "center",
                             }}>
                                 <ActivityIndicator color={"#000"} size={"small"} />
                             </View>
+                            :
+                            credential.length > 0 &&
+                            <CustomAccordian credential={credential} setSelected={setSelected} />
+
                         }
-                        {
+                        {/* {
                             values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                return (
-                                    renderTitleInput(e, i)
-                                )
+                                return <CustomAccordian />
                             })
-                        }
+                        } */}
                     </KeyboardAwareScrollView>
 
                     <View style={styles.buttonsRow}>

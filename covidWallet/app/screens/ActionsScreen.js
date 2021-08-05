@@ -145,11 +145,6 @@ function ActionsScreen({ navigation }) {
     let finalObj = [];
 
     // /** CONNECTION OFFER */
-    // // Get Connection List
-    // let connectionList = JSON.parse(await getItem(ConstantsList.CONNECTIONS) || null);
-
-    // // Return if no connections exist
-    // if (connectionList == null) return;
 
     // Get Connection Request
     let connection_request = JSON.parse(await getItem(ConstantsList.CONN_REQ) || null);
@@ -198,7 +193,7 @@ function ActionsScreen({ navigation }) {
   };
 
   const acceptModal = async (v) => {
-    if (v.type == CRED_OFFER) handleCredentialRequest(v);
+    if (v.type == CRED_OFFER) handleCredentialRequest();
 
     else if (v.type == VER_REQ) handleVerificationRequests(v);
 
