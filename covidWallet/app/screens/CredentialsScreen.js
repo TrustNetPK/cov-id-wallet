@@ -13,7 +13,6 @@ import useCredentials from '../hooks/useCredentials';
 function CredentialsScreen(props) {
 
   const [isCredential, setCredential] = useState(false);
-  // const [isLoading, setIsLoading] = useState(true);
 
   // Credentials hook
   const { credentials } = useCredentials(isCredential);
@@ -25,14 +24,11 @@ function CredentialsScreen(props) {
     }, [])
   );
 
-
   useEffect(() => {
     if (isCredential) {
       setCredential(false);
     }
   }, [isCredential])
-
-
 
   const toggleModal = (v) => {
     props.navigation.navigate("DetailsScreen", {

@@ -157,6 +157,7 @@ function NavigationComponent() {
               <Stack.Screen
                 name="SettingsScreen"
                 options={({ navigation }) => ({
+                  headerTitle: 'Settings',
                   headerLeft: () => (
                     <MaterialIcons
                       onPress={() => {

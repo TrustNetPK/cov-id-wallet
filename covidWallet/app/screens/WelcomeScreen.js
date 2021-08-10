@@ -53,7 +53,7 @@ function WelcomeScreen({ navigation }) {
             textAlign: 'center',
           }}>
           <View style={{ marginTop: 20, marginLeft: 25, marginRight: 25 }}>
-            <HeadingComponent text="Zada is your Digital ID Wallet!" />
+            <HeadingComponent text="ZADA is your Digital ID Wallet!" />
           </View>
           <TextComponent
             onboarding={true}
@@ -76,7 +76,7 @@ function WelcomeScreen({ navigation }) {
                 fontFamily: 'Merriweather-Bold',
                 paddingTop: 30,
               }}>
-              We provide your privacy and data.
+              We protect your privacy and data.
             </Text>
             <Text
               style={{

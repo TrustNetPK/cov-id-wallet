@@ -131,7 +131,7 @@ export function getActionHeader(v) {
     case ConstantsList.CONN_REQ:
       return 'Connection Request'
     case ConstantsList.CRED_OFFER:
-      return 'Certificate Request'
+      return 'Certificate Offer'
     case ConstantsList.VER_REQ:
       return 'Verification Request'
     default:
@@ -144,7 +144,7 @@ export function getActionText(v) {
     case ConstantsList.CONN_REQ:
       return ' has invited you to connect.'
     case ConstantsList.CRED_OFFER:
-      return ' has sent you a certificate request do you want to accept it?'
+      return ' has sent you a certificate. Do you want to accept it?'
     case ConstantsList.VER_REQ:
       return ' has sent you a request for data verification'
     default:

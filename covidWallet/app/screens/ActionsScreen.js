@@ -193,17 +193,20 @@ function ActionsScreen({ navigation }) {
   };
 
   const acceptModal = async (v) => {
-    if (v.type == CRED_OFFER) handleCredentialRequest();
+    if(!isLoading){
+      if (v.type == CRED_OFFER) handleCredentialRequest();
 
-    else if (v.type == VER_REQ) handleVerificationRequests(v);
+      else if (v.type == VER_REQ) handleVerificationRequests(v);
 
-    else if (v.type == CONN_REQ) handleConnectionRequest(v);
+      else if (v.type == CONN_REQ) handleConnectionRequest(v);
+    }
   }
 
   // Handle Connection Request
   const handleConnectionRequest = async () => {
     if (networkState) {
       setIsLoading(true);
+      
       let resp = await AuthenticateUser();
       if (resp.success) {
         let selectedItemObj = JSON.parse(selectedItem)
@@ -219,6 +222,7 @@ function ActionsScreen({ navigation }) {
           // Accept connection Api call.
           let result = await accept_connection(selectedItemObj.metadata);
           if (result.data.success) {
+            
             await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
             // Update connection screen.
             await ls_addConnection(result.data.connection)
@@ -424,6 +428,7 @@ function ActionsScreen({ navigation }) {
             <SwipeListView
               useFlatList
               disableRightSwipe
+              disableLeftSwipe
               data={actionsList}
               contentContainerStyle={{
                 flexGrow: 1,
@@ -434,6 +439,7 @@ function ActionsScreen({ navigation }) {
               }}
               renderItem={(rowData, rowMap) => {
                 let header = getActionHeader(rowData.item.type);
+
                 let subtitle =
                   'Click to view the ' +
                   header.toLowerCase() +

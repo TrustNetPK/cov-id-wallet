@@ -11,20 +11,25 @@ import { showMessage } from '../helpers/Toast';
 
 var settingLocalData = {
   GENERAL: {
-    Agent: {
-      value: 'Phone',
-      type: 'Text',
-      key: '11',
-    },
-    Network: {
-      value: 'Sovrin Network',
-      type: 'Radio',
-      key: '12',
-      options: ['Soverin', 'non-soverin'],
-    },
+    // Agent: {
+    //   value: 'Phone',
+    //   type: 'Text',
+    //   key: '11',
+    // },
+    // Network: {
+    //   value: 'Sovrin Network',
+    //   type: 'Radio',
+    //   key: '12',
+    //   options: ['Soverin', 'non-soverin'],
+    // },
     Biometric: {
       value: false,
       type: 'Boolean'
+    },
+    'Logout': {
+      value: 'None',
+      type: 'Text',
+      key: '34',
     },
     key: '1',
   },
@@ -46,11 +51,6 @@ var settingLocalData = {
       type: 'Text',
       key: '33',
       to: 'https://zada.io/',
-    },
-    'Logout': {
-      value: 'None',
-      type: 'Text',
-      key: '34',
     },
     key: '3',
   },
@@ -114,8 +114,12 @@ export default function SettingsScreen(props) {
 
   const onLogoutPressed = async () => {
     AsyncStorage.clear();
-    props.navigation.popToTop();
-    props.navigation.replace("RegistrationScreen");
+    props.navigation.reset({
+        index: 0,
+        routes: [{ name: 'RegistrationScreen' }]
+    });
+    // props.navigation.popToTop();
+    // props.navigation.replace("RegistrationScreen");
   }
 
   return (
@@ -245,7 +249,7 @@ export default function SettingsScreen(props) {
         }}
       />
       <View style={styles.footer}>
-        <Text style={styles.footerText} >In Collaboration with &nbsp;
+        <Text style={styles.footerText} >In Collaboration with&nbsp;
           <Text
             style={{ color: PRIMARY_COLOR, }}
             onPress={() => { Linking.openURL('https://trust.net.pk/') }}
@@ -299,14 +303,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center',
     alignContent: 'center',
-    backgroundColor: 'white',
   },
   footerText: {
     textAlign: 'center',
     color: 'black',
     padding: 10,
-    fontSize: 15,
+    fontSize: 14,
     margin: 10,
-    fontFamily: 'Poppins-Bold'
+    fontFamily: 'Poppins-Regular',
+
   }
 });

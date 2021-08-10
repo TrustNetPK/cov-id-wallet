@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  Platform,
 } from 'react-native';
 import {
   PRIMARY_COLOR,
@@ -157,7 +158,10 @@ function MultiFactorScreen({ route, navigation }) {
         alignItems: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <KeyboardAvoidingView behavior="padding" enabled>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        enabled
+      >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View
@@ -239,7 +243,7 @@ function MultiFactorScreen({ route, navigation }) {
                       />
                     </View>
                     <Text style={styles.textView}>
-                      The code expires in 5 minutes - Go back to retry again incase code expires.
+                      The code expires in 5 minutes - Go back to retry again in case code expires.
                     </Text>
                     {/* <TouchableOpacity style={styles.borderButton}>
                     <Text style={styles.borderText}>RESEND EMAIL</Text>

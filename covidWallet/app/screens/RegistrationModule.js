@@ -224,7 +224,6 @@ function RegistrationModule({ navigation }) {
     }
   };
 
-
   function renderPhoneNumberInput() {
     return (
       <PhoneInput
@@ -483,7 +482,7 @@ function RegistrationModule({ navigation }) {
                     marginTop: 10,
                     marginRight: 20,
                   }}>
-                  We need your details as you ZADA WALLET will be based on it.
+                  We need your details as your ZADA WALLET will be based on it.
                   We are not going to send you ads or spam email, or sell your
                   information to a 3rd party.
                 </Text>

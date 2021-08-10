@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, TouchableOpacity, Animated, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { Alert, View, Text, TouchableOpacity, Animated, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -12,8 +12,8 @@ import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import ModalComponent from '../components/ModalComponent';
-import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
+import { getItem, deleteActionByConnId, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID } from '../helpers/Storage';
+import ConstantsList, { CONNECTIONS, CONN_REQ, CREDENTIALS, CRED_OFFER } from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
 import { showAskDialog, showMessage } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
@@ -25,6 +25,7 @@ function ConnectionsScreen(props) {
   const [clickedConnection, setClickedConnection] = useState();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [temp, setTemp] = useState(0);
 
   useEffect(() => {
     getAllConnections();
@@ -33,18 +34,20 @@ function ConnectionsScreen(props) {
 
   useFocusEffect(
     React.useCallback(() => {
-      updateConnectionsList();
+      getAllConnections();
       return;
     }, [isConnection]),
   );
 
   const updateConnectionsList = async () => {
     let connections = (JSON.parse(await getItem(ConstantsList.CONNECTIONS)) || []);
+    console.log("Connection Lenght",connections.length);
     if (connections.length > 0) {
       setConnectionsList(connections);
       setConnection(true);
     } else {
       setConnection(false);
+      setConnectionsList([]);
     }
   };
 
@@ -54,12 +57,12 @@ function ConnectionsScreen(props) {
       let result = await get_all_connections();
       if (result.data.success) {
         let connectionsList = result.data.connections;
-
         if (connectionsList.length > 0) {
           await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsList));
           updateConnectionsList()
         } else {
           setConnection(false);
+          setConnectionsList([]);
         }
       } else {
         showMessage('ZADA Wallet', resp.message);
@@ -72,8 +75,18 @@ function ConnectionsScreen(props) {
 
   }
 
-  async function onSuccessPress() {
-    console.log('accepted!')
+  async function onSuccessPress(connection) {
+    // Delete connection with its respective certificates
+    setIsLoading(true);
+
+    console.log(connection);
+    await deleteConnAndCredByConnectionID(connection.connectionId);
+    await deleteActionByConnectionID(connection.connectionId);
+
+    setTimeout(() => {
+      updateConnectionsList();
+      setIsLoading(false);
+    }, 1200);
   }
 
   function onRejectPress() {
@@ -82,7 +95,29 @@ function ConnectionsScreen(props) {
 
   function onDeletePressed(e) {
     setClickedConnection(e);
-    showAskDialog("Are you sure you want to delete this connection?", "This will also delete all certificates issued by this connection.", onSuccessPress, onRejectPress)
+    setTemp(Math.random() * 999);
+    Alert.alert(
+      "Are you sure you want to delete this connection?",
+      "This will also delete all certificates issued by this connection.",
+      [
+        {
+          text: 'Cancel',
+          onPress: () => onRejectPress(),
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => onSuccessPress(e),
+          style: 'default',
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () =>
+          onRejectPress()
+      },
+    );
+   //showAskDialog("Are you sure you want to delete this connection?", "This will also delete all certificates issued by this connection.", onSuccessPress, onRejectPress)
   }
 
   return (

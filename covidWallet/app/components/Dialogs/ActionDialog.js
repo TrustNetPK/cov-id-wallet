@@ -11,7 +11,7 @@ import {
 } from '../../theme/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import BorderButton from '../BorderButton';
-import { VER_REQ } from '../../helpers/ConfigApp';
+import { CRED_OFFER, VER_REQ } from '../../helpers/ConfigApp';
 import { showMessage } from '../../helpers/Toast';
 import { get_all_credentials_for_verification } from '../../gateways/verifications';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
@@ -36,13 +36,15 @@ function ActionDialog(props) {
                 setSpinner(true)
 
                 let result = await get_all_credentials_for_verification(props.data.verificationId);
+                
+                console.log("Result", result);
                 console.log(result.data.availableCredentials[0].availableCredentials)
                 if (result.data.success) {
                     let val = result.data.availableCredentials[0].availableCredentials[0].values
                     let cred = result.data.availableCredentials[0].availableCredentials;
 
                     setCredential(cred);
-                    setValues(val)
+                    setValues(val);
                 } else {
                     showMessage('ZADA Wallet', result.data.error);
                 }
@@ -71,7 +73,7 @@ function ActionDialog(props) {
         if (val == undefined) return
 
         // If no certificate is selected.
-        if (Object.keys(selectedCred).length === 0) {
+        if (props.data.type == VER_REQ && Object.keys(selectedCred).length === 0) {
             alert('Please select a certificate');
             return
         }
@@ -80,10 +82,10 @@ function ActionDialog(props) {
             val = selectedCred;
         }
 
-        // Adding type.
+        //Adding type.
         val.type = props.data.type
 
-        props.acceptModal(val);
+        props.acceptModal(props.data);
     }
 
     function dismiss() {
@@ -101,6 +103,8 @@ function ActionDialog(props) {
     function setSelected(e) {
         setSelectedCred(e);
     }
+
+    console.log(props.data);
 
     function renderTitleInput(title, index) {
         let value = Object.values(values)[index];
@@ -180,8 +184,8 @@ function ActionDialog(props) {
                         }}>
                             <ActivityIndicator color={"#000"} size={"small"} />
                         </View>
-                    } */}
-                    {/* {
+                    } 
+                    {
                         <FlatList
                             data={credential}
                             extraData={counter}
@@ -209,15 +213,16 @@ function ActionDialog(props) {
                                 <ActivityIndicator color={"#000"} size={"small"} />
                             </View>
                             :
-                            credential.length > 0 &&
-                            <CustomAccordian credential={credential} setSelected={setSelected} />
-
+                            props.data.type == VER_REQ && 
+                            credential.length > 0 ?
+                            (
+                                <CustomAccordian credential={credential} setSelected={setSelected} />
+                            ):(
+                                values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
+                                    return renderTitleInput(e, i)
+                                })
+                            )
                         }
-                        {/* {
-                            values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                return <CustomAccordian />
-                            })
-                        } */}
                     </KeyboardAwareScrollView>
 
                     <View style={styles.buttonsRow}>

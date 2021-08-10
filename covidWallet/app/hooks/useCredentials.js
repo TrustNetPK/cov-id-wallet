@@ -19,21 +19,47 @@ const useCredentials = (isCredential) => {
 
             // If arr is empty, return
             if (connectionsList.length === 0 || credentialsList.length === 0) {
+                setCredentials([]);
                 return
             }
+
+            let CredArr = [];
 
             // Looping to get values from crendentials array
             credentialsList.forEach((cred, i) => {
                 let item = connectionsList.find(c => c.connectionId == cred.connectionId)
-                credentialsList[i].imageUrl = item.imageUrl
-                credentialsList[i].organizationName = item.name
-                if (!credentialsList[i].hasOwnProperty('type')) {
-                    credentialsList[i].type = "Digital Certificate"
+
+                if(item !== undefined || null){
+                    console.log(item);
+                    let obj = {
+                        ...cred,
+                        imageUrl: item.imageUrl,
+                        organizationName: item.name,
+                        type: item.hasOwnProperty('type') ? item.type :
+                              (
+                                  (cred.values != undefined || cred.values != null) &&
+                                  cred.values["Vaccine Name"] != undefined &&
+                                  cred.values["Vaccine Name"].length != 0 &&
+                                  cred.values["Dose"] != undefined &&
+                                  cred.values["Dose"].length != 0
+                              ) ?
+                              'COVIDpass (Vaccination)' :
+                              "Digital Certificate",
+                    };
+                    CredArr.push(obj);
+
+                    // credentialsList[i].imageUrl = item.imageUrl
+                    // credentialsList[i].organizationName = item.name
+                    // if (!credentialsList[i].hasOwnProperty('type')) {
+                    //     credentialsList[i].type = "Digital Certificate"
+                    // }
+                    // console.log('Cred Item', credentialsList[i]);
                 }
             });
 
             // Set data
-            setCredentials(credentialsList);
+            console.log("CRED ARR LENGTH", CredArr.length);
+            setCredentials(CredArr);
         } catch (e) {
             console.log('error: updateCredentialList => ', e)
         }

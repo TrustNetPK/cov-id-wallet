@@ -1,6 +1,7 @@
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get_all_credentials } from '../gateways/credentials';
+import { delete_credential, get_all_credentials } from '../gateways/credentials';
+import { delete_connection } from '../gateways/connections';
 
 export const savePassCode = async (PassCode) => {
   return await AsyncStorage.setItem('@passCode', PassCode);
@@ -138,6 +139,77 @@ export const deleteCredentialByCredId = async (credentialId) => {
   await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsArr))
 };
 
+// Delete Connection and Credential by connection ID.
+export const deleteConnAndCredByConnectionID = async (connectionId) => {
+
+  // Getting Credentials Array
+  let credentials = await getItem(ConstantsList.CREDENTIALS);
+  let credentialsArr = JSON.parse(credentials);
+
+  // Getting Connections Array
+  let connections = await getItem(ConstantsList.CONNECTIONS);
+  let connectionsArr = JSON.parse(connections);
+
+  for(let i = 0; i < credentialsArr.length; ++i){
+    if(credentialsArr[i].connectionId ==  connectionId)
+      await delete_credential(credentialsArr[i].credentialId);
+  }
+
+  credentialsArr = credentialsArr.filter((c) => {
+    return c.connectionId != connectionId
+  });
+  console.log("CREDENTIALS DELETED");
+
+  connectionsArr = connectionsArr.filter((c) => {
+    return c.connectionId != connectionId
+  });
+
+  // Deleting Connection from DB
+  await delete_connection(connectionId);
+  console.log("CONNECTION DELETED");
+
+  await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsArr));
+  console.log("CREDENTIALS UPDATED", credentialsArr.length);
+
+  await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsArr));
+  console.log("CONNECTIONS UPDATED");
+};
+
+export const deleteActionByConnectionID = async (connectionId) => {
+
+  // Get Connection Request
+  let connection_request = JSON.parse(await getItem(ConstantsList.CONN_REQ) || null);
+
+  // If connection_request available
+  if (connection_request != null) {
+    connection_request = connection_request.filter(item => (
+      item.connectionId != connectionId
+    ));
+    await saveItem(ConstantsList.CONN_REQ, JSON.stringify(connection_request))
+  };
+
+  // Get Credential Offers
+  let credential_offer = JSON.parse(await getItem(ConstantsList.CRED_OFFER) || null);
+
+  // If credential_offer available
+  if (credential_offer != null) {
+    credential_offer = credential_offer.filter(item => (
+      item.connectionId != connectionId
+    ));
+    await saveItem(ConstantsList.CRED_OFFER, JSON.stringify(credential_offer))
+  };
+
+  // Get verification Offers
+  let verification_offers = JSON.parse(await getItem(ConstantsList.VER_REQ) || null);
+
+  // If credential_offer available
+  if (verification_offers != null) {
+    verification_offers = verification_offers.filter(item => (
+      item.connectionId != connectionId
+    ));
+    await saveItem(ConstantsList.VER_REQ, JSON.stringify(verification_offers))
+  };
+}
 
 // Search Connection by Organization Name.
 export const searchConnectionByOrganizationName = async (organizationName) => {
