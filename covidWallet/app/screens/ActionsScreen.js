@@ -239,6 +239,7 @@ function ActionsScreen({ navigation }) {
           setIsLoading(false);
         }
         catch (e) {
+          showMessage('Error', e);
           setIsLoading(false);
           console.log(e)
         }
@@ -273,6 +274,7 @@ function ActionsScreen({ navigation }) {
       }
       setIsLoading(false);
     } catch (e) {
+      showMessage('ZADA Wallet', e);
       setIsLoading(false);
       console.log(e);
     }
@@ -304,14 +306,16 @@ function ActionsScreen({ navigation }) {
           await deleteActionByVerID(selectedItemObj.verificationId)
           updateActionsList();
         } else {
-          showMessage('Zada', result.data.error)
+          showMessage('ZADA Wallet', result.data.error)
         }
         setIsLoading(false);
       } catch (e) {
         setIsLoading(false);
+        showMessage('ZADA Wallet', e);
         console.log(e)
       }
     } else {
+      setIsLoading(false);
       console.log('failed')
     }
   }
