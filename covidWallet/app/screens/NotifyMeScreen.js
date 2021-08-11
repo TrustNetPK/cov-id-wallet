@@ -1,23 +1,34 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Platform,
+  ToastAndroid,
+} from 'react-native';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import { AuthContext } from '../Navigation';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
-import PushNotification from "react-native-push-notification";
+import PushNotification from 'react-native-push-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ConstantsList from '../helpers/ConfigApp';
+import NetInfo from '@react-native-community/netinfo';
+import { getItem, saveItem } from '../helpers/Storage';
+import { useEffect } from 'react/cjs/react.production.min';
+
 
 const img = require('../assets/images/notifications.png');
 
 function NotifyMeScreen({ navigation }) {
   const { isFirstTimeFunction } = React.useContext(AuthContext);
 
-
   function enableNotifications() {
 
     PushNotification.checkPermissions((permissions) => {
-      console.log(permissions);
       if (permissions.badge !== true || permissions.alert !== true || permissions.sound !== false) {
         //activate notification permision if disabled
         PushNotification.requestPermissions();
