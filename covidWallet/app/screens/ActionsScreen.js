@@ -493,9 +493,8 @@ function ActionsScreen({ navigation }) {
               source={require('../assets/images/action.png')}
             />
             <View style={{
-              alignItems: "center",
-              position: 'absolute',
-              bottom: '12%',
+              flex: 1,
+              justifyContent: "center",
             }}>
               <BorderButton
                 nextHandler={() => {

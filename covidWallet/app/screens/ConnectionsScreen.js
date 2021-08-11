@@ -25,7 +25,6 @@ function ConnectionsScreen(props) {
   const [clickedConnection, setClickedConnection] = useState();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [temp, setTemp] = useState(0);
 
   useEffect(() => {
     getAllConnections();
@@ -95,7 +94,6 @@ function ConnectionsScreen(props) {
 
   function onDeletePressed(e) {
     setClickedConnection(e);
-    setTemp(Math.random() * 999);
     Alert.alert(
       "Are you sure you want to delete this connection?",
       "This will also delete all certificates issued by this connection.",
