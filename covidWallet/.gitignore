@@ -22,6 +22,9 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+android/app/google-services.json
+yarn.lock
+.history
 
 # Android/IntelliJ
 #
