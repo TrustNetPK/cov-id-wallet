@@ -106,7 +106,10 @@ function ActionsScreen({ navigation }) {
   React.useLayoutEffect(() => {
     navigation
       .dangerouslyGetParent()
-      .setOptions(isAction ? headerOptions : undefined);
+      .setOptions(headerOptions);
+    // navigation
+    //   .dangerouslyGetParent()
+    //   .setOptions(isAction ? headerOptions : undefined);
   }, [isAction, navigation]);
 
 
@@ -490,8 +493,9 @@ function ActionsScreen({ navigation }) {
               source={require('../assets/images/action.png')}
             />
             <View style={{
-              flex: 1,
-              justifyContent: "center"
+              alignItems: "center",
+              position: 'absolute',
+              bottom: '12%',
             }}>
               <BorderButton
                 nextHandler={() => {
