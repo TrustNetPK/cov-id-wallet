@@ -1,5 +1,5 @@
-import React, { useLayoutEffect, useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
@@ -12,6 +12,9 @@ import TextComponent from '../components/TextComponent';
 import ActionDialog from '../components/Dialogs/ActionDialog';
 import HeadingComponent from '../components/HeadingComponent';
 import BorderButton from '../components/BorderButton';
+
+import messaging from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
 
 import { themeStyles } from '../theme/Styles';
 import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
@@ -29,6 +32,8 @@ import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
 import useCredentials from '../hooks/useCredentials';
+import RNExitApp from 'react-native-exit-app';
+import { checkNotifications } from 'react-native-permissions';
 
 function ActionsScreen({ navigation }) {
 
@@ -86,7 +91,53 @@ function ActionsScreen({ navigation }) {
     return () => Linking.removeAllListeners();
   }, [])
 
+  //Checking Notification Status
+  useLayoutEffect(()=>{
 
+    const _checkPermission = async () => {
+      const authorizationStatus = await messaging().hasPermission();
+      if(authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED){
+        console.log("Notification Permission => NOT AUTHORIZED");
+        Alert.alert(
+          "Zada Wallet",
+          `Sorry! without notification's permission you cannot use the application`,
+          [
+            {
+              text: "Okay",
+              onPress: () => RNExitApp.exitApp(),
+              style: "cancel",
+            },
+          ],
+          {
+            cancelable: false,
+          }
+        )
+      }
+    };
+
+    _checkPermission();
+    // ask for notification permission
+   
+    // PushNotification.checkPermissions((permissions) => {
+    //   if (permissions.badge !== true && permissions.alert !== true && permissions.sound !== false) {
+    //     Alert.alert(
+    //       "Zada Wallet",
+    //       `Sorry! without notification's permission you cannot use the application`,
+    //       [
+    //         {
+    //           text: "Okay",
+    //           onPress: () => RNExitApp.exitApp(),
+    //           style: "cancel",
+    //         },
+    //       ],
+    //       {
+    //         cancelable: false,
+    //       }
+    //     )
+    //   }
+    // });
+    return;
+  },[]);
 
   // Update Actionlist if notificationReceived is true.
   useEffect(() => {
@@ -231,6 +282,9 @@ function ActionsScreen({ navigation }) {
             await ls_addConnection(result.data.connection)
 
             updateActionsList();
+            setTimeout(() => {
+              _showSuccessAlert('conn');
+            }, 500);
           } else {
             showMessage('ZADA Wallet', result.data.error);
             return
@@ -267,6 +321,10 @@ function ActionsScreen({ navigation }) {
 
         // Update ActionList
         updateActionsList();
+
+        setTimeout(() => {
+          _showSuccessAlert('cred');
+        }, 500);
       } else {
         console.log(result.data);
         showMessage('ZADA Wallet', result.message);
@@ -277,7 +335,6 @@ function ActionsScreen({ navigation }) {
       console.log(e);
     }
   }
-
 
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {
@@ -303,6 +360,9 @@ function ActionsScreen({ navigation }) {
         if (result.data.success) {
           await deleteActionByVerID(selectedItemObj.verificationId)
           updateActionsList();
+
+          _showSuccessAlert("ver");
+
         } else {
           showMessage('Zada', result.data.error)
         }
@@ -380,6 +440,32 @@ function ActionsScreen({ navigation }) {
     }
   };
 
+  // Function that will show alert on acceptance of connection and credential
+  const _showSuccessAlert = (action) => {
+
+    let message = '';
+    if(action == 'conn')
+      message = "Your connection is created successfully.";
+    else if(action == 'cred')
+      message = "You have received a certificate successfully.";
+    else if(action == 'ver')
+      message = "Your verification request is fulfilled successfully.";
+
+    Alert.alert(
+      "Zada Wallet",
+      `${message}`,
+      [
+        {
+          text: "Okay",
+          onPress: () => console.log('Success Alert Dismiss'),
+          style: "cancel",
+        },
+      ],
+      {
+        cancelable: true,
+      }
+    )
+  }
 
   const dismissModal = (v) => {
     setModalVisible(false);

@@ -134,11 +134,11 @@ android {
         applicationId "com.zadanetwork.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
+        versionCode 5
         versionName "0.2"
         missingDimensionStrategy 'react-native-camera', 'general'
-    missingDimensionStrategy 'react-native-camera', 'mlkit'
-    multiDexEnabled true
+        missingDimensionStrategy 'react-native-camera', 'mlkit'
+        multiDexEnabled true
     }
     splits {
         abi {

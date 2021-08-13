@@ -159,6 +159,8 @@ function initNotifications(localReceiveNotificationEventListener) {
   //   }, 5000)
   // }
 
+  console.log("INIT NOTIFICATION");
+
   if (Platform.OS === 'android') {
     PushNotification.getChannels(function (channel_ids) {
       console.log(channel_ids); // ['channel_id_1']
@@ -214,7 +216,7 @@ function initNotifications(localReceiveNotificationEventListener) {
      * - if you are not using remote notification or do not have Firebase installed, use this:
      *     requestPermissions: Platform.OS === 'ios'
      */
-    requestPermissions: Platform.OS !== 'ios',
+    //requestPermissions: Platform.OS !== 'ios',
   });
 }
 

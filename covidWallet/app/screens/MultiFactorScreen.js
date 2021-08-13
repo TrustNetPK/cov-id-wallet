@@ -19,7 +19,9 @@ import {
   WHITE_COLOR,
   GRAY_COLOR,
   BLACK_COLOR,
+  RED_COLOR,
 } from '../theme/Colors';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,16 +37,47 @@ function MultiFactorScreen({ route, navigation }) {
   const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
   const [networkState, setNetworkState] = useState(false);
   const [secret, setSecret] = useState('');
+  const [secureSecret, setSecureSecret] = useState(true);
   const [progress, setProgress] = useState(false);
   const [isAuthenticated, setAuthentication] = useState(false);
   const [isWalletCreated, setWallet] = useState(false);
 
+  // Countdown
+  const [minutes, setMinutes] = useState(4);
+  const [seconds, setSeconds] = useState(59);
+  const [timeout, setTimeout] = useState(false);
 
+  // Toggling for password 
+  const _toggleSecureSecretEntry = () => {
+    setSecureSecret(!secureSecret);
+  }
+  
   React.useEffect(() => {
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
   }, [networkState]);
+
+  React.useEffect(()=>{
+    let interval = setInterval(() => {
+      let tempSec = seconds-1;
+      if(tempSec <= 0 && minutes > 0){
+        setSeconds(59);
+        setMinutes(minutes - 1);
+      }
+      else if(tempSec <= 0 && minutes == 0){
+        setSeconds(0);
+        setMinutes(0);
+        clearInterval(interval);
+        setTimeout(true);
+      }
+      else{
+        setSeconds(tempSec);
+      }
+    }, 1000) //each count lasts for a second
+    //cleanup the interval on complete
+    return () => clearInterval(interval)
+  })
 
   const submit = () => {
     if (
@@ -92,6 +125,10 @@ function MultiFactorScreen({ route, navigation }) {
       setAuthentication(true);
       let resp = await AuthenticateUser(true);
       if (resp.success) {
+
+        // Put User isFirsTime Logic here as well
+        await AsyncStorage.setItem('isfirstTime', 'false');
+
         navigation.replace('SecurityScreen');
         setProgress(false);
       } else {
@@ -224,16 +261,30 @@ function MultiFactorScreen({ route, navigation }) {
                         }}
                       />
                     </View>
+                    {
+                      timeout ? (
+                        <Text style={styles._expireText}>Code(s) have expired, go back and try again!</Text>
+                      ):(
+                        <View style={styles._countdownView}>
+                          <Text style={styles._countdown}>Code(s) expires in</Text>
+                          <Text style={styles._countdown}>{('0' + minutes).slice(-2)} : {('0' + seconds).slice(-2)}</Text>
+                        </View>
+                      )
+                    }
+                    
+
                     <Text style={styles.textView}>
                       And the secret phrase you saved in previous phrase step.
                     </Text>
                     <Text style={styles.secretMessage}>Your Secret phrase</Text>
+
                     <View
-                      style={styles.inputView}>
+                      style={[styles.inputView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}]}>
                       <TextInput
-                        style={styles.TextInput}
+                        style={[styles.TextInput,{ marginRight: 4 }]}
                         placeholderTextColor="grey"
-                        placeholder="Secret Phrase"
+                        placeholder="Password"
+                        secureTextEntry={secureSecret}
                         multiline={false}
                         autoCapitalize={"none"}
                         keyboardType="name-phone-pad"
@@ -241,7 +292,17 @@ function MultiFactorScreen({ route, navigation }) {
                           setSecret(secretPhrase);
                         }}
                       />
+                      <FontAwesome
+                        onPress={_toggleSecureSecretEntry}
+                        name={secureSecret ? "eye-slash" : "eye"}
+                        size={25}
+                        color={GRAY_COLOR}
+                        style={{
+                          marginRight: 8,
+                        }}
+                      />
                     </View>
+                    
                     <Text style={styles.textView}>
                       The code expires in 5 minutes - Go back to retry again in case code expires.
                     </Text>
@@ -260,8 +321,13 @@ function MultiFactorScreen({ route, navigation }) {
                     ) : (
                       <TouchableOpacity
                         style={styles.primaryButton}
-                        onPress={submit}>
-                        <Text style={styles.text}>CONTINUE</Text>
+                        onPress={()=>{
+                          if(timeout)
+                            navigation.goBack();
+                          else
+                            submit()
+                        }}>
+                        <Text style={styles.text}>{timeout ? "GO BACK" : "CONTINUE"}</Text>
                       </TouchableOpacity>
                     )}
                   </ScrollView>
@@ -311,6 +377,21 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 13,
   },
+  _countdownView:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: 10,
+  },
+  _countdown:{
+    color: PRIMARY_COLOR,
+  },
+  _expireText:{
+    marginTop: 10,
+    color: RED_COLOR,
+    marginHorizontal: 16,
+  },
   checkboxContainer: {
     flexDirection: 'row',
     alignSelf: 'center',
@@ -333,6 +414,19 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
     marginBottom: 20,
+  },
+  _resendButton:{
+    alignSelf: 'center',
+    borderColor: GREEN_COLOR,
+    borderWidth: 2,
+    borderRadius: 20,
+    backgroundColor: GREEN_COLOR,
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    paddingRight: 20,
+    marginTop: 10,
+    width: 150,
   },
   primaryButton: {
     alignSelf: 'center',

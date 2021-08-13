@@ -34,6 +34,7 @@ build/
 local.properties
 *.iml
 google-services.json
+*.hprof
 
 # node.js
 #

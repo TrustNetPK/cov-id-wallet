@@ -65,9 +65,20 @@ function NavigationComponent() {
   };
 
   React.useEffect(() => {
-    SplashScreen.hide();
-    retrieveData();
+    setTimeout(() => {
+      SplashScreen.hide();
+      retrieveData();
+    }, 1500);
   }, [isFirstTime]);
+
+  const _loggingOut = () => {
+    try {
+      AsyncStorage.clear();
+      AsyncStorage.setItem('isfirstTime', 'true');
+    } catch (error) {
+      alert(error);
+    }
+  }
 
   const authContext = React.useMemo(
     () => ({
@@ -75,9 +86,27 @@ function NavigationComponent() {
         storeData();
         getisFirstTime('false');
       },
+      logout: () => {
+        _loggingOut();
+        getisFirstTime('true');
+        //_loggingOut(navigation);
+      }
     }),
     [],
   );
+
+  // const logoutContext = React.useMemo(
+  //   () => ({
+  //     logout: () => {
+  //       _loggingOut();
+  //       getisFirstTime('true');
+  //       //_loggingOut(navigation);
+  //     }
+  //   }),
+  //   [],
+  // );
+
+  
   return (
     <AuthContext.Provider value={authContext}>
       <RefreshContextProvider>

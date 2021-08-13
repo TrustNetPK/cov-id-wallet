@@ -1,6 +1,6 @@
 import { useFocusEffect, } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import CredentialsCard from '../components/CredentialsCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -8,7 +8,6 @@ import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import useCredentials from '../hooks/useCredentials';
-
 
 function CredentialsScreen(props) {
 

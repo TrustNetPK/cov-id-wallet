@@ -1,42 +1,72 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Platform,
-  ToastAndroid,
 } from 'react-native';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import { AuthContext } from '../Navigation';
-import GreenPrimaryButton from '../components/GreenPrimaryButton';
 import PushNotification from 'react-native-push-notification';
+import GreenPrimaryButton from '../components/GreenPrimaryButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ConstantsList from '../helpers/ConfigApp';
-import NetInfo from '@react-native-community/netinfo';
-import { getItem, saveItem } from '../helpers/Storage';
-import { useEffect } from 'react/cjs/react.production.min';
-
+import { checkNotifications, requestNotifications} from 'react-native-permissions';
+import messaging from '@react-native-firebase/messaging';
 
 const img = require('../assets/images/notifications.png');
 
 function NotifyMeScreen({ navigation }) {
   const { isFirstTimeFunction } = React.useContext(AuthContext);
+  const ctx = React.useContext(AuthContext);
 
-  function enableNotifications() {
-
-    PushNotification.checkPermissions((permissions) => {
-      if (permissions.badge !== true || permissions.alert !== true || permissions.sound !== false) {
-        //activate notification permision if disabled
-        PushNotification.requestPermissions();
+  async function enableNotifications() {
+    
+    // ask for notification permission
+    const authorizationStatus = await messaging().hasPermission();
+    if(authorizationStatus == messaging.AuthorizationStatus.AUTHORIZED){
+      console.log("Notification Permission => Already Authorized");
+      const authorizationStatus = await messaging().requestPermission({
+        sound: true,
+        badge: true,
+        alert: true,
+      });
+      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED) {
+        console.log("Notification Permission => Authorized");
+      } else if (authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+        console.log("Notification Permission => Provisional");
+      } else {
+        console.log("Notification Permission => Disabled");
       }
-    });
-    AsyncStorage.setItem('isfirstTime', 'false').then(() => {
+    }
+    else{
+      const authorizationStatus = await messaging().requestPermission({
+        sound: true,
+        badge: true,
+        alert: true,
+      });
+      if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED) {
+        console.log("Notification Permission => Authorized");
+      } else if (authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+        console.log("Notification Permission => Provisional");
+      } else {
+        console.log("Notification Permission => Disabled");
+      }
+    }
+
+    await AsyncStorage.setItem('isfirstTime', 'false').then(() => {
       isFirstTimeFunction();
     });
+
+    // await PushNotification.checkPermissions((permissions) => {
+    //   if (permissions.badge !== true || permissions.alert !== true || permissions.sound !== false) {
+    //     //activate notification permision if disabled
+    //     PushNotification.requestPermissions();
+    //   }
+    // });
+    // await AsyncStorage.setItem('isfirstTime', 'false').then(() => {
+    //   isFirstTimeFunction();
+    // });
   }
 
   return (

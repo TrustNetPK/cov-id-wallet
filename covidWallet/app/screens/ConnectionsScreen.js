@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Alert, View, Text, TouchableOpacity, Animated, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { Alert, View, TouchableOpacity, Animated, StyleSheet, ActivityIndicator } from 'react-native';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -11,11 +11,10 @@ import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
-import ModalComponent from '../components/ModalComponent';
-import { getItem, deleteActionByConnId, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID } from '../helpers/Storage';
-import ConstantsList, { CONNECTIONS, CONN_REQ, CREDENTIALS, CRED_OFFER } from '../helpers/ConfigApp';
+import { getItem, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID } from '../helpers/Storage';
+import ConstantsList from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
-import { showAskDialog, showMessage } from '../helpers/Toast';
+import { showMessage } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 

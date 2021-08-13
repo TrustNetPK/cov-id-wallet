@@ -2,6 +2,7 @@ import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { delete_credential, get_all_credentials } from '../gateways/credentials';
 import { delete_connection } from '../gateways/connections';
+import { showMessage } from './Toast';
 
 export const savePassCode = async (PassCode) => {
   return await AsyncStorage.setItem('@passCode', PassCode);

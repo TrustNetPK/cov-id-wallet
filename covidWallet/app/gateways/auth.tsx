@@ -71,6 +71,8 @@ export async function registerDeviceToken(
       deviceToken: devicePushToken,
     };
 
+    console.log(obj)
+
     let headers = {
       'Content-Type': 'application/json',
       Authorization: 'Bearer ' + (await getToken()),
@@ -82,6 +84,7 @@ export async function registerDeviceToken(
       data: obj,
       headers,
     });
+    console.log("RESULT => ", result.data);
     return result;
   } catch (error) {
     throw error;

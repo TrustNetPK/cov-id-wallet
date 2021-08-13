@@ -52,8 +52,15 @@ function RegistrationModule({ navigation }) {
 
   const [secret, setSecret] = useState('');
   const [secretError, setSecretError] = useState('');
+  const [secureSecret, setSecureSecret] = useState(true);
+  
 
   const [progress, setProgress] = useState(false);
+
+  // Toggling for password 
+  const _toggleSecureSecretEntry = () => {
+    setSecureSecret(!secureSecret);
+  }
 
   const selectionOnPress = (userType) => {
     updateActiveOption(userType);
@@ -229,7 +236,7 @@ function RegistrationModule({ navigation }) {
       <PhoneInput
         ref={phoneInput}
         defaultValue={phone}
-        defaultCode="PK"
+        defaultCode="MM"
         layout="second"
         containerStyle={{
           flexDirection: "row",
@@ -409,16 +416,19 @@ function RegistrationModule({ navigation }) {
                   />
                 </View> */}
                 <Text style={styles.secretMessage}>
-                  Secret phrase (please save in safe place)
+                  Password (please save in safe place)
                 </Text>
                 <View>
                   <InputComponent
-                    placeholderText="Secret Phrase"
+                    type={'secret'}
+                    toggleSecureEntry={_toggleSecureSecretEntry}
+                    placeholderText="Password"
                     errorMessage={secretError}
                     value={secret}
                     keyboardType="default"
-                    isSecureText={false}
+                    isSecureText={secureSecret}
                     autoCapitalize={'none'}
+                    inputContainerStyle={{ width: '80%' }}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => {
                       setSecret(text.replace(',', ''))
@@ -429,16 +439,16 @@ function RegistrationModule({ navigation }) {
                       }
                     }}
                   />
-                  {
+                  {/* {
                     secretError == "" &&
                     <FontAwesome
                       style={{ height: 50, zIndex: 10 }}
-                      onPress={() => copyToClipboard()}
+                      onPress={() => setSecureSecret(!secureSecret)}
                       style={styles.textRightIcon}
-                      name="copy"
+                      name={secureSecret ? "eye-slash" : "eye"}
                       size={25}
                     />
-                  }
+                  } */}
                 </View>
                 {/* <View
                   style={{
@@ -521,11 +531,13 @@ function RegistrationModule({ navigation }) {
 
                 <View>
                   <InputComponent
-                    placeholderText="Secret Phrase"
+                    type={'secret'}
+                    toggleSecureEntry={_toggleSecureSecretEntry}
+                    placeholderText="Password"
                     errorMessage={secretError}
                     value={secret}
                     keyboardType="default"
-                    isSecureText={true}
+                    isSecureText={secureSecret}
                     autoCapitalize={'none'}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => {
@@ -566,8 +578,8 @@ const styles = StyleSheet.create({
     backgroundColor: WHITE_COLOR,
     borderRadius: 10,
     width: '94%',
-    height: 45,
     marginLeft: 10,
+    height: 45,
     marginTop: 8,
     paddingLeft: 16,
     borderBottomWidth: 0,
