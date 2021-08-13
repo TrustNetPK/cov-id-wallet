@@ -177,13 +177,17 @@ function ActionsScreen({ navigation }) {
       setDeepLink(true);
       return;
     } else {
+      console.log("DEEP LINK", initialUrl);
       const parsed = initialUrl.split('/');
       var item = {};
       item['type'] = parsed[3];
       item['metadata'] = parsed[4];
       requestArray.push(item);
+      console.log("DEEP LINK ITEM => ", item);
       const requestJson = JSON.parse(JSON.stringify(item));
       setDeepLink(true);
+      console.log("GOING TO QR CODE SCREEN");
+
       navigation.navigate('QRScreen', {
         request: requestJson,
       });
@@ -326,8 +330,8 @@ function ActionsScreen({ navigation }) {
           _showSuccessAlert('cred');
         }, 500);
       } else {
-        console.log(result.data);
-        showMessage('ZADA Wallet', result.message);
+        console.log("CRED API RESPONSE =>", JSON.parse(result.data.error));
+        showMessage('ZADA Wallet', "Invalid Credential Offer");
       }
       setIsLoading(false);
     } catch (e) {
@@ -517,7 +521,6 @@ function ActionsScreen({ navigation }) {
             <SwipeListView
               useFlatList
               disableRightSwipe
-              disableLeftSwipe
               data={actionsList}
               contentContainerStyle={{
                 flexGrow: 1,

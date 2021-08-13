@@ -155,10 +155,20 @@ function QRScreen({ route, navigation }) {
           }
         }
         setCredentialRequest(JSON.stringify(cred_arr));
+        if (route.params != undefined) {
+          setScan(false);
+          const { request } = route.params;
+          const qrJSON = JSON.parse(JSON.stringify(request));
+          if (request.type == 'credential_offer') {
+            setProgress(true);
+            getCredential(request.metadata);
+          }
+        }
       })
       .catch((e) => {
         console.log('Error is ' + e);
       });
+
 
     getItem(ConstantsList.PROOF_REQ)
       .then((data) => {
@@ -234,13 +244,13 @@ function QRScreen({ route, navigation }) {
     });
   };
 
-  const getCredential = async () => {
+  const getCredential = async (credID) => {
     let resp = await AuthenticateUser();
     if (resp.success) {
       await fetch(
         ConstantsList.BASE_URL +
         '/api/credential/get_credential' +
-        `?credentialId=${credentialID}`,
+        `?credentialId=${credID}`,
         {
           method: 'GET',
           headers: {
@@ -250,11 +260,12 @@ function QRScreen({ route, navigation }) {
         },
       ).then((credential) =>
         credential.json().then(async (data) => {
+          console.log("CRED DATA => ", data);
           if (data.success == false) {
             setProgress(false);
             Alert.alert(
               'ZADA',
-              data.message,
+              data.error,
               [
                 {
                   text: 'OK',
@@ -368,6 +379,7 @@ function QRScreen({ route, navigation }) {
 
     }
   };
+
   return (
     <View style={styles.MainContainer}>
       {scan ? (
