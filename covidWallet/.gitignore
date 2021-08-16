@@ -4,6 +4,7 @@
 .history
 # Xcode
 #
+GoogleService-Info.plist
 yarn.lock
 package-lock.json
 build/
@@ -47,6 +48,7 @@ buck-out/
 \.buckd/
 *.keystore
 !debug.keystore
+zada.keystore
 
 # fastlane
 #

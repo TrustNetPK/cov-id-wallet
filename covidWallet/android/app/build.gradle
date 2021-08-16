@@ -138,8 +138,8 @@ android {
         applicationId "com.zadanetwork.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "1.0"
+        versionCode 10
+        versionName "1.0.1"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'react-native-camera', 'mlkit'
         multiDexEnabled true
@@ -218,17 +218,17 @@ dependencies {
 
     addUnimodulesDependencies()
     
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-      exclude group:'com.facebook.fbjni'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }
+//    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
+//      exclude group:'com.facebook.fbjni'
+//    }
+//
+//    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
+//        exclude group:'com.facebook.flipper'
+//    }
+//
+//    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
+//        exclude group:'com.facebook.flipper'
+//    }
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";

@@ -64,7 +64,7 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     Fresco.initialize(this);
     SoLoader.init(this, /* native exopackage */ false);
-    initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    //initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
 
   /**
