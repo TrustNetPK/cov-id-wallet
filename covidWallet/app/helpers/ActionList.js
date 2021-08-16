@@ -10,9 +10,13 @@ export const addCredentialToActionList = async (credentialID) => {
   let resp = await AuthenticateUser();
   let cred_arr = [];
   let cred_arr_archive = await getItem(ConstantsList.CRED_OFFER);
-  if (cred_arr_archive !== null) {
-    cred_arr = JSON.parse(cred_arr_archive);
+
+  if(cred_arr_archive !== null){
+    if(JSON.parse(cred_arr_archive).find(i => i !== null))
+      cred_arr = JSON.parse(cred_arr_archive);
   }
+
+  
 
   if (ifExist(cred_arr, credentialID)) {
     return
@@ -22,10 +26,15 @@ export const addCredentialToActionList = async (credentialID) => {
     try {
       let result = await get_credential(credentialID);
       if (result.data.success) {
+
+        console.log("IN SUCCESS");
+        
         let obj = result.data.credential;
         obj['type'] = ConstantsList.CRED_OFFER;
         obj = await addImageAndNameFromConnectionList(obj)
         cred_arr.push(obj);
+      
+        console.log("CRED ARR => ", cred_arr);
 
         // Adding item to credentials.
         await saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr));

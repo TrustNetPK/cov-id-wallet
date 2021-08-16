@@ -6,7 +6,7 @@ import {
   analytics_log_reject_credential_request,
 } from '../helpers/analytics';
 
-async function getToken() {
+export async function getToken() {
   let resp = await AuthenticateUser();
   if (resp.success) {
     return resp.token;
@@ -95,6 +95,22 @@ export async function delete_credential(credentialId: string) {
     // Google Analytics
     analytics_log_reject_credential_request();
 
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Get All Crendentials offers API
+export async function get_all_credentials_offers() {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_all_credential_offers',
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
     return result;
   } catch (error) {
     throw error;

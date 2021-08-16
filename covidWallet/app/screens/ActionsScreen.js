@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated, Platform } from 'react-native';
+import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated, Platform, ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
@@ -19,21 +19,21 @@ import PushNotification from 'react-native-push-notification';
 import { themeStyles } from '../theme/Styles';
 import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 
-import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential } from '../helpers/Storage';
+import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
 
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { showMessage, showAskDialog } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
-import { getActionHeader } from '../helpers/ActionList';
+import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential } from '../gateways/credentials';
+import { accept_credential, delete_credential, getToken } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
 import useCredentials from '../hooks/useCredentials';
 import RNExitApp from 'react-native-exit-app';
-import { checkNotifications } from 'react-native-permissions';
+import http_client from '../gateways/http_client';
 
 function ActionsScreen({ navigation }) {
 
@@ -49,6 +49,7 @@ function ActionsScreen({ navigation }) {
   const [secret, storeSecret] = useState('');
   const [networkState, setNetworkState] = useState(false);
   const [deepLink, setDeepLink] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Credentials hook
   const { credentials } = useCredentials(!isLoading);
@@ -93,49 +94,30 @@ function ActionsScreen({ navigation }) {
 
   //Checking Notification Status
   useLayoutEffect(()=>{
-
+    console.log("LAYOUT EFFECT")
     const _checkPermission = async () => {
       const authorizationStatus = await messaging().hasPermission();
       if(authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED){
         console.log("Notification Permission => NOT AUTHORIZED");
+        _fetchActionList();
         Alert.alert(
           "Zada Wallet",
-          `Sorry! without notification's permission you cannot use the application`,
+          `Notification permission is disabled. You will not able to receive notification of credentials and verification requests.`,
           [
             {
               text: "Okay",
-              onPress: () => RNExitApp.exitApp(),
+              //onPress: () => RNExitApp.exitApp(),
+              onPress: () => console.log("You pressed okay"),
               style: "cancel",
             },
           ],
           {
-            cancelable: false,
+            cancelable: true,
           }
         )
       }
     };
-
     _checkPermission();
-    // ask for notification permission
-   
-    // PushNotification.checkPermissions((permissions) => {
-    //   if (permissions.badge !== true && permissions.alert !== true && permissions.sound !== false) {
-    //     Alert.alert(
-    //       "Zada Wallet",
-    //       `Sorry! without notification's permission you cannot use the application`,
-    //       [
-    //         {
-    //           text: "Okay",
-    //           onPress: () => RNExitApp.exitApp(),
-    //           style: "cancel",
-    //         },
-    //       ],
-    //       {
-    //         cancelable: false,
-    //       }
-    //     )
-    //   }
-    // });
     return;
   },[]);
 
@@ -162,7 +144,6 @@ function ActionsScreen({ navigation }) {
     //   .dangerouslyGetParent()
     //   .setOptions(isAction ? headerOptions : undefined);
   }, [isAction, navigation]);
-
 
   const getUrl = async (url) => {
     let initialUrl = '';
@@ -209,8 +190,11 @@ function ActionsScreen({ navigation }) {
 
     // If connection_request available
     if (connection_request != null) {
-      finalObj = finalObj.concat(connection_request)
+      if(connection_request.find(element => element == null) !== null)
+        finalObj = finalObj.concat(connection_request)
     };
+
+    console.log('C ARRAY => ', connection_request);
 
 
     /** CREDENTIALS OFFER */
@@ -219,9 +203,11 @@ function ActionsScreen({ navigation }) {
 
     // If credential_offer available
     if (credential_offer != null) {
-      finalObj = finalObj.concat(credential_offer)
+      if(credential_offer.find(element => element == null) !== null)
+        finalObj = finalObj.concat(credential_offer)
     };
 
+    console.log('CRE ARRAY => ', credential_offer);
 
     /** VERIFICATION OFFER */
     // Get verification Offers
@@ -229,17 +215,75 @@ function ActionsScreen({ navigation }) {
 
     // If credential_offer available
     if (verification_offers != null) {
-      finalObj = finalObj.concat(verification_offers)
+      if(verification_offers.find(element => element == null) !== null)
+        finalObj = finalObj.concat(verification_offers)
     };
+
+    console.log('VER ARRAY => ', verification_offers);
 
     // SetState ActionList
     if (finalObj.length > 0) {
       setActionsList(finalObj);
+      console.log("FINAL OBJ => ", finalObj);
       setAction(true);
     } else {
       setAction(false);
     }
   };
+
+  const _fetchActionList = async () => {
+    
+    console.log("IN");
+
+    setRefreshing(true);
+    let credentials = [], connections = [];
+
+    const token = await getToken();
+
+    // Fetching Connections and Saving in Connections
+    try {
+      let result = await http_client({
+        method: 'GET',
+        url: '/api/connection/get_all_connections',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+      connections = result.data.connections;
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+      console.log("Connections => ", connections);
+    } catch (error) {
+      alert(error);
+    }
+
+    // Fetching Credentials offers
+    try {
+      let result = await http_client({
+        method: 'GET',
+        url: '/api/credential/get_all_credential_offers',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+
+      //await saveItem(ConstantsList.CRED_OFFER, '');
+      credentials = result.data.offers;
+      for(let i = 0; i < result.data.offers.length; ++i){
+        await addCredentialToActionList(result.data.offers[i].credentialId);
+      }
+      console.log("CREDENTIALS => ", credentials);
+    } catch (error) {
+      alert(error);
+    }
+
+    await addVerificationToActionList();
+
+    updateActionsList();
+    setRefreshing(false);
+    // if(credentials.slength || verifications.length)
+    //   setAction(true);
+
+  }
 
   const toggleModal = (v) => {
     setSelectedItem(JSON.stringify(v));
@@ -406,6 +450,9 @@ function ActionsScreen({ navigation }) {
 
     if (selectedItemObj.type === ConstantsList.CRED_OFFER) {
       setModalVisible(false);
+
+      delete_credential(selectedItemObj.credentialId);
+
       deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId).then(
         (actions) => {
           updateActionsList();
@@ -519,6 +566,8 @@ function ActionsScreen({ navigation }) {
               />
             }
             <SwipeListView
+              refreshing={refreshing}
+              onRefresh={_fetchActionList}
               useFlatList
               disableRightSwipe
               data={actionsList}
@@ -576,7 +625,16 @@ function ActionsScreen({ navigation }) {
         </>
       ) : (
         <>
-          <View style={styles.EmptyContainer}>
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl 
+                refreshing={refreshing}
+                onRefresh={_fetchActionList}
+              />
+            }
+            contentContainerStyle={styles.EmptyContainer}
+          >
             <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
             <ImageBoxComponent
               source={require('../assets/images/action.png')}
@@ -597,7 +655,7 @@ function ActionsScreen({ navigation }) {
                 isIconVisible={true}
               />
             </View>
-          </View>
+          </ScrollView>
         </>
       )
       }

@@ -208,7 +208,7 @@ function RegistrationModule({ navigation }) {
       }).then((credsResult) =>
         credsResult.json().then((data) => {
           try {
-            console.log(JSON.stringify(data));
+            console.log("LOGIN API DATA => ",JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               storeUserID(response.userId);

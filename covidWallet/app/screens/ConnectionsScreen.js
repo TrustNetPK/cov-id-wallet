@@ -11,7 +11,7 @@ import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
-import { getItem, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID } from '../helpers/Storage';
+import { getItem, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID, deleteActionByVerID } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
 import { showMessage } from '../helpers/Toast';
@@ -64,7 +64,7 @@ function ConnectionsScreen(props) {
           setConnectionsList([]);
         }
       } else {
-        showMessage('ZADA Wallet', resp.message);
+        showMessage('ZADA Wallet', result.data.message);
       }
       setIsLoading(false);
     } catch (e) {
@@ -81,6 +81,8 @@ function ConnectionsScreen(props) {
     console.log(connection);
     await deleteConnAndCredByConnectionID(connection.connectionId);
     await deleteActionByConnectionID(connection.connectionId);
+    // const verifications = await getItem(ConstantsList.VER_REQ);
+    // await deleteActionByVerID()
 
     setTimeout(() => {
       updateConnectionsList();

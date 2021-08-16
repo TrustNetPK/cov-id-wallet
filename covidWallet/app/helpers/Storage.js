@@ -23,7 +23,7 @@ export const saveItem = async (key, value) => {
 };
 
 export const getItem = async (key) => {
-  return await AsyncStorage.getItem(key);
+  return value = await AsyncStorage.getItem(key);
 };
 
 // Add Connection
