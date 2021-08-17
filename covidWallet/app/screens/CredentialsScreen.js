@@ -1,6 +1,6 @@
 import { useFocusEffect, } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import CredentialsCard from '../components/CredentialsCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -135,8 +135,24 @@ function CredentialsScreen(props) {
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Certificates" />
-      { credentials.length > 1 &&
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+      { credentials.length > 0 ?
+        <ScrollView 
+          refreshControl={
+            <RefreshControl
+              tintColor={'#7e7e7e'}
+              refreshing={refreshing}
+              onRefresh={_fetchingAppData}
+            />
+          }
+          showsVerticalScrollIndicator={false} 
+          style={{
+            flexGrow: 1,
+          }}
+          contentContainerStyle={{ 
+            width: '100%',
+            height: '100%',
+          }}
+        >
           {/* <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} /> */}
           {credentials.length > 0 && credentials.map((v, i) => {
             let imgURI = { uri: v.imageUrl };
@@ -153,12 +169,13 @@ function CredentialsScreen(props) {
           })
 
           }
-        </ScrollView>}
-      {
-        credentials.length < 1 &&
+        </ScrollView>
+        :
+
         <ScrollView
           refreshControl={
             <RefreshControl
+              tintColor={'#7e7e7e'}
               refreshing={refreshing}
               onRefresh={_fetchingAppData}
             />

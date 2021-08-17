@@ -154,13 +154,22 @@ function ConnectionsScreen(props) {
                 />
               }
               <SwipeListView
-                refreshing={refreshing}
-                onRefresh={getAllConnections}
+                refreshControl={
+                  <RefreshControl 
+                    tintColor={'#7e7e7e'}
+                    refreshing={refreshing}
+                    onRefresh={getAllConnections}
+                  />
+                }
                 useFlatList
                 disableRightSwipe
                 data={connectionsList}
-                contentContainerStyle={{
+                style={{
                   flexGrow: 1,
+                }}
+                contentContainerStyle={{ 
+                  width: '100%',
+                  height: '100%',
                   paddingBottom: 50,
                 }}
                 keyExtractor={(rowData, index) => {
@@ -205,6 +214,7 @@ function ConnectionsScreen(props) {
           <ScrollView
             refreshControl={
               <RefreshControl 
+                tintColor={'#7e7e7e'}
                 refreshing={refreshing}
                 onRefresh={getAllConnections}
               />

@@ -625,13 +625,22 @@ function ActionsScreen({ navigation }) {
               />
             }
             <SwipeListView
-              refreshing={refreshing}
-              onRefresh={_fetchActionList}
+              refreshControl={
+                <RefreshControl 
+                  tintColor={'#7e7e7e'}
+                  refreshing={refreshing}
+                  onRefresh={_fetchActionList}
+                />
+              }
               useFlatList
               disableRightSwipe
               data={actionsList}
-              contentContainerStyle={{
+              style={{
                 flexGrow: 1,
+              }}
+              contentContainerStyle={{ 
+                width: '100%',
+                height: '100%',
                 paddingBottom: 50,
               }}
               keyExtractor={(rowData, index) => {
@@ -688,6 +697,7 @@ function ActionsScreen({ navigation }) {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl 
+                tintColor={'#7e7e7e'}
                 refreshing={refreshing}
                 onRefresh={_fetchActionList}
               />
