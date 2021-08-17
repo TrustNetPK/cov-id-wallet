@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Alert, View, TouchableOpacity, Animated, StyleSheet, ActivityIndicator } from 'react-native';
+import { ScrollView, Alert, View, TouchableOpacity, Animated, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -25,15 +25,17 @@ function ConnectionsScreen(props) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [temp, setTemp] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    getAllConnections();
-    addVerificationToActionList()
+    //updateConnectionsList();
+    // getAllConnections();
+    // addVerificationToActionList()
   }, [])
 
   useFocusEffect(
     React.useCallback(() => {
-      getAllConnections();
+      updateConnectionsList();
       return;
     }, [isConnection]),
   );
@@ -51,24 +53,28 @@ function ConnectionsScreen(props) {
   };
 
   const getAllConnections = async () => {
-    setIsLoading(true);
+    setRefreshing(true);
     try {
       let result = await get_all_connections();
       if (result.data.success) {
         let connectionsList = result.data.connections;
         if (connectionsList.length > 0) {
           await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsList));
-          updateConnectionsList()
+          updateConnectionsList();
+          setRefreshing(false);
         } else {
           setConnection(false);
           setConnectionsList([]);
+          setRefreshing(false);
         }
       } else {
-        showMessage('ZADA Wallet', result.data.message);
+        console.log(result.data);
+        showMessage('ZADA Wallet', result.data.error);
+        setRefreshing(false);
       }
-      setIsLoading(false);
+      setRefreshing(false);
     } catch (e) {
-      setIsLoading(false);
+      setRefreshing(false);
       console.log(e)
     }
 
@@ -131,7 +137,7 @@ function ConnectionsScreen(props) {
       }
 
       {
-        connectionsList.length > 0 ?
+        connectionsList.length ?
           <>
             <View pointerEvents={isLoading ? 'none' : 'auto'}>
               {
@@ -148,6 +154,8 @@ function ConnectionsScreen(props) {
                 />
               }
               <SwipeListView
+                refreshing={refreshing}
+                onRefresh={getAllConnections}
                 useFlatList
                 disableRightSwipe
                 data={connectionsList}
@@ -194,12 +202,21 @@ function ConnectionsScreen(props) {
             </View>
           </>
           :
-          <View style={styles.EmptyContainer}>
+          <ScrollView
+            refreshControl={
+              <RefreshControl 
+                refreshing={refreshing}
+                onRefresh={getAllConnections}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.EmptyContainer}
+          >
             <TextComponent text="You have no connections yet." />
             <ImageBoxComponent
               source={require('../assets/images/connectionsempty.png')}
             />
-          </View>
+          </ScrollView>
       }
 
       {/* {connectionsList.length > 0 ? (

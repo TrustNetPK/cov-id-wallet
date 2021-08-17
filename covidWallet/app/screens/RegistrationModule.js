@@ -33,6 +33,9 @@ import { showMessage } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
 import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
+import { get_all_connections } from '../gateways/connections';
+import { get_all_credentials } from '../gateways/credentials';
+import { addVerificationToActionList } from '../helpers/ActionList';
 
 const { height, width } = Dimensions.get('window');
 
@@ -192,6 +195,57 @@ function RegistrationModule({ navigation }) {
     }
   };
 
+  // Function to fetch connection and credentials
+  const _fetchingAppData = async () => {
+    // Fetching Connections
+    const connResponse = await get_all_connections();
+    let connections = connResponse.data.connections;
+    if(connections.length)
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+    else
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
+
+    console.log("CONNECTIONS SAVED");
+
+    // Fetching Credentials
+    const credResponse = await get_all_credentials();
+    let credentials = credResponse.data.credentials;
+    let CredArr = [];
+    if(credentials.length && connections.length){
+      // Looping to update credentials object in crendentials array
+      credentials.forEach((cred, i) => {
+        let item = connections.find(c => c.connectionId == cred.connectionId)
+
+        if(item !== undefined || null){
+          let obj = {
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+              (
+                (cred.values != undefined || cred.values != null) &&
+                cred.values["Vaccine Name"] != undefined &&
+                cred.values["Vaccine Name"].length != 0 &&
+                cred.values["Dose"] != undefined &&
+                cred.values["Dose"].length != 0
+            ) ?
+            'COVIDpass (Vaccination)' :
+            "Digital Certificate",
+          };
+          CredArr.push(obj);
+        }
+      });
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+    }
+    else
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
+
+    console.log("CREDENTIALS SAVED");
+
+    await addVerificationToActionList();
+
+  }
+
   const login = async () => {
     if (networkState) {
       await fetch(ConstantsList.BASE_URL + `/api/login`, {
@@ -206,14 +260,15 @@ function RegistrationModule({ navigation }) {
           secretPhrase: secret,
         }),
       }).then((credsResult) =>
-        credsResult.json().then((data) => {
+        credsResult.json().then(async(data) => {
           try {
             console.log("LOGIN API DATA => ",JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               storeUserID(response.userId);
               saveItem(ConstantsList.WALLET_SECRET, secret);
-              authenticateUserToken();
+              await _fetchingAppData();
+              await authenticateUserToken();
             } else {
               showMessage('ZADA Wallet', response.error);
               setProgress(false);

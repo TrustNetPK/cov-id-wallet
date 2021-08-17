@@ -1,10 +1,11 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated, Platform, ScrollView, RefreshControl } from 'react-native';
+import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import AntIcon from 'react-native-vector-icons/AntDesign';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
@@ -17,7 +18,7 @@ import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 
 import { themeStyles } from '../theme/Styles';
-import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 
 import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
@@ -27,7 +28,7 @@ import { showMessage, showAskDialog } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential, delete_credential, getToken } from '../gateways/credentials';
+import { accept_credential, delete_credential, getToken, get_credential } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
@@ -52,7 +53,7 @@ function ActionsScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   // Credentials hook
-  const { credentials } = useCredentials(!isLoading);
+  //const { credentials } = useCredentials(!isLoading);
   // Notification hook
   const { notificationReceived } = useNotification();
 
@@ -94,15 +95,14 @@ function ActionsScreen({ navigation }) {
 
   //Checking Notification Status
   useLayoutEffect(()=>{
-    console.log("LAYOUT EFFECT")
     const _checkPermission = async () => {
       const authorizationStatus = await messaging().hasPermission();
-      if(authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED){
+      if(authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED){ 
         console.log("Notification Permission => NOT AUTHORIZED");
         _fetchActionList();
         Alert.alert(
           "Zada Wallet",
-          `Notification permission is disabled. You will not able to receive notification of credentials and verification requests.`,
+          `Notifications are disabled. You will not be able to receive alerts for the actions. Pull down to refresh and receive the latest actions.`,
           [
             {
               text: "Okay",
@@ -152,22 +152,22 @@ function ActionsScreen({ navigation }) {
     } else {
       initialUrl = await Linking.getInitialURL()
     }
-    console.log('url =>', url);
-    console.log('initialUrl =>', initialUrl);
+    // console.log('url =>', url);
+    // console.log('initialUrl =>', initialUrl);
     if (initialUrl === null) {
       setDeepLink(true);
       return;
     } else {
-      console.log("DEEP LINK", initialUrl);
+      // console.log("DEEP LINK", initialUrl);
       const parsed = initialUrl.split('/');
       var item = {};
       item['type'] = parsed[3];
       item['metadata'] = parsed[4];
       requestArray.push(item);
-      console.log("DEEP LINK ITEM => ", item);
+      //console.log("DEEP LINK ITEM => ", item);
       const requestJson = JSON.parse(JSON.stringify(item));
       setDeepLink(true);
-      console.log("GOING TO QR CODE SCREEN");
+      //console.log("GOING TO QR CODE SCREEN");
 
       navigation.navigate('QRScreen', {
         request: requestJson,
@@ -194,9 +194,6 @@ function ActionsScreen({ navigation }) {
         finalObj = finalObj.concat(connection_request)
     };
 
-    console.log('C ARRAY => ', connection_request);
-
-
     /** CREDENTIALS OFFER */
     // Get Credential Offers
     let credential_offer = JSON.parse(await getItem(ConstantsList.CRED_OFFER) || null);
@@ -207,7 +204,6 @@ function ActionsScreen({ navigation }) {
         finalObj = finalObj.concat(credential_offer)
     };
 
-    console.log('CRE ARRAY => ', credential_offer);
 
     /** VERIFICATION OFFER */
     // Get verification Offers
@@ -219,12 +215,10 @@ function ActionsScreen({ navigation }) {
         finalObj = finalObj.concat(verification_offers)
     };
 
-    console.log('VER ARRAY => ', verification_offers);
-
     // SetState ActionList
     if (finalObj.length > 0) {
       setActionsList(finalObj);
-      console.log("FINAL OBJ => ", finalObj);
+      //console.log("FINAL OBJ => ", finalObj);
       setAction(true);
     } else {
       setAction(false);
@@ -233,7 +227,7 @@ function ActionsScreen({ navigation }) {
 
   const _fetchActionList = async () => {
     
-    console.log("IN");
+    //console.log("IN");
 
     setRefreshing(true);
     let credentials = [], connections = [];
@@ -249,9 +243,15 @@ function ActionsScreen({ navigation }) {
           Authorization: 'Bearer ' + token,
         },
       });
-      connections = result.data.connections;
-      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
-      console.log("Connections => ", connections);
+      if(result.data.success){
+        connections = result.data.connections;
+        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+      }
+      else{
+        console.log(result.data.error);
+      }
+    
+      //console.log("Connections => ", connections);
     } catch (error) {
       alert(error);
     }
@@ -265,13 +265,16 @@ function ActionsScreen({ navigation }) {
           Authorization: 'Bearer ' + token,
         },
       });
-
-      //await saveItem(ConstantsList.CRED_OFFER, '');
-      credentials = result.data.offers;
-      for(let i = 0; i < result.data.offers.length; ++i){
-        await addCredentialToActionList(result.data.offers[i].credentialId);
+      
+      if(result.data.success){
+        credentials = result.data.offers;
+        for(let i = 0; i < result.data.offers.length; ++i){
+          await addCredentialToActionList(result.data.offers[i].credentialId);
+        }
       }
-      console.log("CREDENTIALS => ", credentials);
+      else{
+        console.log(result.data.error);
+      }
     } catch (error) {
       alert(error);
     }
@@ -280,8 +283,6 @@ function ActionsScreen({ navigation }) {
 
     updateActionsList();
     setRefreshing(false);
-    // if(credentials.slength || verifications.length)
-    //   setAction(true);
 
   }
 
@@ -345,7 +346,7 @@ function ActionsScreen({ navigation }) {
           console.log(e)
         }
       } else {
-        showMessage('ZADA Wallet', resp.message);
+        showMessage('ZADA Wallet', result.data.message);
         setIsLoading(false);
       }
     }
@@ -370,17 +371,57 @@ function ActionsScreen({ navigation }) {
         // Update ActionList
         updateActionsList();
 
+        // Fetching credential details
+        const credResponse = await get_credential(selectedItemObj.credentialId);
+        const cred = credResponse.data.credential;
+        
+        // fetching local connections and credentials
+        let connections = await getItem(ConstantsList.CONNECTIONS);
+        let credentials = await getItem(ConstantsList.CREDENTIALS);
+
+        // Parsing JSON
+        let connectionsList = JSON.parse(connections) || [];
+        let credentialsList = JSON.parse(credentials) || [];
+
+        // Finding corresponsing connection to this credential
+        let item = connectionsList.find(c => c.connectionId == cred.connectionId);
+
+        console.log("OLD CREDENTIAL OBJ", cred);
+
+        // Putting image, type and title in credential
+        let obj = {
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+                  (
+                      (cred.values != undefined || cred.values != null) &&
+                      cred.values["Vaccine Name"] != undefined &&
+                      cred.values["Vaccine Name"].length != 0 &&
+                      cred.values["Dose"] != undefined &&
+                      cred.values["Dose"].length != 0
+                  ) ?
+                  'COVIDpass (Vaccination)' :
+                  "Digital Certificate",
+        };
+
+        // Adding updated credential object to credentials list
+        credentialsList.unshift(obj);
+
+        console.log("UPDATED CREDENTIAL OBJ", obj);
+
+        // Saving updated credentials list in local storage
+        await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsList))
+
         setTimeout(() => {
           _showSuccessAlert('cred');
         }, 500);
       } else {
-        console.log("CRED API RESPONSE =>", JSON.parse(result.data.error));
         showMessage('ZADA Wallet', "Invalid Credential Offer");
       }
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);
-      console.log(e);
     }
   }
 
@@ -417,7 +458,6 @@ function ActionsScreen({ navigation }) {
         setIsLoading(false);
       } catch (e) {
         setIsLoading(false);
-        console.log(e)
       }
     } else {
       console.log('failed')
@@ -483,7 +523,6 @@ function ActionsScreen({ navigation }) {
 
         } catch (e) {
           setIsLoading(false);
-          console.log(e)
         }
       } else {
         console.log('failed')
@@ -543,9 +582,29 @@ function ActionsScreen({ navigation }) {
 
   return (
     <View style={themeStyles.mainContainer}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: isLoading ? 25 : 0,
+        }}
+      >
+        <AntIcon 
+          name='arrowdown'
+          size={15}
+          color={'#7e7e7e'}
+        />
+        <Text style={{
+          alignSelf: 'center',
+          color: '#7e7e7e',
+          marginLeft: 5,
+        }}>Pull to refresh</Text>
+      </View>
+      
       <HeadingComponent text="Actions" />
       {isLoading &&
-        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
+        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: 'center' }}>
           <ActivityIndicator color={"#000"} size={"large"} />
         </View>
       }
@@ -642,7 +701,7 @@ function ActionsScreen({ navigation }) {
             <View style={{
               alignItems: "center",
               position: 'absolute',
-              bottom: '12%',
+              bottom: '3%',
             }}>
               <BorderButton
                 nextHandler={() => {

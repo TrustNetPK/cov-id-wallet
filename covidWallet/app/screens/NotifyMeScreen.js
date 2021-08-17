@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
+  ActivityIndicator
 } from 'react-native';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
@@ -19,6 +20,7 @@ const img = require('../assets/images/notifications.png');
 function NotifyMeScreen({ navigation }) {
   const { isFirstTimeFunction } = React.useContext(AuthContext);
   const ctx = React.useContext(AuthContext);
+  const [isLoading, setLoading] = useState(false);
 
   async function enableNotifications() {
     

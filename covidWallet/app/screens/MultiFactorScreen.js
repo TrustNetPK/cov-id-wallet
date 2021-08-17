@@ -104,7 +104,7 @@ function MultiFactorScreen({ route, navigation }) {
           let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, secret);
 
           if (result.data.success) {
-            await saveItem(ConstantsList.USER_ID, result.data.userId)
+            await saveItem(ConstantsList.USER_ID, result.data.userId);
             await authenticateUser();
           } else {
             showMessage('ZADA Wallet', result.data.error);
