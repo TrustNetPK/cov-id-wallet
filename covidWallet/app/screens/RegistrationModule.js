@@ -96,7 +96,7 @@ function RegistrationModule({ navigation }) {
 
     // Check if name is valid.
     if (!nameRegex.test(name) && activeOption == 'register') {
-      setNameError("Please enter a name between 2-20 alphabetical characters long. No numbers or special characters.")
+      setNameError("Please enter a name between 2-1000 alphabetical characters long. No numbers or special characters.")
       return
     }
     setNameError('');

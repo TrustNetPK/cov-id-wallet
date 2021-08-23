@@ -130,9 +130,7 @@ function NavigationComponent() {
 
   // Checking auth status
   const _checkAuthStatus = () => {
-    setTimeout(() => {
-      retrieveData();
-    }, 1500);
+    retrieveData();
   }
 
   React.useEffect(() => {
