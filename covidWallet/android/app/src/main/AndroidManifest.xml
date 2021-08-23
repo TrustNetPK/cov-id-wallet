@@ -81,7 +81,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="zadanetwork.com"
+                    android:host="network"
                     android:scheme="zada" />
             </intent-filter>
         </activity>

@@ -13,9 +13,10 @@ export default function DetailsScreen(props) {
 
     // Constants
     const data = props.route.params.data;
-    const vaccineName = data.name
-    const imgURI = { uri: data.imageUrl }
-    const issuedBy = data.organizationName
+    const vaccineName = data.name;
+    const imgURI = { uri: data.imageUrl };
+    const issuedBy = data.organizationName;
+    let card_type = data.type
 
     // States
     const [isLoading, setIsLoading] = useState(false)
@@ -97,7 +98,7 @@ export default function DetailsScreen(props) {
             }
             <View style={styles.container}>
                 <View style={styles.CredentialsCardContainer}>
-                    <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
+                    <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
                 </View>
             </View>
 

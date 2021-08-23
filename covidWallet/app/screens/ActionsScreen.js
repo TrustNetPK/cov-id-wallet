@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl } from 'react-native';
+import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
@@ -35,6 +35,8 @@ import useNotification from '../hooks/useNotification';
 import useCredentials from '../hooks/useCredentials';
 import RNExitApp from 'react-native-exit-app';
 import http_client from '../gateways/http_client';
+
+const DIMENSIONS = Dimensions.get('screen');
 
 function ActionsScreen({ navigation }) {
 
@@ -305,49 +307,79 @@ function ActionsScreen({ navigation }) {
     }
   }
 
+  // Checks is connection already exists or not using name
+  const _isConnectionAlreadyExist = async () => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    let find = false;
+
+    const connections = JSON.parse(await getItem(ConstantsList.CONNECTIONS));
+
+    for(let i = 0; i < connections.length; ++i){
+      console.log(connections[i].name.toLowerCase() + '<==>' + selectedItemObj.organizationName.toLowerCase());
+      if(connections[i].name.toLowerCase() === selectedItemObj.organizationName.toLowerCase())
+        find = true;
+    }
+
+    // Delete connection action
+    if(find){
+      await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata);
+      updateActionsList();
+    }
+
+    return find;
+  }
+
   // Handle Connection Request
   const handleConnectionRequest = async () => {
     if (networkState) {
       setIsLoading(true);
       
-      let resp = await AuthenticateUser();
-      if (resp.success) {
-        let selectedItemObj = JSON.parse(selectedItem)
-        let userID = await getItem(ConstantsList.USER_ID);
-        let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-        storeUid(userID);
-        storeSecret(walletSecret);
+      if(!(await _isConnectionAlreadyExist())){
+        // Connection is not exist
+        let resp = await AuthenticateUser();
+        if (resp.success) {
+          let selectedItemObj = JSON.parse(selectedItem)
+          let userID = await getItem(ConstantsList.USER_ID);
+          let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+          storeUid(userID);
+          storeSecret(walletSecret);
 
 
-        setModalVisible(false);
+          setModalVisible(false);
 
-        try {
-          // Accept connection Api call.
-          let result = await accept_connection(selectedItemObj.metadata);
-          if (result.data.success) {
-            
-            await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
-            // Update connection screen.
-            await ls_addConnection(result.data.connection)
+          try {
+            // Accept connection Api call.
+            let result = await accept_connection(selectedItemObj.metadata);
+            if (result.data.success) {
+              
+              await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
+              // Update connection screen.
+              await ls_addConnection(result.data.connection)
 
-            updateActionsList();
-            setTimeout(() => {
-              _showSuccessAlert('conn');
-            }, 500);
-          } else {
-            showMessage('ZADA Wallet', result.data.error);
-            return
+              updateActionsList();
+              setTimeout(() => {
+                _showSuccessAlert('conn');
+              }, 500);
+            } else {
+              showMessage('ZADA Wallet', result.data.error);
+              return
+            }
+            setIsLoading(false);
           }
-
+          catch (e) {
+            setIsLoading(false);
+            console.log(e)
+          }
+        } else {
+          showMessage('ZADA Wallet', result.data.message);
           setIsLoading(false);
         }
-        catch (e) {
-          setIsLoading(false);
-          console.log(e)
-        }
-      } else {
-        showMessage('ZADA Wallet', result.data.message);
+      }
+      else{
+        // Connection is already exists
+        setModalVisible(false);
         setIsLoading(false);
+        showMessage('ZADA Wallet', 'Connection is already accepted')
       }
     }
     else {
@@ -640,8 +672,7 @@ function ActionsScreen({ navigation }) {
               }}
               contentContainerStyle={{ 
                 width: '100%',
-                height: '100%',
-                paddingBottom: 50,
+                height: DIMENSIONS.height,
               }}
               keyExtractor={(rowData, index) => {
                 return index;

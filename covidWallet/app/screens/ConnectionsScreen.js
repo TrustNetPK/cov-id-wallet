@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ScrollView, Alert, View, TouchableOpacity, Animated, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { ScrollView, Alert, View, TouchableOpacity, Animated, StyleSheet, ActivityIndicator, RefreshControl, Dimensions } from 'react-native';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -17,6 +17,8 @@ import { get_all_connections } from '../gateways/connections';
 import { showMessage } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+
+const DIMENSIONS = Dimensions.get('screen');
 
 function ConnectionsScreen(props) {
   const [isConnection, setConnection] = useState(true);
@@ -169,8 +171,7 @@ function ConnectionsScreen(props) {
                 }}
                 contentContainerStyle={{ 
                   width: '100%',
-                  height: '100%',
-                  paddingBottom: 50,
+                  height: DIMENSIONS.height,
                 }}
                 keyExtractor={(rowData, index) => {
                   return index;

@@ -15,6 +15,8 @@ import { get_all_credentials } from '../gateways/credentials';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { showMessage } from '../helpers/Toast';
 
+const DIMENSIONS = Dimensions.get('screen');
+
 function CredentialsScreen(props) {
 
   const [isCredential, setCredential] = useState(false);
@@ -150,7 +152,7 @@ function CredentialsScreen(props) {
           }}
           contentContainerStyle={{ 
             width: '100%',
-            height: '100%',
+            height: DIMENSIONS.height,
           }}
         >
           {/* <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} /> */}
