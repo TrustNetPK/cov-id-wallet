@@ -519,6 +519,10 @@ function RegistrationModule({ navigation }) {
                 </View>
                 {renderPhoneNumberInput()}
 
+                {/* Secret Phrase has been commented here
+                  due to new flow of login process
+                */}
+                
                 <View>
                   <InputComponent
                     placeholderText="Secret Phrase"
