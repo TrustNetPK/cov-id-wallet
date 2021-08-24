@@ -1,10 +1,11 @@
-import React, { useLayoutEffect, useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, TouchableHighlight, Animated } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import AntIcon from 'react-native-vector-icons/AntDesign';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import FlatCard from '../components/FlatCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
@@ -13,22 +14,29 @@ import ActionDialog from '../components/Dialogs/ActionDialog';
 import HeadingComponent from '../components/HeadingComponent';
 import BorderButton from '../components/BorderButton';
 
-import { themeStyles } from '../theme/Styles';
-import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import messaging from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
 
-import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential } from '../helpers/Storage';
+import { themeStyles } from '../theme/Styles';
+import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+
+import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
 
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { showMessage, showAskDialog } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
-import { getActionHeader } from '../helpers/ActionList';
+import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential } from '../gateways/credentials';
+import { accept_credential, delete_credential, getToken, get_credential } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
 import useCredentials from '../hooks/useCredentials';
+import RNExitApp from 'react-native-exit-app';
+import http_client from '../gateways/http_client';
+
+const DIMENSIONS = Dimensions.get('screen');
 
 function ActionsScreen({ navigation }) {
 
@@ -44,9 +52,10 @@ function ActionsScreen({ navigation }) {
   const [secret, storeSecret] = useState('');
   const [networkState, setNetworkState] = useState(false);
   const [deepLink, setDeepLink] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Credentials hook
-  const { credentials } = useCredentials(!isLoading);
+  //const { credentials } = useCredentials(!isLoading);
   // Notification hook
   const { notificationReceived } = useNotification();
 
@@ -86,7 +95,33 @@ function ActionsScreen({ navigation }) {
     return () => Linking.removeAllListeners();
   }, [])
 
-
+  //Checking Notification Status
+  useLayoutEffect(()=>{
+    const _checkPermission = async () => {
+      const authorizationStatus = await messaging().hasPermission();
+      if(authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED){ 
+        console.log("Notification Permission => NOT AUTHORIZED");
+        _fetchActionList();
+        Alert.alert(
+          "Zada Wallet",
+          `Notifications are disabled. You will not be able to receive alerts for the actions. Pull down to refresh and receive the latest actions.`,
+          [
+            {
+              text: "Okay",
+              //onPress: () => RNExitApp.exitApp(),
+              onPress: () => console.log("You pressed okay"),
+              style: "cancel",
+            },
+          ],
+          {
+            cancelable: true,
+          }
+        )
+      }
+    };
+    _checkPermission();
+    return;
+  },[]);
 
   // Update Actionlist if notificationReceived is true.
   useEffect(() => {
@@ -112,7 +147,6 @@ function ActionsScreen({ navigation }) {
     //   .setOptions(isAction ? headerOptions : undefined);
   }, [isAction, navigation]);
 
-
   const getUrl = async (url) => {
     let initialUrl = '';
     if (url != undefined) {
@@ -120,19 +154,23 @@ function ActionsScreen({ navigation }) {
     } else {
       initialUrl = await Linking.getInitialURL()
     }
-    console.log('url =>', url);
-    console.log('initialUrl =>', initialUrl);
+    // console.log('url =>', url);
+    // console.log('initialUrl =>', initialUrl);
     if (initialUrl === null) {
       setDeepLink(true);
       return;
     } else {
+      // console.log("DEEP LINK", initialUrl);
       const parsed = initialUrl.split('/');
       var item = {};
       item['type'] = parsed[3];
       item['metadata'] = parsed[4];
       requestArray.push(item);
+      //console.log("DEEP LINK ITEM => ", item);
       const requestJson = JSON.parse(JSON.stringify(item));
       setDeepLink(true);
+      //console.log("GOING TO QR CODE SCREEN");
+
       navigation.navigate('QRScreen', {
         request: requestJson,
       });
@@ -154,9 +192,9 @@ function ActionsScreen({ navigation }) {
 
     // If connection_request available
     if (connection_request != null) {
-      finalObj = finalObj.concat(connection_request)
+      if(connection_request.find(element => element == null) !== null)
+        finalObj = finalObj.concat(connection_request)
     };
-
 
     /** CREDENTIALS OFFER */
     // Get Credential Offers
@@ -164,7 +202,8 @@ function ActionsScreen({ navigation }) {
 
     // If credential_offer available
     if (credential_offer != null) {
-      finalObj = finalObj.concat(credential_offer)
+      if(credential_offer.find(element => element == null) !== null)
+        finalObj = finalObj.concat(credential_offer)
     };
 
 
@@ -174,17 +213,80 @@ function ActionsScreen({ navigation }) {
 
     // If credential_offer available
     if (verification_offers != null) {
-      finalObj = finalObj.concat(verification_offers)
+      if(verification_offers.find(element => element == null) !== null)
+        finalObj = finalObj.concat(verification_offers)
     };
 
     // SetState ActionList
     if (finalObj.length > 0) {
       setActionsList(finalObj);
+      //console.log("FINAL OBJ => ", finalObj);
       setAction(true);
     } else {
       setAction(false);
     }
   };
+
+  const _fetchActionList = async () => {
+    
+    //console.log("IN");
+
+    setRefreshing(true);
+    let credentials = [], connections = [];
+
+    const token = await getToken();
+
+    // Fetching Connections and Saving in Connections
+    try {
+      let result = await http_client({
+        method: 'GET',
+        url: '/api/connection/get_all_connections',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+      if(result.data.success){
+        connections = result.data.connections;
+        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+      }
+      else{
+        console.log(result.data.error);
+      }
+    
+      //console.log("Connections => ", connections);
+    } catch (error) {
+      alert(error);
+    }
+
+    // Fetching Credentials offers
+    try {
+      let result = await http_client({
+        method: 'GET',
+        url: '/api/credential/get_all_credential_offers',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+      
+      if(result.data.success){
+        credentials = result.data.offers;
+        for(let i = 0; i < result.data.offers.length; ++i){
+          await addCredentialToActionList(result.data.offers[i].credentialId);
+        }
+      }
+      else{
+        console.log(result.data.error);
+      }
+    } catch (error) {
+      alert(error);
+    }
+
+    await addVerificationToActionList();
+
+    updateActionsList();
+    setRefreshing(false);
+
+  }
 
   const toggleModal = (v) => {
     setSelectedItem(JSON.stringify(v));
@@ -205,47 +307,79 @@ function ActionsScreen({ navigation }) {
     }
   }
 
+  // Checks is connection already exists or not using name
+  const _isConnectionAlreadyExist = async () => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    let find = false;
+
+    const connections = JSON.parse(await getItem(ConstantsList.CONNECTIONS));
+
+    for(let i = 0; i < connections.length; ++i){
+      console.log(connections[i].name.toLowerCase() + '<==>' + selectedItemObj.organizationName.toLowerCase());
+      if(connections[i].name.toLowerCase() === selectedItemObj.organizationName.toLowerCase())
+        find = true;
+    }
+
+    // Delete connection action
+    if(find){
+      await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata);
+      updateActionsList();
+    }
+
+    return find;
+  }
+
   // Handle Connection Request
   const handleConnectionRequest = async () => {
     if (networkState) {
       setIsLoading(true);
       
-      let resp = await AuthenticateUser();
-      if (resp.success) {
-        let selectedItemObj = JSON.parse(selectedItem)
-        let userID = await getItem(ConstantsList.USER_ID);
-        let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-        storeUid(userID);
-        storeSecret(walletSecret);
+      if(!(await _isConnectionAlreadyExist())){
+        // Connection is not exist
+        let resp = await AuthenticateUser();
+        if (resp.success) {
+          let selectedItemObj = JSON.parse(selectedItem)
+          let userID = await getItem(ConstantsList.USER_ID);
+          let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+          storeUid(userID);
+          storeSecret(walletSecret);
 
 
-        setModalVisible(false);
+          setModalVisible(false);
 
-        try {
-          // Accept connection Api call.
-          let result = await accept_connection(selectedItemObj.metadata);
-          if (result.data.success) {
-            
-            await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
-            // Update connection screen.
-            await ls_addConnection(result.data.connection)
+          try {
+            // Accept connection Api call.
+            let result = await accept_connection(selectedItemObj.metadata);
+            if (result.data.success) {
+              
+              await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
+              // Update connection screen.
+              await ls_addConnection(result.data.connection)
 
-            updateActionsList();
-          } else {
-            showMessage('ZADA Wallet', result.data.error);
-            return
+              updateActionsList();
+              setTimeout(() => {
+                _showSuccessAlert('conn');
+              }, 500);
+            } else {
+              showMessage('ZADA Wallet', result.data.error);
+              return
+            }
+            setIsLoading(false);
           }
-
+          catch (e) {
+            setIsLoading(false);
+            console.log(e)
+          }
+        } else {
+          showMessage('ZADA Wallet', result.data.message);
           setIsLoading(false);
         }
-        catch (e) {
-          showMessage('Error', e);
-          setIsLoading(false);
-          console.log(e)
-        }
-      } else {
-        showMessage('ZADA Wallet', resp.message);
+      }
+      else{
+        // Connection is already exists
+        setModalVisible(false);
         setIsLoading(false);
+        showMessage('ZADA Wallet', 'Connection is already accepted')
       }
     }
     else {
@@ -268,18 +402,61 @@ function ActionsScreen({ navigation }) {
 
         // Update ActionList
         updateActionsList();
+
+        // Fetching credential details
+        const credResponse = await get_credential(selectedItemObj.credentialId);
+        const cred = credResponse.data.credential;
+        
+        // fetching local connections and credentials
+        let connections = await getItem(ConstantsList.CONNECTIONS);
+        let credentials = await getItem(ConstantsList.CREDENTIALS);
+
+        // Parsing JSON
+        let connectionsList = JSON.parse(connections) || [];
+        let credentialsList = JSON.parse(credentials) || [];
+
+        // Finding corresponsing connection to this credential
+        let item = connectionsList.find(c => c.connectionId == cred.connectionId);
+
+        console.log("OLD CREDENTIAL OBJ", cred);
+
+        // Putting image, type and title in credential
+        let obj = {
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+                  (
+                      (cred.values != undefined || cred.values != null) &&
+                      cred.values["Vaccine Name"] != undefined &&
+                      cred.values["Vaccine Name"].length != 0 &&
+                      cred.values["Dose"] != undefined &&
+                      cred.values["Dose"].length != 0
+                  ) ?
+                  'COVIDpass (Vaccination)' :
+                  "Digital Certificate",
+        };
+
+        // Adding updated credential object to credentials list
+        credentialsList.unshift(obj);
+
+        console.log("UPDATED CREDENTIAL OBJ", obj);
+
+        // Saving updated credentials list in local storage
+        await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsList))
+
+        setTimeout(() => {
+          _showSuccessAlert('cred');
+        }, 500);
       } else {
-        console.log(result.data);
-        showMessage('ZADA Wallet', result.message);
+        showMessage('ZADA Wallet', "Invalid Credential Offer");
       }
       setIsLoading(false);
     } catch (e) {
       showMessage('ZADA Wallet', e);
       setIsLoading(false);
-      console.log(e);
     }
   }
-
 
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {
@@ -305,14 +482,15 @@ function ActionsScreen({ navigation }) {
         if (result.data.success) {
           await deleteActionByVerID(selectedItemObj.verificationId)
           updateActionsList();
+
+          _showSuccessAlert("ver");
+
         } else {
           showMessage('ZADA Wallet', result.data.error)
         }
         setIsLoading(false);
       } catch (e) {
         setIsLoading(false);
-        showMessage('ZADA Wallet', e);
-        console.log(e)
       }
     } else {
       setIsLoading(false);
@@ -346,6 +524,9 @@ function ActionsScreen({ navigation }) {
 
     if (selectedItemObj.type === ConstantsList.CRED_OFFER) {
       setModalVisible(false);
+
+      delete_credential(selectedItemObj.credentialId);
+
       deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId).then(
         (actions) => {
           updateActionsList();
@@ -376,7 +557,6 @@ function ActionsScreen({ navigation }) {
 
         } catch (e) {
           setIsLoading(false);
-          console.log(e)
         }
       } else {
         console.log('failed')
@@ -384,6 +564,32 @@ function ActionsScreen({ navigation }) {
     }
   };
 
+  // Function that will show alert on acceptance of connection and credential
+  const _showSuccessAlert = (action) => {
+
+    let message = '';
+    if(action == 'conn')
+      message = "Your connection is created successfully.";
+    else if(action == 'cred')
+      message = "You have received a certificate successfully.";
+    else if(action == 'ver')
+      message = "Your verification request is fulfilled successfully.";
+
+    Alert.alert(
+      "Zada Wallet",
+      `${message}`,
+      [
+        {
+          text: "Okay",
+          onPress: () => console.log('Success Alert Dismiss'),
+          style: "cancel",
+        },
+      ],
+      {
+        cancelable: true,
+      }
+    )
+  }
 
   const dismissModal = (v) => {
     setModalVisible(false);
@@ -410,9 +616,29 @@ function ActionsScreen({ navigation }) {
 
   return (
     <View style={themeStyles.mainContainer}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: isLoading ? 25 : 0,
+        }}
+      >
+        <AntIcon 
+          name='arrowdown'
+          size={15}
+          color={'#7e7e7e'}
+        />
+        <Text style={{
+          alignSelf: 'center',
+          color: '#7e7e7e',
+          marginLeft: 5,
+        }}>Pull to refresh</Text>
+      </View>
+      
       <HeadingComponent text="Actions" />
       {isLoading &&
-        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
+        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: 'center' }}>
           <ActivityIndicator color={"#000"} size={"large"} />
         </View>
       }
@@ -433,13 +659,22 @@ function ActionsScreen({ navigation }) {
               />
             }
             <SwipeListView
+              refreshControl={
+                <RefreshControl 
+                  tintColor={'#7e7e7e'}
+                  refreshing={refreshing}
+                  onRefresh={_fetchActionList}
+                />
+              }
               useFlatList
               disableRightSwipe
-              disableLeftSwipe
               data={actionsList}
-              contentContainerStyle={{
+              style={{
                 flexGrow: 1,
-                paddingBottom: 50,
+              }}
+              contentContainerStyle={{ 
+                width: '100%',
+                height: DIMENSIONS.height,
               }}
               keyExtractor={(rowData, index) => {
                 return index;
@@ -491,14 +726,25 @@ function ActionsScreen({ navigation }) {
         </>
       ) : (
         <>
-          <View style={styles.EmptyContainer}>
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl 
+                tintColor={'#7e7e7e'}
+                refreshing={refreshing}
+                onRefresh={_fetchActionList}
+              />
+            }
+            contentContainerStyle={styles.EmptyContainer}
+          >
             <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
             <ImageBoxComponent
               source={require('../assets/images/action.png')}
             />
             <View style={{
-              flex: 1,
-              justifyContent: "center",
+              alignItems: "center",
+              position: 'absolute',
+              bottom: '3%',
             }}>
               <BorderButton
                 nextHandler={() => {
@@ -511,7 +757,7 @@ function ActionsScreen({ navigation }) {
                 isIconVisible={true}
               />
             </View>
-          </View>
+          </ScrollView>
         </>
       )
       }

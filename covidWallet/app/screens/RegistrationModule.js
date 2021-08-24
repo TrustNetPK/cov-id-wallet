@@ -33,6 +33,9 @@ import { showMessage } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
 import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
+import { get_all_connections } from '../gateways/connections';
+import { get_all_credentials } from '../gateways/credentials';
+import { addVerificationToActionList } from '../helpers/ActionList';
 
 const { height, width } = Dimensions.get('window');
 
@@ -52,8 +55,15 @@ function RegistrationModule({ navigation }) {
 
   const [secret, setSecret] = useState('');
   const [secretError, setSecretError] = useState('');
+  const [secureSecret, setSecureSecret] = useState(true);
+  
 
   const [progress, setProgress] = useState(false);
+
+  // Toggling for password 
+  const _toggleSecureSecretEntry = () => {
+    setSecureSecret(!secureSecret);
+  }
 
   const selectionOnPress = (userType) => {
     updateActiveOption(userType);
@@ -86,7 +96,7 @@ function RegistrationModule({ navigation }) {
 
     // Check if name is valid.
     if (!nameRegex.test(name) && activeOption == 'register') {
-      setNameError("Please enter a name between 2-20 alphabetical characters long. No numbers or special characters.")
+      setNameError("Please enter a name between 2-1000 alphabetical characters long. No numbers or special characters.")
       return
     }
     setNameError('');
@@ -185,6 +195,57 @@ function RegistrationModule({ navigation }) {
     }
   };
 
+  // Function to fetch connection and credentials
+  const _fetchingAppData = async () => {
+    // Fetching Connections
+    const connResponse = await get_all_connections();
+    let connections = connResponse.data.connections;
+    if(connections.length)
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+    else
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
+
+    console.log("CONNECTIONS SAVED");
+
+    // Fetching Credentials
+    const credResponse = await get_all_credentials();
+    let credentials = credResponse.data.credentials;
+    let CredArr = [];
+    if(credentials.length && connections.length){
+      // Looping to update credentials object in crendentials array
+      credentials.forEach((cred, i) => {
+        let item = connections.find(c => c.connectionId == cred.connectionId)
+
+        if(item !== undefined || null){
+          let obj = {
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+              (
+                (cred.values != undefined || cred.values != null) &&
+                cred.values["Vaccine Name"] != undefined &&
+                cred.values["Vaccine Name"].length != 0 &&
+                cred.values["Dose"] != undefined &&
+                cred.values["Dose"].length != 0
+            ) ?
+            'COVIDpass (Vaccination)' :
+            "Digital Certificate",
+          };
+          CredArr.push(obj);
+        }
+      });
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+    }
+    else
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
+
+    console.log("CREDENTIALS SAVED");
+
+    await addVerificationToActionList();
+
+  }
+
   const login = async () => {
     if (networkState) {
       await fetch(ConstantsList.BASE_URL + `/api/login`, {
@@ -199,14 +260,15 @@ function RegistrationModule({ navigation }) {
           secretPhrase: secret,
         }),
       }).then((credsResult) =>
-        credsResult.json().then((data) => {
+        credsResult.json().then(async(data) => {
           try {
-            console.log(JSON.stringify(data));
+            console.log("LOGIN API DATA => ",JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               storeUserID(response.userId);
               saveItem(ConstantsList.WALLET_SECRET, secret);
-              authenticateUserToken();
+              await _fetchingAppData();
+              await authenticateUserToken();
             } else {
               showMessage('ZADA Wallet', response.error);
               setProgress(false);
@@ -229,7 +291,7 @@ function RegistrationModule({ navigation }) {
       <PhoneInput
         ref={phoneInput}
         defaultValue={phone}
-        defaultCode="PK"
+        defaultCode="MM"
         layout="second"
         containerStyle={{
           flexDirection: "row",
@@ -409,16 +471,19 @@ function RegistrationModule({ navigation }) {
                   />
                 </View> */}
                 <Text style={styles.secretMessage}>
-                  Secret phrase (please save in safe place)
+                  Password (please save in safe place)
                 </Text>
                 <View>
                   <InputComponent
-                    placeholderText="Secret Phrase"
+                    type={'secret'}
+                    toggleSecureEntry={_toggleSecureSecretEntry}
+                    placeholderText="Password"
                     errorMessage={secretError}
                     value={secret}
                     keyboardType="default"
-                    isSecureText={false}
+                    isSecureText={secureSecret}
                     autoCapitalize={'none'}
+                    inputContainerStyle={{ width: '80%' }}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => {
                       setSecret(text.replace(',', ''))
@@ -429,16 +494,16 @@ function RegistrationModule({ navigation }) {
                       }
                     }}
                   />
-                  {
+                  {/* {
                     secretError == "" &&
                     <FontAwesome
                       style={{ height: 50, zIndex: 10 }}
-                      onPress={() => copyToClipboard()}
+                      onPress={() => setSecureSecret(!secureSecret)}
                       style={styles.textRightIcon}
-                      name="copy"
+                      name={secureSecret ? "eye-slash" : "eye"}
                       size={25}
                     />
-                  }
+                  } */}
                 </View>
                 {/* <View
                   style={{
@@ -525,11 +590,13 @@ function RegistrationModule({ navigation }) {
                 
                 <View>
                   <InputComponent
-                    placeholderText="Secret Phrase"
+                    type={'secret'}
+                    toggleSecureEntry={_toggleSecureSecretEntry}
+                    placeholderText="Password"
                     errorMessage={secretError}
                     value={secret}
                     keyboardType="default"
-                    isSecureText={true}
+                    isSecureText={secureSecret}
                     autoCapitalize={'none'}
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => {
@@ -570,8 +637,8 @@ const styles = StyleSheet.create({
     backgroundColor: WHITE_COLOR,
     borderRadius: 10,
     width: '94%',
-    height: 45,
     marginLeft: 10,
+    height: 45,
     marginTop: 8,
     paddingLeft: 16,
     borderBottomWidth: 0,

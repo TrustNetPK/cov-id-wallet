@@ -4,6 +4,9 @@
 
 # Xcode
 #
+GoogleService-Info.plist
+yarn.lock
+package-lock.json
 build/
 *.pbxuser
 !default.pbxuser
@@ -28,6 +31,7 @@ build/
 .gradle
 local.properties
 *.iml
+google-services.json
 *.hprof
 
 # node.js
@@ -41,6 +45,7 @@ buck-out/
 \.buckd/
 *.keystore
 !debug.keystore
+zada.keystore
 
 # fastlane
 #

@@ -7,7 +7,7 @@ function HeadingComponent(props) {
     heading: {
       fontSize: 30,
       fontFamily: 'Merriweather-Bold',
-      marginTop: 20,
+      marginTop: 15,
       marginBottom: 15,
       color: BLACK_COLOR,
       justifyContent: 'center',

@@ -7,8 +7,9 @@ platform :ios, '11.0'
 target 'ZADA' do
   use_unimodules!
   config = use_native_modules!
+
   pod 'Permission-Camera', :path => "../node_modules/react-native-permissions/ios/Camera/Permission-Camera.podspec"
-  
+
   # Pods for ZADA
   use_react_native!(
     :path => config[:reactNativePath],

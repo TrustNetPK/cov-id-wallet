@@ -5,7 +5,6 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-//import com.reactnativecommunity.rnpermissions.RNPermissionsPackage;
 import com.hieuvp.fingerprint.ReactNativeFingerprintScannerPackage;
 import org.reactnative.camera.RNCameraPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
@@ -64,7 +63,7 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     Fresco.initialize(this);
     SoLoader.init(this, /* native exopackage */ false);
-    initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    //initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
 
   /**

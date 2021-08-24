@@ -1,4 +1,4 @@
-export const nameRegex = RegExp('^[a-zA-Z\\s]{2,20}$');
+export const nameRegex = RegExp('^[a-zA-Z\\s]{2,1000}$');
 
 //8-15 letters, 1 number, Capital letter, 1 special character
 // export const passwordRegex = RegExp(

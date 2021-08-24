@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Alert, View, Text, TouchableOpacity, Animated, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { ScrollView, Alert, View, TouchableOpacity, Animated, StyleSheet, ActivityIndicator, RefreshControl, Dimensions } from 'react-native';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -11,13 +11,14 @@ import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
-import ModalComponent from '../components/ModalComponent';
-import { getItem, deleteActionByConnId, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID } from '../helpers/Storage';
-import ConstantsList, { CONNECTIONS, CONN_REQ, CREDENTIALS, CRED_OFFER } from '../helpers/ConfigApp';
+import { getItem, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID, deleteActionByVerID } from '../helpers/Storage';
+import ConstantsList from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
-import { showAskDialog, showMessage } from '../helpers/Toast';
+import { showMessage } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+
+const DIMENSIONS = Dimensions.get('screen');
 
 function ConnectionsScreen(props) {
   const [isConnection, setConnection] = useState(true);
@@ -25,15 +26,18 @@ function ConnectionsScreen(props) {
   const [clickedConnection, setClickedConnection] = useState();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [temp, setTemp] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    getAllConnections();
-    addVerificationToActionList()
+    //updateConnectionsList();
+    // getAllConnections();
+    // addVerificationToActionList()
   }, [])
 
   useFocusEffect(
     React.useCallback(() => {
-      getAllConnections();
+      updateConnectionsList();
       return;
     }, [isConnection]),
   );
@@ -51,24 +55,28 @@ function ConnectionsScreen(props) {
   };
 
   const getAllConnections = async () => {
-    setIsLoading(true);
+    setRefreshing(true);
     try {
       let result = await get_all_connections();
       if (result.data.success) {
         let connectionsList = result.data.connections;
         if (connectionsList.length > 0) {
           await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsList));
-          updateConnectionsList()
+          updateConnectionsList();
+          setRefreshing(false);
         } else {
           setConnection(false);
           setConnectionsList([]);
+          setRefreshing(false);
         }
       } else {
-        showMessage('ZADA Wallet', resp.message);
+        console.log(result.data);
+        showMessage('ZADA Wallet', result.data.error);
+        setRefreshing(false);
       }
-      setIsLoading(false);
+      setRefreshing(false);
     } catch (e) {
-      setIsLoading(false);
+      setRefreshing(false);
       console.log(e)
     }
 
@@ -81,6 +89,8 @@ function ConnectionsScreen(props) {
     console.log(connection);
     await deleteConnAndCredByConnectionID(connection.connectionId);
     await deleteActionByConnectionID(connection.connectionId);
+    // const verifications = await getItem(ConstantsList.VER_REQ);
+    // await deleteActionByVerID()
 
     setTimeout(() => {
       updateConnectionsList();
@@ -128,7 +138,7 @@ function ConnectionsScreen(props) {
       }
 
       {
-        connectionsList.length > 0 ?
+        connectionsList.length ?
           <>
             <View pointerEvents={isLoading ? 'none' : 'auto'}>
               {
@@ -145,12 +155,22 @@ function ConnectionsScreen(props) {
                 />
               }
               <SwipeListView
+                refreshControl={
+                  <RefreshControl 
+                    tintColor={'#7e7e7e'}
+                    refreshing={refreshing}
+                    onRefresh={getAllConnections}
+                  />
+                }
                 useFlatList
                 disableRightSwipe
                 data={connectionsList}
-                contentContainerStyle={{
+                style={{
                   flexGrow: 1,
-                  paddingBottom: 50,
+                }}
+                contentContainerStyle={{ 
+                  width: '100%',
+                  height: DIMENSIONS.height,
                 }}
                 keyExtractor={(rowData, index) => {
                   return index;
@@ -191,12 +211,22 @@ function ConnectionsScreen(props) {
             </View>
           </>
           :
-          <View style={styles.EmptyContainer}>
+          <ScrollView
+            refreshControl={
+              <RefreshControl 
+                tintColor={'#7e7e7e'}
+                refreshing={refreshing}
+                onRefresh={getAllConnections}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.EmptyContainer}
+          >
             <TextComponent text="You have no connections yet." />
             <ImageBoxComponent
               source={require('../assets/images/connectionsempty.png')}
             />
-          </View>
+          </ScrollView>
       }
 
       {/* {connectionsList.length > 0 ? (

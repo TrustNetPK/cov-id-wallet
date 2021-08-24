@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { get_all_credentials } from "../gateways/credentials";
 import { getItem, saveItem } from "../helpers/Storage";
 import ConstantsList from '../helpers/ConfigApp';
+import { showMessage } from '../helpers/Toast';
 
 const useCredentials = (isCredential) => {
 
@@ -30,12 +31,12 @@ const useCredentials = (isCredential) => {
                 let item = connectionsList.find(c => c.connectionId == cred.connectionId)
 
                 if(item !== undefined || null){
-                    console.log(item);
+                    console.log("Values => ", cred.values);
                     let obj = {
                         ...cred,
                         imageUrl: item.imageUrl,
                         organizationName: item.name,
-                        type: item.hasOwnProperty('type') ? item.type :
+                        type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
                               (
                                   (cred.values != undefined || cred.values != null) &&
                                   cred.values["Vaccine Name"] != undefined &&

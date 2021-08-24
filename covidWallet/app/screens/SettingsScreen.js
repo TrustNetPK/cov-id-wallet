@@ -7,6 +7,7 @@ import { getItem, saveItem } from '../helpers/Storage';
 import { BIOMETRIC_ENABLED } from '../helpers/ConfigApp';
 import useBiometric from '../hooks/useBiometric';
 import { showMessage } from '../helpers/Toast';
+import { AuthContext } from '../context/AuthContext';
 
 
 var settingLocalData = {
@@ -57,7 +58,9 @@ var settingLocalData = {
 };
 
 export default function SettingsScreen(props) {
+  
   const [settingsData, setSettingsData] = useState(settingLocalData);
+  const {logout} = React.useContext(AuthContext);
 
   useEffect(() => {
     const updatevalues = async () => {
@@ -113,13 +116,7 @@ export default function SettingsScreen(props) {
   }
 
   const onLogoutPressed = async () => {
-    AsyncStorage.clear();
-    props.navigation.reset({
-        index: 0,
-        routes: [{ name: 'RegistrationScreen' }]
-    });
-    // props.navigation.popToTop();
-    // props.navigation.replace("RegistrationScreen");
+    logout();
   }
 
   return (
