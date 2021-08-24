@@ -170,7 +170,7 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OpenSSL-Universal (1.1.180)
-  - Permission-Camera (3.0.5):
+  - Permission-Camera (3.0.4):
     - RNPermissions
   - PromisesObjC (2.0.0)
   - RCT-Folly (2020.01.13.00):
@@ -467,7 +467,7 @@ PODS:
     - RNFBApp
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNPermissions (3.0.5):
+  - RNPermissions (3.0.4):
     - React-Core
   - RNReanimated (1.13.3):
     - React-Core
@@ -734,7 +734,11 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
+<<<<<<< HEAD
   Permission-Camera: 24c37a846ff69e0eb7fd4264346550850d5b707a
+=======
+  Permission-Camera: ffd449756840ddc0f6294e95d688fecaadfe238c
+>>>>>>> 856abb78f0a7faec5c8d89e4c7cc7066b141ab8f
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: 6d3e854f0e7260a648badd0d44fc364bc9da9728
@@ -767,12 +771,19 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
+<<<<<<< HEAD
   RNExitApp: 7d81855142a4d11eb75f4f06fdebf5a950d7aef2
   RNFBAnalytics: f333ca7f05d2cccd0f7092e54434d10a4f5982d1
   RNFBApp: 5f583e80cd7a32621d6057da3b786c4db96f1ef4
   RNFBMessaging: 2d5cbe208f3bd5502975537fef327461916a6e1b
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92
+=======
+  RNFBAnalytics: be6180b4a5b4c7675f54278d341a653cf3ac59ec
+  RNFBApp: 97b2da195d4606716b284a7c8a988dd8ed5cec41
+  RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
+  RNPermissions: 75128bfb4c4ef92f572a8efdb8adfbfab75e8ed0
+>>>>>>> 856abb78f0a7faec5c8d89e4c7cc7066b141ab8f
   RNReanimated: 514a11da3a2bcc6c3dfd9de32b38e2b9bf101926
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
