@@ -117,12 +117,12 @@ function RegistrationModule({ navigation }) {
 
     // Check if secret 
     if (secret == "") {
-      setSecretError('Secret is required.')
+      setSecretError('Password is required.')
       return
     }
 
     if (!validateIfLowerCased(secret)) {
-      setSecretError('Secret must be in lowercase.')
+      setSecretError('Password must be in lowercase.')
       return
     }
 
@@ -488,7 +488,7 @@ function RegistrationModule({ navigation }) {
                     setStateValue={(text) => {
                       setSecret(text.replace(',', ''))
                       if (text.length < 1) {
-                        setSecretError('Secret is required.')
+                        setSecretError('Password is required.')
                       } else {
                         setSecretError('')
                       }
@@ -602,7 +602,7 @@ function RegistrationModule({ navigation }) {
                     setStateValue={(text) => {
                       setSecret(text.replace(',', ''))
                       if (text.length < 1) {
-                        setSecretError('Secret is required.')
+                        setSecretError('Password is required.')
                       } else {
                         setSecretError('')
                       }

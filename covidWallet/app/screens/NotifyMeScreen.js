@@ -12,6 +12,7 @@ import { AuthContext } from '../Navigation';
 import PushNotification from 'react-native-push-notification';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { checkNotifications, requestNotifications} from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 
 const img = require('../assets/images/notifications.png');

@@ -96,7 +96,7 @@ function MultiFactorScreen({ route, navigation }) {
     if (networkState) {
       let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
       if (walletSecret !== secret) {
-        showMessage('ZADA Wallet', 'Your wallet secret is mismatching, Please try again!');
+        showMessage('ZADA Wallet', 'Your password is mismatching, Please try again!');
       } else {
 
         // Validate OTP Api call.
@@ -274,9 +274,9 @@ function MultiFactorScreen({ route, navigation }) {
                     
 
                     <Text style={styles.textView}>
-                      And the secret phrase you saved in previous phrase step.
+                      And the password you saved in previous phrase step.
                     </Text>
-                    <Text style={styles.secretMessage}>Your Secret phrase</Text>
+                    <Text style={styles.secretMessage}>Your Password</Text>
 
                     <View
                       style={[styles.inputView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}]}>
