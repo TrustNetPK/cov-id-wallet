@@ -366,13 +366,13 @@ PODS:
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
   - React-jsinspector (0.64.2)
-  - react-native-camera (3.44.3):
+  - react-native-camera (3.43.8):
     - React-Core
-    - react-native-camera/RCT (= 3.44.3)
-    - react-native-camera/RN (= 3.44.3)
-  - react-native-camera/RCT (3.44.3):
+    - react-native-camera/RCT (= 3.43.8)
+    - react-native-camera/RN (= 3.43.8)
+  - react-native-camera/RCT (3.43.8):
     - React-Core
-  - react-native-camera/RN (3.44.3):
+  - react-native-camera/RN (3.43.8):
     - React-Core
   - react-native-fingerprint-scanner (5.0.0):
     - React
@@ -446,7 +446,7 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - RNCAsyncStorage (1.15.5):
+  - RNCAsyncStorage (1.15.4):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
@@ -461,7 +461,7 @@ PODS:
   - RNFBApp (12.5.0):
     - Firebase/CoreOnly (= 8.5.0)
     - React-Core
-  - RNFBMessaging (12.5.0):
+  - RNFBMessaging (12.7.2):
     - Firebase/Messaging (= 8.5.0)
     - React-Core
     - RNFBApp
@@ -747,7 +747,7 @@ SPEC CHECKSUMS:
   React-jsi: 67747b9722f6dab2ffe15b011bcf6b3f2c3f1427
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
-  react-native-camera: fefef39fcd20850d17c3780638b04f741e0ccaae
+  react-native-camera: 894cdcb9e5bfe41719513ad95e0cd1d108b79ee6
   react-native-fingerprint-scanner: 77140320ed56d612200371ebc2abefa5f20b574e
   react-native-netinfo: 34f4d7a42f49157f3b45c14217d256bce7dc9682
   react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
@@ -764,13 +764,13 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
+  RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNExitApp: 7d81855142a4d11eb75f4f06fdebf5a950d7aef2
   RNFBAnalytics: f333ca7f05d2cccd0f7092e54434d10a4f5982d1
   RNFBApp: 5f583e80cd7a32621d6057da3b786c4db96f1ef4
-  RNFBMessaging: 8cdc29efb1916e27579583c47d8d9634e5b05cb4
+  RNFBMessaging: 2d5cbe208f3bd5502975537fef327461916a6e1b
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92
   RNReanimated: 514a11da3a2bcc6c3dfd9de32b38e2b9bf101926
