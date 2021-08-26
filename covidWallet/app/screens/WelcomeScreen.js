@@ -5,7 +5,7 @@ import {
   Linking,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
+  ScrollView,
 } from 'react-native';
 import {
   PRIMARY_COLOR,
@@ -32,8 +32,13 @@ function WelcomeScreen({ navigation }) {
         justifyContent: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <View
+      <ScrollView
+        bounces={false}
+        showsVerticalScrollIndicator={false}
         style={{
+          flexGrow: 0,
+        }}
+        contentContainerStyle={{
           // flex: 1,
           backgroundColor: BACKGROUND_COLOR,
           alignContent: 'center',
@@ -44,6 +49,7 @@ function WelcomeScreen({ navigation }) {
           // marginBottom: 150,
           borderRadius: 10,
         }}>
+
         <View
           style={{
             // height: 400,
@@ -124,7 +130,7 @@ function WelcomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-      </View>
+      </ScrollView>
     </View>
   );
 }
