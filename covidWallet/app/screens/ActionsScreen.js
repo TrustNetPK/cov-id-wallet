@@ -299,6 +299,7 @@ function ActionsScreen({ navigation }) {
 
   const acceptModal = async (v) => {
     if(!isLoading){
+      
       if (v.type == CRED_OFFER) handleCredentialRequest();
 
       else if (v.type == VER_REQ) handleVerificationRequests(v);
@@ -323,6 +324,50 @@ function ActionsScreen({ navigation }) {
     // Delete connection action
     if(find){
       await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata);
+      updateActionsList();
+    }
+
+    return find;
+  }
+
+  // Checks is credential already exists or not using name
+  const _isCredentialAlreadyExist = async () => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    let find = false;
+
+    const credentials = JSON.parse(await getItem(ConstantsList.CREDENTIALS));
+
+    for(let i = 0; i < credentials.length; ++i){
+      console.log(credentials[i].credentialId + '<==>' + selectedItemObj.credentialId);
+      if(credentials[i].credentialId === selectedItemObj.credentialId)
+        find = true;
+    }
+
+    // Delete credential action
+    if(find){
+      await deleteActionByCredId(selectedItemObj.type, selectedItemObj.credentialId);
+      updateActionsList();
+    }
+
+    return find;
+  }
+
+  // Checks is verification request already exists or not using name
+  const _isVerRequestAlreadyExist = async () => {
+    let selectedItemObj = JSON.parse(selectedItem);
+    let find = false;
+
+    const ver_requests = JSON.parse(await getItem(ConstantsList.VER_REQ));
+
+    for(let i = 0; i < ver_requests.length; ++i){
+      console.log(ver_requests[i].verificationId + '<==>' + selectedItemObj.verificationId);
+      if(ver_requests[i].verificationId === selectedItemObj.verificationId)
+        find = true;
+    }
+
+    // Delete credential action
+    if(find){
+      await deleteActionByVerID(selectedItemObj.verificationId);
       updateActionsList();
     }
 
@@ -394,64 +439,72 @@ function ActionsScreen({ navigation }) {
       setModalVisible(false);
       setIsLoading(true);
 
-      // Accept credentials Api call.
-      let result = await accept_credential(selectedItemObj.credentialId);
-      if (result.data.success) {
-        // Delete Action
-        await deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId)
+      if(!(await _isCredentialAlreadyExist())){
+        // Accept credentials Api call.
+        let result = await accept_credential(selectedItemObj.credentialId);
+        if (result.data.success) {
+          // Delete Action
+          await deleteActionByCredId(ConstantsList.CRED_OFFER, selectedItemObj.credentialId)
 
-        // Update ActionList
-        updateActionsList();
+          // Update ActionList
+          updateActionsList();
 
-        // Fetching credential details
-        const credResponse = await get_credential(selectedItemObj.credentialId);
-        const cred = credResponse.data.credential;
-        
-        // fetching local connections and credentials
-        let connections = await getItem(ConstantsList.CONNECTIONS);
-        let credentials = await getItem(ConstantsList.CREDENTIALS);
+          // Fetching credential details
+          const credResponse = await get_credential(selectedItemObj.credentialId);
+          const cred = credResponse.data.credential;
+          
+          // fetching local connections and credentials
+          let connections = await getItem(ConstantsList.CONNECTIONS);
+          let credentials = await getItem(ConstantsList.CREDENTIALS);
 
-        // Parsing JSON
-        let connectionsList = JSON.parse(connections) || [];
-        let credentialsList = JSON.parse(credentials) || [];
+          // Parsing JSON
+          let connectionsList = JSON.parse(connections) || [];
+          let credentialsList = JSON.parse(credentials) || [];
 
-        // Finding corresponsing connection to this credential
-        let item = connectionsList.find(c => c.connectionId == cred.connectionId);
+          // Finding corresponsing connection to this credential
+          let item = connectionsList.find(c => c.connectionId == cred.connectionId);
 
-        console.log("OLD CREDENTIAL OBJ", cred);
+          console.log("OLD CREDENTIAL OBJ", cred);
 
-        // Putting image, type and title in credential
-        let obj = {
-            ...cred,
-            imageUrl: item.imageUrl,
-            organizationName: item.name,
-            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
-                  (
-                      (cred.values != undefined || cred.values != null) &&
-                      cred.values["Vaccine Name"] != undefined &&
-                      cred.values["Vaccine Name"].length != 0 &&
-                      cred.values["Dose"] != undefined &&
-                      cred.values["Dose"].length != 0
-                  ) ?
-                  'COVIDpass (Vaccination)' :
-                  "Digital Certificate",
-        };
+          // Putting image, type and title in credential
+          let obj = {
+              ...cred,
+              imageUrl: item.imageUrl,
+              organizationName: item.name,
+              type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+                    (
+                        (cred.values != undefined || cred.values != null) &&
+                        cred.values["Vaccine Name"] != undefined &&
+                        cred.values["Vaccine Name"].length != 0 &&
+                        cred.values["Dose"] != undefined &&
+                        cred.values["Dose"].length != 0
+                    ) ?
+                    'COVIDpass (Vaccination)' :
+                    "Digital Certificate",
+          };
 
-        // Adding updated credential object to credentials list
-        credentialsList.unshift(obj);
+          // Adding updated credential object to credentials list
+          credentialsList.unshift(obj);
 
-        console.log("UPDATED CREDENTIAL OBJ", obj);
+          console.log("UPDATED CREDENTIAL OBJ", obj);
 
-        // Saving updated credentials list in local storage
-        await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsList))
+          // Saving updated credentials list in local storage
+          await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsList))
 
-        setTimeout(() => {
-          _showSuccessAlert('cred');
-        }, 500);
-      } else {
-        showMessage('ZADA Wallet', "Invalid Credential Offer");
+          setTimeout(() => {
+            _showSuccessAlert('cred');
+          }, 500);
+        } else {
+          showMessage('ZADA Wallet', "Invalid Credential Offer");
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
+      else{
+        // Credential is already exist
+        setModalVisible(false);
+        setIsLoading(false);
+        showMessage('ZADA Wallet', 'Credential offer is already accepted')
+      }
     } catch (e) {
       setIsLoading(false);
     }
@@ -472,30 +525,39 @@ function ActionsScreen({ navigation }) {
     if (BioResult) {
       setModalVisible(false);
       setIsLoading(true);
-      try {
 
-        let policyName = selectedItemObj.policy.attributes[0].policyName;
+      if(!(await _isVerRequestAlreadyExist())){
+        try {
 
-        // Submit Verification Api call
-        let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
-        if (result.data.success) {
-          await deleteActionByVerID(selectedItemObj.verificationId)
-          updateActionsList();
-
-          _showSuccessAlert("ver");
-
-        } else {
-          showMessage('Zada', result.data.error)
+          let policyName = selectedItemObj.policy.attributes[0].policyName;
+  
+          // Submit Verification Api call
+          let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
+          if (result.data.success) {
+            await deleteActionByVerID(selectedItemObj.verificationId)
+            updateActionsList();
+  
+            _showSuccessAlert("ver");
+  
+          } else {
+            showMessage('Zada', result.data.error)
+          }
+          setIsLoading(false);
+        } catch (e) {
+          setIsLoading(false);
         }
-        setIsLoading(false);
-      } catch (e) {
-        setIsLoading(false);
       }
+      else{
+        setModalVisible(false);
+        setIsLoading(false);
+        showMessage('ZADA Wallet', 'Verification request is already accepted')
+      }
+
+      
     } else {
       console.log('failed')
     }
   }
-
 
   // Reject Modal
   const rejectModal = async (v) => {
