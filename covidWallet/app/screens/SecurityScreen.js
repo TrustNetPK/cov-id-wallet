@@ -16,7 +16,6 @@ function SecurityScreen({ navigation }) {
   const [isSensorAvailable, checkSensor] = useState(false);
   const [isSuccessful, checkSecureIDAuth] = useState(false);
 
-
   useEffect(() => {
     isSecureIDAvailable()
   })
