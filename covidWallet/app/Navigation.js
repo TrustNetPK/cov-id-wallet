@@ -17,10 +17,12 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingsScreen from './screens/SettingsScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import QRScreen from './screens/QRScreen';
-import { BLACK_COLOR, BACKGROUND_COLOR } from './theme/Colors';
+import { BLACK_COLOR, BACKGROUND_COLOR, PRIMARY_COLOR, WHITE_COLOR } from './theme/Colors';
 import RegistrationModule from './screens/RegistrationModule';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import MultiFactorScreen from './screens/MultiFactorScreen';
 import LoadingScreen from './screens/LoadingScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import { RefreshContextProvider } from './context/RefreshContextProvider';
 import useBiometric from './hooks/useBiometric';
 import { get_all_connections } from './gateways/connections';
@@ -173,7 +175,9 @@ function NavigationComponent() {
               />
             </Stack.Navigator>
           ) : isFirstTime === 'true' ? (
-            <Stack.Navigator screenOptions={{ ...navigationAnimation }}>
+            <Stack.Navigator 
+              screenOptions={{ ...navigationAnimation }}
+            >
               <Stack.Screen
                 options={{ headerShown: false }}
                 name="WelcomeScreen"
@@ -183,6 +187,11 @@ function NavigationComponent() {
                 options={{ headerShown: false }}
                 name="RegistrationScreen"
                 component={RegistrationModule}
+              />
+              <Stack.Screen
+                options={{ headerShown:false }}
+                name="ForgotPasswordScreen"
+                component={ForgotPasswordScreen}
               />
               <Stack.Screen
                 options={{ headerShown: false }}
@@ -253,6 +262,24 @@ function NavigationComponent() {
                   ),
                 })}
                 component={SettingsScreen}
+              />
+              <Stack.Screen
+                name="ProfileScreen"
+                options={({ navigation }) => ({
+                  headerTitle: 'Edit Profile',
+                  headerLeft: () => (
+                    <MaterialIcons
+                      onPress={() => {
+                        navigation.goBack();
+                      }}
+                      style={styles.headerRightIcon}
+                      size={30}
+                      name="arrow-back"
+                      padding={30}
+                    />
+                  ),
+                })}
+                component={ProfileScreen}
               />
               <Stack.Screen
                 options={{ headerShown: false }}

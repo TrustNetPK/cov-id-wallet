@@ -29,6 +29,22 @@ export async function login(email: string, password: string) {
   // }
 }
 
+// Send password reset link
+export const _sendPasswordResetAPI = async (phone: string) => {
+  try {
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/recover',
+      data: {
+        phone
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+} 
+
 // Validate OTP
 export async function validateOTP(
   phoneConfirmationCode: string,

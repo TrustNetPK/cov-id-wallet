@@ -3,7 +3,6 @@ import { Alert } from 'react-native';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   Image,
   TouchableOpacity,
@@ -14,7 +13,6 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import PhoneInput from "react-native-phone-number-input";
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PRIMARY_COLOR,
@@ -28,7 +26,6 @@ import { StackActions } from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
 import { saveItem } from '../helpers/Storage';
-import randomString from '../helpers/RandomString';
 import { showMessage } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
@@ -605,6 +602,14 @@ function RegistrationModule({ navigation }) {
                     }}
                   />
                 </View>
+                <Text 
+                  onPress={()=>{
+                    navigation.navigate('ForgotPasswordScreen');
+                  }}
+                  style={styles._forgotText}
+                >
+                  Forgot password?
+                </Text>
 
                 {progress ? (
                   <ActivityIndicator
@@ -638,6 +643,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingLeft: 16,
     borderBottomWidth: 0,
+  },
+  _forgotText:{
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: PRIMARY_COLOR,
+    textDecorationLine: 'underline',
+    alignSelf: 'flex-end',
+    marginRight: 20,
+    marginTop: 5,
   },
   secretMessage: {
     marginTop: 15,
