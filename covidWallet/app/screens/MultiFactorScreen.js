@@ -46,13 +46,33 @@ function MultiFactorScreen({ route, navigation }) {
   const [minutes, setMinutes] = useState(4);
   const [seconds, setSeconds] = useState(59);
   const [timeout, setTimeout] = useState(false);
+  const [isTimeSaved, setTimeSaved] = useState(false);
+
+  const routeParams = route.params;
 
   // Toggling for password 
   const _toggleSecureSecretEntry = () => {
     setSecureSecret(!secureSecret);
   }
   
+  const _saveTime = async (timeStamp) => {
+    await saveItem(ConstantsList.COUNTDOWN_TIME, timeStamp);
+  }
+
+  // set time from diff
+  React.useEffect(()=>{
+    if(routeParams?.diff){
+      let mins = routeParams?.diff / 60;
+      let sec = routeParams?.diff % 60;
+      setMinutes(parseInt(mins));
+      setSeconds(parseInt(sec));
+    }
+  },[])
+
   React.useEffect(() => {
+    if(!routeParams?.diff){
+      _saveTime((Math.floor(Date.now() / 1000)).toString());
+    }
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
@@ -70,6 +90,7 @@ function MultiFactorScreen({ route, navigation }) {
         setMinutes(0);
         clearInterval(interval);
         setTimeout(true);
+        _saveTime('');
       }
       else{
         setSeconds(tempSec);
@@ -104,6 +125,7 @@ function MultiFactorScreen({ route, navigation }) {
           let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, secret);
 
           if (result.data.success) {
+            _saveTime('');
             await saveItem(ConstantsList.USER_ID, result.data.userId);
             await authenticateUser();
           } else {
@@ -323,7 +345,7 @@ function MultiFactorScreen({ route, navigation }) {
                         style={styles.primaryButton}
                         onPress={()=>{
                           if(timeout)
-                            navigation.goBack();
+                            navigation.replace('RegistrationScreen');
                           else
                             submit()
                         }}>

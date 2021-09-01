@@ -155,24 +155,11 @@ function NavigationComponent() {
       logout: () => {
         _loggingOut();
         getisFirstTime('true');
-        //_loggingOut(navigation);
       }
     }),
     [],
   );
 
-  // const logoutContext = React.useMemo(
-  //   () => ({
-  //     logout: () => {
-  //       _loggingOut();
-  //       getisFirstTime('true');
-  //       //_loggingOut(navigation);
-  //     }
-  //   }),
-  //   [],
-  // );
-
-  
   return (
     <AuthContext.Provider value={authContext}>
       <RefreshContextProvider>
