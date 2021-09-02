@@ -17,5 +17,7 @@ module.exports = Object.freeze({
   API_SECRET: '',
   BIOMETRIC_ENABLED: 'biometric_enabled',
   NOTIFICATION_ENABLED: 'notification_enabled',
-  COUNTDOWN_TIME: 'countdown_time'
+  COUNTDOWN_TIME: 'countdown_time',
+  USER_PROFILE: 'user_profile',
+  REGISTRATION_DATA: 'register_data',
 });

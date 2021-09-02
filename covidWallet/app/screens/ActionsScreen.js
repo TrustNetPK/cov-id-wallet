@@ -35,12 +35,14 @@ import useNotification from '../hooks/useNotification';
 import useCredentials from '../hooks/useCredentials';
 import RNExitApp from 'react-native-exit-app';
 import http_client from '../gateways/http_client';
+import OverlayLoader from '../components/OverlayLoader';
 
 const DIMENSIONS = Dimensions.get('screen');
 
 function ActionsScreen({ navigation }) {
 
   // States
+  const [loaderText, setLoaderText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isAction, setAction] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
@@ -76,10 +78,14 @@ function ActionsScreen({ navigation }) {
     ),
   };
 
-  useEffect(() => {
+  useLayoutEffect(()=>{
     NetInfo.fetch().then((networkState) => {
+      console.log('IS CONNECTED => ', networkState.isConnected);
       setNetworkState(networkState.isConnected);
     });
+  },[]);
+
+  useEffect(() => {
     if (!deepLink) getUrl();
   }, [deepLink]);
 
@@ -300,11 +306,20 @@ function ActionsScreen({ navigation }) {
   const acceptModal = async (v) => {
     if(!isLoading){
       
-      if (v.type == CRED_OFFER) handleCredentialRequest();
+      if (v.type == CRED_OFFER){
+        setLoaderText('Please wait! we are receiving your certificate this may take around ~10 seconds...');
+        handleCredentialRequest();
+      }
 
-      else if (v.type == VER_REQ) handleVerificationRequests(v);
+      else if (v.type == VER_REQ){
+        setLoaderText('Please wait! we are verifying your certificate this may take around ~10 seconds...');
+        handleVerificationRequests(v);
+      }
 
-      else if (v.type == CONN_REQ) handleConnectionRequest(v);
+      else if (v.type == CONN_REQ){
+        setLoaderText('Please wait! we are creating a connection this may take around ~10 seconds...');
+        handleConnectionRequest(v);
+      }
     }
   }
 
@@ -697,11 +712,14 @@ function ActionsScreen({ navigation }) {
       </View>
       
       <HeadingComponent text="Actions" />
-      {isLoading &&
-        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: 'center' }}>
-          <ActivityIndicator color={"#000"} size={"large"} />
-        </View>
+      
+      {
+        isLoading &&
+        <OverlayLoader 
+          text={loaderText}
+        />
       }
+
       {isAction ? (
         <>
           <View pointerEvents={isLoading ? 'none' : 'auto'}>

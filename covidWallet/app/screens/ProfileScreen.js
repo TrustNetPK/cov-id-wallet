@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     StyleSheet, 
     Text, 
@@ -6,10 +6,19 @@ import {
     ScrollView
 } from 'react-native';
 import { InputComponent } from '../components/Input/inputComponent';
-import { emailRegex, nameRegex } from '../helpers/validation';
-import { BLACK_COLOR, WHITE_COLOR } from '../theme/Colors';
+import OverlayLoader from '../components/OverlayLoader';
+import { _fetchProfileAPI, _updateProfileAPI } from '../gateways/auth';
+import { _showAlert } from '../helpers/Toast';
+import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
+import { BLACK_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { saveItem } from '../helpers/Storage';
+import ConstantsList from '../helpers/ConfigApp';
+import SimpleButton from '../components/Buttons/SimpleButton';
 
 const ProfileScreen = () => {
+
+    const [isLoading, setLoading] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(false);
 
     const [name, setName] = useState('');
     const [nameError, setNameError] = useState('');
@@ -19,8 +28,26 @@ const ProfileScreen = () => {
     const [emailError, setEmailError] = useState('');
     const [disableEmail, setDisableEmail] = useState(true);
 
+    const [isCurrPassSecure, setCurrPassSecure] = useState(true);
+    const [currPassword, setCurrPassword] = useState('');
+    const [currPasswordError, setCurrPasswordError] = useState('');
+
+    const [isNewPassSecure, setNewPassSecure] = useState(true);
+    const [newPassword, setNewPassword] = useState('');
+    const [newPasswordError, setNewPasswordError] = useState('');
+
+    // toggle current password security
+    const _toggleCurrPassSecurity = () => {
+        setCurrPassSecure(!isCurrPassSecure);
+    }
+
+    // toggle new password security
+    const _toggleNewPassSecurity = () => {
+        setNewPassSecure(!isNewPassSecure);
+    }
+
     // Saving Name
-    const _onNameSave = () => {
+    const _onNameSave = async () => {
         if (!nameRegex.test(name)) {
             setNameError("Please enter a name between 2-1000 alphabetical characters long. No numbers or special characters.")
             return
@@ -28,22 +55,155 @@ const ProfileScreen = () => {
         setNameError('');
 
         // call update profile api for name
+        try {
+            setLoading(true);
+
+            let data = {
+                name: name.trim().toString()
+            };
+    
+            const result = await _updateProfileAPI(data);
+            if(result.data.success){
+                _showAlert('Zada Wallet','Profile has been updated successfully');
+                setDisableName(true);
+            }
+            else{
+                _showAlert('Zada Wallet',result.data.error)
+            }
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            _showAlert('Zada Wallet',error.toString());
+        }
 
     }
 
     //Saving Email
-    const _onEmailSave = () => {
+    const _onEmailSave = async () => {
         // Check if email is valid
         if (!emailRegex.test(email)) {
             setEmailError("Please enter a valid email address.")
             return
         }
         setEmailError('');
+
+        // call api to update email
+        try {
+            setLoading(true);
+
+            let data = {
+                email: email.toLowerCase().trim().toString()
+            };
+    
+            const result = await _updateProfileAPI(data);
+            if(result.data.success){
+                _showAlert('Zada Wallet','Profile has been updated successfully');
+                setDisableEmail(true);
+            }
+            else{
+                _showAlert('Zada Wallet',result.data.error)
+            }
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            _showAlert('Zada Wallet',error.toString());
+        }
     }
+
+    // Fetching user profile
+    const _fetchProfile = async () => {
+        try {
+            setProfileLoading(true);
+            const result = await _fetchProfileAPI();
+            if(result.data.success){
+                await saveItem(ConstantsList.USER_PROFILE, JSON.stringify(result.data.user))
+                setName(result.data.user.name);
+                setEmail(result.data.user.email);
+            }
+            else{
+                _showAlert('Zada Wallet', result.data.error.toString());
+            } 
+            setProfileLoading(false);  
+        } catch (error) {
+            setProfileLoading(false); 
+            _showAlert('Zada Wallet', error.toString());
+        }
+    }
+
+    // Function to update user password
+    const _onUpdatePasswordClick = async () => {
+        if (currPassword == "") {
+            setCurrPasswordError('Current password is required.');
+            return;
+        }
+        if (!validateIfLowerCased(currPassword)) {
+            setSecretError('Current password must be in lowercase.')
+            return
+        }
+        setCurrPasswordError('');
+    
+        if (newPassword == "") {
+            setNewPasswordError('New password is required.');
+            return;
+        }
+        
+        if (!validateIfLowerCased(newPassword)) {
+            setNewPasswordError('New password must be in lowercase.')
+            return
+        }
+
+        setNewPasswordError('');
+
+        // call api to update password
+        try {
+            setLoading(true);
+
+            let data = {
+                oldSecretPhrase: currPassword.trim(),
+                newSecretPhrase: newPassword.trim(),
+            };
+    
+            const result = await _updateProfileAPI(data);
+            if(result.data.success){
+                _showAlert('Zada Wallet','Profile has been updated successfully');
+                setCurrPassword('');
+                setNewPassword('');
+            }
+            else{
+                _showAlert('Zada Wallet',result.data.error)
+            }
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            _showAlert('Zada Wallet',error.toString());
+        }
+    
+    }
+
+    // Effect to fetch user profile
+    useEffect(()=>{
+        _fetchProfile();
+    },[])
 
     return (
         <View style={styles._mainContainer}>
+
+            {
+                isLoading &&
+                <OverlayLoader 
+                    text='Updating your profile...'
+                />
+            }
+
+            {
+                profileLoading &&
+                <OverlayLoader 
+                    text='Fetching your profile'
+                />
+            }
+
             <ScrollView
+                bounces={false}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles._scrollContainer}
             >
@@ -122,7 +282,68 @@ const ProfileScreen = () => {
                     </View>
                 </View>
             
+                {/* Change Password */}
+                <Text style={styles._parent}>Change Password</Text>
+                
+                {/* Current Password */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: '100%'}}>
+                        <InputComponent
+                            height={45}
+                            type={'secret'}
+                            toggleSecureEntry={_toggleCurrPassSecurity}
+                            placeholderText="Current password"
+                            errorMessage={currPasswordError}
+                            value={currPassword}
+                            keyboardType="default"
+                            isSecureText={isCurrPassSecure}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={styles._inputView}
+                            setStateValue={(text) => {
+                                setCurrPassword(text.replace(',', ''));
+                            }}
+                        />
+                    </View>
+                </View>
 
+                {/* New Password */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: '100%'}}>
+                        <InputComponent
+                            height={45}
+                            type={'secret'}
+                            toggleSecureEntry={_toggleNewPassSecurity}
+                            placeholderText="New password"
+                            errorMessage={newPasswordError}
+                            value={newPassword}
+                            keyboardType="default"
+                            isSecureText={isNewPassSecure}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={styles._inputView}
+                            setStateValue={(text) => {
+                                setNewPassword(text.replace(',', ''));
+                            }}
+                        />
+                    </View>
+                </View>
+
+                {/* Update Password Button */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: 250, alignSelf: 'center'}}>
+                        <SimpleButton 
+                            onPress={_onUpdatePasswordClick}
+                            width={'100%'}
+                            title='Update Password'
+                            titleColor={WHITE_COLOR}
+                            buttonColor={GREEN_COLOR}
+                            style={{
+                                marginTop: 10,
+                            }}
+                        />
+                    </View>
+                </View>
+                
+            
             </ScrollView>
         </View>
     )

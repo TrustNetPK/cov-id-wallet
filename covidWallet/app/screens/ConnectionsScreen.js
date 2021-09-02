@@ -17,6 +17,7 @@ import { get_all_connections } from '../gateways/connections';
 import { showMessage } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+import OverlayLoader from '../components/OverlayLoader';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -132,10 +133,11 @@ function ConnectionsScreen(props) {
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Connections" />
-      {isLoading &&
-        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator color={"#000"} size={"large"} />
-        </View>
+      {
+        isLoading && 
+        <OverlayLoader 
+          text='Deleting connection...'
+        />
       }
 
       {

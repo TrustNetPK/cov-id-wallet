@@ -12,12 +12,9 @@ import {
   BACKGROUND_COLOR,
   GREEN_COLOR,
   WHITE_COLOR,
-  SECONDARY_COLOR,
 } from '../theme/Colors';
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
-import { getItem, saveItem } from '../helpers/Storage';
-import ConstantList from '../helpers/ConfigApp';
 
 const img = require('../assets/images/t&c.png');
 
@@ -25,30 +22,6 @@ function WelcomeScreen({ navigation }) {
   const nextHandler = () => {
     navigation.navigate('RegistrationScreen');
   };
-
-  // Function to check countdown time
-  const _checkRegisterCountdown = async () => {
-    let time1 = await getItem(ConstantList.COUNTDOWN_TIME);
-    console.log("TIME 1 => ", time1);
-    if(time1){
-      time1 = parseInt(time1);
-      let time2 = Math.floor(Date.now() / 1000);
-      console.log("TIME 2 => ", time2);
-      let diff = time2 - time1;
-      diff = 300 - diff;
-      if(diff > 0){
-        navigation.navigate('MultiFactorScreen', ({ diff }))
-      }
-    }
-    else{
-      await saveItem(ConstantsList.COUNTDOWN_TIME, '');
-    }
-  }
-
-  // Effect to check the register timing
-  React.useLayoutEffect(()=>{
-    _checkRegisterCountdown();
-  },[]);
 
   return (
     <View

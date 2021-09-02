@@ -29,6 +29,37 @@ export async function login(email: string, password: string) {
   // }
 }
 
+// register user api
+export const _resgiterUserAPI = async (data: Object) => {
+  try {
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/register',
+      data: data
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+} 
+
+// resend otp code api
+export const _resendOTPAPI = async (userID:string, type: string) => {
+  try {
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/resend_codes',
+      data: {
+        userId: userID,
+        type: type,
+      }
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+} 
+
 // Send password reset link
 export const _sendPasswordResetAPI = async (phone: string) => {
   try {
@@ -45,19 +76,55 @@ export const _sendPasswordResetAPI = async (phone: string) => {
   }
 } 
 
+// api to fetch user profile data
+export const _fetchProfileAPI = async () => {
+  try {
+    const token = await getToken();
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/get_user_data',
+      headers:{
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+} 
+
+// api to update user profile
+export const _updateProfileAPI = async (data: Object) => {
+  try {
+    const token = await getToken();
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/update_user',
+      data: data,
+      headers:{
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+} 
+
 // Validate OTP
 export async function validateOTP(
   phoneConfirmationCode: string,
   emailConfirmationCode: string,
-  secret: string,
+  userId: string,
 ) {
   try {
     let obj = {
       otpsms: phoneConfirmationCode,
       otpmail: emailConfirmationCode,
-      secretPhrase: secret,
+      userId: userId,
     };
-    console.log(obj);
+
+    console.log("VALIDATE OBJ => ", obj);
 
     let headers = {
       'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ const ForgotPasswordScreen = ({navigation}) => {
         // Check if phone number is valid
         const checkValid = phoneInput.current?.isValidNumber(phone);
         if (!checkValid) {
-            _showAlert('Zada', 'Please enter a valid phone number.')
+            _showAlert('Zada Wallet', 'Please enter a valid phone number.')
             return
         }
         
@@ -40,16 +40,16 @@ const ForgotPasswordScreen = ({navigation}) => {
             const result = await _sendPasswordResetAPI(phone);
             if(result.data.success){
                 navigation.goBack();
-                _showAlert('Zada','A password reset link has been sent to your number');
+                _showAlert('Zada Wallet','A password reset link has been sent to your number');
             }
             else{
-                _showAlert('Zada',result.data.error);
+                _showAlert('Zada Wallet',result.data.error);
             }
 
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada',error.toString());
+            _showAlert('Zada Wallet',error.toString());
         }
     }
 
