@@ -165,7 +165,8 @@ const ProfileScreen = () => {
     
             const result = await _updateProfileAPI(data);
             if(result.data.success){
-                _showAlert('Zada Wallet','Profile has been updated successfully');
+                await saveItem(ConstantsList.WALLET_SECRET, newPassword.trim());
+                _showAlert('Zada Wallet','Password has been updated successfully');
                 setCurrPassword('');
                 setNewPassword('');
             }

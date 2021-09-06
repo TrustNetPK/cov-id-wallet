@@ -14,10 +14,11 @@ import { themeStyles } from '../theme/Styles';
 import { getItem, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID, deleteActionByVerID } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import { get_all_connections } from '../gateways/connections';
-import { showMessage } from '../helpers/Toast';
+import { showMessage, _showAlert } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 import OverlayLoader from '../components/OverlayLoader';
+import { analytics_log_connection_delete } from '../helpers/analytics';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -92,6 +93,10 @@ function ConnectionsScreen(props) {
     await deleteActionByConnectionID(connection.connectionId);
     // const verifications = await getItem(ConstantsList.VER_REQ);
     // await deleteActionByVerID()
+
+    _showAlert('Zada Wallet','Connection is deleted successfully');
+
+    analytics_log_connection_delete();
 
     setTimeout(() => {
       updateConnectionsList();

@@ -36,6 +36,7 @@ import useCredentials from '../hooks/useCredentials';
 import RNExitApp from 'react-native-exit-app';
 import http_client from '../gateways/http_client';
 import OverlayLoader from '../components/OverlayLoader';
+import { analytics_log_action_screen } from '../helpers/analytics';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -524,6 +525,19 @@ function ActionsScreen({ navigation }) {
       setIsLoading(false);
     }
   }
+
+  // put analytic for action screen
+  const _sendActionScreenAnalytic = async () => {
+    const value = await getItem('action_analytic');
+    if(value != null && value != undefined){
+      analytics_log_action_screen();
+      await getItem('action_analytic', '1');
+    }
+  }
+
+  useFocusEffect(()=>{
+    _sendActionScreenAnalytic();
+  },[]);
 
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {

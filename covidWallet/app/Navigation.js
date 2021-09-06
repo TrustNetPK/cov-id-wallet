@@ -30,6 +30,7 @@ import { get_all_credentials } from './gateways/credentials';
 import { saveItem } from './helpers/Storage';
 import ConstantList from './helpers/ConfigApp';
 import { addVerificationToActionList } from './helpers/ActionList';
+import { analytics_log_logout } from './helpers/analytics';
 
 const Stack = createStackNavigator();
 
@@ -143,6 +144,7 @@ function NavigationComponent() {
     try {
       AsyncStorage.clear();
       AsyncStorage.setItem('isfirstTime', 'true');
+      analytics_log_logout();
     } catch (error) {
       alert(error);
     }

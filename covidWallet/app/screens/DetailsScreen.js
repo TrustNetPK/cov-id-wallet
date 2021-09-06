@@ -45,7 +45,7 @@ export default function DetailsScreen(props) {
             let result = await delete_credential(data.credentialId);
             if (result.data.success) {
                 deleteCredentialByCredId(data.credentialId);
-                showMessage('ZADA Wallet', 'Credentials deleted successfully!');
+                showMessage('ZADA Wallet', 'Credential is deleted successfully');
                 props.navigation.goBack();
             } else {
                 showMessage('ZADA Wallet', result.data.message);

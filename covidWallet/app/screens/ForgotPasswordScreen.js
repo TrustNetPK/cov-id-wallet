@@ -17,6 +17,7 @@ import SimpleButton from '../components/Buttons/SimpleButton';
 import { _showAlert } from '../helpers/Toast';
 import BackButton from '../components/Buttons/BackButton';
 import { _sendPasswordResetAPI } from '../gateways/auth';
+import { analytics_log_reset_password } from '../helpers/analytics';
 
 const ForgotPasswordScreen = ({navigation}) => {
 
@@ -39,6 +40,9 @@ const ForgotPasswordScreen = ({navigation}) => {
 
             const result = await _sendPasswordResetAPI(phone);
             if(result.data.success){
+
+                analytics_log_reset_password();
+
                 navigation.goBack();
                 _showAlert('Zada Wallet','A password reset link has been sent to your number');
             }

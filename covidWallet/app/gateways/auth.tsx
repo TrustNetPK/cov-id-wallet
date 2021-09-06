@@ -1,6 +1,10 @@
 import http_client from './http_client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthenticateUser} from '../helpers/Authenticate';
+import {
+  analytics_log_register_success,
+  analytics_log_verifies_otp
+} from '../helpers/analytics';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -37,6 +41,9 @@ export const _resgiterUserAPI = async (data: Object) => {
       url: '/api/register',
       data: data
     });
+
+    analytics_log_register_success();
+
     return result;
   } catch (error) {
     throw error;
@@ -137,6 +144,9 @@ export async function validateOTP(
       data: obj,
       headers,
     });
+
+    analytics_log_verifies_otp();
+
     return result;
   } catch (error) {
     throw error;
