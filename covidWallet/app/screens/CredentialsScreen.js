@@ -152,7 +152,7 @@ function CredentialsScreen(props) {
           }}
           contentContainerStyle={{ 
             width: '100%',
-            height: DIMENSIONS.height,
+            //height: DIMENSIONS.height,
           }}
         >
           {/* <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} /> */}
@@ -161,11 +161,11 @@ function CredentialsScreen(props) {
             let vaccineName = v.name;
             let issuedBy = v.organizationName;
             let card_type = v.type;
-
+            let issueDate = v.values['Issue Time'];
 
             return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
               <View style={styles.CredentialsCardContainer}>
-                <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
+                <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={issueDate} card_logo={imgURI} />
               </View>
             </TouchableOpacity>
           })
@@ -189,15 +189,6 @@ function CredentialsScreen(props) {
           <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
         </ScrollView>
       }
-
-      {/* <View style={{
-        position: 'absolute',
-        bottom: '5%', right: '5%', alignItems: 'center', justifyContent: 'center'
-      }}>
-        <TouchableOpacity activeOpacity={.5} onPress={() => setCredential(true)}>
-          <Image source={refresh_img} style={styles.refreshButton} />
-        </TouchableOpacity>
-      </View> */}
     </View >
   );
 }

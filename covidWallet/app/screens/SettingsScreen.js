@@ -27,6 +27,11 @@ var settingLocalData = {
       value: false,
       type: 'Boolean'
     },
+    'Edit Profile':{
+      value: 'None',
+      type: 'Text',
+      key: '36',
+    },
     'Logout': {
       value: 'None',
       type: 'Text',
@@ -115,8 +120,13 @@ export default function SettingsScreen(props) {
     }
   }
 
-  const onLogoutPressed = async () => {
+  const onLogoutPressed = () => {
     logout();
+  }
+
+  // when user will click on edit profile screen
+  const _onEditProfileClick = () => {
+    props.navigation.navigate('ProfileScreen');
   }
 
   return (
@@ -213,7 +223,8 @@ export default function SettingsScreen(props) {
                           />
                         );
                       } else {
-                        if (item != 'Logout') {
+                        
+                        if (item != 'Logout' && item != "Edit Profile") {
                           return (
                             <TextTypeView
                               startValue={item}
@@ -224,14 +235,16 @@ export default function SettingsScreen(props) {
                               }}
                             />
                           );
-                        } else {
+                        }
+                        else {
                           return (
                             <TextTypeView
                               startValue={item}
                               endValue="Edit"
                               endIcon="right"
                               onHandlePress={() => {
-                                onLogoutPressed()
+                                item == 'Logout' ? onLogoutPressed() : _onEditProfileClick()
+                                  
                               }}
                             />
                           );

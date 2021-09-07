@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import { KeyboardAvoidingView } from 'react-native';
 import {
@@ -26,74 +26,78 @@ import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveItem, getItem } from '../helpers/Storage';
-import { showMessage } from '../helpers/Toast';
+import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
-import { validateOTP } from '../gateways/auth';
+import { validateOTP, _resendOTPAPI } from '../gateways/auth';
+import SimpleButton from '../components/Buttons/SimpleButton';
 
 const { height, width } = Dimensions.get('window');
 
-function MultiFactorScreen({ route, navigation }) {
+function MultiFactorScreen({ navigation }) {
   const [emailConfirmationCode, setEmailConfirmationCode] = useState('');
   const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
   const [networkState, setNetworkState] = useState(false);
-  const [secret, setSecret] = useState('');
-  const [secureSecret, setSecureSecret] = useState(true);
   const [progress, setProgress] = useState(false);
   const [isAuthenticated, setAuthentication] = useState(false);
   const [isWalletCreated, setWallet] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   // Countdown
-  const [minutes, setMinutes] = useState(4);
-  const [seconds, setSeconds] = useState(59);
-  const [timeout, setTimeout] = useState(false);
-  const [isTimeSaved, setTimeSaved] = useState(false);
+  const [phoneMins, setPhoneMins] = useState(1);
+  const [phoneSecs, setPhoneSecs] = useState(59);
+  const [phoneTimeout, setPhoneTimeout] = useState(false);
 
-  const routeParams = route.params;
+  const [emailMins, setEmailMins] = useState(1);
+  const [emailSecs, setEmailSecs] = useState(59);
+  const [emailTimeout, setEmailTimeout] = useState(false);
+  const [phoneCodeLoading, setPhoneCodeLoading] = useState(false);
+  const [emailCodeLoading, setEmailCodeLoading] = useState(false);
 
-  // Toggling for password 
-  const _toggleSecureSecretEntry = () => {
-    setSecureSecret(!secureSecret);
-  }
-  
-  const _saveTime = async (timeStamp) => {
-    await saveItem(ConstantsList.COUNTDOWN_TIME, timeStamp);
-  }
-
-  // set time from diff
-  React.useEffect(()=>{
-    if(routeParams?.diff){
-      let mins = routeParams?.diff / 60;
-      let sec = routeParams?.diff % 60;
-      setMinutes(parseInt(mins));
-      setSeconds(parseInt(sec));
-    }
-  },[])
-
+  // Effect to check network connection
   React.useEffect(() => {
-    if(!routeParams?.diff){
-      _saveTime((Math.floor(Date.now() / 1000)).toString());
-    }
     NetInfo.fetch().then((networkState) => {
       setNetworkState(networkState.isConnected);
     });
   }, [networkState]);
 
+  // Effect for phone code countdown
   React.useEffect(()=>{
     let interval = setInterval(() => {
-      let tempSec = seconds-1;
-      if(tempSec <= 0 && minutes > 0){
-        setSeconds(59);
-        setMinutes(minutes - 1);
+      let tempSec = phoneSecs - 1;
+      if(tempSec <= 0 && phoneMins > 0){
+        setPhoneSecs(59);
+        setPhoneMins(phoneMins - 1);
       }
-      else if(tempSec <= 0 && minutes == 0){
-        setSeconds(0);
-        setMinutes(0);
+      else if(tempSec <= 0 && phoneMins == 0){
+        setPhoneSecs(0);
+        setPhoneMins(0);
         clearInterval(interval);
-        setTimeout(true);
-        _saveTime('');
+        setPhoneTimeout(true);
       }
       else{
-        setSeconds(tempSec);
+        setPhoneSecs(tempSec);
+      }
+    }, 1000) //each count lasts for a second
+    //cleanup the interval on complete
+    return () => clearInterval(interval)
+  })
+
+  // Effect for email code countdown
+  React.useEffect(()=>{
+    let interval = setInterval(() => {
+      let tempSec = emailSecs - 1;
+      if(tempSec <= 0 && emailMins > 0){
+        setPhoneSecs(59);
+        setPhoneMins(emailMins - 1);
+      }
+      else if(tempSec <= 0 && emailMins == 0){
+        setEmailSecs(0);
+        setEmailMins(0);
+        clearInterval(interval);
+        setEmailTimeout(true);
+      }
+      else{
+        setEmailSecs(tempSec);
       }
     }, 1000) //each count lasts for a second
     //cleanup the interval on complete
@@ -103,8 +107,7 @@ function MultiFactorScreen({ route, navigation }) {
   const submit = () => {
     if (
       phoneConfirmationCode == '' ||
-      emailConfirmationCode == '' ||
-      secret == ''
+      emailConfirmationCode == '' 
     ) {
       showMessage('ZADA Wallet', 'Fill the empty fields');
     } else {
@@ -114,31 +117,24 @@ function MultiFactorScreen({ route, navigation }) {
   };
 
   const validate = async () => {
-    if (networkState) {
-      let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-      if (walletSecret !== secret) {
-        showMessage('ZADA Wallet', 'Your password is mismatching, Please try again!');
-      } else {
-
-        // Validate OTP Api call.
-        try {
-          let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, secret);
-
-          if (result.data.success) {
-            _saveTime('');
-            await saveItem(ConstantsList.USER_ID, result.data.userId);
-            await authenticateUser();
-          } else {
-            showMessage('ZADA Wallet', result.data.error);
-          }
-
-        } catch (e) {
-          console.log(e)
+    try {
+      if (networkState) {
+        let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, userData.userId);
+  
+        if (result.data.success) {
+          await saveItem(ConstantsList.USER_ID, result.data.userId);
+          await authenticateUser();
+        } 
+        else {
+          showMessage('ZADA Wallet', result.data.error);
         }
+      } else {
+        showMessage('ZADA Wallet', 'Internet Connection is not available')
       }
       setProgress(false);
-    } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+    } catch (error) {
+      setProgress(false);
+      _showAlert('Zada Wallet', error.toString());
     }
   };
 
@@ -210,6 +206,63 @@ function MultiFactorScreen({ route, navigation }) {
     }
   };
 
+  // Funcion to resend phone code
+  const _reSendPhoneCode = async () => {
+    try {
+      setPhoneCodeLoading(true);
+      const result = await _resendOTPAPI(userData.userId, 'phone');
+      if(result.data.success){
+        setPhoneTimeout(false);
+        setPhoneMins(0);
+        setPhoneSecs(10);
+      }
+      else{
+        _showAlert("Zada Wallet", result.data.error.toString());
+      } 
+      setPhoneCodeLoading(false);
+    } catch (error) {
+      setPhoneCodeLoading(false);
+      _showAlert("Zada Wallet", error.toString());
+    }
+  }
+
+  // Funcion to resend email code
+  const _reSendEmailCode = async () => {
+    try {
+      setEmailCodeLoading(true);
+      const result = await _resendOTPAPI(userData.userId, 'email');
+      if(result.data.success){
+        setEmailTimeout(false);
+        setEmailMins(0);
+        setEmailSecs(10);
+      }
+      else{
+        _showAlert("Zada Wallet", result.data.error.toString());
+      } 
+      setEmailCodeLoading(false);
+    } catch (error) {
+      setEmailCodeLoading(false);
+      _showAlert("Zada Wallet", error.toString());
+    }
+  }
+
+  // Function to get registeration data of user
+  const _getRegisterUserInfo = async () => {
+    const regData = JSON.parse(await getItem(ConstantsList.REGISTRATION_DATA));
+
+    // sending phone OTP
+    _resendOTPAPI(regData.userId, 'phone');
+   
+     // sending email OTP
+    _resendOTPAPI(regData.userId, 'email');
+
+    setUserData(regData);
+  }
+
+  useLayoutEffect(()=>{
+    _getRegisterUserInfo();
+  },[])
+
   return (
     <View
       style={{
@@ -261,18 +314,86 @@ function MultiFactorScreen({ route, navigation }) {
                 </Text>
                 <View>
                   <ScrollView showsVerticalScrollIndicator={true}>
-                    <View style={styles.inputView}>
-                      <TextInput
-                        style={styles.TextInput}
-                        placeholder="Phone Confirmation Code"
-                        placeholderTextColor="grey"
-                        keyboardType="number-pad"
-                        onChangeText={(confirmationCode) => {
-                          setPhoneConfirmationCode(confirmationCode);
-                        }}
-                      />
+                    
+                    {/* Phone Confirmation Code */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <View style={styles.inputView}>
+                        <TextInput
+                          style={styles.TextInput}
+                          placeholder="Phone Confirmation Code"
+                          placeholderTextColor="grey"
+                          keyboardType="number-pad"
+                          onChangeText={(confirmationCode) => {
+                            setPhoneConfirmationCode(confirmationCode);
+                          }}
+                        />
+                      </View>
+                      {
+                        phoneTimeout ? (
+                            !phoneCodeLoading ? (
+                              <Text onPress={_reSendPhoneCode} style={styles._expireText}>Send Again</Text>
+                            ):(
+                              <ActivityIndicator 
+                                color={PRIMARY_COLOR}
+                                size={'small'}
+                                style={{
+                                  marginLeft: 30,
+                                }}
+                              />
+                            )
+                          ):(
+                            <Text style={styles._countdown}>{('0' + phoneMins).slice(-2)} : {('0' + phoneSecs).slice(-2)}</Text>
+                          )
+                      }
                     </View>
-                    <View style={styles.inputView}>
+
+                    {/* Email Confirmation Code */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <View style={styles.inputView}>
+                        <TextInput
+                          style={styles.TextInput}
+                          placeholderTextColor="grey"
+                          placeholder="Email Confirmation Code"
+                          keyboardType="number-pad"
+                          onChangeText={(confirmationCode) => {
+                            setEmailConfirmationCode(confirmationCode);
+                          }}
+                        />
+                      </View>
+                      {
+                        emailTimeout ? (
+                          !emailCodeLoading ? (
+                            <Text onPress={_reSendEmailCode} style={styles._expireText}>Send Again</Text>
+                          ):(
+                            <ActivityIndicator 
+                              color={PRIMARY_COLOR}
+                              size={'small'}
+                              style={{
+                                marginLeft: 30,
+                              }}
+                            />
+                          )
+                          ):(
+                            <Text style={styles._countdown}>{('0' + emailMins).slice(-2)} : {('0' + emailSecs).slice(-2)}</Text>
+                          )
+                      }
+                    </View>
+
+                    <Text style={styles.textView}>
+                      Please wait until 2 minutes for the codes. If you will not receive then you will be able to resend them
+                    </Text>
+                    
+                    {/* <View style={styles.inputView}>
                       <TextInput
                         style={styles.TextInput}
                         placeholderTextColor="grey"
@@ -292,10 +413,10 @@ function MultiFactorScreen({ route, navigation }) {
                           <Text style={styles._countdown}>{('0' + minutes).slice(-2)} : {('0' + seconds).slice(-2)}</Text>
                         </View>
                       )
-                    }
+                    } */}
                     
 
-                    <Text style={styles.textView}>
+                    {/* <Text style={styles.textView}>
                       And the password you saved in previous phrase step.
                     </Text>
                     <Text style={styles.secretMessage}>Your Password</Text>
@@ -327,31 +448,29 @@ function MultiFactorScreen({ route, navigation }) {
                     
                     <Text style={styles.textView}>
                       The code expires in 5 minutes - Go back to retry again in case code expires.
-                    </Text>
+                    </Text> */}
+                    
                     {/* <TouchableOpacity style={styles.borderButton}>
                     <Text style={styles.borderText}>RESEND EMAIL</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.borderButton}>
                     <Text style={styles.borderText}>RESEND SMS</Text>
                   </TouchableOpacity> */}
-                    {progress ? (
-                      <ActivityIndicator
-                        style={styles.primaryButton}
-                        size="small"
-                        color={WHITE_COLOR}
-                      />
-                    ) : (
-                      <TouchableOpacity
-                        style={styles.primaryButton}
-                        onPress={()=>{
-                          if(timeout)
-                            navigation.replace('RegistrationScreen');
-                          else
-                            submit()
-                        }}>
-                        <Text style={styles.text}>{timeout ? "GO BACK" : "CONTINUE"}</Text>
-                      </TouchableOpacity>
-                    )}
+                    <SimpleButton 
+                      loaderColor={WHITE_COLOR}
+                      isLoading={progress}
+                      width={250}
+                      onPress={()=>{
+                        submit()
+                      }}
+                      title='Continue'
+                      titleColor={WHITE_COLOR}
+                      buttonColor={GREEN_COLOR}
+                      style={{
+                        alignSelf: 'center',
+                        marginVertical: 20,
+                      }}
+                    />
                   </ScrollView>
                 </View>
               </>
@@ -367,21 +486,10 @@ const styles = StyleSheet.create({
   inputView: {
     backgroundColor: WHITE_COLOR,
     borderRadius: 10,
-    width: '94%',
+    width: '65%',
     height: 45,
     marginLeft: 10,
     marginTop: 8,
-  },
-  secretMessage: {
-    marginLeft: 15,
-    color: 'grey',
-  },
-  SecretTextInput: {
-    textAlign: 'center',
-    height: 80,
-    flex: 5,
-    padding: 5,
-    marginLeft: 5,
   },
   TextInput: {
     height: 50,
@@ -408,11 +516,14 @@ const styles = StyleSheet.create({
   },
   _countdown:{
     color: PRIMARY_COLOR,
+    marginLeft: 25,
+    marginTop: 10,
   },
   _expireText:{
     marginTop: 10,
-    color: RED_COLOR,
-    marginHorizontal: 16,
+    color: PRIMARY_COLOR,
+    marginLeft: 15,
+    textDecorationLine: 'underline'
   },
   checkboxContainer: {
     flexDirection: 'row',

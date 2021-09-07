@@ -3,7 +3,6 @@ import { Alert } from 'react-native';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   Image,
   TouchableOpacity,
@@ -14,7 +13,6 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import PhoneInput from "react-native-phone-number-input";
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PRIMARY_COLOR,
@@ -28,14 +26,15 @@ import { StackActions } from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
 import { saveItem } from '../helpers/Storage';
-import randomString from '../helpers/RandomString';
-import { showMessage } from '../helpers/Toast';
+import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
 import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
 import { get_all_connections } from '../gateways/connections';
 import { get_all_credentials } from '../gateways/credentials';
 import { addVerificationToActionList } from '../helpers/ActionList';
+import { _resgiterUserAPI } from '../gateways/auth';
+import SimpleButton from '../components/Buttons/SimpleButton';
 
 const { height, width } = Dimensions.get('window');
 
@@ -57,7 +56,6 @@ function RegistrationModule({ navigation }) {
   const [secretError, setSecretError] = useState('');
   const [secureSecret, setSecureSecret] = useState(true);
   
-
   const [progress, setProgress] = useState(false);
 
   // Toggling for password 
@@ -136,41 +134,88 @@ function RegistrationModule({ navigation }) {
   };
 
   const register = async () => {
-    if (networkState) {
-      await fetch(ConstantsList.BASE_URL + `/api/register`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name,
-          email: email.toLocaleLowerCase(),
-          phone: phone,
+    try {
+      if (networkState) {
+        let data = {
+          name: name.trim(),
+          email: email.toLocaleLowerCase().trim(),
+          phone: phone.trim(),
           secretPhrase: secret,
-        }),
-      }).then((registerResult) =>
-        registerResult.json().then((data) => {
-          try {
-            let response = JSON.parse(JSON.stringify(data));
-            if (response.success == true) {
-              saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
-                navigation.replace('MultiFactorScreen');
-              });
-            } else {
-              showMessage('ZADA Wallet', response.error);
-              setProgress(false);
-            }
-          } catch (error) {
-            console.error(error);
-          } finally {
-            setProgress(false);
-          }
-        }),
-      );
-    } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available');
+        }
+        
+        const result = await _resgiterUserAPI(data);
+        const response = result.data;
+
+        if(response.success){
+          // new user is going to register
+          console.log("NEW USER");
+          await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+          await saveItem(ConstantsList.WALLET_SECRET, secret);
+          navigation.replace('MultiFactorScreen');
+        }
+        else if(response.verified != undefined && !response.verified){
+          // unverified user come to register
+          console.log("UN VERIFY USER");
+          await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+          await saveItem(ConstantsList.WALLET_SECRET, secret);
+          navigation.replace('MultiFactorScreen');
+        }
+        else if(response.verified != undefined && response.verified){
+          // verified user came again to register
+          console.log("VERIFIED USER");
+          selectionOnPress('login');
+          _showAlert('Zada Wallet', response.error);
+        }
+        else{
+          _showAlert('Zada Wallet', response.error);
+        }
+  
+        setProgress(false);
+
+        // await fetch(ConstantsList.BASE_URL + `/api/register`, {
+        //   method: 'POST',
+        //   headers: {
+        //     Accept: 'application/json',
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     name: name,
+        //     email: email.toLocaleLowerCase(),
+        //     phone: phone,
+        //     secretPhrase: secret,
+        //   }),
+        // }).then((registerResult) =>
+        //   registerResult.json().then(async(data) => {
+        //     try {
+        //       let response = JSON.parse(JSON.stringify(data));
+        //       if (response.success == true) {
+  
+        //         //saving user data
+        //         await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+  
+        //         saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
+        //           navigation.replace('MultiFactorScreen');
+        //         });
+        //       } else {
+        //         showMessage('ZADA Wallet', response.error);
+        //         setProgress(false);
+        //       }
+        //     } catch (error) {
+        //       console.error(error);
+        //     } finally {
+        //       setProgress(false);
+        //     }
+        //   }),
+        // );
+      } else {
+        setProgress(false);
+        showMessage('ZADA Wallet', 'Internet Connection is not available');
+      }
+    } catch (error) {
+      setProgress(false);
+      showMessage('ZADA Wallet', error.toString());
     }
+    
   };
 
   const storeUserID = async (userId) => {
@@ -307,11 +352,7 @@ function RegistrationModule({ navigation }) {
         countryPickerButtonStyle={{ width: 65, borderRightColor: "00000040", borderRightWidth: 0.5 }}
         textContainerStyle={{ fontSize: 16, padding: 0, borderRadius: 10, backgroundColor: WHITE_COLOR }}
         codeTextStyle={{ fontSize: 14, textAlign: "center", textAlignVertical: "center", padding: 0, margin: 0 }}
-        onChangeText={(text) => {
-          // setPhone(text);
-        }}
         onChangeFormattedText={(text) => {
-          // console.log(text);
           setPhone(text);
         }}
         disableArrowIcon
@@ -427,15 +468,6 @@ function RegistrationModule({ navigation }) {
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => setName(text)}
                   />
-                  {/* <TextInput
-                    style={styles.TextInput}
-                    placeholder="Name"
-                    keyboardType="default"
-                    placeholderTextColor="grey"
-                    onChangeText={(name) => {
-                      setName(name);
-                    }}
-                  /> */}
                 </View>
                 <View>
                   <InputComponent
@@ -448,28 +480,8 @@ function RegistrationModule({ navigation }) {
                     inputContainerStyle={styles.inputView}
                     setStateValue={(text) => setEmail(text)}
                   />
-                  {/* <TextInput
-                    style={styles.TextInput}
-                    placeholder="Email"
-                    keyboardType="email-address"
-                    placeholderTextColor="grey"
-                    onChangeText={(email) => {
-                      setEmail(email);
-                    }}
-                  /> */}
                 </View>
                 {renderPhoneNumberInput()}
-                {/* <View style={styles.inputView}>
-                  <TextInput
-                    style={styles.TextInput}
-                    placeholder="Phone"
-                    keyboardType="phone-pad"
-                    placeholderTextColor="grey"
-                    onChangeText={(phone) => {
-                      setPhone(phone);
-                    }}
-                  />
-                </View> */}
                 <Text style={styles.secretMessage}>
                   Password (please save in safe place)
                 </Text>
@@ -494,46 +506,7 @@ function RegistrationModule({ navigation }) {
                       }
                     }}
                   />
-                  {/* {
-                    secretError == "" &&
-                    <FontAwesome
-                      style={{ height: 50, zIndex: 10 }}
-                      onPress={() => setSecureSecret(!secureSecret)}
-                      style={styles.textRightIcon}
-                      name={secureSecret ? "eye-slash" : "eye"}
-                      size={25}
-                    />
-                  } */}
                 </View>
-                {/* <View
-                  style={{
-                    backgroundColor: WHITE_COLOR,
-                    borderRadius: 10,
-                    width: '94%',
-                    height: 65,
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginTop: 8,
-                  }}>
-                  <TextInput
-                    style={styles.SecretTextInput}
-                    placeholder="Secret Phrase"
-                    onChangeText={(text) => setText(text.replace(',', ''))}
-                    defaultValue={secret}
-                    multiline={true}
-                    editable={false}
-                    onChangeText={(secret) => {
-                      setSecret(secret);
-                    }}
-                  />
-                  <FontAwesome
-                    style={{flex: 1}}
-                    onPress={() => copyToClipboard()}
-                    style={styles.textRightIcon}
-                    name="copy"
-                    size={25}
-                  />
-                </View> */}
 
                 <Text
                   style={{
@@ -551,7 +524,17 @@ function RegistrationModule({ navigation }) {
                   We are not going to send you ads or spam email, or sell your
                   information to a 3rd party.
                 </Text>
-                {progress ? (
+                <SimpleButton
+                  loaderColor={WHITE_COLOR}
+                  isLoading={progress}
+                  onPress={submit} 
+                  width={250}
+                  title='Continue'
+                  titleColor={WHITE_COLOR}
+                  buttonColor={GREEN_COLOR}
+                  style={{ marginVertical: 20, alignSelf: 'center' }}
+                />
+                {/* {progress ? (
                   <ActivityIndicator
                     style={styles.primaryButton}
                     size="small"
@@ -563,7 +546,7 @@ function RegistrationModule({ navigation }) {
                     onPress={submit}>
                     <Text style={styles.text}>CONTINUE</Text>
                   </TouchableOpacity>
-                )}
+                )} */}
               </ScrollView>
             </View>
           )}
@@ -609,20 +592,25 @@ function RegistrationModule({ navigation }) {
                     }}
                   />
                 </View>
+                <Text 
+                  onPress={()=>{
+                    navigation.navigate('ForgotPasswordScreen');
+                  }}
+                  style={styles._forgotText}
+                >
+                  Forgot password?
+                </Text>
 
-                {progress ? (
-                  <ActivityIndicator
-                    style={styles.primaryButton}
-                    size="small"
-                    color={WHITE_COLOR}
-                  />
-                ) : (
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={submit}>
-                    <Text style={styles.text}>CONTINUE</Text>
-                  </TouchableOpacity>
-                )}
+                <SimpleButton
+                  loaderColor={WHITE_COLOR}
+                  isLoading={progress}
+                  onPress={submit} 
+                  width={250}
+                  title='Continue'
+                  titleColor={WHITE_COLOR}
+                  buttonColor={GREEN_COLOR}
+                  style={{ marginVertical: 20, alignSelf: 'center' }}
+                />
               </ScrollView>
             </View>
           )}
@@ -642,6 +630,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingLeft: 16,
     borderBottomWidth: 0,
+  },
+  _forgotText:{
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: PRIMARY_COLOR,
+    textDecorationLine: 'underline',
+    alignSelf: 'flex-end',
+    marginRight: 20,
+    marginTop: 5,
   },
   secretMessage: {
     marginTop: 15,

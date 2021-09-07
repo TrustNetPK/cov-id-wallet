@@ -8,6 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
 import { delete_credential } from '../gateways/credentials';
 import { showMessage, showAskDialog } from '../helpers/Toast';
 import { deleteCredentialByCredId } from '../helpers/Storage';
+import OverlayLoader from '../components/OverlayLoader';
 
 export default function DetailsScreen(props) {
 
@@ -44,7 +45,7 @@ export default function DetailsScreen(props) {
             let result = await delete_credential(data.credentialId);
             if (result.data.success) {
                 deleteCredentialByCredId(data.credentialId);
-                showMessage('ZADA Wallet', 'Credentials deleted successfully!');
+                showMessage('ZADA Wallet', 'Credential is deleted successfully');
                 props.navigation.goBack();
             } else {
                 showMessage('ZADA Wallet', result.data.message);
@@ -91,10 +92,11 @@ export default function DetailsScreen(props) {
 
     return (
         <View style={[themeStyles.mainContainer]}>
-            {isLoading &&
-                <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
-                    <ActivityIndicator color={"#000"} size={"large"} />
-                </View>
+            {
+                isLoading &&
+                <OverlayLoader 
+                    text='Deleting credential...'
+                />
             }
             <View style={styles.container}>
                 <View style={styles.CredentialsCardContainer}>

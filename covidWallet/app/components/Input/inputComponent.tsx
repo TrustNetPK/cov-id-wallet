@@ -33,7 +33,8 @@ interface InputIProps {
   infoText?: string;
   inputContainerStyle?: any;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  type: 'default' | 'secret'
+  type: 'default' | 'secret',
+  height: Number,
 }
 
 export function InputComponent(props: InputIProps) {
@@ -110,6 +111,9 @@ export function InputComponent(props: InputIProps) {
                   name={'exclamationcircleo'}
                   size={25}
                   color={RED_COLOR}
+                  style={{
+                    marginLeft: 10,
+                  }}
                 />
               </TouchableOpacity>
             </View>
@@ -133,7 +137,7 @@ export function InputComponent(props: InputIProps) {
           setInputValue(newText);
           props.setStateValue(newText);
         }}
-        containerStyle={[props.style, {height: 55}]}
+        containerStyle={[props.style, {height: props.height ? props.height : 55}]}
         inputContainerStyle={props.inputContainerStyle}
       />
       {showErrorMessage && (

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthenticateUser} from '../helpers/Authenticate';
 import {
   analytics_log_accept_credential_request,
+  analytics_log_credential_delete,
   analytics_log_reject_credential_request,
 } from '../helpers/analytics';
 
@@ -94,6 +95,7 @@ export async function delete_credential(credentialId: string) {
 
     // Google Analytics
     analytics_log_reject_credential_request();
+    analytics_log_credential_delete();
 
     return result;
   } catch (error) {
