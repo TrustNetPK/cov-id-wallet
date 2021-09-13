@@ -33,6 +33,11 @@ const ForgotPasswordScreen = ({navigation}) => {
             _showAlert('Zada Wallet', 'Please enter a valid phone number.')
             return
         }
+
+        if(phone.charAt(3) == '0'){
+            _showAlert('Zada Wallet', 'Phone number should not start with zero');
+            return;
+        }
         
         // calling api to send password reset link
         try {
@@ -110,7 +115,7 @@ const ForgotPasswordScreen = ({navigation}) => {
                     buttonColor={GREEN_COLOR}
                     style={{
                         alignSelf: 'center',
-                        marginTop: 10,
+                        marginTop: 30,
                         marginBottom: 25,
                     }}
                 />

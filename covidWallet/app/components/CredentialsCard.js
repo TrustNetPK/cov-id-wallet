@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
+import moment from 'moment';
 
 const image = require('../assets/images/card-bg.png')
 const card_badge = require('../assets/images/badge.png')
 const planeImage = require('../assets/images/world_map.png')
 
 function CredentialsCard(props) {
+
+    console.log("date => ",props.date);
 
     return(
         <ImageBackground
@@ -24,7 +27,9 @@ function CredentialsCard(props) {
                         style={styles._cardLogo} 
                     />
                     <View style={styles._cardInfoContainer}>
-                        <View>
+                        <View style={{
+                            width: '60%',
+                        }}>
                             <Text style={styles.card_small_text}>Issued by</Text>
                             <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{props.issuer}</Text>
                         </View>
@@ -33,7 +38,7 @@ function CredentialsCard(props) {
                             props.date ? (
                                 <View>
                                     <Text style={styles.card_small_text}>Issued Time</Text>
-                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{props.date.split(' ')[0]}</Text>
+                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{moment(props.date).format("DD-MM-YYYY").replaceAll('-','/')}</Text>
                                 </View>
                             ):(
                                 null

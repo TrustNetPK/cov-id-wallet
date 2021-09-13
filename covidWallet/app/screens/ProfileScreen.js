@@ -10,10 +10,11 @@ import OverlayLoader from '../components/OverlayLoader';
 import { _fetchProfileAPI, _updateProfileAPI } from '../gateways/auth';
 import { _showAlert } from '../helpers/Toast';
 import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
-import { BLACK_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BLACK_COLOR, GREEN_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import SimpleButton from '../components/Buttons/SimpleButton';
+import EmailWarning from '../components/EmailWarning';
 
 const ProfileScreen = () => {
 
@@ -26,6 +27,7 @@ const ProfileScreen = () => {
 
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
+    const [emailWarning, setEmailWarning] = useState(false);
     const [disableEmail, setDisableEmail] = useState(true);
 
     const [isCurrPassSecure, setCurrPassSecure] = useState(true);
@@ -90,6 +92,7 @@ const ProfileScreen = () => {
         // call api to update email
         try {
             setLoading(true);
+            setEmailWarning(false);
 
             let data = {
                 email: email.toLowerCase().trim().toString()
@@ -213,7 +216,7 @@ const ProfileScreen = () => {
                 
                 {/* Name */}
                 <View style={styles._itemContainer}>
-                    <Text style={styles._itemLabel}>Name</Text>
+                    <Text style={styles._itemLabel}>Full Name (Official Name)</Text>
                     <View style={styles._row}>
                         
                         <View style={{width: '85%'}}>
@@ -262,9 +265,35 @@ const ProfileScreen = () => {
                                 inputContainerStyle={styles._inputView}
                                 setStateValue={(text) =>{
                                     setEmail(text);
+                                    let domain = text.split('@');
+                                    if(domain.length == 2){
+
+                                        let domainName = domain[1].toLowerCase();
+
+                                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
+                                            setEmailWarning(true);
+                                            return
+                                        }
+                                        
+                                        setEmailWarning(false);
+                                        return
+
+                                    }
+                                    else
+                                        setEmailWarning(false);
                                 }}
                                 disabled={disableEmail}
                             />
+                            {
+                                emailWarning &&
+                                <EmailWarning 
+                                    style={{
+                                        marginLeft: 12,
+                                        marginRight: 12,
+                                        marginTop: 5,
+                                    }}
+                                />
+                            }
                         </View>
                         
                         <Text 

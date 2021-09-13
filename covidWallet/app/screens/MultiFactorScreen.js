@@ -106,8 +106,8 @@ function MultiFactorScreen({ navigation }) {
 
   const submit = () => {
     if (
-      phoneConfirmationCode == '' ||
-      emailConfirmationCode == '' 
+      phoneConfirmationCode == '' 
+      //|| emailConfirmationCode == '' 
     ) {
       showMessage('ZADA Wallet', 'Fill the empty fields');
     } else {
@@ -119,7 +119,8 @@ function MultiFactorScreen({ navigation }) {
   const validate = async () => {
     try {
       if (networkState) {
-        let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, userData.userId);
+        //let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, userData.userId);
+        let result = await validateOTP(phoneConfirmationCode, userData.userId);
   
         if (result.data.success) {
           await saveItem(ConstantsList.USER_ID, result.data.userId);
@@ -309,8 +310,8 @@ function MultiFactorScreen({ navigation }) {
                   <HeadingComponent text="Multi Factor Authentication to keep you safe!" />
                 </View>
                 <Text style={styles.textView}>
-                  We have sent confirmation code to both of your email and your
-                  phone. Please input them below.
+                  We have sent confirmation code to your
+                  phone. Please input it below.
                 </Text>
                 <View>
                   <ScrollView showsVerticalScrollIndicator={true}>
@@ -353,7 +354,7 @@ function MultiFactorScreen({ navigation }) {
                     </View>
 
                     {/* Email Confirmation Code */}
-                    <View
+                    {/* <View
                       style={{
                         flexDirection: 'row',
                         alignItems: 'center',
@@ -387,10 +388,10 @@ function MultiFactorScreen({ navigation }) {
                             <Text style={styles._countdown}>{('0' + emailMins).slice(-2)} : {('0' + emailSecs).slice(-2)}</Text>
                           )
                       }
-                    </View>
+                    </View> */}
 
                     <Text style={styles.textView}>
-                      Please wait until 2 minutes for the codes. If you will not receive then you will be able to resend them
+                      Please wait until 2 minutes for the code. If you will not receive then you will be able to resend it
                     </Text>
                     
                     {/* <View style={styles.inputView}>

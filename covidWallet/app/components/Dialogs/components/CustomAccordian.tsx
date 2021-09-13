@@ -1,9 +1,7 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image, ImageBackground} from 'react-native';
-import {Card} from 'react-native-elements';
+import {View, Text, StyleSheet} from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
 import TouchableComponent from '../../Buttons/TouchableComponent';
-import CredentialsCard from '../../CredentialsCard';
 import RadioButton from './RadioButton';
 import {
   BLACK_COLOR,
@@ -11,9 +9,6 @@ import {
   SECONDARY_COLOR,
   WHITE_COLOR,
 } from '../../../theme/Colors';
-
-const cardBackground = require('../../../assets/images/plane.png');
-const front = require('../../../assets/images/card-bg.png');
 
 interface INProps {
   credential: any;
@@ -25,12 +20,15 @@ const CustomAccordian = (props: INProps) => {
   const [activeSections, setActiveSections] = useState([]);
   const [cred, setCred] = useState({});
 
+  console.log("PROPS => ", JSON.stringify(props));
+
   function setSelected(e: object) {
     setCred(e);
     props.setSelected(e);
   }
 
   const _renderSectionTitle = (section) => {
+    console.log("SECTION => ", section);
     return (
       <View
         style={{
@@ -53,6 +51,7 @@ const CustomAccordian = (props: INProps) => {
   };
 
   const _renderHeader = (section) => {
+    console.log("HEADER => ", section);
     return (
       <View style={styles.header}>
         <View style={styles.cardContainerStyle}>
@@ -63,6 +62,7 @@ const CustomAccordian = (props: INProps) => {
   };
 
   const _renderContent = (section) => {
+    console.log("CONTENT => ", section);
     return (
       <View
         style={{
@@ -70,8 +70,8 @@ const CustomAccordian = (props: INProps) => {
           //   backgroundColor: PRIMARY_COLOR,
           padding: 8,
         }}>
-        {Object.keys(section.values).map((v, i) => {
-          return (
+        {Object.keys(section.values).map((v, i) =>
+          (
             <View
               style={{
                 flexDirection: 'row',
@@ -88,8 +88,8 @@ const CustomAccordian = (props: INProps) => {
                 </Text>
               </View>
             </View>
-          );
-        })}
+          )
+        )}
       </View>
     );
   };
@@ -97,6 +97,7 @@ const CustomAccordian = (props: INProps) => {
   const _updateSections = (activeSections) => {
     setActiveSections(activeSections);
   };
+  
   return (
     <Accordion
       sections={props.credential}

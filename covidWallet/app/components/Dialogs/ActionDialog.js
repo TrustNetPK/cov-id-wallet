@@ -36,13 +36,12 @@ function ActionDialog(props) {
                 setSpinner(true)
 
                 let result = await get_all_credentials_for_verification(props.data.verificationId);
-                
-                console.log("Result", result);
-                console.log(result.data.availableCredentials[0].availableCredentials)
+                //console.log(result.data.availableCredentials[0].availableCredentials)
                 if (result.data.success) {
                     let val = result.data.availableCredentials[0].availableCredentials[0].values
                     let cred = result.data.availableCredentials[0].availableCredentials;
 
+                    console.log("CREENTIAL => ", cred);
                     setCredential(cred);
                     setValues(val);
                 } else {
@@ -64,7 +63,6 @@ function ActionDialog(props) {
         }
 
     }, [props.data])
-
 
     function acceptHandler() {
         let val = values
@@ -204,24 +202,26 @@ function ActionDialog(props) {
                     <KeyboardAwareScrollView
                         style={{
                             maxHeight: 250,
-                        }}>
-                        {spinner ?
-                            <View style={{
-                                zIndex: 10, justifyContent: "center",
-                                alignItems: "center",
-                            }}>
-                                <ActivityIndicator color={"#000"} size={"small"} />
-                            </View>
-                            :
-                            props.data.type == VER_REQ && 
-                            credential.length > 0 ?
-                            (
-                                <CustomAccordian credential={credential} setSelected={setSelected} />
-                            ):(
-                                values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                    return renderTitleInput(e, i)
-                                })
-                            )
+                        }}
+                    >
+                        {
+                            spinner ? (
+                                <View style={{
+                                    zIndex: 10, justifyContent: "center",
+                                    alignItems: "center",
+                                }}>
+                                    <ActivityIndicator color={"#000"} size={"small"} />
+                                </View>
+                            ) : (
+                                props.data.type == VER_REQ && credential.length ?
+                                (
+                                    <CustomAccordian credential={credential} setSelected={setSelected} />
+                                ):(
+                                    values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
+                                        return renderTitleInput(e, i)
+                                    })
+                                )
+                            )         
                         }
                     </KeyboardAwareScrollView>
 

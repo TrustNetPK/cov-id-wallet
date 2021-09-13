@@ -123,6 +123,7 @@ const getIsAuthExpired = async () => {
 export const AuthenticateUser = async (forceAuthenticate) => {
     try {
 
+        console.log("forceAuthenticate",forceAuthenticate);
         if (forceAuthenticate === undefined) {
             forceAuthenticate = false;
         }
