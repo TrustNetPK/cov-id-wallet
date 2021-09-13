@@ -34,14 +34,11 @@ function ActionDialog(props) {
         async function getAllCredForVeri() {
             try {
                 setSpinner(true)
-
                 let result = await get_all_credentials_for_verification(props.data.verificationId);
-                //console.log(result.data.availableCredentials[0].availableCredentials)
                 if (result.data.success) {
                     let val = result.data.availableCredentials[0].availableCredentials[0].values
                     let cred = result.data.availableCredentials[0].availableCredentials;
 
-                    console.log("CREENTIAL => ", cred);
                     setCredential(cred);
                     setValues(val);
                 } else {
@@ -65,13 +62,16 @@ function ActionDialog(props) {
     }, [props.data])
 
     function acceptHandler() {
+        console.log("selectedCred", selectedCred);
+
         let val = values
 
         // If value is empty
         if (val == undefined) return
 
         // If no certificate is selected.
-        if (props.data.type == VER_REQ && Object.keys(selectedCred).length === 0) {
+        //Object.keys(selectedCred).length === 0
+        if (props.data.type == VER_REQ && selectedCred == null) {
             alert('Please select a certificate');
             return
         }
@@ -168,7 +168,7 @@ function ActionDialog(props) {
                         props.data.type === VER_REQ &&
                         <View style={{ marginBottom: 10 }}>
                             <Text style={styles.TextGuide}>
-                                {'Following data is requested,'}
+                                {'Select a certificate to share data.'}
                             </Text>
                             <Text style={[styles.TextGuide, { marginTop: 0, }]}>
                                 {'Accept to approve this request.'}
@@ -314,8 +314,8 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     Imagesize: {
-        height: 50,
-        width: 50,
+        height: 65,
+        width: 65,
         marginTop: 20,
         resizeMode: 'contain',
     },

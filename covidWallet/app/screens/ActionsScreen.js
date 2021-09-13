@@ -542,14 +542,15 @@ function ActionsScreen({ navigation }) {
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {
     let selectedItemObj = JSON.parse(selectedItem);
-    let credential_arr = JSON.parse(await getItem(CRED_OFFER) || null);
+    //let credential_arr = JSON.parse(await getItem(CRED_OFFER) || null);
 
     // Return if null
-    if (credential_arr == null) return
+    //if (credential_arr == null) return
 
     // Biometric Verification
     let BioResult = await biometricVerification();
 
+    console.log("BIO RESULT => ", BioResult);
 
     if (BioResult) {
       setModalVisible(false);
@@ -584,7 +585,7 @@ function ActionsScreen({ navigation }) {
 
       
     } else {
-      console.log('failed')
+      showMessage('ZADA Wallet', 'Biometric verification is required for accepting verification request')
     }
   }
 
