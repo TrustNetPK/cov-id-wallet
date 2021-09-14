@@ -7,9 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Clipboard,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import PhoneInput from "react-native-phone-number-input";
@@ -25,21 +23,19 @@ import HeadingComponent from '../components/HeadingComponent';
 import { StackActions } from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
-import { getItem, saveItem } from '../helpers/Storage';
+import { saveItem } from '../helpers/Storage';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
-import { emailRegex, nameRegex, validateIfLowerCased } from '../helpers/validation';
+import { nameRegex, validateIfLowerCased } from '../helpers/validation';
 import { get_all_connections } from '../gateways/connections';
 import { get_all_credentials } from '../gateways/credentials';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { _resgiterUserAPI } from '../gateways/auth';
 import SimpleButton from '../components/Buttons/SimpleButton';
-import http_client from '../gateways/http_client';
 import jwt_decode from 'jwt-decode';
-import axios from 'axios';
 
-const { height, width } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function RegistrationModule({ navigation }) {
   const [activeOption, updateActiveOption] = useState('register');
@@ -48,12 +44,9 @@ function RegistrationModule({ navigation }) {
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
 
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [emailWarning, setEmailWarning] = useState(false);
-
   const phoneInput = useRef(null);
   const [phone, setPhone] = useState('');
+  const [phoneText, setPhoneText] = useState('');
 
   const [secret, setSecret] = useState('');
   const [secretError, setSecretError] = useState('');
@@ -112,7 +105,7 @@ function RegistrationModule({ navigation }) {
       return
     }
 
-    if(phone.charAt(3) == '0'){
+    if(phoneText.charAt(0) == '0'){
       Alert.alert('Zada Wallet', 'Phone number should not start with zero');
       return;
     }
@@ -142,12 +135,11 @@ function RegistrationModule({ navigation }) {
       if (networkState) {
         let data = {
           name: name.trim(),
-          email: email.toLocaleLowerCase().trim(),
+          email: '',
           phone: phone.trim(),
           secretPhrase: secret,
         }
         
-        setEmailWarning(false);
         const result = await _resgiterUserAPI(data);
         const response = result.data;
 
@@ -225,7 +217,6 @@ function RegistrationModule({ navigation }) {
 
   const login = async () => {
     if (networkState) {
-      setEmailWarning(false);
       await fetch(ConstantsList.BASE_URL + `/api/login`, {
         method: 'POST',
         headers: {
@@ -233,7 +224,7 @@ function RegistrationModule({ navigation }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email.toLocaleLowerCase(),
+          email: '',
           phone: phone,
           secretPhrase: secret,
         }),
@@ -453,6 +444,9 @@ function RegistrationModule({ navigation }) {
         onChangeFormattedText={(text) => {
           setPhone(text);
         }}
+        onChangeText={(text)=>{
+          setPhoneText(text);
+        }}
         disableArrowIcon
         withShadow
       />
@@ -487,14 +481,11 @@ function RegistrationModule({ navigation }) {
             <TouchableOpacity
               onPress={() => {
                 selectionOnPress('register');
-                setEmail('');
-                setEmailError('');
                 setName('');
                 setNameError('');
                 setSecret('');
                 setSecretError('');
                 setPhone('');
-                setEmailWarning(false);
               }}>
               <Image
                 style={{
@@ -528,14 +519,11 @@ function RegistrationModule({ navigation }) {
             <TouchableOpacity
               onPress={() => {
                 selectionOnPress('login');
-                setEmail('');
-                setEmailError('');
                 setName('');
                 setNameError('');
                 setSecret('');
                 setSecretError('');
                 setPhone('');
-                setEmailWarning(false);
               }}>
               <Image
                 onPress={() => {

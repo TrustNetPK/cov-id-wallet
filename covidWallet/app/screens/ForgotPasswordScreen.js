@@ -22,6 +22,7 @@ import { analytics_log_reset_password } from '../helpers/analytics';
 const ForgotPasswordScreen = ({navigation}) => {
 
     const [phone, setPhone] = useState('');
+    const [phoneText, setPhoneText] = useState('');
     const phoneInput = useRef(null);
     const [isLoading, setLoading] = useState(false);
 
@@ -34,11 +35,11 @@ const ForgotPasswordScreen = ({navigation}) => {
             return
         }
 
-        if(phone.charAt(3) == '0'){
+        if(phoneText.charAt(0) == '0'){
             _showAlert('Zada Wallet', 'Phone number should not start with zero');
             return;
         }
-        
+
         // calling api to send password reset link
         try {
             setLoading(true);
@@ -99,6 +100,9 @@ const ForgotPasswordScreen = ({navigation}) => {
                     codeTextStyle={styles._codeTextStyle}
                     onChangeFormattedText={(text) => {
                         setPhone(text);
+                    }}
+                    onChangeText={(text)=>{
+                        setPhoneText(text);
                     }}
                     disableArrowIcon
                     withShadow
