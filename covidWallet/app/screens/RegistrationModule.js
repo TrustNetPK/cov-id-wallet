@@ -25,7 +25,7 @@ import HeadingComponent from '../components/HeadingComponent';
 import { StackActions } from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
-import { saveItem } from '../helpers/Storage';
+import { getItem, saveItem } from '../helpers/Storage';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
@@ -35,6 +35,9 @@ import { get_all_credentials } from '../gateways/credentials';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { _resgiterUserAPI } from '../gateways/auth';
 import SimpleButton from '../components/Buttons/SimpleButton';
+import http_client from '../gateways/http_client';
+import jwt_decode from 'jwt-decode';
+import axios from 'axios';
 
 const { height, width } = Dimensions.get('window');
 
@@ -47,10 +50,10 @@ function RegistrationModule({ navigation }) {
 
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [emailWarning, setEmailWarning] = useState(false);
 
   const phoneInput = useRef(null);
   const [phone, setPhone] = useState('');
-
 
   const [secret, setSecret] = useState('');
   const [secretError, setSecretError] = useState('');
@@ -65,10 +68,6 @@ function RegistrationModule({ navigation }) {
 
   const selectionOnPress = (userType) => {
     updateActiveOption(userType);
-  };
-  const copyToClipboard = () => {
-    Clipboard.setString(secret);
-    showMessage('ZADA Wallet', 'Secret Phrase is copied to clipboard.');
   };
   React.useEffect(() => {
     NetInfo.fetch().then((networkState) => {
@@ -100,17 +99,22 @@ function RegistrationModule({ navigation }) {
     setNameError('');
 
     // Check if email is valid
-    if (!emailRegex.test(email)) {
-      setEmailError("Please enter a valid email address.")
-      return
-    }
-    setEmailError('');
+    // if (!emailRegex.test(email)) {
+    //   setEmailError("Please enter a valid email address.")
+    //   return
+    // }
+    // setEmailError('');
 
     // Check if phone number is valid
     const checkValid = phoneInput.current?.isValidNumber(phone);
     if (!checkValid) {
-      Alert.alert('Zada', 'Please enter a valid phone number.');
+      Alert.alert('Zada Wallet', 'Please enter a valid phone number.');
       return
+    }
+
+    if(phone.charAt(3) == '0'){
+      Alert.alert('Zada Wallet', 'Phone number should not start with zero');
+      return;
     }
 
     // Check if secret 
@@ -143,6 +147,7 @@ function RegistrationModule({ navigation }) {
           secretPhrase: secret,
         }
         
+        setEmailWarning(false);
         const result = await _resgiterUserAPI(data);
         const response = result.data;
 
@@ -218,81 +223,9 @@ function RegistrationModule({ navigation }) {
     
   };
 
-  const storeUserID = async (userId) => {
-    try {
-      await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-  const authenticateUserToken = async () => {
-    if (networkState) {
-      let resp = await AuthenticateUser();
-      setProgress(false);
-      if (resp.success) {
-        navigation.replace('SecurityScreen');
-      } else {
-        showMessage('ZADA Wallet', resp.message);
-      }
-    } else {
-      setProgress(false);
-      showMessage('ZADA Wallet', 'Internet Connection is not available');
-    }
-  };
-
-  // Function to fetch connection and credentials
-  const _fetchingAppData = async () => {
-    // Fetching Connections
-    const connResponse = await get_all_connections();
-    let connections = connResponse.data.connections;
-    if(connections.length)
-      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
-    else
-      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
-
-    console.log("CONNECTIONS SAVED");
-
-    // Fetching Credentials
-    const credResponse = await get_all_credentials();
-    let credentials = credResponse.data.credentials;
-    let CredArr = [];
-    if(credentials.length && connections.length){
-      // Looping to update credentials object in crendentials array
-      credentials.forEach((cred, i) => {
-        let item = connections.find(c => c.connectionId == cred.connectionId)
-
-        if(item !== undefined || null){
-          let obj = {
-            ...cred,
-            imageUrl: item.imageUrl,
-            organizationName: item.name,
-            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
-              (
-                (cred.values != undefined || cred.values != null) &&
-                cred.values["Vaccine Name"] != undefined &&
-                cred.values["Vaccine Name"].length != 0 &&
-                cred.values["Dose"] != undefined &&
-                cred.values["Dose"].length != 0
-            ) ?
-            'COVIDpass (Vaccination)' :
-            "Digital Certificate",
-          };
-          CredArr.push(obj);
-        }
-      });
-      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
-    }
-    else
-      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
-
-    console.log("CREDENTIALS SAVED");
-
-    await addVerificationToActionList();
-
-  }
-
   const login = async () => {
     if (networkState) {
+      setEmailWarning(false);
       await fetch(ConstantsList.BASE_URL + `/api/login`, {
         method: 'POST',
         headers: {
@@ -312,7 +245,6 @@ function RegistrationModule({ navigation }) {
             if (response.success == true) {
               storeUserID(response.userId);
               saveItem(ConstantsList.WALLET_SECRET, secret);
-              await _fetchingAppData();
               await authenticateUserToken();
             } else {
               showMessage('ZADA Wallet', response.error);
@@ -330,6 +262,172 @@ function RegistrationModule({ navigation }) {
       showMessage('ZADA Wallet', 'Internet Connection is not available');
     }
   };
+
+  const storeUserID = async (userId) => {
+    try {
+      await AsyncStorage.setItem(ConstantsList.USER_ID, userId);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const createWallet = async (userToken) => {
+    await fetch(ConstantsList.BASE_URL + `/api/wallet/create`, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + userToken,
+      },
+    }).then((walletResult) =>
+      walletResult.json().then(async(data) => {
+        try {
+          let response = JSON.parse(JSON.stringify(data));
+          console.log("RESPONSE => ", response);
+          if (response.success == true) {
+            // reauthentication
+            let reAuth = await AuthenticateUser(true);
+
+            if(reAuth.success){
+              // decoding token
+              const decodedreAuthToken = jwt_decode(reAuth.token);
+      
+              console.log("decodedreToken", decodedreAuthToken);
+
+              if(decodedreAuthToken.dub.length){
+                await _fetchingAppData();
+                setProgress(false);
+                // if token has wallet id
+                navigation.replace('SecurityScreen');
+              }
+              else{
+                //await authenticateUserToken();
+              }
+            }
+            else{
+              setProgress(false);
+              _showAlert('ZADA Wallet', `${reAuth.message}`);
+            }
+          } else {
+            _showAlert('ZADA Wallet', `${response.error}`);
+          }
+        } catch (error) {
+          _showAlert('ZADA Wallet', `${error.toString()}`);
+        }
+      }),
+    );
+  };
+
+  const authenticateUserToken = async () => {
+    try {
+      if (networkState) {
+        // autthenticating user
+        let resp = await AuthenticateUser(true);
+        console.log("RESP", resp);
+        if(resp.success){
+          // decoding token
+          const decodedToken = jwt_decode(resp.token);
+  
+          console.log("decodedToken", decodedToken);
+
+          if(decodedToken.dub.length){
+            await _fetchingAppData();
+            setProgress(false);
+             // if token has wallet id
+            navigation.replace('SecurityScreen');
+          }
+          else{
+            // if token has not wallet id
+            // CREATING WALLET
+            await createWallet(resp.token);
+
+            console.log("HAS NOT DUB => ", decodedToken.sub)
+          }
+        }
+        else{
+          setProgress(false);
+          _showAlert('ZADA Wallet', resp.message);
+        }
+      } else {
+        setProgress(false);
+        _showAlert('ZADA Wallet', 'Internet Connection is not available');
+      }
+    } catch (error) {
+      setProgress(false);
+      _showAlert('Zada Wallet', error.toString());
+    }
+    
+  };
+
+  // Function to fetch connection and credentials
+  const _fetchingAppData = async () => {
+    // Fetching Connections
+    const connResponse = await get_all_connections();
+    console.log("connResponse", connResponse.data);
+
+    // If connections are available
+    if(connResponse.data.success){
+      let connections = connResponse.data.connections;
+      if(connections.length)
+        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+      else
+        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
+
+      console.log("CONNECTIONS SAVED");
+
+      // Fetching Credentials
+      const credResponse = await get_all_credentials();
+      let credentials = credResponse.data.credentials;
+      let CredArr = [];
+      if(credentials.length && connections.length){
+        // Looping to update credentials object in crendentials array
+        credentials.forEach((cred, i) => {
+          let item = connections.find(c => c.connectionId == cred.connectionId)
+
+          if(item !== undefined || null){
+            let obj = {
+              ...cred,
+              imageUrl: item.imageUrl,
+              organizationName: item.name,
+              type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+                (
+                  (cred.values != undefined || cred.values != null) &&
+                  cred.values["Vaccine Name"] != undefined &&
+                  cred.values["Vaccine Name"].length != 0 &&
+                  cred.values["Dose"] != undefined &&
+                  cred.values["Dose"].length != 0
+              ) ?
+              'COVIDpass (Vaccination)' :
+              "Digital Certificate",
+            };
+            CredArr.push(obj);
+          }
+        });
+        await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+      }
+      else
+        await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
+
+      console.log("CREDENTIALS SAVED");
+
+      await addVerificationToActionList();
+    }
+    // else{
+    //   // Reauthenticate user and create wallet
+    //   const authResult = await AuthenticateUser(true);
+    //   if(authResult.success){
+    //     // Create Wallet again
+    //     http_client.post(`/api/wallet/create`,{},
+    //     {
+    //       headers:{
+    //         'Authorization': `Bearer ${authResult.token}`
+    //       },
+    //     })
+    //   }
+    //   else{
+    //     _showAlert('Zada Wallet', authResult.message);
+    //   }
+    // }
+
+  }
 
   function renderPhoneNumberInput() {
     return (
@@ -389,6 +487,14 @@ function RegistrationModule({ navigation }) {
             <TouchableOpacity
               onPress={() => {
                 selectionOnPress('register');
+                setEmail('');
+                setEmailError('');
+                setName('');
+                setNameError('');
+                setSecret('');
+                setSecretError('');
+                setPhone('');
+                setEmailWarning(false);
               }}>
               <Image
                 style={{
@@ -422,6 +528,14 @@ function RegistrationModule({ navigation }) {
             <TouchableOpacity
               onPress={() => {
                 selectionOnPress('login');
+                setEmail('');
+                setEmailError('');
+                setName('');
+                setNameError('');
+                setSecret('');
+                setSecretError('');
+                setPhone('');
+                setEmailWarning(false);
               }}>
               <Image
                 onPress={() => {
@@ -461,7 +575,7 @@ function RegistrationModule({ navigation }) {
               <ScrollView showsVerticalScrollIndicator={true}>
                 <View >
                   <InputComponent
-                    placeholderText="Name"
+                    placeholderText="Full Name (Official Name)"
                     errorMessage={nameError}
                     value={name}
                     isSecureText={false}
@@ -469,7 +583,7 @@ function RegistrationModule({ navigation }) {
                     setStateValue={(text) => setName(text)}
                   />
                 </View>
-                <View>
+                {/* <View>
                   <InputComponent
                     placeholderText="Email"
                     errorMessage={emailError}
@@ -478,9 +592,37 @@ function RegistrationModule({ navigation }) {
                     isSecureText={false}
                     autoCapitalize={'none'}
                     inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => setEmail(text)}
+                    setStateValue={(text) => {
+                      setEmail(text);
+
+                      let domain = text.split('@');
+                      if(domain.length == 2){
+
+                        let domainName = domain[1].toLowerCase();
+
+                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
+                          setEmailWarning(true);
+                          return
+                        }
+                        setEmailWarning(false);
+                        return
+
+                      }
+                      else
+                        setEmailWarning(false);
+                    }}
                   />
-                </View>
+                </View> */}
+                {/* {
+                  emailWarning &&
+                  <Text style={{
+                    color: '#CCCC00',
+                    fontSize: 10,
+                    marginLeft: 24,
+                    marginRight: 24,
+                    marginTop: 5,
+                  }}>May be your email is incorrect, please check it carefully. If you know it is correct then proceed.</Text>
+                } */}
                 {renderPhoneNumberInput()}
                 <Text style={styles.secretMessage}>
                   Password (please save in safe place)
@@ -553,7 +695,7 @@ function RegistrationModule({ navigation }) {
           {activeOption == 'login' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View>
+                {/* <View>
                   <InputComponent
                     placeholderText="Email"
                     errorMessage={emailError}
@@ -562,9 +704,40 @@ function RegistrationModule({ navigation }) {
                     keyboardType="email-address"
                     isSecureText={false}
                     inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => setEmail(text)}
+                    setStateValue={(text) => {
+                      
+                      setEmail(text);
+
+                      let domain = text.split('@');
+                      if(domain.length == 2){
+
+                        let domainName = domain[1].toLowerCase();
+
+                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
+                          setEmailWarning(true);
+                          return
+                        }
+
+                        setEmailWarning(false);
+                        return
+
+                      }
+                      else
+                        setEmailWarning(false);
+
+                    }}
                   />
                 </View>
+                {
+                  emailWarning &&
+                  <Text style={{
+                    color: '#CCCC00',
+                    fontSize: 10,
+                    marginLeft: 24,
+                    marginRight: 24,
+                    marginTop: 5,
+                  }}>May be your email is incorrect, please check it carefully. If you know it is correct then proceed.</Text>
+                } */}
                 {renderPhoneNumberInput()}
 
                 {/* Secret Phrase has been commented here

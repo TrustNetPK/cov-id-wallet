@@ -12,6 +12,7 @@
     "clean:ios": "cd ios && xcodebuild clean && npx react-native run-ios"
   },
   "dependencies": {
+    "@eliav2/react-native-collapsible-view": "^1.4.0",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/netinfo": "^6.0.0",
@@ -26,6 +27,8 @@
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
     "expo-local-authentication": "^11.1.1",
+    "jwt-decode": "^3.1.2",
+    "moment": "^2.29.1",
     "query-string": "^7.0.0",
     "random-words": "^1.1.1",
     "react": "17.0.1",
@@ -50,6 +53,7 @@
     "react-native-screens": "^2.7.0",
     "react-native-simple-radio-button": "^2.7.4",
     "react-native-splash-screen": "^3.2.0",
+    "react-native-svg": "^12.1.1",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-unimodules": "^0.14.6",
     "react-native-vector-icons": "6.6.0"

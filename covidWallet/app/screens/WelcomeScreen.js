@@ -13,6 +13,7 @@ import {
   GREEN_COLOR,
   WHITE_COLOR,
 } from '../theme/Colors';
+
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
 
@@ -22,7 +23,7 @@ function WelcomeScreen({ navigation }) {
   const nextHandler = () => {
     navigation.navigate('RegistrationScreen');
   };
-
+  
   return (
     <View
       style={{

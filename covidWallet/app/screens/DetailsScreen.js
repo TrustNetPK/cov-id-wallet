@@ -9,6 +9,7 @@ import { delete_credential } from '../gateways/credentials';
 import { showMessage, showAskDialog } from '../helpers/Toast';
 import { deleteCredentialByCredId } from '../helpers/Storage';
 import OverlayLoader from '../components/OverlayLoader';
+import moment from 'moment';
 
 export default function DetailsScreen(props) {
 
@@ -17,7 +18,8 @@ export default function DetailsScreen(props) {
     const vaccineName = data.name;
     const imgURI = { uri: data.imageUrl };
     const issuedBy = data.organizationName;
-    let card_type = data.type
+    let card_type = data.type;
+    let issueDate = data.values['Issue Time'];
 
     // States
     const [isLoading, setIsLoading] = useState(false)
@@ -100,7 +102,7 @@ export default function DetailsScreen(props) {
             }
             <View style={styles.container}>
                 <View style={styles.CredentialsCardContainer}>
-                    <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
+                    <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={issueDate} card_logo={imgURI} />
                 </View>
             </View>
 

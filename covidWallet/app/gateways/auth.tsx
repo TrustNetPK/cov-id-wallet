@@ -121,13 +121,13 @@ export const _updateProfileAPI = async (data: Object) => {
 // Validate OTP
 export async function validateOTP(
   phoneConfirmationCode: string,
-  emailConfirmationCode: string,
+  //emailConfirmationCode: string,
   userId: string,
 ) {
   try {
     let obj = {
       otpsms: phoneConfirmationCode,
-      otpmail: emailConfirmationCode,
+      //otpmail: emailConfirmationCode,
       userId: userId,
     };
 
