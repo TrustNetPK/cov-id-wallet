@@ -9,7 +9,7 @@ const EmailWarning = ({style}) => {
         <Text style={[{
             color: PRIMARY_COLOR,
             fontSize: 10,
-        },style]}>Make sure your email is correct before pressing continue.</Text>
+        },style]}>Make sure your email is correct before pressing save.</Text>
     )
 }
 

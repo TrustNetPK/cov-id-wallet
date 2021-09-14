@@ -8,8 +8,6 @@ const planeImage = require('../assets/images/world_map.png')
 
 function CredentialsCard(props) {
 
-    console.log("date => ",props.date);
-
     return(
         <ImageBackground
             source={planeImage}
@@ -38,7 +36,7 @@ function CredentialsCard(props) {
                             props.date ? (
                                 <View>
                                     <Text style={styles.card_small_text}>Issued Time</Text>
-                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{moment(props.date).format("DD-MM-YYYY").replaceAll('-','/')}</Text>
+                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{moment(props.date).format("DD-MM-YYYY").replace(/-/g,'/')}</Text>
                                 </View>
                             ):(
                                 null
