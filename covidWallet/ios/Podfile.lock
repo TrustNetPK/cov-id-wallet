@@ -376,7 +376,7 @@ PODS:
     - React-Core
   - react-native-fingerprint-scanner (5.0.0):
     - React
-  - react-native-netinfo (6.0.0):
+  - react-native-netinfo (6.0.2):
     - React-Core
   - react-native-safe-area-context (0.7.3):
     - React
@@ -754,7 +754,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-camera: 894cdcb9e5bfe41719513ad95e0cd1d108b79ee6
   react-native-fingerprint-scanner: 77140320ed56d612200371ebc2abefa5f20b574e
-  react-native-netinfo: 34f4d7a42f49157f3b45c14217d256bce7dc9682
+  react-native-netinfo: 8917788f12f8c422d16a56f840a1b06faa56e2b6
   react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737

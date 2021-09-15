@@ -1,6 +1,6 @@
 module.exports = Object.freeze({
-  //BASE_URL: 'http://test-agency.zadanetwork.com',
-  BASE_URL: 'https://agency.zadanetwork.com',
+  BASE_URL: 'http://test-agency.zadanetwork.com',
+  //BASE_URL: 'https://agency.zadanetwork.com',
   WALLET_SECRET: 'wallet_secret',
   WALLET_NAME: 'wallet_name',
   CERT_REQ: 'connection_credential',
@@ -20,4 +20,5 @@ module.exports = Object.freeze({
   COUNTDOWN_TIME: 'countdown_time',
   USER_PROFILE: 'user_profile',
   REGISTRATION_DATA: 'register_data',
+  PIN_CODE: 'pin_code',
 });

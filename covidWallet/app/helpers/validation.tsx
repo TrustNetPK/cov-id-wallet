@@ -1,5 +1,7 @@
 export const nameRegex = RegExp('^[a-zA-Z\\s]{2,1000}$');
 
+export const pincodeRegex = RegExp('^([0-9]{6})$');
+
 //8-15 letters, 1 number, Capital letter, 1 special character
 // export const passwordRegex = RegExp(
 //   '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$',

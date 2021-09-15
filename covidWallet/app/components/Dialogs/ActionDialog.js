@@ -139,7 +139,10 @@ function ActionDialog(props) {
                 useNativeDriver={true}
                 onBackdropPress={dismiss}
                 onRequestClose={dismiss}
-                isVisible={visible}>
+                isVisible={visible}
+                animationIn={'slideInLeft'}
+                animationOut={'slideOutRight'}
+            >
                 <View style={styles.ModalChildContainer}>
                     <View
                         style={{

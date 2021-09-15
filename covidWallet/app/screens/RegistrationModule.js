@@ -561,7 +561,7 @@ function RegistrationModule({ navigation }) {
           {activeOption == 'register' && (
             <View>
               <ScrollView showsVerticalScrollIndicator={true}>
-                <View >
+                <View>
                   <InputComponent
                     placeholderText="Full Name (Official Name)"
                     errorMessage={nameError}
