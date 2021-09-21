@@ -35,10 +35,10 @@ const ForgotPasswordScreen = ({navigation}) => {
             return
         }
 
-        if(phoneText.charAt(0) == '0'){
-            _showAlert('Zada Wallet', 'Phone number should not start with zero');
-            return;
-        }
+        // if(phoneText.charAt(0) == '0'){
+        //     _showAlert('Zada Wallet', 'Phone number should not start with zero');
+        //     return;
+        // }
 
         // calling api to send password reset link
         try {

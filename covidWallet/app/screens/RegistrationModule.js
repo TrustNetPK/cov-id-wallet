@@ -105,7 +105,7 @@ function RegistrationModule({ navigation }) {
       return
     }
 
-    if(phoneText.charAt(0) == '0'){
+    if(phoneText.charAt(0) == '0' && activeOption == 'register'){
       Alert.alert('Zada Wallet', 'Phone number should not start with zero');
       return;
     }
@@ -135,7 +135,6 @@ function RegistrationModule({ navigation }) {
       if (networkState) {
         let data = {
           name: name.trim(),
-          email: '',
           phone: phone.trim(),
           secretPhrase: secret,
         }
@@ -224,7 +223,6 @@ function RegistrationModule({ navigation }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: '',
           phone: phone,
           secretPhrase: secret,
         }),

@@ -611,46 +611,6 @@ function ActionsScreen({ navigation }) {
         showMessage('ZADA Wallet', 'Biometric verification is required for accepting verification request')
       }
     }
-    let selectedItemObj = JSON.parse(selectedItem);
-
-    // Biometric Verification
-    let BioResult = await biometricVerification();
-
-    if (BioResult) {
-      setModalVisible(false);
-      setIsLoading(true);
-
-      if(!(await _isVerRequestAlreadyExist())){
-        try {
-
-          let policyName = selectedItemObj.policy.attributes[0].policyName;
-  
-          // Submit Verification Api call
-          let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
-          if (result.data.success) {
-            await deleteActionByVerID(selectedItemObj.verificationId)
-            updateActionsList();
-  
-            _showSuccessAlert("ver");
-  
-          } else {
-            showMessage('Zada', result.data.error)
-          }
-          setIsLoading(false);
-        } catch (e) {
-          setIsLoading(false);
-        }
-      }
-      else{
-        setModalVisible(false);
-        setIsLoading(false);
-        showMessage('ZADA Wallet', 'Verification request is already accepted')
-      }
-
-      
-    } else {
-      showMessage('ZADA Wallet', 'Biometric verification is required for accepting verification request')
-    }
   }
 
   // Reject Modal
@@ -770,7 +730,8 @@ function ActionsScreen({ navigation }) {
   // Checking is Pincode set or not
   const _checkPinCode = async () => {
     try {
-      const isPincode = await getItem(ConstantsList.PIN_CODE); 
+      const isPincode = await getItem(ConstantsList.PIN_CODE);
+      console.log('isPincode', isPincode);
       if(isPincode != null && isPincode != undefined && isPincode.length != 0)
         setIsPincode(true);
       else
@@ -816,6 +777,7 @@ function ActionsScreen({ navigation }) {
 
     // Saving pincode in async
     try {
+      console.log('pincode', pincode);
       await saveItem(ConstantsList.PIN_CODE, pincode);
 
       setIsPincode(true);

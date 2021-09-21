@@ -205,7 +205,7 @@ function MultiFactorScreen({ navigation }) {
     _resendOTPAPI(regData.userId, 'phone');
    
      // sending email OTP
-    _resendOTPAPI(regData.userId, 'email');
+    // _resendOTPAPI(regData.userId, 'email');
 
     setUserData(regData);
   }
