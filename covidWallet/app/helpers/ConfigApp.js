@@ -20,4 +20,5 @@ module.exports = Object.freeze({
   COUNTDOWN_TIME: 'countdown_time',
   USER_PROFILE: 'user_profile',
   REGISTRATION_DATA: 'register_data',
+  PIN_CODE: 'pin_code',
 });

@@ -80,7 +80,7 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: true,  // clean and rebuild if changing
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -112,7 +112,7 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
-
+//def jscFlavor = 'org.webkit:android-jsc-intl:+'
 /**
  * Whether to enable the Hermes VM.
  *
@@ -120,7 +120,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
-def enableHermes = project.ext.react.get("enableHermes", false);
+def enableHermes = project.ext.react.get("enableHermes", true);
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -138,8 +138,8 @@ android {
         applicationId "com.zadanetwork.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 30
-        versionName "1.0.5 (2)"
+        versionCode 37
+        versionName "1.0.7 (3)"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'react-native-camera', 'mlkit'
         multiDexEnabled true

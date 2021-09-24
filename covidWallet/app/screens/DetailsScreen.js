@@ -86,7 +86,13 @@ export default function DetailsScreen(props) {
                     borderRadius: 16,
                     justifyContent: "center"
                 }}>
-                    <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+                    {
+                        title == 'Issue Time' ? (
+                            <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
+                        ):(
+                            <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+                        )
+                    }
                 </View>
             </View>
         )

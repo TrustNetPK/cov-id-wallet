@@ -37,6 +37,9 @@ import RNExitApp from 'react-native-exit-app';
 import http_client from '../gateways/http_client';
 import OverlayLoader from '../components/OverlayLoader';
 import { analytics_log_action_screen } from '../helpers/analytics';
+import PincodeModal from '../components/PincodeModal';
+import { pincodeRegex } from '../helpers/validation';
+import ConfirmPincodeModal from '../components/ConfirmPincodeModal';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -56,9 +59,24 @@ function ActionsScreen({ navigation }) {
   const [networkState, setNetworkState] = useState(false);
   const [deepLink, setDeepLink] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [dialogData, setDialogData] = useState(null);
+
+  // For Pincode
+  const [isPincodeSet, setIsPincode] = useState(false);
+  const [isPicodeChecked, setPincodeChecked] = useState(false);
+  const [pincode, setPincode] = useState('');
+  const [pincodeError, setPincodeError] = useState('');
+  const [confirmPincode, setConfirmPincode] = useState('');
+  const [confirmPincodeError, setConfirmPincodeError] = useState('');
+
+  // Confirming pin
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [verifyPincode, setVerifyPincode] = useState('');
+  const [verifyPincodeError, setVerifyPincodeError] = useState('');
 
   // Credentials hook
   //const { credentials } = useCredentials(!isLoading);
+
   // Notification hook
   const { notificationReceived } = useNotification();
 
@@ -542,51 +560,57 @@ function ActionsScreen({ navigation }) {
 
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {
-    let selectedItemObj = JSON.parse(selectedItem);
-    //let credential_arr = JSON.parse(await getItem(CRED_OFFER) || null);
+    
+    setDialogData(data);
 
-    // Return if null
-    //if (credential_arr == null) return
-
-    // Biometric Verification
-    let BioResult = await biometricVerification();
-
-    console.log("BIO RESULT => ", BioResult);
-
-    if (BioResult) {
+    // Check Either pincode set or not
+    if(isPincodeSet){
       setModalVisible(false);
-      setIsLoading(true);
+      setTimeout(() => {
+        setShowConfirmModal(true);
+      }, 100);
+    }
+    else{
+      let selectedItemObj = JSON.parse(selectedItem);
 
-      if(!(await _isVerRequestAlreadyExist())){
-        try {
+      // Biometric Verification
+      let BioResult = await biometricVerification();
 
-          let policyName = selectedItemObj.policy.attributes[0].policyName;
-  
-          // Submit Verification Api call
-          let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
-          if (result.data.success) {
-            await deleteActionByVerID(selectedItemObj.verificationId)
-            updateActionsList();
-  
-            _showSuccessAlert("ver");
-  
-          } else {
-            showMessage('Zada', result.data.error)
-          }
-          setIsLoading(false);
-        } catch (e) {
-          setIsLoading(false);
-        }
-      }
-      else{
+      if (BioResult) {
         setModalVisible(false);
-        setIsLoading(false);
-        showMessage('ZADA Wallet', 'Verification request is already accepted')
-      }
+        setIsLoading(true);
 
-      
-    } else {
-      showMessage('ZADA Wallet', 'Biometric verification is required for accepting verification request')
+        if(!(await _isVerRequestAlreadyExist())){
+          try {
+
+            let policyName = selectedItemObj.policy.attributes[0].policyName;
+    
+            // Submit Verification Api call
+            let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
+            if (result.data.success) {
+              await deleteActionByVerID(selectedItemObj.verificationId)
+              updateActionsList();
+    
+              _showSuccessAlert("ver");
+    
+            } else {
+              showMessage('Zada', result.data.error)
+            }
+            setIsLoading(false);
+          } catch (e) {
+            setIsLoading(false);
+          }
+        }
+        else{
+          setModalVisible(false);
+          setIsLoading(false);
+          showMessage('ZADA Wallet', 'Verification request is already accepted')
+        }
+
+        
+      } else {
+        showMessage('ZADA Wallet', 'Biometric verification is required for accepting verification request')
+      }
     }
   }
 
@@ -704,9 +728,161 @@ function ActionsScreen({ navigation }) {
     showAskDialog("Are you sure?", "Are you sure you want to delete this request?", () => rejectModal(item), () => { });
   }
 
+  // Checking is Pincode set or not
+  const _checkPinCode = async () => {
+    try {
+      const isPincode = await getItem(ConstantsList.PIN_CODE);
+      console.log('isPincode', isPincode);
+      if(isPincode != null && isPincode != undefined && isPincode.length != 0)
+        setIsPincode(true);
+      else
+        setIsPincode(false);
+    } catch (error) {
+      showMessage('Zada Wallet', error.toString());
+    }
+    setPincodeChecked(true);
+  }
+
+  React.useLayoutEffect(()=>{
+    _checkPinCode();
+  },[]);
+
+  const _setPinCode = async () => {
+    if(pincode.length == 0){
+      setPincodeError('Pincode is required.');
+      return;
+    }
+    setPincodeError('');
+
+    if(!pincodeRegex.test(pincode)){
+      setPincodeError('Pincode should contain only 6 digits.');
+      return;
+    }
+    setPincodeError('');
+
+    if(confirmPincode.length == 0){
+      setConfirmPincodeError('Confirm pincode is required.');
+      return;
+    }
+    setConfirmPincodeError('');
+
+    if(!pincodeRegex.test(confirmPincode)){
+      setConfirmPincodeError('Confirm pincode should contain only 6 digits.');
+      return;
+    }
+    setConfirmPincodeError('');
+
+    if(pincode != confirmPincode){
+      showMessage('Zada Wallet','Pincode and confirm pincode are not same. Please check them carefully');
+    }
+
+    // Saving pincode in async
+    try {
+      console.log('pincode', pincode);
+      await saveItem(ConstantsList.PIN_CODE, pincode);
+
+      setIsPincode(true);
+      showMessage('Zada Wallet', 'Your pincode is set successfully. Please keep it safe and secure.');
+      setPincode('');
+      setConfirmPincode('');
+    } catch (error) {
+        showMessage('Zada Wallet', error.toString());
+    }
+  }
+
+  const _confirmingPincode = async () => {
+    if(verifyPincode.length == 0){
+      setVerifyPincodeError('Pincode is required.');
+      return;
+    }
+    setVerifyPincodeError('');
+
+    if(!pincodeRegex.test(verifyPincode)){
+      setVerifyPincodeError('Pincode should contain only 6 digits.');
+      return;
+    }
+    setVerifyPincodeError('');
+
+    const code = await getItem(ConstantsList.PIN_CODE);
+    if(verifyPincode == code){
+  
+      setShowConfirmModal(false);
+      setModalVisible(false);
+      setIsLoading(true);
+
+      // process request further
+      let selectedItemObj = JSON.parse(selectedItem);
+
+      if(!(await _isVerRequestAlreadyExist())){
+        try {
+
+          let policyName = selectedItemObj.policy.attributes[0].policyName;
+  
+          // Submit Verification Api call
+          let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
+          if (result.data.success) {
+            await deleteActionByVerID(selectedItemObj.verificationId)
+            updateActionsList();
+            showMessage('Zada Wallet','Verification request has been submitted successfully');
+          } else {
+            showMessage('Zada Wallet', result.data.error)
+          }
+          setIsLoading(false);
+        } catch (e) {
+          setIsLoading(false);
+        }
+      }
+      else{
+        setModalVisible(false);
+        setIsLoading(false);
+        showMessage('ZADA Wallet', 'Verification request is already accepted')
+      }
+    }
+    else{
+      showMessage('Zada Wallet',"You entered incorrect pincode. Please check your pincode and try again");
+    }
+  }
 
   return (
     <View style={themeStyles.mainContainer}>
+
+      <ConfirmPincodeModal 
+        isVisible={showConfirmModal}
+        pincode={verifyPincode}
+        pincodeError={verifyPincodeError}
+        onPincodeChange={(text)=>{
+          setVerifyPincode(text);
+          if(text.length == 0 || text == undefined)
+            setVerifyPincodeError('');
+        }}
+        onCloseClick={()=>{ setShowConfirmModal(!showConfirmModal) }}
+        onContinueClick={_confirmingPincode}
+      />
+
+      {/* PinCode Modal */}
+      {
+        isPicodeChecked &&
+        <PincodeModal 
+          isVisible={!isPincodeSet}
+          pincode={pincode}
+          onPincodeChange={(text)=>{
+            setPincode(text);
+            if(text.length == 0)
+              setPincodeError('');
+          }}
+          pincodeError={pincodeError}
+          confirmPincode={confirmPincode}
+          onConfirmPincodeChange={(text)=>{
+            setConfirmPincode(text);
+            if(text.length == 0)
+              setConfirmPincodeError('');
+          }}
+          confirmPincodeError={confirmPincodeError}
+          onCloseClick={()=>{ setIsPincode(true) }}
+          onContinueClick={_setPinCode}
+        />
+      }
+
       <View
         style={{
           flexDirection: 'row',

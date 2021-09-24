@@ -7,7 +7,6 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
   Dimensions,
   ScrollView,
   Platform,
@@ -19,9 +18,7 @@ import {
   WHITE_COLOR,
   GRAY_COLOR,
   BLACK_COLOR,
-  RED_COLOR,
 } from '../theme/Colors';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,7 +31,6 @@ import SimpleButton from '../components/Buttons/SimpleButton';
 const { height, width } = Dimensions.get('window');
 
 function MultiFactorScreen({ navigation }) {
-  const [emailConfirmationCode, setEmailConfirmationCode] = useState('');
   const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
   const [networkState, setNetworkState] = useState(false);
   const [progress, setProgress] = useState(false);
@@ -47,11 +43,7 @@ function MultiFactorScreen({ navigation }) {
   const [phoneSecs, setPhoneSecs] = useState(59);
   const [phoneTimeout, setPhoneTimeout] = useState(false);
 
-  const [emailMins, setEmailMins] = useState(1);
-  const [emailSecs, setEmailSecs] = useState(59);
-  const [emailTimeout, setEmailTimeout] = useState(false);
   const [phoneCodeLoading, setPhoneCodeLoading] = useState(false);
-  const [emailCodeLoading, setEmailCodeLoading] = useState(false);
 
   // Effect to check network connection
   React.useEffect(() => {
@@ -76,28 +68,6 @@ function MultiFactorScreen({ navigation }) {
       }
       else{
         setPhoneSecs(tempSec);
-      }
-    }, 1000) //each count lasts for a second
-    //cleanup the interval on complete
-    return () => clearInterval(interval)
-  })
-
-  // Effect for email code countdown
-  React.useEffect(()=>{
-    let interval = setInterval(() => {
-      let tempSec = emailSecs - 1;
-      if(tempSec <= 0 && emailMins > 0){
-        setPhoneSecs(59);
-        setPhoneMins(emailMins - 1);
-      }
-      else if(tempSec <= 0 && emailMins == 0){
-        setEmailSecs(0);
-        setEmailMins(0);
-        clearInterval(interval);
-        setEmailTimeout(true);
-      }
-      else{
-        setEmailSecs(tempSec);
       }
     }, 1000) //each count lasts for a second
     //cleanup the interval on complete
@@ -214,8 +184,8 @@ function MultiFactorScreen({ navigation }) {
       const result = await _resendOTPAPI(userData.userId, 'phone');
       if(result.data.success){
         setPhoneTimeout(false);
-        setPhoneMins(0);
-        setPhoneSecs(10);
+        setPhoneMins(1);
+        setPhoneSecs(59);
       }
       else{
         _showAlert("Zada Wallet", result.data.error.toString());
@@ -223,26 +193,6 @@ function MultiFactorScreen({ navigation }) {
       setPhoneCodeLoading(false);
     } catch (error) {
       setPhoneCodeLoading(false);
-      _showAlert("Zada Wallet", error.toString());
-    }
-  }
-
-  // Funcion to resend email code
-  const _reSendEmailCode = async () => {
-    try {
-      setEmailCodeLoading(true);
-      const result = await _resendOTPAPI(userData.userId, 'email');
-      if(result.data.success){
-        setEmailTimeout(false);
-        setEmailMins(0);
-        setEmailSecs(10);
-      }
-      else{
-        _showAlert("Zada Wallet", result.data.error.toString());
-      } 
-      setEmailCodeLoading(false);
-    } catch (error) {
-      setEmailCodeLoading(false);
       _showAlert("Zada Wallet", error.toString());
     }
   }
@@ -255,7 +205,7 @@ function MultiFactorScreen({ navigation }) {
     _resendOTPAPI(regData.userId, 'phone');
    
      // sending email OTP
-    _resendOTPAPI(regData.userId, 'email');
+    // _resendOTPAPI(regData.userId, 'email');
 
     setUserData(regData);
   }

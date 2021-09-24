@@ -142,7 +142,6 @@ function NavigationComponent() {
 
   const _loggingOut = () => {
     try {
-      AsyncStorage.clear();
       AsyncStorage.setItem('isfirstTime', 'true');
       analytics_log_logout();
     } catch (error) {

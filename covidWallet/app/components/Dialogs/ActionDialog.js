@@ -18,6 +18,7 @@ import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { getActionText } from '../../helpers/ActionList';
 import CustomAccordian from './components/CustomAccordian';
 import RadioButton from './components/RadioButton';
+import moment from 'moment';
 
 
 function ActionDialog(props) {
@@ -126,7 +127,13 @@ function ActionDialog(props) {
                     borderRadius: 16,
                     justifyContent: "center"
                 }}>
-                    <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+                    {
+                        title == 'Issue Time' ? (
+                            <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
+                        ):(
+                            <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+                        )
+                    }
                 </View>
             </View>
         )
@@ -139,7 +146,10 @@ function ActionDialog(props) {
                 useNativeDriver={true}
                 onBackdropPress={dismiss}
                 onRequestClose={dismiss}
-                isVisible={visible}>
+                isVisible={visible}
+                animationIn={'slideInLeft'}
+                animationOut={'slideOutRight'}
+            >
                 <View style={styles.ModalChildContainer}>
                     <View
                         style={{

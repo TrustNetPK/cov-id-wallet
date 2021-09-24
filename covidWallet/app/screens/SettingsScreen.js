@@ -8,7 +8,7 @@ import { BIOMETRIC_ENABLED } from '../helpers/ConfigApp';
 import useBiometric from '../hooks/useBiometric';
 import { showMessage } from '../helpers/Toast';
 import { AuthContext } from '../context/AuthContext';
-
+import ConstantsList from '../helpers/ConfigApp';
 
 var settingLocalData = {
   GENERAL: {
@@ -120,7 +120,10 @@ export default function SettingsScreen(props) {
     }
   }
 
-  const onLogoutPressed = () => {
+  const onLogoutPressed = async () => {
+    const pCode = await getItem(ConstantsList.PIN_CODE);
+    AsyncStorage.clear();
+    saveItem(ConstantsList.PIN_CODE, pCode);
     logout();
   }
 
