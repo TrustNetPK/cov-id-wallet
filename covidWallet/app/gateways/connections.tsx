@@ -55,6 +55,7 @@ export async function accept_connection(metadata: string) {
 
     return result;
   } catch (error) {
+    console.log("THROWING ERROR => ", error);
     throw error;
   }
 }

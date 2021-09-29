@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, ImageBackground, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
 import moment from 'moment';
 
 const image = require('../assets/images/card-bg.png')
@@ -36,7 +36,7 @@ function CredentialsCard(props) {
                             props.date ? (
                                 <View>
                                     <Text style={styles.card_small_text}>Issued Time</Text>
-                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{moment(props.data).format("DD/MM/YYYY")}</Text>
+                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{props.date}</Text>
                                 </View>
                             ):(
                                 null

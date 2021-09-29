@@ -31,6 +31,19 @@ function ActionDialog(props) {
     const [selectedCred, setSelectedCred] = useState({});
     const [counter, setCounter] = useState(0);
 
+    // Sorting Values in alphabetical order
+    function orderValues(values) {
+        let orderedValues = undefined;
+        orderedValues = Object.keys(values).sort().reduce(
+            (obj, key) => { 
+                obj[key] = values[key]; 
+                return obj;
+            }, 
+            {}
+        );
+        return orderedValues;
+    }
+
     useLayoutEffect(() => {
         async function getAllCredForVeri() {
             try {
@@ -41,7 +54,8 @@ function ActionDialog(props) {
                     let cred = result.data.availableCredentials[0].availableCredentials;
 
                     setCredential(cred);
-                    setValues(val);
+                    setValues(orderValues(val));
+                    
                 } else {
                     showMessage('ZADA Wallet', result.data.error);
                 }
@@ -57,7 +71,7 @@ function ActionDialog(props) {
         if (props.data.type == VER_REQ) {
             getAllCredForVeri();
         } else {
-            setValues(props.data.hasOwnProperty('values') ? props.data.values : {})
+            setValues(props.data.hasOwnProperty('values') ? orderValues(props.data.values) : {})
         }
 
     }, [props.data])
@@ -103,40 +117,81 @@ function ActionDialog(props) {
         setSelectedCred(e);
     }
 
-    console.log(props.data);
-
     function renderTitleInput(title, index) {
-        let value = Object.values(values)[index];
-        return (
-            <View
-                key={index}
-                style={{
-                    marginLeft: 16,
-                    marginRight: 16,
-                    marginTop: 4,
-                    marginBottom: 4,
-                }}>
-                <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
-                <View style={{
-                    paddingLeft: 16,
-                    paddingRight: 16,
-                    backgroundColor: BACKGROUND_COLOR,
-                    color: BLACK_COLOR,
-                    height: 40,
-                    marginBottom: 4,
-                    borderRadius: 16,
-                    justifyContent: "center"
-                }}>
-                    {
-                        title == 'Issue Time' ? (
-                            <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
-                        ):(
-                            <Text style={{ color: BLACK_COLOR }}>{value}</Text>
-                        )
-                    }
+        let value = values[title];
+
+        if(title == 'Issue Time'){
+            let dateParts2 = [], date2 = '', time2 = '';
+            let issueDate2 = values[title];
+
+            if(issueDate2 != null && issueDate2 != undefined){
+                dateParts2 = issueDate2.split(' ');
+                if(dateParts2.length > 2){
+                    // normal
+                    date2 = moment(issueDate2).format('DD/MM/YYYY');
+                    time2 = moment(issueDate2).format('HH:MM A');
+                }
+                else{
+                    // not normal one
+                    date2 = dateParts2[0];
+                    let timeParts2 = dateParts2[1].split(':');
+                    time2 = timeParts2[0] >= 12 ? `${timeParts2[0]}:${timeParts2[1]} PM` : `${timeParts2[0]}:${timeParts2[1]} AM`;
+                }
+            }
+
+            return (
+                <View
+                    key={index}
+                    style={{
+                        marginLeft: 16,
+                        marginRight: 16,
+                        marginTop: 4,
+                        marginBottom: 4,
+                    }}>
+                    <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
+                    <View style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        backgroundColor: BACKGROUND_COLOR,
+                        color: BLACK_COLOR,
+                        height: 40,
+                        marginBottom: 4,
+                        borderRadius: 16,
+                        justifyContent: "center"
+                    }}>
+                         <Text style={{ color: BLACK_COLOR }}>{`${date2} ${time2}`}</Text>
+                    </View>
                 </View>
-            </View>
-        )
+            )
+        }
+        else{
+            return (
+                <View
+                    key={index}
+                    style={{
+                        marginLeft: 16,
+                        marginRight: 16,
+                        marginTop: 4,
+                        marginBottom: 4,
+                    }}>
+                    <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
+                    <View style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        backgroundColor: BACKGROUND_COLOR,
+                        color: BLACK_COLOR,
+                        height: 40,
+                        marginBottom: 4,
+                        borderRadius: 16,
+                        justifyContent: "center"
+                    }}>
+                        <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+                    </View>
+                </View>
+            )
+        }
+
+        
     }
 
     return (
