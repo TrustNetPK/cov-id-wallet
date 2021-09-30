@@ -15,11 +15,40 @@ export default function DetailsScreen(props) {
 
     // Constants
     const data = props.route.params.data;
+
+    // Sorting Values in alphabetical order
+    let orderedValues = undefined;
+    orderedValues = Object.keys(data.values).sort().reduce(
+        (obj, key) => { 
+            obj[key] = data.values[key]; 
+            return obj;
+        }, 
+        {}
+    );
+
+    console.log("ORDERED => ", orderedValues);
+
     const vaccineName = data.name;
     const imgURI = { uri: data.imageUrl };
     const issuedBy = data.organizationName;
     let card_type = data.type;
     let issueDate = data.values['Issue Time'];
+
+    let dateParts = [], date = '', time = '';
+    if(issueDate != null && issueDate != undefined){
+        dateParts = issueDate.split(' ');
+        if(dateParts.length > 2){
+            // normal
+            date = moment(issueDate).format('DD/MM/YYYY');
+            time = moment(issueDate).format('HH:MM A');
+        }
+        else{
+            // not normal one
+            date = dateParts[0];
+            let timeParts = dateParts[1].split(':');
+            time = timeParts[0] >= 12 ? `${timeParts[0]}:${timeParts[1]} PM` : `${timeParts[0]}:${timeParts[1]} AM`;
+        }
+    }
 
     // States
     const [isLoading, setIsLoading] = useState(false)
@@ -67,35 +96,75 @@ export default function DetailsScreen(props) {
     }
 
     function renderTitleInput(title, index) {
-        let value = Object.values(data.values)[index];
-        return (
-            <View
-                key={index}
-                style={{
-                    marginLeft: 16,
-                    marginRight: 16,
-                }}>
-                <Text style={{ color: GRAY_COLOR, marginLeft: 8, marginTop: 8, marginBottom: 4, }}>{title}</Text>
-                <View style={{
-                    paddingLeft: 16,
-                    paddingRight: 16,
-                    backgroundColor: WHITE_COLOR,
-                    color: BLACK_COLOR,
-                    height: 40,
-                    marginBottom: 4,
-                    borderRadius: 16,
-                    justifyContent: "center"
-                }}>
-                    {
-                        title == 'Issue Time' ? (
-                            <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
-                        ):(
-                            <Text style={{ color: BLACK_COLOR }}>{value}</Text>
-                        )
-                    }
+        let value = orderedValues[title];
+
+        if(title == 'Issue Time'){
+
+            let dateParts2 = [], date2 = '', time2 = '';
+            let issueDate2 = orderedValues[title];
+
+            if(issueDate2 != null && issueDate2 != undefined){
+                dateParts2 = issueDate2.split(' ');
+                if(dateParts2.length > 2){
+                    // normal
+                    date2 = moment(issueDate2).format('DD/MM/YYYY');
+                    time2 = moment(issueDate2).format('HH:MM A');
+                }
+                else{
+                    // not normal one
+                    date2 = dateParts2[0];
+                    let timeParts2 = dateParts2[1].split(':');
+                    time2 = timeParts2[0] >= 12 ? `${timeParts2[0]}:${timeParts2[1]} PM` : `${timeParts2[0]}:${timeParts2[1]} AM`;
+                }
+            }
+
+            return (
+                <View
+                    key={index}
+                    style={{
+                        marginLeft: 16,
+                        marginRight: 16,
+                    }}>
+                    <Text style={{ color: GRAY_COLOR, marginLeft: 8, marginTop: 8, marginBottom: 4, }}>{title}</Text>
+                    <View style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        backgroundColor: WHITE_COLOR,
+                        color: BLACK_COLOR,
+                        height: 40,
+                        marginBottom: 4,
+                        borderRadius: 16,
+                        justifyContent: "center"
+                    }}>
+                        <Text style={{ color: BLACK_COLOR }}>{`${date2} ${time2}`}</Text>
+                    </View>
                 </View>
-            </View>
-        )
+            )
+        } else {
+            return (
+                <View
+                    key={index}
+                    style={{
+                        marginLeft: 16,
+                        marginRight: 16,
+                    }}>
+                    <Text style={{ color: GRAY_COLOR, marginLeft: 8, marginTop: 8, marginBottom: 4, }}>{title}</Text>
+                    <View style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        backgroundColor: WHITE_COLOR,
+                        color: BLACK_COLOR,
+                        height: 40,
+                        marginBottom: 4,
+                        borderRadius: 16,
+                        justifyContent: "center"
+                    }}>
+                        <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+                    </View>
+                </View>
+            )
+        }
+        
     }
 
     return (
@@ -108,7 +177,7 @@ export default function DetailsScreen(props) {
             }
             <View style={styles.container}>
                 <View style={styles.CredentialsCardContainer}>
-                    <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={issueDate} card_logo={imgURI} />
+                    <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={date} card_logo={imgURI} />
                 </View>
             </View>
 
@@ -118,7 +187,8 @@ export default function DetailsScreen(props) {
                 marginTop: 16,
             }}>
                 {
-                    data.values != undefined && Object.keys(data.values).map((e, i) => {
+                    orderedValues != undefined && Object.keys(orderedValues).map((e, i) => {
+                        console.log(e, orderedValues[e]);
                         return (
                             renderTitleInput(e, i)
                         )

@@ -447,7 +447,7 @@ function ActionsScreen({ navigation }) {
           }
           catch (e) {
             setIsLoading(false);
-            console.log(e)
+            console.log("ERROR => ", e)
           }
         } else {
           showMessage('ZADA Wallet', result.data.message);
@@ -554,9 +554,11 @@ function ActionsScreen({ navigation }) {
     }
   }
 
-  useFocusEffect(()=>{
-    _sendActionScreenAnalytic();
-  },[]);
+  useFocusEffect(
+    React.useCallback(() => {
+      _sendActionScreenAnalytic();
+    }, []),
+  );
 
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {

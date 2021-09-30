@@ -14,6 +14,7 @@ import { get_all_connections } from '../gateways/connections';
 import { get_all_credentials } from '../gateways/credentials';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { showMessage } from '../helpers/Toast';
+import moment from 'moment';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -109,7 +110,6 @@ function CredentialsScreen(props) {
             return
         }
 
-        console.log("UPDATING CREDENTIAL ARR => ", credentialsList);
         setCredentials(credentialsList);
     } catch (e) {
         console.log('error: updateCredentialList => ', e)
@@ -121,6 +121,10 @@ function CredentialsScreen(props) {
       updateCredentialsList();
     }, [])
   );
+
+
+  //08/11/2021 12:30:19
+
 
   // useEffect(() => {
   //   if (isCredential) {
@@ -162,10 +166,28 @@ function CredentialsScreen(props) {
             let issuedBy = v.organizationName;
             let card_type = v.type;
             let issueDate = v.values['Issue Time'];
+          
+            // Getting Date format
+            let dateParts = [], date = '', time = '';
+
+            if(issueDate != null && issueDate != undefined){
+              dateParts = issueDate.split(' ');
+              if(dateParts.length > 2){
+                // normal
+                date = moment(issueDate).format('DD/MM/YYYY');
+                time = moment(issueDate).format('HH:MM A');
+              }
+              else{
+                // not normal one
+                date = dateParts[0];
+                let timeParts = dateParts[1].split(':');
+                time = timeParts[0] >= 12 ? `${timeParts[0]}:${timeParts[1]} PM` : `${timeParts[0]}:${timeParts[1]} AM`;
+              }
+            }
 
             return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
               <View style={styles.CredentialsCardContainer}>
-                <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={issueDate} card_logo={imgURI} />
+                <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={date} card_logo={imgURI} />
               </View>
             </TouchableOpacity>
           })
