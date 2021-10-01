@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   analytics_log_accept_connection_request,
   analytics_log_reject_connection_request,
@@ -24,7 +25,9 @@ export async function get_all_connections() {
         Authorization: 'Bearer ' + (await getToken()),
       },
     });
+    
     return result;
+
   } catch (error) {
     throw error;
   }
@@ -87,3 +90,23 @@ export async function delete_connection(connectionId: string) {
     throw error;
   }
 }
+
+// find auth Connection
+export async function find_auth_connection(userId: string) {
+  try {
+    
+    let URL = 'http://6fe6-110-93-246-171.ngrok.io/api/findConnection';
+
+    const result = await axios({
+      url: URL,
+      method: 'GET',
+      params: {
+        userId
+      }
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
