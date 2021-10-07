@@ -21,10 +21,10 @@ import { themeStyles } from '../theme/Styles';
 import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 
 import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
-import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
+import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../helpers/ConfigApp';
 
 import { AuthenticateUser } from '../helpers/Authenticate';
-import { showMessage, showAskDialog } from '../helpers/Toast';
+import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
@@ -578,6 +578,7 @@ function ActionsScreen({ navigation }) {
       let BioResult = await biometricVerification();
 
       if (BioResult) {
+
         setModalVisible(false);
         setIsLoading(true);
 
@@ -655,10 +656,10 @@ function ActionsScreen({ navigation }) {
       let BioResult = await biometricVerification();
 
       if (BioResult) {
-        setIsLoading(true);
         setModalVisible(false);
         try {
 
+          //setIsLoading(true);
           // Submit Verification Api call
           let result = await delete_verification(selectedItemObj.verificationId);
 
@@ -814,30 +815,57 @@ function ActionsScreen({ navigation }) {
       // process request further
       let selectedItemObj = JSON.parse(selectedItem);
 
-      if(!(await _isVerRequestAlreadyExist())){
-        try {
+      console.log("VER => ", selectedItemObj);
 
-          let policyName = selectedItemObj.policy.attributes[0].policyName;
-  
-          // Submit Verification Api call
-          let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
-          if (result.data.success) {
-            await deleteActionByVerID(selectedItemObj.verificationId)
-            updateActionsList();
-            showMessage('Zada Wallet','Verification request has been submitted successfully');
-          } else {
-            showMessage('Zada Wallet', result.data.error)
-          }
-          setIsLoading(false);
-        } catch (e) {
-          setIsLoading(false);
+      try {
+
+        console.log('NOT EXISTS');
+
+        let policyName = selectedItemObj.policy.attributes[0].policyName;
+
+        console.log('POLICY NAME');
+
+        // Submit Verification Api call
+        let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
+        if (result.data.success) {
+          await deleteActionByVerID(selectedItemObj.verificationId)
+          updateActionsList();
+          _showAlert('Zada Wallet','Verification request has been submitted successfully');
+        } else {
+          _showAlert('Zada Wallet', result.data.error)
         }
-      }
-      else{
-        setModalVisible(false);
         setIsLoading(false);
-        showMessage('ZADA Wallet', 'Verification request is already accepted')
+      } catch (e) {
+        setIsLoading(false);
       }
+      // if(!(await _isVerRequestAlreadyExist())){
+      //   try {
+
+      //     console.log('NOT EXISTS');
+
+      //     let policyName = selectedItemObj.policy.attributes[0].policyName;
+  
+      //     console.log('POLICY NAME');
+
+      //     // Submit Verification Api call
+      //     let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
+      //     if (result.data.success) {
+      //       await deleteActionByVerID(selectedItemObj.verificationId)
+      //       updateActionsList();
+      //       showMessage('Zada Wallet','Verification request has been submitted successfully');
+      //     } else {
+      //       showMessage('Zada Wallet', result.data.error)
+      //     }
+      //     setIsLoading(false);
+      //   } catch (e) {
+      //     setIsLoading(false);
+      //   }
+      // }
+      // else{
+      //   setModalVisible(false);
+      //   setIsLoading(false);
+      //   showMessage('ZADA Wallet', 'Verification request is already accepted')
+      // }
     }
     else{
       showMessage('Zada Wallet',"You entered incorrect pincode. Please check your pincode and try again");
@@ -907,10 +935,13 @@ function ActionsScreen({ navigation }) {
       <HeadingComponent text="Actions" />
       
       {
-        isLoading &&
-        <OverlayLoader 
-          text={loaderText}
-        />
+        isLoading ? (
+          <OverlayLoader 
+            text={loaderText}
+          />
+        ):(
+          null
+        )
       }
 
       {isAction ? (

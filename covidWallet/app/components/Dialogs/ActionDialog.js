@@ -11,7 +11,7 @@ import {
 } from '../../theme/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import BorderButton from '../BorderButton';
-import { CRED_OFFER, VER_REQ } from '../../helpers/ConfigApp';
+import { CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../../helpers/ConfigApp';
 import { showMessage } from '../../helpers/Toast';
 import { get_all_credentials_for_verification } from '../../gateways/verifications';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
@@ -76,6 +76,8 @@ function ActionDialog(props) {
 
     }, [props.data])
 
+    console.log(props.data);
+
     function acceptHandler() {
         console.log("selectedCred", selectedCred);
 
@@ -93,11 +95,13 @@ function ActionDialog(props) {
 
         if (props.data.type == VER_REQ) {
             val = selectedCred;
+            props.data.credentialId = selectedCred.credentialId; 
         }
 
+        console.log('props data =>',props.data);
+        
         //Adding type.
         val.type = props.data.type
-
         props.acceptModal(props.data);
     }
 
@@ -225,20 +229,30 @@ function ActionDialog(props) {
                             <Text style={{ fontWeight: 'bold' }}>
                                 {props.data.organizationName}
                             </Text>
-                            {getActionText(props.data.type)}
+                            {getActionText(props.data.organizationName == ZADA_AUTH_TEST ? ZADA_AUTH_TEST : props.data.type)}
                         </Text>
                     </View>
 
                     {
-                        props.data.type === VER_REQ &&
-                        <View style={{ marginBottom: 10 }}>
-                            <Text style={styles.TextGuide}>
-                                {'Select a certificate to share data.'}
-                            </Text>
-                            <Text style={[styles.TextGuide, { marginTop: 0, }]}>
-                                {'Accept to approve this request.'}
-                            </Text>
-                        </View>
+                        props.data.type == VER_REQ && props.data.organizationName != ZADA_AUTH_TEST ? (
+                            <View style={{ marginBottom: 10 }}>
+                                <Text style={styles.TextGuide}>
+                                    {'Select a certificate to share data.'}
+                                </Text>
+                                <Text style={[styles.TextGuide, { marginTop: 0, }]}>
+                                    {'Accept to approve this request.'}
+                                </Text>
+                            </View>
+                        ):(
+                            <View style={{ marginBottom: 10 }}>
+                                <Text style={styles.TextGuide}>
+                                    {'Accept to approve the login'}
+                                </Text>
+                                <Text style={[styles.TextGuide, { marginTop: 0, }]}>
+                                    {'Reject if you did not sent this request'}
+                                </Text>
+                            </View>
+                        )
                     }
                     {/* {spinner &&
                         <View style={{

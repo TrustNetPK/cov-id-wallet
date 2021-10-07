@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { showMessage } from './Toast';
 import { AuthenticateUser } from './Authenticate';
-import ConstantsList from './ConfigApp';
+import ConstantsList, { ZADA_AUTH_TEST } from './ConfigApp';
 import { getItem, saveItem } from './Storage';
 import { get_credential } from '../gateways/credentials';
 import { get_all_verification_proposals } from '../gateways/verifications';
@@ -56,6 +56,8 @@ export const addVerificationToActionList = async (credentialID) => {
   try {
 
     let result = await get_all_verification_proposals();
+
+    console.log("VER REQ", result.data);
 
     if (result.data.success) {
       let verifications = result.data.verifications
@@ -156,6 +158,8 @@ export function getActionText(v) {
       return ' has sent you a certificate. Do you want to accept it?'
     case ConstantsList.VER_REQ:
       return ' has sent you a request for data verification'
+    case ZADA_AUTH_TEST:
+      return ' has sent you login authorization request'
     default:
       return ""
   }

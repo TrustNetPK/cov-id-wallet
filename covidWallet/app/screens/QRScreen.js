@@ -12,9 +12,10 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {
   getItem,
+  ls_addConnection,
   saveItem,
 } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
+import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
 import queryString from 'query-string';
 import { Buffer } from 'buffer';
 import NetInfo from '@react-native-community/netinfo';
@@ -22,7 +23,7 @@ import CustomProgressBar from '../components/CustomProgressBar';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
 import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
-import { accept_connection, find_auth_connection, save_connection } from '../gateways/connections';
+import { accept_connection, find_auth_connection, save_connection, save_did, save_link, send_connection_data, send_zada_auth_verification_request } from '../gateways/connections';
 
 function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
@@ -324,34 +325,53 @@ function QRScreen({ route, navigation }) {
   // Handling zada auth connection requests
   const _handleZadaAuth = async (data) => {
     try {
-      const userId = await getItem(ConstantsList.USER_ID);
-
-      console.log('userid', userId);
 
       setDialogTitle('Accepting Connection')
       setScan(false);
       setProgress(true);
+      const userId = await getItem(ConstantsList.USER_ID);
 
       // Find Connection
-      const response = await find_auth_connection(userId);
+      const response = await find_auth_connection(userId, data.tenantId);
       if(response.data.success){
-        navigation.navigate('MainScreen');
-        _showAlert('Zada Wallet', 'Connection already exists')
+        console.log('Zada Wallet', 'Connection already exists => ' + `${response.data}`)
+        const sendResult = await send_zada_auth_verification_request(response.data.data.did)
+        if(sendResult.data.success){
+          setProgress(false);
+          navigation.navigate('MainScreen');
+        }
+        else{
+          setProgress(false);
+          _showAlert('Zada Wallet',sendResult.data.error);
+        }
       }
       else{
         // Accept connection
-        const result = await accept_connection(data.connectionId);
+        const result = await accept_connection(ZADA_AUTH_CONNECTION_ID);
         if(result.data.success){
-          navigation.navigate('MainScreen');
-          _showAlert('Zada Wallet', 'Connection is accepted successfully');
+          console.log('connection => ',result.data);
+          
+          // Adding in user connections
+          await ls_addConnection(result.data.connection);
+          
+          // Saving DID
+          const didResult = await save_did(userId, data.tenantId, result.data.connection.myDid);
+          if(didResult.data.success){
+            navigation.navigate('MainScreen');
+            _showAlert('Zada Wallet', 'Connection is accepted successfully');
+          }
+          else{
+            navigation.navigate('MainScreen');
+            _showAlert('Zada Wallet', result.data.message);
+          }
         }
         else{
           _showAlert('Zada Wallet', result.data.message);
         }
+        setProgress(false);
       }
 
       setProgress(false);
-
     } catch (error) {
       setProgress(false);
       _showAlert('Zada Wallet', error.toString());

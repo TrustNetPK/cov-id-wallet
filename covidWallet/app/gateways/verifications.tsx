@@ -4,6 +4,7 @@ import {
   analytics_log_accept_verification_request,
   analytics_log_reject_verification_request,
 } from '../helpers/analytics';
+import { ZADA_AUTH_TEST } from '../helpers/ConfigApp';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -86,6 +87,7 @@ export async function submit_verification(
   verificationId: string,
   credentialId: string,
   policyName: string,
+  organizationName: string,
 ) {
   try {
     let obj = {
@@ -93,6 +95,9 @@ export async function submit_verification(
       credentialId,
       policyName,
     };
+    
+
+    console.log("VER OBJ => ", obj);
 
     let headers = {
       'Content-Type': 'application/json',

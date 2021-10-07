@@ -91,17 +91,61 @@ export async function delete_connection(connectionId: string) {
   }
 }
 
-// find auth Connection
-export async function find_auth_connection(userId: string) {
-  try {
-    
-    let URL = 'http://6fe6-110-93-246-171.ngrok.io/api/findConnection';
+const ngInstance = axios.create({
+  baseURL: `http://487a-39-36-105-14.ngrok.io`
+})
 
-    const result = await axios({
-      url: URL,
+// find auth Connection
+export async function find_auth_connection(
+  userId: string,
+  tenantId: string
+) {
+  try {
+    const result = await ngInstance({
+      url: `/api/findConnection`,
       method: 'GET',
       params: {
-        userId
+        userId,
+        tenantId,
+      }
+    })
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// saving did in connections
+export async function save_did(
+  userId: string,
+  tenantId: string,
+  did: string,
+) {
+  try {
+    const result = await ngInstance({
+      url: `/api/saveDID`,
+      method: 'POST',
+      data: {
+        userId,
+        tenantId,
+        did,
+      }
+    })
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function send_zada_auth_verification_request(did: string) {
+  try {
+    
+    console.log("DID =>", did);
+    const result = await ngInstance({
+      url: `/api/sendVerification`,
+      method: 'POST',
+      data: {
+        did
       }
     });
     return result;
