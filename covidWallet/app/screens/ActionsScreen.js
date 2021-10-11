@@ -108,7 +108,6 @@ function ActionsScreen({ navigation }) {
     if (!deepLink) getUrl();
   }, [deepLink]);
 
-
   useEffect(() => {
     // Setting listener for deeplink
     if (!deepLink) {
@@ -151,6 +150,7 @@ function ActionsScreen({ navigation }) {
   // Update Actionlist if notificationReceived is true.
   useEffect(() => {
     if (notificationReceived) {
+      console.log('UPDATING LIST UPON NOTIF');
       updateActionsList();
     }
   }, [notificationReceived])
@@ -314,6 +314,7 @@ function ActionsScreen({ navigation }) {
   }
 
   const toggleModal = (v) => {
+    console.log('toggling');
     setSelectedItem(JSON.stringify(v));
 
     let data = JSON.parse(JSON.stringify(v));

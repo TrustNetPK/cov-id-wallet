@@ -1,5 +1,4 @@
-import { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import { initNotifications, receiveNotificationEventListener } from '../helpers/Notifications';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
@@ -9,6 +8,8 @@ import { CRED_OFFER, VER_REQ } from "../helpers/ConfigApp";
 
 const useNotification = () => {
 
+    const [isZadaAuth, setZadaAuth] = useState(false);
+    const [authData, setAuthData] = useState(null);
     const [notificationReceived, setNotificationReceived] = useState(false);
 
     useEffect(() => {
@@ -50,12 +51,14 @@ const useNotification = () => {
                 //Use identifier to make sure you dont process twice
                 let notificationsProcessed = [];
                 for (let i = 0; i < notifications.length; i++) {
+                    console.log(`notif${i}`,notifications[i]);
                     switch (notifications[i].userInfo.type) {
                         case CRED_OFFER:
                             await addCredentialToActionList(notifications[i].userInfo.metadata);
                             break;
                         case VER_REQ:
-                            console.log('verification request')
+                            console.log("VERIFICATION REQUESTS");
+                            console.log('verification request => ', notifications[i])
                             await addVerificationToActionList();
                             break;
                         default:
@@ -70,6 +73,6 @@ const useNotification = () => {
         });
     }
 
-    return { notificationReceived };
+    return { notificationReceived, isZadaAuth, authData };
 };
 export default useNotification;

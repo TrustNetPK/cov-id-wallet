@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Text, View, AlertIOS, Alert, StyleSheet, Image, ActivityIndicator, FlatList } from 'react-native';
+import { Text, View, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import Modal from 'react-native-modal';
 import {
     WHITE_COLOR,
@@ -11,14 +11,13 @@ import {
 } from '../../theme/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import BorderButton from '../BorderButton';
-import { CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../../helpers/ConfigApp';
+import { VER_REQ, ZADA_AUTH_TEST } from '../../helpers/ConfigApp';
 import { showMessage } from '../../helpers/Toast';
 import { get_all_credentials_for_verification } from '../../gateways/verifications';
-import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { getActionText } from '../../helpers/ActionList';
 import CustomAccordian from './components/CustomAccordian';
-import RadioButton from './components/RadioButton';
 import moment from 'moment';
+import { get_tenant } from '../../gateways/connections';
 
 
 function ActionDialog(props) {
@@ -29,6 +28,7 @@ function ActionDialog(props) {
     const [values, setValues] = useState();
     const [credential, setCredential] = useState([]);
     const [selectedCred, setSelectedCred] = useState({});
+    const [tenant, setTenant] = useState({});
     const [counter, setCounter] = useState(0);
 
     // Sorting Values in alphabetical order
@@ -44,39 +44,61 @@ function ActionDialog(props) {
         return orderedValues;
     }
 
-    useLayoutEffect(() => {
-        async function getAllCredForVeri() {
-            try {
-                setSpinner(true)
-                let result = await get_all_credentials_for_verification(props.data.verificationId);
-                if (result.data.success) {
-                    let val = result.data.availableCredentials[0].availableCredentials[0].values
-                    let cred = result.data.availableCredentials[0].availableCredentials;
+    async function getAllCredForVeri() {
+        try {
+            setSpinner(true)
+            let result = await get_all_credentials_for_verification(props.data.verificationId);
+            if (result.data.success) {
+                let val = result.data.availableCredentials[0].availableCredentials[0].values
+                let cred = result.data.availableCredentials[0].availableCredentials;
 
-                    setCredential(cred);
-                    setValues(orderValues(val));
-                    
-                } else {
-                    showMessage('ZADA Wallet', result.data.error);
+                let fullyVaccinatedCreds = [];
+                cred.forEach(credItem => {
+                    if(credItem.values != undefined && credItem.values.Dose != null && credItem.values.Dose != undefined){
+                        if(credItem.values.Dose == '2/2'){
+                            fullyVaccinatedCreds.push(credItem);
+                        }
+                    }
+                });
+
+                if(fullyVaccinatedCreds.length){
+                    setCredential(fullyVaccinatedCreds);
                 }
-
-                setSpinner(false)
-            } catch (e) {
-                console.log(e)
-                setSpinner(false)
+                else{
+                    setCredential(cred);
+                }
+                setValues(orderValues(val)); 
+            } else {
+                showMessage('ZADA Wallet', result.data.error);
             }
-        }
 
+            if(props.data.organizationName == ZADA_AUTH_TEST){
+                const tenant = await get_tenant(props.data);
+                if(tenant.success){
+                    console.log("TENANT => ", tenant);
+                    setTenant(tenant.data);
+                    setCounter(Math.random()*9999);
+                }
+                else{
+                    console.log(tenant.error);
+                }
+            }
+
+            setSpinner(false)
+        } catch (e) {
+            console.log(e)
+            setSpinner(false)
+        }
+    }
+
+    useLayoutEffect(() => {
         // If type = verification_request
         if (props.data.type == VER_REQ) {
             getAllCredForVeri();
         } else {
             setValues(props.data.hasOwnProperty('values') ? orderValues(props.data.values) : {})
         }
-
     }, [props.data])
-
-    console.log(props.data);
 
     function acceptHandler() {
         console.log("selectedCred", selectedCred);
@@ -209,51 +231,179 @@ function ActionDialog(props) {
                 animationIn={'slideInLeft'}
                 animationOut={'slideOutRight'}
             >
-                <View style={styles.ModalChildContainer}>
-                    <View
-                        style={{
-                            justifyContent: 'center',
-                            textAlign: 'center',
-                            alignContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        <Image
-                            style={styles.Imagesize}
-                            source={{
-                                uri: props.data.imageUrl,
-                            }}
-                        />
-                    </View>
-                    <View style={{ marginTop: 10, marginBottom: 10 }}>
-                        <Text style={styles.TextGuide}>
-                            <Text style={{ fontWeight: 'bold' }}>
-                                {props.data.organizationName}
-                            </Text>
-                            {getActionText(props.data.organizationName == ZADA_AUTH_TEST ? ZADA_AUTH_TEST : props.data.type)}
-                        </Text>
-                    </View>
-
+                <View style={[styles.ModalChildContainer,{ backgroundColor: props.data.organizationName == ZADA_AUTH_TEST ? BACKGROUND_COLOR : WHITE_COLOR }]}>
                     {
-                        props.data.type == VER_REQ && props.data.organizationName != ZADA_AUTH_TEST ? (
-                            <View style={{ marginBottom: 10 }}>
-                                <Text style={styles.TextGuide}>
-                                    {'Select a certificate to share data.'}
-                                </Text>
-                                <Text style={[styles.TextGuide, { marginTop: 0, }]}>
-                                    {'Accept to approve this request.'}
-                                </Text>
-                            </View>
+                        props.data.organizationName == ZADA_AUTH_TEST ? (
+                            spinner ? (
+                                <View style={{
+                                    zIndex: 10, justifyContent: "center",
+                                    alignItems: "center",
+                                }}>
+                                    <ActivityIndicator color={"#000"} size={"small"} style={{marginHorizontal: 20, marginTop: 20,}} />
+                                    <Text style={{marginTop: 5, marginBottom: 20, fontSize: 16,}}>Fetching details...</Text>
+                                </View>
+                            ) : (
+                                <>
+                                    <View
+                                        style={{
+                                            justifyContent: 'center',
+                                            textAlign: 'center',
+                                            alignContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Image
+                                            style={styles.Imagesize}
+                                            source={{
+                                                uri: tenant.imgUrl
+                                            }}
+                                        />
+                                    </View>
+                                    <View style={{ marginTop: 10, marginBottom: 10 }}>
+                                        <Text style={styles.TextGuide}>
+                                            <Text style={{ fontWeight: 'bold' }}>
+                                                {tenant.name}
+                                            </Text>
+                                            {getActionText(ZADA_AUTH_TEST)}
+                                        </Text>
+                                    </View>
+
+                                    <View style={{ marginBottom: 10 }}>
+                                        <Text style={styles.TextGuide}>
+                                            {'Authorize to approve the request'}
+                                        </Text>
+                                        <Text style={[styles.TextGuide, { marginTop: 0, }]}>
+                                            {'Cancel to reject the request'}
+                                        </Text>
+                                    </View>
+
+                                    <KeyboardAwareScrollView
+                                        style={{
+                                            maxHeight: 250,
+                                        }}
+                                    >
+                                        {
+                                            props.data.type == VER_REQ && credential.length ?
+                                            (
+                                                <CustomAccordian credential={credential} setSelected={setSelected} />
+                                            ):(
+                                                values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
+                                                    return renderTitleInput(e, i)
+                                                })
+                                            )         
+                                        }
+                                    </KeyboardAwareScrollView>
+
+                                    <View style={styles.buttonsRow}>
+                                        {props.modalType === 'action' && (
+                                            <BorderButton
+                                                nextHandler={props.rejectModal}
+                                                text="CANCEL"
+                                                color={BLACK_COLOR}
+                                                textColor={WHITE_COLOR}
+                                                backgroundColor={RED_COLOR}
+                                                isIconVisible={false}
+                                            />
+                                        )}
+                                        {props.modalType === 'action' && (
+                                            <BorderButton
+                                                nextHandler={acceptHandler}
+                                                text="AUTHORIZE"
+                                                color={BLACK_COLOR}
+                                                textColor={WHITE_COLOR}
+                                                backgroundColor={GREEN_COLOR}
+                                            />
+                                        )}
+                                    </View>
+                                </>
+                            )
                         ):(
-                            <View style={{ marginBottom: 10 }}>
-                                <Text style={styles.TextGuide}>
-                                    {'Accept to approve the login'}
-                                </Text>
-                                <Text style={[styles.TextGuide, { marginTop: 0, }]}>
-                                    {'Reject if you did not sent this request'}
-                                </Text>
-                            </View>
+                            <>
+                                <View
+                                    style={{
+                                        justifyContent: 'center',
+                                        textAlign: 'center',
+                                        alignContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                    <Image
+                                        style={styles.Imagesize}
+                                        source={{
+                                            uri: props.data.imageUrl
+                                        }}
+                                    />
+                                </View>
+                                <View style={{ marginTop: 10, marginBottom: 10 }}>
+                                    <Text style={styles.TextGuide}>
+                                        <Text style={{ fontWeight: 'bold' }}>
+                                            {props.data.organizationName}
+                                        </Text>
+                                        {getActionText(props.data.organizationName == ZADA_AUTH_TEST ? ZADA_AUTH_TEST : props.data.type)}
+                                    </Text>
+                                </View>
+
+                                {
+                                    props.data.type == VER_REQ &&
+                                    <View style={{ marginBottom: 10 }}>
+                                        <Text style={styles.TextGuide}>
+                                            {'Select a certificate to share data.'}
+                                        </Text>
+                                        <Text style={[styles.TextGuide, { marginTop: 0, }]}>
+                                            {'Accept to approve this request.'}
+                                        </Text>
+                                    </View>
+                                }
+
+                                <KeyboardAwareScrollView
+                                    style={{
+                                        maxHeight: 250,
+                                    }}
+                                >
+                                    {
+                                        spinner ? (
+                                            <View style={{
+                                                zIndex: 10, justifyContent: "center",
+                                                alignItems: "center",
+                                            }}>
+                                                <ActivityIndicator color={"#000"} size={"small"} />
+                                            </View>
+                                        ) : (
+                                            props.data.type == VER_REQ && credential.length ?
+                                            (
+                                                <CustomAccordian credential={credential} setSelected={setSelected} />
+                                            ):(
+                                                values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
+                                                    return renderTitleInput(e, i)
+                                                })
+                                            )
+                                        )         
+                                    }
+                                </KeyboardAwareScrollView>
+
+                                <View style={styles.buttonsRow}>
+                                    {props.modalType === 'action' && (
+                                        <BorderButton
+                                            nextHandler={props.rejectModal}
+                                            text="REJECT"
+                                            color={BLACK_COLOR}
+                                            textColor={WHITE_COLOR}
+                                            backgroundColor={RED_COLOR}
+                                            isIconVisible={false}
+                                        />
+                                    )}
+                                    {props.modalType === 'action' && (
+                                        <BorderButton
+                                            nextHandler={acceptHandler}
+                                            text="ACCEPT"
+                                            color={BLACK_COLOR}
+                                            textColor={WHITE_COLOR}
+                                            backgroundColor={GREEN_COLOR}
+                                        />
+                                    )}
+                                </View>
+                            </>
                         )
                     }
+                    
                     {/* {spinner &&
                         <View style={{
                             zIndex: 10, justifyContent: "center",
@@ -278,53 +428,7 @@ function ActionDialog(props) {
                             }}
                         />
                     } */}
-                    <KeyboardAwareScrollView
-                        style={{
-                            maxHeight: 250,
-                        }}
-                    >
-                        {
-                            spinner ? (
-                                <View style={{
-                                    zIndex: 10, justifyContent: "center",
-                                    alignItems: "center",
-                                }}>
-                                    <ActivityIndicator color={"#000"} size={"small"} />
-                                </View>
-                            ) : (
-                                props.data.type == VER_REQ && credential.length ?
-                                (
-                                    <CustomAccordian credential={credential} setSelected={setSelected} />
-                                ):(
-                                    values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                        return renderTitleInput(e, i)
-                                    })
-                                )
-                            )         
-                        }
-                    </KeyboardAwareScrollView>
-
-                    <View style={styles.buttonsRow}>
-                        {props.modalType === 'action' && (
-                            <BorderButton
-                                nextHandler={props.rejectModal}
-                                text="REJECT"
-                                color={BLACK_COLOR}
-                                textColor={WHITE_COLOR}
-                                backgroundColor={RED_COLOR}
-                                isIconVisible={false}
-                            />
-                        )}
-                        {props.modalType === 'action' && (
-                            <BorderButton
-                                nextHandler={acceptHandler}
-                                text="ACCEPT"
-                                color={BLACK_COLOR}
-                                textColor={WHITE_COLOR}
-                                backgroundColor={GREEN_COLOR}
-                            />
-                        )}
-                    </View>
+                    
                 </View>
             </Modal>
         </View >
@@ -337,7 +441,6 @@ const styles = StyleSheet.create({
         marginRight: 80,
     },
     ModalChildContainer: {
-        backgroundColor: WHITE_COLOR,
         borderRadius: 15,
         marginTop: '10%',
         marginBottom: '2%',
@@ -364,12 +467,6 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         paddingRight: 10,
         paddingTop: 10,
-    },
-    ModalChildContainer: {
-        backgroundColor: WHITE_COLOR,
-        borderRadius: 15,
-        marginTop: '10%',
-        marginBottom: '2%',
     },
     centerContainer: {
         alignItems: 'center',

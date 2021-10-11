@@ -65,7 +65,7 @@ function getAllDeliveredNotifications() {
 //IOS: Triggered on clicking notification from notification center
 async function receiveNotificationEventListener(notification) {
   console.log('NEW NOTIFICATION:', notification);
-
+  let verData = null;
   let result = '';
   switch (notification.data.type) {
     case CRED_OFFER:
@@ -75,6 +75,7 @@ async function receiveNotificationEventListener(notification) {
 
     case VER_REQ:
       result = await addVerificationToActionList(notification.data.metadata);
+      verData = result;
       console.log(result);
       break;
 
@@ -94,6 +95,7 @@ async function receiveNotificationEventListener(notification) {
       true,
     );
   }
+  return verData;
 }
 
 // /*

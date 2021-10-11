@@ -111,6 +111,8 @@ function ConnectionsScreen(props) {
   function onDeletePressed(e) {
     setClickedConnection(e);
     setTemp(Math.random() * 999);
+    console.log('Clicked Connection', e);
+
     Alert.alert(
       "Are you sure you want to delete this connection?",
       "This will also delete all certificates issued by this connection.",

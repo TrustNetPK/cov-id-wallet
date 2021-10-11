@@ -4,7 +4,9 @@ import {
   analytics_log_reject_connection_request,
 } from '../helpers/analytics';
 import {AuthenticateUser} from '../helpers/Authenticate';
+import { getItem } from '../helpers/Storage';
 import http_client from './http_client';
+import ConstantsList from '../helpers/ConfigApp';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -92,7 +94,7 @@ export async function delete_connection(connectionId: string) {
 }
 
 const ngInstance = axios.create({
-  baseURL: `http://487a-39-36-105-14.ngrok.io`
+  baseURL: `http://2836-110-93-246-171.ngrok.io`
 })
 
 // find auth Connection
@@ -154,3 +156,32 @@ export async function send_zada_auth_verification_request(did: string) {
   }
 }
 
+export async function get_tenant(verification:any){
+  try {
+    let connections:any = await getItem(ConstantsList.CONNECTIONS);
+
+    if(connections == undefined || connections == null){
+      return {success:false, error: 'There are no connections in your wallet'}
+    }
+
+    let did = undefined;
+    connections = JSON.parse(connections);
+
+    connections.forEach((item:any, index:number)=>{
+      if(item.connectionId == verification.connectionId)
+        did = item.myDid;
+    });
+
+    const tenant = await ngInstance({
+      url: `/api/getTenant`,
+      params:{
+        did: did,
+      }
+    });
+
+    return {success: true, data: tenant.data.data};
+
+  } catch (error:any) {
+    return {success: false, error: error.toString()};
+  }
+}

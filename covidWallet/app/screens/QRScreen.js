@@ -326,7 +326,7 @@ function QRScreen({ route, navigation }) {
   const _handleZadaAuth = async (data) => {
     try {
 
-      setDialogTitle('Accepting Connection')
+      setDialogTitle('Processing...')
       setScan(false);
       setProgress(true);
       const userId = await getItem(ConstantsList.USER_ID);

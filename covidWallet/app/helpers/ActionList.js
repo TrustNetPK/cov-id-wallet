@@ -57,8 +57,6 @@ export const addVerificationToActionList = async (credentialID) => {
 
     let result = await get_all_verification_proposals();
 
-    console.log("VER REQ", result.data);
-
     if (result.data.success) {
       let verifications = result.data.verifications
 
@@ -72,6 +70,8 @@ export const addVerificationToActionList = async (credentialID) => {
         // Adding type to verification request.
         verification_arr[i]['type'] = ConstantsList.VER_REQ
       }
+
+      console.log("VER REQUESTS", verification_arr);
 
       // Save Verification Request.
       await saveItem(ConstantsList.VER_REQ, JSON.stringify(verification_arr));
@@ -159,7 +159,7 @@ export function getActionText(v) {
     case ConstantsList.VER_REQ:
       return ' has sent you a request for data verification'
     case ZADA_AUTH_TEST:
-      return ' has sent you login authorization request'
+      return ' has sent you authorization request'
     default:
       return ""
   }
