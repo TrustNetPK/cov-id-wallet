@@ -3,10 +3,10 @@ import {
   analytics_log_accept_connection_request,
   analytics_log_reject_connection_request,
 } from '../helpers/analytics';
-import {AuthenticateUser} from '../helpers/Authenticate';
+import {AuthenticateUser, authenticateZadaAuth} from '../helpers/Authenticate';
 import { getItem } from '../helpers/Storage';
 import http_client from './http_client';
-import ConstantsList from '../helpers/ConfigApp';
+import ConstantsList, { ZADA_AUTH_URL } from '../helpers/ConfigApp';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -93,8 +93,10 @@ export async function delete_connection(connectionId: string) {
   }
 }
 
-const ngInstance = axios.create({
-  baseURL: `http://2836-110-93-246-171.ngrok.io`
+/********** HANDLING ZADA AUTH ***********/
+
+const zadaAuthInstance = axios.create({
+  baseURL: ZADA_AUTH_URL
 })
 
 // find auth Connection
@@ -103,15 +105,26 @@ export async function find_auth_connection(
   tenantId: string
 ) {
   try {
-    const result = await ngInstance({
-      url: `/api/findConnection`,
-      method: 'GET',
-      params: {
-        userId,
-        tenantId,
-      }
-    })
-    return result;
+    // Getting Token
+    const tokenResult = await authenticateZadaAuth();
+    
+    if(tokenResult.success){
+      const result = await zadaAuthInstance({
+        url: `/api/findConnection`,
+        method: 'GET',
+        headers:{
+          Authorization: `Bearer ${tokenResult.token}`
+        },
+        params: {
+          userId,
+          tenantId,
+        }
+      })
+      return result;
+    }
+    else{
+      throw tokenResult.error;
+    }
   } catch (error) {
     throw error;
   }
@@ -124,16 +137,28 @@ export async function save_did(
   did: string,
 ) {
   try {
-    const result = await ngInstance({
-      url: `/api/saveDID`,
-      method: 'POST',
-      data: {
-        userId,
-        tenantId,
-        did,
-      }
-    })
-    return result;
+
+    // Getting Token
+    const tokenResult = await authenticateZadaAuth();
+
+    if(tokenResult.success){
+      const result = await zadaAuthInstance({
+        url: `/api/saveDID`,
+        method: 'POST',
+        headers:{
+          Authorization: `Bearer ${tokenResult.token}`
+        },
+        data: {
+          userId,
+          tenantId,
+          did,
+        }
+      })
+      return result;
+    }
+    else{
+      throw tokenResult.error
+    }
   } catch (error) {
     throw error;
   }
@@ -142,15 +167,25 @@ export async function save_did(
 export async function send_zada_auth_verification_request(did: string) {
   try {
     
-    console.log("DID =>", did);
-    const result = await ngInstance({
-      url: `/api/sendVerification`,
-      method: 'POST',
-      data: {
-        did
-      }
-    });
-    return result;
+    // Getting Token
+    const tokenResult = await authenticateZadaAuth();
+    
+    if(tokenResult.success){
+      const result = await zadaAuthInstance({
+        url: `/api/sendVerification`,
+        method: 'POST',
+        headers:{
+          Authorization: `Bearer ${tokenResult.token}`
+        },
+        data: {
+          did
+        }
+      });
+      return result;
+    }
+    else{
+      throw tokenResult.error;
+    }
   } catch (error) {
     throw error;
   }
@@ -172,15 +207,24 @@ export async function get_tenant(verification:any){
         did = item.myDid;
     });
 
-    const tenant = await ngInstance({
-      url: `/api/getTenant`,
-      params:{
-        did: did,
-      }
-    });
+    // Getting Token
+    const tokenResult = await authenticateZadaAuth();
 
-    return {success: true, data: tenant.data.data};
-
+    if(tokenResult.success){
+      const tenant = await zadaAuthInstance({
+        url: `/api/getTenant`,
+        headers:{
+          Authorization: `Bearer ${tokenResult.token}`
+        },
+        params:{
+          did: did,
+        }
+      });
+      return {success: true, data: tenant.data.data};
+    }
+    else{
+      return {success: false, error: tokenResult.error.toString()};
+    }
   } catch (error:any) {
     return {success: false, error: error.toString()};
   }

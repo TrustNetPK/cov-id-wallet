@@ -71,10 +71,15 @@ export const addVerificationToActionList = async (credentialID) => {
         verification_arr[i]['type'] = ConstantsList.VER_REQ
       }
 
-      console.log("VER REQUESTS", verification_arr);
+      console.log("VERIFICATION ARRAY", verifications);
 
       // Save Verification Request.
       await saveItem(ConstantsList.VER_REQ, JSON.stringify(verification_arr));
+
+      if(verifications[0].organizationName && verifications[0].organizationName == ZADA_AUTH_TEST)
+        return {isZadaAuth: true, data: verifications[0]}
+      else
+        return {isZadaAuth: false, data: null}
 
     } else {
       showMessage('ZADA Wallet', resp.message);

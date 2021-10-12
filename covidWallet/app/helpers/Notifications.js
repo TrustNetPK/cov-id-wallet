@@ -66,7 +66,7 @@ function getAllDeliveredNotifications() {
 async function receiveNotificationEventListener(notification) {
   console.log('NEW NOTIFICATION:', notification);
   let verData = null;
-  let result = '';
+  let result = null;
   switch (notification.data.type) {
     case CRED_OFFER:
       result = await addCredentialToActionList(notification.data.metadata);
@@ -76,7 +76,6 @@ async function receiveNotificationEventListener(notification) {
     case VER_REQ:
       result = await addVerificationToActionList(notification.data.metadata);
       verData = result;
-      console.log(result);
       break;
 
     default:
@@ -95,7 +94,10 @@ async function receiveNotificationEventListener(notification) {
       true,
     );
   }
-  return verData;
+  if(notification.data.type == VER_REQ && verData.isZadaAuth)
+    return {auth_verification: true, data: verData.data};
+  else
+    return {auth_verification: false, data: null};
 }
 
 // /*

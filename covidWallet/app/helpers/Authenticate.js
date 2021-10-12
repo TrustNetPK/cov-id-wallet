@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ConstantsList from '../helpers/ConfigApp';
+import ConstantsList, { ZADA_AUTH_SECRET, ZADA_AUTH_URL } from '../helpers/ConfigApp';
 import { getItem, saveItem } from '../helpers/Storage';
+import axios from 'axios';
 
 var localPassCode = 0;
 var isSuccessful = false;
@@ -90,7 +91,6 @@ const storeUserAuth = async (userAuth) => {
     }
 };
 
-
 const getUserCurrentAuth = async () => {
     try {
         let auth = await AsyncStorage.getItem(ConstantsList.USER_AUTH);
@@ -163,3 +163,70 @@ export const AuthenticateUser = async (forceAuthenticate) => {
     }
 
 };
+
+const get_zada_auth = async () => {
+    try {
+        let auth = await AsyncStorage.getItem(ConstantsList.ZADA_AUTH);
+        return JSON.parse(auth);
+    } catch (error) {
+        console.log(error);
+    }
+}; 
+
+const getIsZadaAuthExpired = async () => {
+    try {
+        let nowUnixEpoch = Math.round(Date.now() / 1000);
+        let zadaAuth = await get_zada_auth();
+        if (zadaAuth !== null) {
+            let expUnixEpoch = zadaAuth.exp;
+            if ((expUnixEpoch - nowUnixEpoch) <= 120) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const authenticateZadaAuth = async () => {
+    try {
+        let isZadaAuthExpired = await getIsZadaAuthExpired();
+        if(isZadaAuthExpired){
+            // Code expired generate new one and return it
+            const authResult = await axios({
+                url: `${ZADA_AUTH_URL}/api/authenticate`,
+                method: 'POST',
+                data:{
+                    secret: ZADA_AUTH_SECRET,
+                }
+            });
+
+            if(authResult.data.success){
+                // Saving zada auth
+                await saveItem(ConstantsList.ZADA_AUTH, JSON.stringify(authResult.data.data));
+
+                // getting token
+                let token = authResult.data.data.token;
+
+                console.log('ZADA AUTH TOKEN => ', token);
+                return { success: true, token: token }
+            }
+            else{
+                return { success: false, error: error }
+            }
+        }
+        else{
+            // Otherwise use existing one
+            const token = (JSON.parse(await getItem(ConstantsList.ZADA_AUTH))).token;
+            console.log('ZADA AUTH TOKEN => ', token);
+            return { success: true, token: token }
+        }
+    } catch (error) {
+        return { success: false, error: error.toString() }
+    }
+}

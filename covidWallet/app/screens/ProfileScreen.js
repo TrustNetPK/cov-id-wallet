@@ -67,6 +67,12 @@ const ProfileScreen = () => {
     const [rePincodeError, setRePincodeError] = useState('');
     const [rePincodeSecurity, setRePincodeSecurity] = useState(true);
 
+
+    // KEYBOARD AVOIDING VIEW
+    const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
+    const keyboardBehaviour = Platform.OS == 'ios' ? 'padding' : null
+
+
     // Toggle pincode eye icon
     const _toggleOldPincodeSecurity = () => {
         setOldPincodeSecurity(!oldpincodeSecurity);
@@ -377,8 +383,12 @@ const ProfileScreen = () => {
     }
 
     return (
-        <View style={styles._mainContainer}>
+        // <View style={styles._mainContainer}>
 
+        <KeyboardAvoidingView
+            behavior={keyboardBehaviour} keyboardVerticalOffset={keyboardVerticalOffset}
+            style={styles._mainContainer}
+        >
             {/* PinCode Modal */}
             <PincodeModal 
                 isVisible={showPincodeModal}
@@ -412,320 +422,311 @@ const ProfileScreen = () => {
                 <OverlayLoader 
                     text='Fetching your profile'
                 />
-            }
-
-            <ScrollView
-                bounces={false}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles._scrollContainer}
-            >
-                <KeyboardAvoidingView
-                    behavior={Platform.OS == 'ios' ? 'position' : 'padding'}
-                    style={{
-                        flex: 1,
-                    }}
+            }                
+                <ScrollView
+                    bounces={false}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles._scrollContainer}
                 >
                     {/* General Items */}
                     <Text style={styles._parent}>General</Text>
                     
                     {/* Name */}
                     <View style={styles._itemContainer}>
-                        <Text style={styles._itemLabel}>Full Name (Official Name)</Text>
-                        <View style={styles._row}>
-                            
-                            <View style={{width: '85%'}}>
-                                <InputComponent
-                                    height={45}
-                                    placeholderText="Name"
-                                    errorMessage={nameError}
-                                    value={name}
-                                    isSecureText={false}
-                                    inputContainerStyle={styles._inputView}
-                                    setStateValue={(text) =>{
-                                        setName(text);
-                                    }}
-                                    disabled={disableName}
-                                />
-                            </View>
-                            
-                            <Text 
-                                onPress={()=>{
-                                    disableName ? (
-                                        setDisableName(!disableName)
-                                    ):(
-                                        _onNameSave()
-                                    )
-                                    
-                                }} 
-                                style={styles._editText}
-                            >
-                                {disableName ? 'Edit' : 'Save'}
-                            </Text>
+                    <Text style={styles._itemLabel}>Full Name (Official Name)</Text>
+                    <View style={styles._row}>
+                        
+                        <View style={{width: '85%'}}>
+                            <InputComponent
+                                height={45}
+                                placeholderText="Name"
+                                errorMessage={nameError}
+                                value={name}
+                                isSecureText={false}
+                                inputContainerStyle={styles._inputView}
+                                setStateValue={(text) =>{
+                                    setName(text);
+                                }}
+                                disabled={disableName}
+                            />
                         </View>
+                        
+                        <Text 
+                            onPress={()=>{
+                                disableName ? (
+                                    setDisableName(!disableName)
+                                ):(
+                                    _onNameSave()
+                                )
+                                
+                            }} 
+                            style={styles._editText}
+                        >
+                            {disableName ? 'Edit' : 'Save'}
+                        </Text>
                     </View>
-                
-                    {/* Email */}
-                    <View style={styles._itemContainer}>
-                        <Text style={styles._itemLabel}>Email</Text>
-                        <View style={styles._row}>
-                            
-                            <View style={{width: '85%'}}>
-                                <InputComponent
-                                    height={45}
-                                    placeholderText="Email"
-                                    errorMessage={emailError}
-                                    value={email}
-                                    isSecureText={false}
-                                    inputContainerStyle={styles._inputView}
-                                    setStateValue={(text) =>{
-                                        setEmail(text);
-                                        let domain = text.split('@');
-                                        if(domain.length == 2){
+                </View>
+            
+                {/* Email */}
+                <View style={styles._itemContainer}>
+                    <Text style={styles._itemLabel}>Email</Text>
+                    <View style={styles._row}>
+                        
+                        <View style={{width: '85%'}}>
+                            <InputComponent
+                                height={45}
+                                placeholderText="Email"
+                                errorMessage={emailError}
+                                value={email}
+                                isSecureText={false}
+                                inputContainerStyle={styles._inputView}
+                                setStateValue={(text) =>{
+                                    setEmail(text);
+                                    let domain = text.split('@');
+                                    if(domain.length == 2){
 
-                                            let domainName = domain[1].toLowerCase();
+                                        let domainName = domain[1].toLowerCase();
 
-                                            if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
-                                                setEmailWarning(true);
-                                                return
-                                            }
-                                            
-                                            setEmailWarning(false);
+                                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
+                                            setEmailWarning(true);
                                             return
-
                                         }
-                                        else
-                                            setEmailWarning(false);
+                                        
+                                        setEmailWarning(false);
+                                        return
+
+                                    }
+                                    else
+                                        setEmailWarning(false);
+                                }}
+                                disabled={disableEmail}
+                            />
+                            {
+                                emailWarning &&
+                                <EmailWarning 
+                                    style={{
+                                        marginLeft: 12,
+                                        marginRight: 12,
+                                        marginTop: 5,
                                     }}
-                                    disabled={disableEmail}
                                 />
-                                {
-                                    emailWarning &&
-                                    <EmailWarning 
+                            }
+                        </View>
+                        
+                        <Text 
+                            onPress={()=>{
+                                disableEmail ? (
+                                    setDisableEmail(!disableEmail)
+                                ):(
+                                    _onEmailSave()
+                                )
+                                
+                            }}
+                            style={styles._editText}
+                        >
+                            {disableEmail ? 'Edit' : 'Save'}
+                        </Text>
+                    </View>
+                </View>
+            
+                {/* Change Password */}
+                <Text style={styles._parent}>Change Password</Text>
+                
+                {/* Current Password */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: '100%'}}>
+                        <InputComponent
+                            height={45}
+                            type={'secret'}
+                            toggleSecureEntry={_toggleCurrPassSecurity}
+                            placeholderText="Current password"
+                            errorMessage={currPasswordError}
+                            value={currPassword}
+                            keyboardType="default"
+                            isSecureText={isCurrPassSecure}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={styles._inputView}
+                            setStateValue={(text) => {
+                                setCurrPassword(text.replace(',', ''));
+                            }}
+                        />
+                    </View>
+                </View>
+
+                {/* New Password */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: '100%'}}>
+                        <InputComponent
+                            height={45}
+                            type={'secret'}
+                            toggleSecureEntry={_toggleNewPassSecurity}
+                            placeholderText="New password"
+                            errorMessage={newPasswordError}
+                            value={newPassword}
+                            keyboardType="default"
+                            isSecureText={isNewPassSecure}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={styles._inputView}
+                            setStateValue={(text) => {
+                                setNewPassword(text.replace(',', ''));
+                            }}
+                        />
+                    </View>
+                </View>
+
+                {/* Re Enter New Password */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: '100%'}}>
+                        <InputComponent
+                            height={45}
+                            type={'secret'}
+                            toggleSecureEntry={_toggleRePassSecurity}
+                            placeholderText="Re enter new password"
+                            errorMessage={rePasswordError}
+                            value={rePassword}
+                            keyboardType="default"
+                            isSecureText={isRePassSecure}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={styles._inputView}
+                            setStateValue={(text) => {
+                                setRePassword(text.replace(',', ''));
+                            }}
+                        />
+                    </View>
+                </View>
+
+                {/* Update Password Button */}
+                <View style={styles._itemContainer}>
+                    <View style={{width: 250, alignSelf: 'center'}}>
+                        <SimpleButton 
+                            onPress={_onUpdatePasswordClick}
+                            width={'100%'}
+                            title='Update Password'
+                            titleColor={WHITE_COLOR}
+                            buttonColor={GREEN_COLOR}
+                            style={{
+                                marginTop: 10,
+                            }}
+                        />
+                    </View>
+                </View>
+                
+                {/* Pincode */}
+                <Text style={styles._parent}>Pincode</Text>
+                {
+                    !isPincodeSet ? (
+                        <>
+                            <Text style={styles._pincodeInfo}>You didn't set your pincode yet. Please click below button to set your 6 digit pincode</Text>
+                            {/* Set Pincode Button */}
+                            <View style={styles._itemContainer}>
+                                <View style={{width: 250, alignSelf: 'center'}}>
+                                    <SimpleButton 
+                                        onPress={()=>{ setShowPinCodeModal(!showPincodeModal) }}
+                                        width={'100%'}
+                                        title='Set Pincode'
+                                        titleColor={WHITE_COLOR}
+                                        buttonColor={GREEN_COLOR}
                                         style={{
-                                            marginLeft: 12,
-                                            marginRight: 12,
-                                            marginTop: 5,
+                                            marginTop: 10,
                                         }}
                                     />
-                                }
+                                </View>
+                            </View>
+                        </>
+                    ):(
+                        <>
+                            {/* Old Pincode */}
+                            <View style={styles._itemContainer}>
+                                <View style={{width: '100%'}}>
+                                    <InputComponent
+                                        height={45}
+                                        type={'secret'}
+                                        toggleSecureEntry={_toggleOldPincodeSecurity}
+                                        placeholderText="Old pincode"
+                                        errorMessage={oldPincodeError}
+                                        value={oldPincode}
+                                        keyboardType="number-pad"
+                                        isSecureText={oldpincodeSecurity}
+                                        autoCapitalize={'none'}
+                                        inputContainerStyle={{ width: '80%' }}
+                                        inputContainerStyle={styles._inputView}
+                                        setStateValue={text => {
+                                            setOldPincode(text);
+                                            if(text.length == 0 || text == undefined)
+                                                setOldPincodeError('');
+                                        }}
+                                    />
+                                </View>
                             </View>
                             
-                            <Text 
-                                onPress={()=>{
-                                    disableEmail ? (
-                                        setDisableEmail(!disableEmail)
-                                    ):(
-                                        _onEmailSave()
-                                    )
-                                    
-                                }}
-                                style={styles._editText}
-                            >
-                                {disableEmail ? 'Edit' : 'Save'}
-                            </Text>
-                        </View>
-                    </View>
-                
-                    {/* Change Password */}
-                    <Text style={styles._parent}>Change Password</Text>
-                    
-                    {/* Current Password */}
-                    <View style={styles._itemContainer}>
-                        <View style={{width: '100%'}}>
-                            <InputComponent
-                                height={45}
-                                type={'secret'}
-                                toggleSecureEntry={_toggleCurrPassSecurity}
-                                placeholderText="Current password"
-                                errorMessage={currPasswordError}
-                                value={currPassword}
-                                keyboardType="default"
-                                isSecureText={isCurrPassSecure}
-                                autoCapitalize={'none'}
-                                inputContainerStyle={styles._inputView}
-                                setStateValue={(text) => {
-                                    setCurrPassword(text.replace(',', ''));
-                                }}
-                            />
-                        </View>
-                    </View>
-
-                    {/* New Password */}
-                    <View style={styles._itemContainer}>
-                        <View style={{width: '100%'}}>
-                            <InputComponent
-                                height={45}
-                                type={'secret'}
-                                toggleSecureEntry={_toggleNewPassSecurity}
-                                placeholderText="New password"
-                                errorMessage={newPasswordError}
-                                value={newPassword}
-                                keyboardType="default"
-                                isSecureText={isNewPassSecure}
-                                autoCapitalize={'none'}
-                                inputContainerStyle={styles._inputView}
-                                setStateValue={(text) => {
-                                    setNewPassword(text.replace(',', ''));
-                                }}
-                            />
-                        </View>
-                    </View>
-
-                    {/* Re Enter New Password */}
-                    <View style={styles._itemContainer}>
-                        <View style={{width: '100%'}}>
-                            <InputComponent
-                                height={45}
-                                type={'secret'}
-                                toggleSecureEntry={_toggleRePassSecurity}
-                                placeholderText="Re enter new password"
-                                errorMessage={rePasswordError}
-                                value={rePassword}
-                                keyboardType="default"
-                                isSecureText={isRePassSecure}
-                                autoCapitalize={'none'}
-                                inputContainerStyle={styles._inputView}
-                                setStateValue={(text) => {
-                                    setRePassword(text.replace(',', ''));
-                                }}
-                            />
-                        </View>
-                    </View>
-
-                    {/* Update Password Button */}
-                    <View style={styles._itemContainer}>
-                        <View style={{width: 250, alignSelf: 'center'}}>
-                            <SimpleButton 
-                                onPress={_onUpdatePasswordClick}
-                                width={'100%'}
-                                title='Update Password'
-                                titleColor={WHITE_COLOR}
-                                buttonColor={GREEN_COLOR}
-                                style={{
-                                    marginTop: 10,
-                                }}
-                            />
-                        </View>
-                    </View>
-                    
-                    {/* Pincode */}
-                    <Text style={styles._parent}>Pincode</Text>
-                    {
-                        !isPincodeSet ? (
-                            <>
-                                <Text style={styles._pincodeInfo}>You didn't set your pincode yet. Please click below button to set your 6 digit pincode</Text>
-                                {/* Set Pincode Button */}
-                                <View style={styles._itemContainer}>
-                                    <View style={{width: 250, alignSelf: 'center'}}>
-                                        <SimpleButton 
-                                            onPress={()=>{ setShowPinCodeModal(!showPincodeModal) }}
-                                            width={'100%'}
-                                            title='Set Pincode'
-                                            titleColor={WHITE_COLOR}
-                                            buttonColor={GREEN_COLOR}
-                                            style={{
-                                                marginTop: 10,
-                                            }}
-                                        />
-                                    </View>
+                            {/* New Pincode */}
+                            <View style={styles._itemContainer}>
+                                <View style={{width: '100%'}}>
+                                    <InputComponent
+                                        height={45}
+                                        type={'secret'}
+                                        toggleSecureEntry={_toggleNewPincodeSecurity}
+                                        placeholderText="New pincode"
+                                        errorMessage={newPincodeError}
+                                        value={newPincode}
+                                        keyboardType="number-pad"
+                                        isSecureText={newPincodeSecurity}
+                                        autoCapitalize={'none'}
+                                        inputContainerStyle={{ width: '80%' }}
+                                        inputContainerStyle={styles._inputView}
+                                        setStateValue={text => {
+                                            setNewpincode(text);
+                                            if(text.length == 0 || text == undefined)
+                                                setNewPincodeError('');
+                                        }}
+                                    />
                                 </View>
-                            </>
-                        ):(
-                            <>
-                                {/* Old Pincode */}
-                                <View style={styles._itemContainer}>
-                                    <View style={{width: '100%'}}>
-                                        <InputComponent
-                                            height={45}
-                                            type={'secret'}
-                                            toggleSecureEntry={_toggleOldPincodeSecurity}
-                                            placeholderText="Old pincode"
-                                            errorMessage={oldPincodeError}
-                                            value={oldPincode}
-                                            keyboardType="number-pad"
-                                            isSecureText={oldpincodeSecurity}
-                                            autoCapitalize={'none'}
-                                            inputContainerStyle={{ width: '80%' }}
-                                            inputContainerStyle={styles._inputView}
-                                            setStateValue={text => {
-                                                setOldPincode(text);
-                                                if(text.length == 0 || text == undefined)
-                                                    setOldPincodeError('');
-                                            }}
-                                        />
-                                    </View>
-                                </View>
-                                
-                                {/* New Pincode */}
-                                <View style={styles._itemContainer}>
-                                    <View style={{width: '100%'}}>
-                                        <InputComponent
-                                            height={45}
-                                            type={'secret'}
-                                            toggleSecureEntry={_toggleNewPincodeSecurity}
-                                            placeholderText="New pincode"
-                                            errorMessage={newPincodeError}
-                                            value={newPincode}
-                                            keyboardType="number-pad"
-                                            isSecureText={newPincodeSecurity}
-                                            autoCapitalize={'none'}
-                                            inputContainerStyle={{ width: '80%' }}
-                                            inputContainerStyle={styles._inputView}
-                                            setStateValue={text => {
-                                                setNewpincode(text);
-                                                if(text.length == 0 || text == undefined)
-                                                    setNewPincodeError('');
-                                            }}
-                                        />
-                                    </View>
-                                </View>
+                            </View>
 
-                                {/* Re Enter Pincode */}
-                                <View style={styles._itemContainer}>
-                                    <View style={{width: '100%'}}>
-                                        <InputComponent
-                                            height={45}
-                                            type={'secret'}
-                                            toggleSecureEntry={_toggleRePincodeSecurity}
-                                            placeholderText="Re enter pincode"
-                                            errorMessage={rePincodeError}
-                                            value={rePincode}
-                                            keyboardType="number-pad"
-                                            isSecureText={rePincodeSecurity}
-                                            autoCapitalize={'none'}
-                                            inputContainerStyle={{ width: '80%' }}
-                                            inputContainerStyle={styles._inputView}
-                                            setStateValue={text => {
-                                                setRepincode(text);
-                                                if(text.length == 0 || text == undefined)
-                                                    setRePincodeError('');
-                                            }}
-                                        />
-                                    </View>
+                            {/* Re Enter Pincode */}
+                            <View style={styles._itemContainer}>
+                                <View style={{width: '100%'}}>
+                                    <InputComponent
+                                        height={45}
+                                        type={'secret'}
+                                        toggleSecureEntry={_toggleRePincodeSecurity}
+                                        placeholderText="Re enter pincode"
+                                        errorMessage={rePincodeError}
+                                        value={rePincode}
+                                        keyboardType="number-pad"
+                                        isSecureText={rePincodeSecurity}
+                                        autoCapitalize={'none'}
+                                        inputContainerStyle={{ width: '80%' }}
+                                        inputContainerStyle={styles._inputView}
+                                        setStateValue={text => {
+                                            setRepincode(text);
+                                            if(text.length == 0 || text == undefined)
+                                                setRePincodeError('');
+                                        }}
+                                    />
                                 </View>
+                            </View>
 
-                                {/* Set Pincode Button */}
-                                <View style={styles._itemContainer}>
-                                    <View style={{width: 250, alignSelf: 'center'}}>
-                                        <SimpleButton 
-                                            onPress={()=>{ _updatePincode() }}
-                                            width={'100%'}
-                                            title='Update Pincode'
-                                            titleColor={WHITE_COLOR}
-                                            buttonColor={GREEN_COLOR}
-                                            style={{
-                                                marginTop: 10,
-                                            }}
-                                        />
-                                    </View>
+                            {/* Set Pincode Button */}
+                            <View style={styles._itemContainer}>
+                                <View style={{width: 250, alignSelf: 'center'}}>
+                                    <SimpleButton 
+                                        onPress={()=>{ _updatePincode() }}
+                                        width={'100%'}
+                                        title='Update Pincode'
+                                        titleColor={WHITE_COLOR}
+                                        buttonColor={GREEN_COLOR}
+                                        style={{
+                                            marginTop: 10,
+                                        }}
+                                    />
                                 </View>
-                            </>
-                        )
-                    }
-                </KeyboardAvoidingView>
-            
+                            </View>
+                        </>
+                    )
+                }
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>  
     )
 }
 

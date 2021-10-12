@@ -32,7 +32,16 @@ const useNotification = () => {
 
 
     async function localReceiveNotificationEventListener(notification) {
-        await receiveNotificationEventListener(notification);
+        const verData = await receiveNotificationEventListener(notification);
+        console.log("ANDROID => ",verData);
+        if(verData.auth_verification){
+            setAuthData(verData.data);
+            setZadaAuth(true);
+        }
+        else{
+            setAuthData(null);
+            setZadaAuth(false);
+        }
         refreshScreen();
     }
 
@@ -59,7 +68,18 @@ const useNotification = () => {
                         case VER_REQ:
                             console.log("VERIFICATION REQUESTS");
                             console.log('verification request => ', notifications[i])
-                            await addVerificationToActionList();
+                            const verData = await addVerificationToActionList();
+                            
+                            console.log("IOS => ",verData);
+                            if(verData.isZadaAuth){
+                                setAuthData(verData.data);
+                                setZadaAuth(true);
+                            }
+                            else{
+                                setAuthData(null);
+                                setZadaAuth(false);
+                            }
+
                             break;
                         default:
                             console.log('notification type not found!');
@@ -73,6 +93,6 @@ const useNotification = () => {
         });
     }
 
-    return { notificationReceived, isZadaAuth, authData };
+    return { notificationReceived, isZadaAuth, authData, setZadaAuth, setAuthData };
 };
 export default useNotification;

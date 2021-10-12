@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     _btnTitle:{
-        fontSize: 15,
+        fontSize: 14,
         fontFamily: 'Poppins-Regular',
         color: WHITE_COLOR
     }

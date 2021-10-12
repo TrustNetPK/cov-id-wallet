@@ -23,7 +23,7 @@ import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, RED_COLOR, SECONDARY_COLOR, 
 import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../helpers/ConfigApp';
 
-import { AuthenticateUser } from '../helpers/Authenticate';
+import { AuthenticateUser, authenticateZadaAuth } from '../helpers/Authenticate';
 import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
@@ -78,7 +78,7 @@ function ActionsScreen({ navigation }) {
   //const { credentials } = useCredentials(!isLoading);
 
   // Notification hook
-  const { notificationReceived } = useNotification();
+  const { notificationReceived, isZadaAuth, authData, setZadaAuth, setAuthData } = useNotification();
 
   var requestArray = [];
 
@@ -107,6 +107,13 @@ function ActionsScreen({ navigation }) {
   useEffect(() => {
     if (!deepLink) getUrl();
   }, [deepLink]);
+
+  useEffect(() => {
+    if (isZadaAuth){
+      console.log("GOT AUTH DATA => ", authData);
+      toggleModal(authData);
+    }
+  }, [isZadaAuth, authData]);
 
   useEffect(() => {
     // Setting listener for deeplink
@@ -161,7 +168,6 @@ function ActionsScreen({ navigation }) {
       return;
     }, [isAction]),
   );
-
 
   React.useLayoutEffect(() => {
     navigation
@@ -667,6 +673,9 @@ function ActionsScreen({ navigation }) {
           if (result.data.success) {
             await deleteActionByVerID(selectedItemObj.verificationId)
             updateActionsList();
+
+            setZadaAuth(false);
+            setAuthData(null);
           } else {
             showMessage('Zada', result.data.error)
           }
