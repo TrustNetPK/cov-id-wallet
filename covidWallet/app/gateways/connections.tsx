@@ -99,6 +99,37 @@ const zadaAuthInstance = axios.create({
   baseURL: ZADA_AUTH_URL
 })
 
+// add session 
+export async function add_session(
+  userId: string,
+  sessionId: string
+) {
+  try {
+    // Getting Token
+    const tokenResult = await authenticateZadaAuth();
+    
+    if(tokenResult.success){
+      const result = await zadaAuthInstance({
+        url: `/api/addSession`,
+        method: 'POST',
+        headers:{
+          Authorization: `Bearer ${tokenResult.token}`
+        },
+        data: {
+          userId,
+          sessionId,
+        }
+      })
+      return result;
+    }
+    else{
+      throw tokenResult.error;
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 // find auth Connection
 export async function find_auth_connection(
   userId: string,
