@@ -25,9 +25,9 @@ function ActionDialog(props) {
     //States
     const [visible, setVisible] = useState(props.isVisible);
     const [spinner, setSpinner] = useState(false);
-    const [values, setValues] = useState();
+    const [values, setValues] = useState(null);
     const [credential, setCredential] = useState([]);
-    const [selectedCred, setSelectedCred] = useState({});
+    const [selectedCred, setSelectedCred] = useState(null);
     const [tenant, setTenant] = useState({});
     const [counter, setCounter] = useState(0);
 
@@ -35,10 +35,10 @@ function ActionDialog(props) {
     function orderValues(values) {
         let orderedValues = undefined;
         orderedValues = Object.keys(values).sort().reduce(
-            (obj, key) => { 
-                obj[key] = values[key]; 
+            (obj, key) => {
+                obj[key] = values[key];
                 return obj;
-            }, 
+            },
             {}
         );
         return orderedValues;
@@ -46,40 +46,39 @@ function ActionDialog(props) {
 
     async function getAllCredForVeri() {
         try {
-            setSpinner(true)
+            setSpinner(true);
             let result = await get_all_credentials_for_verification(props.data.verificationId);
             if (result.data.success) {
-                let val = result.data.availableCredentials[0].availableCredentials[0].values
-                let cred = result.data.availableCredentials[0].availableCredentials;
+                let val = result.data.availableCredentials[0].availableCredentials[0] ? result.data.availableCredentials[0].availableCredentials[0].values : null;
+                let cred = result.data.availableCredentials[0].availableCredentials ? result.data.availableCredentials[0].availableCredentials : [];
 
                 let fullyVaccinatedCreds = [];
                 cred.forEach(credItem => {
-                    if(credItem.values != undefined && credItem.values.Dose != null && credItem.values.Dose != undefined){
-                        if(credItem.values.Dose == '2/2'){
+                    if (credItem.values != undefined && credItem.values.Dose != null && credItem.values.Dose != undefined) {
+                        if (credItem.values.Dose == '2/2') {
                             fullyVaccinatedCreds.push(credItem);
                         }
                     }
                 });
 
-                if(fullyVaccinatedCreds.length){
+                if (fullyVaccinatedCreds.length) {
                     setCredential(fullyVaccinatedCreds);
                 }
-                else{
+                else {
                     setCredential(cred);
                 }
-                setValues(orderValues(val)); 
+                setValues(val != null ? orderValues(val) : null);
             } else {
                 showMessage('ZADA Wallet', result.data.error);
             }
 
-            if(props.data.organizationName == ZADA_AUTH_TEST){
+            if (props.data.organizationName == ZADA_AUTH_TEST) {
                 const tenant = await get_tenant(props.data);
-                if(tenant.success){
-                    console.log("TENANT => ", tenant);
+                if (tenant.success) {
                     setTenant(tenant.data);
-                    setCounter(Math.random()*9999);
+                    setCounter(Math.random() * 9999);
                 }
-                else{
+                else {
                     console.log(tenant.error);
                 }
             }
@@ -101,29 +100,29 @@ function ActionDialog(props) {
     }, [props.data])
 
     function acceptHandler() {
-        console.log("selectedCred", selectedCred);
 
-        let val = values
-
-        // If value is empty
-        if (val == undefined) return
+        let val = values;
 
         // If no certificate is selected.
         //Object.keys(selectedCred).length === 0
-        if (props.data.type == VER_REQ && selectedCred == null) {
+        if (props.data.type == VER_REQ && (selectedCred == null || val == null)) {
             alert('Please select a certificate');
             return
         }
 
-        if (props.data.type == VER_REQ) {
-            val = selectedCred;
-            props.data.credentialId = selectedCred.credentialId; 
+        if (props.data.type == VER_REQ && props.data.organizationName == ZADA_AUTH_TEST) {
+            props.data.full_name = selectedCred.values != undefined && selectedCred.values['Full Name'] != undefined ? selectedCred.values['Full Name'] : '';
         }
 
-        console.log('props data =>',props.data);
-        
+        // If value is empty
+        if (val == undefined) return
+        if (props.data.type == VER_REQ) {
+            val = selectedCred;
+            props.data.credentialId = selectedCred.credentialId;
+        }
+
         //Adding type.
-        val.type = props.data.type
+        val.type = props.data.type;
         props.acceptModal(props.data);
     }
 
@@ -135,6 +134,7 @@ function ActionDialog(props) {
         }, 500);
 
     }
+
     useEffect(() => {
         setCounter((counter) => counter + 1)
     }, [selectedCred])
@@ -146,18 +146,18 @@ function ActionDialog(props) {
     function renderTitleInput(title, index) {
         let value = values[title];
 
-        if(title == 'Issue Time'){
+        if (title == 'Issue Time') {
             let dateParts2 = [], date2 = '', time2 = '';
             let issueDate2 = values[title];
 
-            if(issueDate2 != null && issueDate2 != undefined){
+            if (issueDate2 != null && issueDate2 != undefined) {
                 dateParts2 = issueDate2.split(' ');
-                if(dateParts2.length > 2){
+                if (dateParts2.length > 2) {
                     // normal
                     date2 = moment(issueDate2).format('DD/MM/YYYY');
                     time2 = moment(issueDate2).format('HH:MM A');
                 }
-                else{
+                else {
                     // not normal one
                     date2 = dateParts2[0];
                     let timeParts2 = dateParts2[1].split(':');
@@ -185,12 +185,12 @@ function ActionDialog(props) {
                         borderRadius: 16,
                         justifyContent: "center"
                     }}>
-                         <Text style={{ color: BLACK_COLOR }}>{`${date2} ${time2}`}</Text>
+                        <Text style={{ color: BLACK_COLOR }}>{`${date2} ${time2}`}</Text>
                     </View>
                 </View>
             )
         }
-        else{
+        else {
             return (
                 <View
                     key={index}
@@ -217,7 +217,7 @@ function ActionDialog(props) {
             )
         }
 
-        
+
     }
 
     return (
@@ -231,7 +231,7 @@ function ActionDialog(props) {
                 animationIn={'slideInLeft'}
                 animationOut={'slideOutRight'}
             >
-                <View style={[styles.ModalChildContainer,{ backgroundColor: props.data.organizationName == ZADA_AUTH_TEST ? BACKGROUND_COLOR : WHITE_COLOR }]}>
+                <View style={[styles.ModalChildContainer, { backgroundColor: props.data.organizationName == ZADA_AUTH_TEST ? BACKGROUND_COLOR : WHITE_COLOR }]}>
                     {
                         props.data.organizationName == ZADA_AUTH_TEST ? (
                             spinner ? (
@@ -239,8 +239,8 @@ function ActionDialog(props) {
                                     zIndex: 10, justifyContent: "center",
                                     alignItems: "center",
                                 }}>
-                                    <ActivityIndicator color={"#000"} size={"small"} style={{marginHorizontal: 20, marginTop: 20,}} />
-                                    <Text style={{marginTop: 5, marginBottom: 20, fontSize: 16,}}>Fetching details...</Text>
+                                    <ActivityIndicator color={"#000"} size={"small"} style={{ marginHorizontal: 20, marginTop: 20, }} />
+                                    <Text style={{ marginTop: 5, marginBottom: 20, fontSize: 16, }}>Fetching details...</Text>
                                 </View>
                             ) : (
                                 <>
@@ -283,13 +283,11 @@ function ActionDialog(props) {
                                     >
                                         {
                                             props.data.type == VER_REQ && credential.length ?
-                                            (
-                                                <CustomAccordian credential={credential} setSelected={setSelected} />
-                                            ):(
-                                                values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                                    return renderTitleInput(e, i)
-                                                })
-                                            )         
+                                                (
+                                                    <CustomAccordian credential={credential} setSelected={setSelected} />
+                                                ) : (
+                                                    <Text style={{ color: 'red', fontSize: 14, width: '70%', textAlign: 'center', alignSelf: 'center', fontFamily: 'Poppins-Regular' }}>Oops! You don't have any certificate to verify request</Text>
+                                                )
                                         }
                                     </KeyboardAwareScrollView>
 
@@ -316,7 +314,7 @@ function ActionDialog(props) {
                                     </View>
                                 </>
                             )
-                        ):(
+                        ) : (
                             <>
                                 <View
                                     style={{
@@ -368,14 +366,14 @@ function ActionDialog(props) {
                                             </View>
                                         ) : (
                                             props.data.type == VER_REQ && credential.length ?
-                                            (
-                                                <CustomAccordian credential={credential} setSelected={setSelected} />
-                                            ):(
-                                                values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                                    return renderTitleInput(e, i)
-                                                })
-                                            )
-                                        )         
+                                                (
+                                                    <CustomAccordian credential={credential} setSelected={setSelected} />
+                                                ) : (
+                                                    values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
+                                                        return renderTitleInput(e, i)
+                                                    })
+                                                )
+                                        )
                                     }
                                 </KeyboardAwareScrollView>
 
@@ -403,7 +401,7 @@ function ActionDialog(props) {
                             </>
                         )
                     }
-                    
+
                     {/* {spinner &&
                         <View style={{
                             zIndex: 10, justifyContent: "center",
@@ -428,7 +426,7 @@ function ActionDialog(props) {
                             }}
                         />
                     } */}
-                    
+
                 </View>
             </Modal>
         </View >

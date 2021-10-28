@@ -97,19 +97,19 @@ function ActionsScreen({ navigation }) {
     ),
   };
 
-  useLayoutEffect(()=>{
+  useLayoutEffect(() => {
     NetInfo.fetch().then((networkState) => {
       console.log('IS CONNECTED => ', networkState.isConnected);
       setNetworkState(networkState.isConnected);
     });
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (!deepLink) getUrl();
   }, [deepLink]);
 
   useEffect(() => {
-    if (isZadaAuth){
+    if (isZadaAuth) {
       console.log("GOT AUTH DATA => ", authData);
       toggleModal(authData);
     }
@@ -127,10 +127,10 @@ function ActionsScreen({ navigation }) {
   }, [])
 
   //Checking Notification Status
-  useLayoutEffect(()=>{
+  useLayoutEffect(() => {
     const _checkPermission = async () => {
       const authorizationStatus = await messaging().hasPermission();
-      if(authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED){ 
+      if (authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED) {
         console.log("Notification Permission => NOT AUTHORIZED");
         _fetchActionList();
         Alert.alert(
@@ -152,7 +152,7 @@ function ActionsScreen({ navigation }) {
     };
     _checkPermission();
     return;
-  },[]);
+  }, []);
 
   // Update Actionlist if notificationReceived is true.
   useEffect(() => {
@@ -223,7 +223,7 @@ function ActionsScreen({ navigation }) {
 
     // If connection_request available
     if (connection_request != null) {
-      if(connection_request.find(element => element == null) !== null)
+      if (connection_request.find(element => element == null) !== null)
         finalObj = finalObj.concat(connection_request)
     };
 
@@ -233,7 +233,7 @@ function ActionsScreen({ navigation }) {
 
     // If credential_offer available
     if (credential_offer != null) {
-      if(credential_offer.find(element => element == null) !== null)
+      if (credential_offer.find(element => element == null) !== null)
         finalObj = finalObj.concat(credential_offer)
     };
 
@@ -244,7 +244,7 @@ function ActionsScreen({ navigation }) {
 
     // If credential_offer available
     if (verification_offers != null) {
-      if(verification_offers.find(element => element == null) !== null)
+      if (verification_offers.find(element => element == null) !== null)
         finalObj = finalObj.concat(verification_offers)
     };
 
@@ -259,7 +259,7 @@ function ActionsScreen({ navigation }) {
   };
 
   const _fetchActionList = async () => {
-    
+
     //console.log("IN");
 
     setRefreshing(true);
@@ -276,14 +276,14 @@ function ActionsScreen({ navigation }) {
           Authorization: 'Bearer ' + token,
         },
       });
-      if(result.data.success){
+      if (result.data.success) {
         connections = result.data.connections;
         await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
       }
-      else{
+      else {
         console.log(result.data.error);
       }
-    
+
       //console.log("Connections => ", connections);
     } catch (error) {
       alert(error);
@@ -298,14 +298,14 @@ function ActionsScreen({ navigation }) {
           Authorization: 'Bearer ' + token,
         },
       });
-      
-      if(result.data.success){
+
+      if (result.data.success) {
         credentials = result.data.offers;
-        for(let i = 0; i < result.data.offers.length; ++i){
+        for (let i = 0; i < result.data.offers.length; ++i) {
           await addCredentialToActionList(result.data.offers[i].credentialId);
         }
       }
-      else{
+      else {
         console.log(result.data.error);
       }
     } catch (error) {
@@ -321,6 +321,7 @@ function ActionsScreen({ navigation }) {
 
   const toggleModal = (v) => {
     console.log('toggling');
+    console.log(v);
     setSelectedItem(JSON.stringify(v));
 
     let data = JSON.parse(JSON.stringify(v));
@@ -330,19 +331,19 @@ function ActionsScreen({ navigation }) {
   };
 
   const acceptModal = async (v) => {
-    if(!isLoading){
-      
-      if (v.type == CRED_OFFER){
+    if (!isLoading) {
+
+      if (v.type == CRED_OFFER) {
         setLoaderText('Please wait! we are receiving your certificate this may take around ~10 seconds...');
         handleCredentialRequest();
       }
 
-      else if (v.type == VER_REQ){
+      else if (v.type == VER_REQ) {
         setLoaderText('Please wait! we are verifying your certificate this may take around ~10 seconds...');
         handleVerificationRequests(v);
       }
 
-      else if (v.type == CONN_REQ){
+      else if (v.type == CONN_REQ) {
         setLoaderText('Please wait! we are creating a connection this may take around ~10 seconds...');
         handleConnectionRequest(v);
       }
@@ -356,14 +357,14 @@ function ActionsScreen({ navigation }) {
 
     const connections = JSON.parse(await getItem(ConstantsList.CONNECTIONS));
 
-    for(let i = 0; i < connections.length; ++i){
+    for (let i = 0; i < connections.length; ++i) {
       console.log(connections[i].name.toLowerCase() + '<==>' + selectedItemObj.organizationName.toLowerCase());
-      if(connections[i].name.toLowerCase() === selectedItemObj.organizationName.toLowerCase())
+      if (connections[i].name.toLowerCase() === selectedItemObj.organizationName.toLowerCase())
         find = true;
     }
 
     // Delete connection action
-    if(find){
+    if (find) {
       await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata);
       updateActionsList();
     }
@@ -378,14 +379,14 @@ function ActionsScreen({ navigation }) {
 
     const credentials = JSON.parse(await getItem(ConstantsList.CREDENTIALS));
 
-    for(let i = 0; i < credentials.length; ++i){
+    for (let i = 0; i < credentials.length; ++i) {
       console.log(credentials[i].credentialId + '<==>' + selectedItemObj.credentialId);
-      if(credentials[i].credentialId === selectedItemObj.credentialId)
+      if (credentials[i].credentialId === selectedItemObj.credentialId)
         find = true;
     }
 
     // Delete credential action
-    if(find){
+    if (find) {
       await deleteActionByCredId(selectedItemObj.type, selectedItemObj.credentialId);
       updateActionsList();
     }
@@ -400,14 +401,14 @@ function ActionsScreen({ navigation }) {
 
     const ver_requests = JSON.parse(await getItem(ConstantsList.VER_REQ));
 
-    for(let i = 0; i < ver_requests.length; ++i){
+    for (let i = 0; i < ver_requests.length; ++i) {
       console.log(ver_requests[i].verificationId + '<==>' + selectedItemObj.verificationId);
-      if(ver_requests[i].verificationId === selectedItemObj.verificationId)
+      if (ver_requests[i].verificationId === selectedItemObj.verificationId)
         find = true;
     }
 
     // Delete credential action
-    if(find){
+    if (find) {
       await deleteActionByVerID(selectedItemObj.verificationId);
       updateActionsList();
     }
@@ -419,8 +420,8 @@ function ActionsScreen({ navigation }) {
   const handleConnectionRequest = async () => {
     if (networkState) {
       setIsLoading(true);
-      
-      if(!(await _isConnectionAlreadyExist())){
+
+      if (!(await _isConnectionAlreadyExist())) {
         // Connection is not exist
         let resp = await AuthenticateUser();
         if (resp.success) {
@@ -437,7 +438,7 @@ function ActionsScreen({ navigation }) {
             // Accept connection Api call.
             let result = await accept_connection(selectedItemObj.metadata);
             if (result.data.success) {
-              
+
               await deleteActionByConnId(selectedItemObj.type, selectedItemObj.metadata)
               // Update connection screen.
               await ls_addConnection(result.data.connection)
@@ -461,7 +462,7 @@ function ActionsScreen({ navigation }) {
           setIsLoading(false);
         }
       }
-      else{
+      else {
         // Connection is already exists
         setModalVisible(false);
         setIsLoading(false);
@@ -480,7 +481,7 @@ function ActionsScreen({ navigation }) {
       setModalVisible(false);
       setIsLoading(true);
 
-      if(!(await _isCredentialAlreadyExist())){
+      if (!(await _isCredentialAlreadyExist())) {
         // Accept credentials Api call.
         let result = await accept_credential(selectedItemObj.credentialId);
         if (result.data.success) {
@@ -493,7 +494,7 @@ function ActionsScreen({ navigation }) {
           // Fetching credential details
           const credResponse = await get_credential(selectedItemObj.credentialId);
           const cred = credResponse.data.credential;
-          
+
           // fetching local connections and credentials
           let connections = await getItem(ConstantsList.CONNECTIONS);
           let credentials = await getItem(ConstantsList.CREDENTIALS);
@@ -509,19 +510,19 @@ function ActionsScreen({ navigation }) {
 
           // Putting image, type and title in credential
           let obj = {
-              ...cred,
-              imageUrl: item.imageUrl,
-              organizationName: item.name,
-              type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
-                    (
-                        (cred.values != undefined || cred.values != null) &&
-                        cred.values["Vaccine Name"] != undefined &&
-                        cred.values["Vaccine Name"].length != 0 &&
-                        cred.values["Dose"] != undefined &&
-                        cred.values["Dose"].length != 0
-                    ) ?
-                    'COVIDpass (Vaccination)' :
-                    "Digital Certificate",
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+              (
+                (cred.values != undefined || cred.values != null) &&
+                cred.values["Vaccine Name"] != undefined &&
+                cred.values["Vaccine Name"].length != 0 &&
+                cred.values["Dose"] != undefined &&
+                cred.values["Dose"].length != 0
+              ) ?
+                'COVIDpass (Vaccination)' :
+                "Digital Certificate",
           };
 
           // Adding updated credential object to credentials list
@@ -540,7 +541,7 @@ function ActionsScreen({ navigation }) {
         }
         setIsLoading(false);
       }
-      else{
+      else {
         // Credential is already exist
         setModalVisible(false);
         setIsLoading(false);
@@ -554,7 +555,7 @@ function ActionsScreen({ navigation }) {
   // put analytic for action screen
   const _sendActionScreenAnalytic = async () => {
     const value = await getItem('action_analytic');
-    if(value != null && value != undefined){
+    if (value != null && value != undefined) {
       analytics_log_action_screen();
       await getItem('action_analytic', '1');
     }
@@ -568,17 +569,17 @@ function ActionsScreen({ navigation }) {
 
   // Handle Verification Request
   const handleVerificationRequests = async (data) => {
-    
+
     setDialogData(data);
 
     // Check Either pincode set or not
-    if(isPincodeSet){
+    if (isPincodeSet) {
       setModalVisible(false);
       setTimeout(() => {
         setShowConfirmModal(true);
       }, 100);
     }
-    else{
+    else {
       let selectedItemObj = JSON.parse(selectedItem);
 
       // Biometric Verification
@@ -589,19 +590,19 @@ function ActionsScreen({ navigation }) {
         setModalVisible(false);
         setIsLoading(true);
 
-        if(!(await _isVerRequestAlreadyExist())){
+        if (!(await _isVerRequestAlreadyExist())) {
           try {
 
             let policyName = selectedItemObj.policy.attributes[0].policyName;
-    
+
             // Submit Verification Api call
             let result = await submit_verification(selectedItemObj.verificationId, data.credentialId, policyName);
             if (result.data.success) {
               await deleteActionByVerID(selectedItemObj.verificationId)
+
               updateActionsList();
-    
-              _showSuccessAlert("ver");
-    
+              _showAlert('Zada Wallet', 'Verification request has been submitted successfully');
+
             } else {
               showMessage('Zada', result.data.error)
             }
@@ -610,13 +611,13 @@ function ActionsScreen({ navigation }) {
             setIsLoading(false);
           }
         }
-        else{
+        else {
           setModalVisible(false);
           setIsLoading(false);
           showMessage('ZADA Wallet', 'Verification request is already accepted')
         }
 
-        
+
       } else {
         showMessage('ZADA Wallet', 'Biometric verification is required for accepting verification request')
       }
@@ -695,11 +696,11 @@ function ActionsScreen({ navigation }) {
   const _showSuccessAlert = (action) => {
 
     let message = '';
-    if(action == 'conn')
+    if (action == 'conn')
       message = "Your connection is created successfully.";
-    else if(action == 'cred')
+    else if (action == 'cred')
       message = "You have received a certificate successfully.";
-    else if(action == 'ver')
+    else if (action == 'ver')
       message = "Your verification request is fulfilled successfully.";
 
     Alert.alert(
@@ -745,7 +746,7 @@ function ActionsScreen({ navigation }) {
     try {
       const isPincode = await getItem(ConstantsList.PIN_CODE);
       console.log('isPincode', isPincode);
-      if(isPincode != null && isPincode != undefined && isPincode.length != 0)
+      if (isPincode != null && isPincode != undefined && isPincode.length != 0)
         setIsPincode(true);
       else
         setIsPincode(false);
@@ -755,37 +756,37 @@ function ActionsScreen({ navigation }) {
     setPincodeChecked(true);
   }
 
-  React.useLayoutEffect(()=>{
+  React.useLayoutEffect(() => {
     _checkPinCode();
-  },[]);
+  }, []);
 
   const _setPinCode = async () => {
-    if(pincode.length == 0){
+    if (pincode.length == 0) {
       setPincodeError('Pincode is required.');
       return;
     }
     setPincodeError('');
 
-    if(!pincodeRegex.test(pincode)){
+    if (!pincodeRegex.test(pincode)) {
       setPincodeError('Pincode should contain only 6 digits.');
       return;
     }
     setPincodeError('');
 
-    if(confirmPincode.length == 0){
+    if (confirmPincode.length == 0) {
       setConfirmPincodeError('Confirm pincode is required.');
       return;
     }
     setConfirmPincodeError('');
 
-    if(!pincodeRegex.test(confirmPincode)){
+    if (!pincodeRegex.test(confirmPincode)) {
       setConfirmPincodeError('Confirm pincode should contain only 6 digits.');
       return;
     }
     setConfirmPincodeError('');
 
-    if(pincode != confirmPincode){
-      showMessage('Zada Wallet','Pincode and confirm pincode are not same. Please check them carefully');
+    if (pincode != confirmPincode) {
+      showMessage('Zada Wallet', 'Pincode and confirm pincode are not same. Please check them carefully');
     }
 
     // Saving pincode in async
@@ -798,26 +799,26 @@ function ActionsScreen({ navigation }) {
       setPincode('');
       setConfirmPincode('');
     } catch (error) {
-        showMessage('Zada Wallet', error.toString());
+      showMessage('Zada Wallet', error.toString());
     }
   }
 
   const _confirmingPincode = async () => {
-    if(verifyPincode.length == 0){
+    if (verifyPincode.length == 0) {
       setVerifyPincodeError('Pincode is required.');
       return;
     }
     setVerifyPincodeError('');
 
-    if(!pincodeRegex.test(verifyPincode)){
+    if (!pincodeRegex.test(verifyPincode)) {
       setVerifyPincodeError('Pincode should contain only 6 digits.');
       return;
     }
     setVerifyPincodeError('');
 
     const code = await getItem(ConstantsList.PIN_CODE);
-    if(verifyPincode == code){
-  
+    if (verifyPincode == code) {
+
       setShowConfirmModal(false);
       setModalVisible(false);
       setIsLoading(true);
@@ -825,28 +826,23 @@ function ActionsScreen({ navigation }) {
       // process request further
       let selectedItemObj = JSON.parse(selectedItem);
 
-      console.log("VER => ", selectedItemObj);
-
       try {
 
-        console.log('NOT EXISTS');
-
         let policyName = selectedItemObj.policy.attributes[0].policyName;
-
-        console.log('POLICY NAME');
 
         // Submit Verification Api call
         let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
         if (result.data.success) {
           await deleteActionByVerID(selectedItemObj.verificationId)
           updateActionsList();
-          _showAlert('Zada Wallet','Verification request has been submitted successfully');
+          _showAlert('Zada Wallet', 'Verification request has been submitted successfully');
         } else {
           _showAlert('Zada Wallet', result.data.error)
         }
         setIsLoading(false);
       } catch (e) {
         setIsLoading(false);
+        _showAlert("ZADA Wallet", e.toString());
       }
       // if(!(await _isVerRequestAlreadyExist())){
       //   try {
@@ -854,7 +850,7 @@ function ActionsScreen({ navigation }) {
       //     console.log('NOT EXISTS');
 
       //     let policyName = selectedItemObj.policy.attributes[0].policyName;
-  
+
       //     console.log('POLICY NAME');
 
       //     // Submit Verification Api call
@@ -877,47 +873,47 @@ function ActionsScreen({ navigation }) {
       //   showMessage('ZADA Wallet', 'Verification request is already accepted')
       // }
     }
-    else{
-      showMessage('Zada Wallet',"You entered incorrect pincode. Please check your pincode and try again");
+    else {
+      showMessage('Zada Wallet', "You entered incorrect pincode. Please check your pincode and try again");
     }
   }
 
   return (
     <View style={themeStyles.mainContainer}>
 
-      <ConfirmPincodeModal 
+      <ConfirmPincodeModal
         isVisible={showConfirmModal}
         pincode={verifyPincode}
         pincodeError={verifyPincodeError}
-        onPincodeChange={(text)=>{
+        onPincodeChange={(text) => {
           setVerifyPincode(text);
-          if(text.length == 0 || text == undefined)
+          if (text.length == 0 || text == undefined)
             setVerifyPincodeError('');
         }}
-        onCloseClick={()=>{ setShowConfirmModal(!showConfirmModal) }}
+        onCloseClick={() => { setShowConfirmModal(!showConfirmModal) }}
         onContinueClick={_confirmingPincode}
       />
 
       {/* PinCode Modal */}
       {
         isPicodeChecked &&
-        <PincodeModal 
+        <PincodeModal
           isVisible={!isPincodeSet}
           pincode={pincode}
-          onPincodeChange={(text)=>{
+          onPincodeChange={(text) => {
             setPincode(text);
-            if(text.length == 0)
+            if (text.length == 0)
               setPincodeError('');
           }}
           pincodeError={pincodeError}
           confirmPincode={confirmPincode}
-          onConfirmPincodeChange={(text)=>{
+          onConfirmPincodeChange={(text) => {
             setConfirmPincode(text);
-            if(text.length == 0)
+            if (text.length == 0)
               setConfirmPincodeError('');
           }}
           confirmPincodeError={confirmPincodeError}
-          onCloseClick={()=>{ setIsPincode(true) }}
+          onCloseClick={() => { setIsPincode(true) }}
           onContinueClick={_setPinCode}
         />
       }
@@ -930,7 +926,7 @@ function ActionsScreen({ navigation }) {
           marginTop: isLoading ? 25 : 0,
         }}
       >
-        <AntIcon 
+        <AntIcon
           name='arrowdown'
           size={15}
           color={'#7e7e7e'}
@@ -941,15 +937,15 @@ function ActionsScreen({ navigation }) {
           marginLeft: 5,
         }}>Pull to refresh</Text>
       </View>
-      
+
       <HeadingComponent text="Actions" />
-      
+
       {
         isLoading ? (
-          <OverlayLoader 
+          <OverlayLoader
             text={loaderText}
           />
-        ):(
+        ) : (
           null
         )
       }
@@ -972,7 +968,7 @@ function ActionsScreen({ navigation }) {
             }
             <SwipeListView
               refreshControl={
-                <RefreshControl 
+                <RefreshControl
                   tintColor={'#7e7e7e'}
                   refreshing={refreshing}
                   onRefresh={_fetchActionList}
@@ -984,7 +980,7 @@ function ActionsScreen({ navigation }) {
               style={{
                 flexGrow: 1,
               }}
-              contentContainerStyle={{ 
+              contentContainerStyle={{
                 width: '100%',
                 height: DIMENSIONS.height,
               }}
@@ -1038,10 +1034,10 @@ function ActionsScreen({ navigation }) {
         </>
       ) : (
         <>
-          <ScrollView 
+          <ScrollView
             showsVerticalScrollIndicator={false}
             refreshControl={
-              <RefreshControl 
+              <RefreshControl
                 tintColor={'#7e7e7e'}
                 refreshing={refreshing}
                 onRefresh={_fetchActionList}

@@ -2,7 +2,7 @@ module.exports = Object.freeze({
   BASE_URL: 'http://test-agency.zadanetwork.com',
   //BASE_URL: 'https://agency.zadanetwork.com',
   ZADA_AUTH_URL: 'https://auth-test.zadanetwork.com',
-  //ZADA_AUTH_URL: 'http://e9ab-110-93-246-171.ngrok.io',
+  //ZADA_AUTH_URL: 'http://3dc4-182-191-89-195.ngrok.io',
   ZADA_AUTH_SECRET: 'doingtestinginzadaauth',
   ZADA_AUTH: 'zada_auth',
   WALLET_SECRET: 'wallet_secret',

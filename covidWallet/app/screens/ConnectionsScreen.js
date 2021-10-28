@@ -12,8 +12,8 @@ import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import { getItem, saveItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID, deleteActionByVerID } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
-import { get_all_connections } from '../gateways/connections';
+import ConstantsList, { ZADA_AUTH_TEST } from '../helpers/ConfigApp';
+import { delete_mongo_connection, get_all_connections } from '../gateways/connections';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
@@ -46,7 +46,7 @@ function ConnectionsScreen(props) {
 
   const updateConnectionsList = async () => {
     let connections = (JSON.parse(await getItem(ConstantsList.CONNECTIONS)) || []);
-    console.log("Connection Lenght",connections.length);
+    console.log("Connection Lenght", connections.length);
     if (connections.length > 0) {
       setConnectionsList(connections);
       setConnection(true);
@@ -85,23 +85,31 @@ function ConnectionsScreen(props) {
   }
 
   async function onSuccessPress(connection) {
-    // Delete connection with its respective certificates
-    setIsLoading(true);
+    try {
+      // Delete connection with its respective certificates
+      setIsLoading(true);
 
-    console.log(connection);
-    await deleteConnAndCredByConnectionID(connection.connectionId);
-    await deleteActionByConnectionID(connection.connectionId);
-    // const verifications = await getItem(ConstantsList.VER_REQ);
-    // await deleteActionByVerID()
+      console.log(connection);
+      await deleteConnAndCredByConnectionID(connection.connectionId);
+      await deleteActionByConnectionID(connection.connectionId);
+      // const verifications = await getItem(ConstantsList.VER_REQ);
+      // await deleteActionByVerID()
 
-    _showAlert('Zada Wallet','Connection is deleted successfully');
+      if (connection.name == ZADA_AUTH_TEST)
+        await delete_mongo_connection(connection.myDid);
 
-    analytics_log_connection_delete();
+      _showAlert('Zada Wallet', 'Connection is deleted successfully');
 
-    setTimeout(() => {
-      updateConnectionsList();
-      setIsLoading(false);
-    }, 1200);
+      analytics_log_connection_delete();
+
+      setTimeout(() => {
+        updateConnectionsList();
+        setIsLoading(false);
+      }, 1200);
+    } catch (error) {
+      _showAlert('ZADA Wallet', error.toString());
+    }
+
   }
 
   function onRejectPress() {
@@ -111,6 +119,7 @@ function ConnectionsScreen(props) {
   function onDeletePressed(e) {
     setClickedConnection(e);
     setTemp(Math.random() * 999);
+
     console.log('Clicked Connection', e);
 
     Alert.alert(
@@ -134,15 +143,15 @@ function ConnectionsScreen(props) {
           onRejectPress()
       },
     );
-   //showAskDialog("Are you sure you want to delete this connection?", "This will also delete all certificates issued by this connection.", onSuccessPress, onRejectPress)
+    //showAskDialog("Are you sure you want to delete this connection?", "This will also delete all certificates issued by this connection.", onSuccessPress, onRejectPress)
   }
 
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Connections" />
       {
-        isLoading && 
-        <OverlayLoader 
+        isLoading &&
+        <OverlayLoader
           text='Deleting connection...'
         />
       }
@@ -166,7 +175,7 @@ function ConnectionsScreen(props) {
               }
               <SwipeListView
                 refreshControl={
-                  <RefreshControl 
+                  <RefreshControl
                     tintColor={'#7e7e7e'}
                     refreshing={refreshing}
                     onRefresh={getAllConnections}
@@ -178,7 +187,7 @@ function ConnectionsScreen(props) {
                 style={{
                   flexGrow: 1,
                 }}
-                contentContainerStyle={{ 
+                contentContainerStyle={{
                   width: '100%',
                   height: DIMENSIONS.height,
                 }}
@@ -223,7 +232,7 @@ function ConnectionsScreen(props) {
           :
           <ScrollView
             refreshControl={
-              <RefreshControl 
+              <RefreshControl
                 tintColor={'#7e7e7e'}
                 refreshing={refreshing}
                 onRefresh={getAllConnections}

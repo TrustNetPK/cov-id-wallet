@@ -188,10 +188,11 @@ function QRScreen({ route, navigation }) {
       .catch((e) => {
         console.log('Error is ' + e);
       });
-  }, [])
+  }, []);
+
 
   const getResponseUrl = async (inviteID, qrJSON) => {
-    console.log('Get TResponse URL function Called');
+    console.log('TRINSIC URL => ', inviteID + '<-->' + qrJSON);
     let baseURL = 'https://trinsic.studio/url/';
     await fetch(baseURL + inviteID, {
       method: 'GET',
@@ -206,6 +207,8 @@ function QRScreen({ route, navigation }) {
       qrJSON.organizationName = data.label;
       qrJSON.imageUrl = data.imageUrl;
       qrJSON.connectionId = data['@id'];
+
+      console.log("qrJSON => ", qrJSON);
       getItem(ConstantsList.CONNECTIONS).then((connectionList) => {
         let QRConnList = JSON.parse(connectionList);
         console.log('QRConnList => ', QRConnList)
@@ -234,6 +237,8 @@ function QRScreen({ route, navigation }) {
           );
         } else {
           cr_arr.push(qrJSON);
+          console.log("Pushing => ", qrJSON);
+          console.log("After push => ", cr_arr);
           saveItem(ConstantsList.CONN_REQ, JSON.stringify(cr_arr))
             .then(() => {
               setProgress(false);
@@ -329,52 +334,53 @@ function QRScreen({ route, navigation }) {
       setDialogTitle('Processing...')
       setScan(false);
       setProgress(true);
+
       const userId = await getItem(ConstantsList.USER_ID);
 
+      // Saving Session
       const sessionResult = await add_session(userId, data.sessionId);
-      console.log(sessionResult.data);
-      if(sessionResult.data.success){
+
+      if (sessionResult.data.success) {
         // Find Connection
         const response = await find_auth_connection(userId, data.tenantId);
-        if(response.data.success){
-          console.log('Zada Wallet', 'Connection already exists => ' + `${response.data}`)
+        if (response.data.success) {
           const sendResult = await send_zada_auth_verification_request(response.data.data.did)
-          if(sendResult.data.success){
+          if (sendResult.data.success) {
             setProgress(false);
             navigation.navigate('MainScreen');
           }
-          else{
+          else {
             setProgress(false);
-            _showAlert('Zada Wallet',sendResult.data.error);
+            _showAlert('Zada Wallet', sendResult.data.error);
           }
         }
-        else{
+        else {
           // Accept connection
           const result = await accept_connection(ZADA_AUTH_CONNECTION_ID);
-          if(result.data.success){
-            console.log('connection => ',result.data);
-            
+          if (result.data.success) {
+            console.log('connection => ', result.data);
+
             // Adding in user connections
             await ls_addConnection(result.data.connection);
-            
+
             // Saving DID
             const didResult = await save_did(userId, data.tenantId, result.data.connection.myDid);
-            if(didResult.data.success){
+            if (didResult.data.success) {
               navigation.navigate('MainScreen');
               //_showAlert('Zada Wallet', 'Connection is accepted successfully');
             }
-            else{
+            else {
               navigation.navigate('MainScreen');
               _showAlert('Zada Wallet', result.data.message);
             }
           }
-          else{
+          else {
             _showAlert('Zada Wallet', result.data.message);
           }
           setProgress(false);
         }
       }
-      else{
+      else {
         setProgress(false);
         _showAlert('Zada Wallet', sessionResult.data.error);
       }
@@ -392,10 +398,10 @@ function QRScreen({ route, navigation }) {
     unEscapedStr = unEscapedStr.replace(/“/g, '"');
 
     try {
-      if(JSON.parse(unEscapedStr).type == 'zadaauth'){
+      if (JSON.parse(unEscapedStr).type == 'zadaauth') {
         _handleZadaAuth(JSON.parse(e.data));
       }
-      else{
+      else {
         try {
           let title = '';
           try {
@@ -420,7 +426,7 @@ function QRScreen({ route, navigation }) {
           if (qrJSON.type == 'credential_offer') {
             setScan(false);
             setProgress(true);
-    
+
             setDialogTitle('Fetching Credential Details');
             credentialID = qrJSON.metadata;
             getCredential();
@@ -454,12 +460,12 @@ function QRScreen({ route, navigation }) {
             ],
             { cancelable: false },
           );
-    
+
         }
       }
     } catch (error) {
       _showAlert('Zada WAllet', error.toString());
-    } 
+    }
   };
 
   return (

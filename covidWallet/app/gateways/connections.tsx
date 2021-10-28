@@ -4,9 +4,9 @@ import {
   analytics_log_reject_connection_request,
 } from '../helpers/analytics';
 import {AuthenticateUser, authenticateZadaAuth} from '../helpers/Authenticate';
-import { getItem } from '../helpers/Storage';
+import {getItem} from '../helpers/Storage';
 import http_client from './http_client';
-import ConstantsList, { ZADA_AUTH_URL } from '../helpers/ConfigApp';
+import ConstantsList, {ZADA_AUTH_URL} from '../helpers/ConfigApp';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -27,9 +27,8 @@ export async function get_all_connections() {
         Authorization: 'Bearer ' + (await getToken()),
       },
     });
-    
-    return result;
 
+    return result;
   } catch (error) {
     throw error;
   }
@@ -60,7 +59,7 @@ export async function accept_connection(metadata: string) {
 
     return result;
   } catch (error) {
-    console.log("THROWING ERROR => ", error);
+    console.log('THROWING ERROR => ', error);
     throw error;
   }
 }
@@ -96,33 +95,29 @@ export async function delete_connection(connectionId: string) {
 /********** HANDLING ZADA AUTH ***********/
 
 const zadaAuthInstance = axios.create({
-  baseURL: ZADA_AUTH_URL
-})
+  baseURL: ZADA_AUTH_URL,
+});
 
-// add session 
-export async function add_session(
-  userId: string,
-  sessionId: string
-) {
+// add session
+export async function add_session(userId: string, sessionId: string) {
   try {
     // Getting Token
     const tokenResult = await authenticateZadaAuth();
-    
-    if(tokenResult.success){
+
+    if (tokenResult.success) {
       const result = await zadaAuthInstance({
         url: `/api/addSession`,
         method: 'POST',
-        headers:{
-          Authorization: `Bearer ${tokenResult.token}`
+        headers: {
+          Authorization: `Bearer ${tokenResult.token}`,
         },
         data: {
           userId,
           sessionId,
-        }
-      })
+        },
+      });
       return result;
-    }
-    else{
+    } else {
       throw tokenResult.error;
     }
   } catch (error) {
@@ -131,29 +126,25 @@ export async function add_session(
 }
 
 // find auth Connection
-export async function find_auth_connection(
-  userId: string,
-  tenantId: string
-) {
+export async function find_auth_connection(userId: string, tenantId: string) {
   try {
     // Getting Token
     const tokenResult = await authenticateZadaAuth();
-    
-    if(tokenResult.success){
+
+    if (tokenResult.success) {
       const result = await zadaAuthInstance({
         url: `/api/findConnection`,
         method: 'GET',
-        headers:{
-          Authorization: `Bearer ${tokenResult.token}`
+        headers: {
+          Authorization: `Bearer ${tokenResult.token}`,
         },
         params: {
           userId,
           tenantId,
-        }
-      })
+        },
+      });
       return result;
-    }
-    else{
+    } else {
       throw tokenResult.error;
     }
   } catch (error) {
@@ -162,33 +153,27 @@ export async function find_auth_connection(
 }
 
 // saving did in connections
-export async function save_did(
-  userId: string,
-  tenantId: string,
-  did: string,
-) {
+export async function save_did(userId: string, tenantId: string, did: string) {
   try {
-
     // Getting Token
     const tokenResult = await authenticateZadaAuth();
 
-    if(tokenResult.success){
+    if (tokenResult.success) {
       const result = await zadaAuthInstance({
         url: `/api/saveDID`,
         method: 'POST',
-        headers:{
-          Authorization: `Bearer ${tokenResult.token}`
+        headers: {
+          Authorization: `Bearer ${tokenResult.token}`,
         },
         data: {
           userId,
           tenantId,
           did,
-        }
-      })
+        },
+      });
       return result;
-    }
-    else{
-      throw tokenResult.error
+    } else {
+      throw tokenResult.error;
     }
   } catch (error) {
     throw error;
@@ -197,24 +182,22 @@ export async function save_did(
 
 export async function send_zada_auth_verification_request(did: string) {
   try {
-    
     // Getting Token
     const tokenResult = await authenticateZadaAuth();
-    
-    if(tokenResult.success){
+
+    if (tokenResult.success) {
       const result = await zadaAuthInstance({
         url: `/api/sendVerification`,
         method: 'POST',
-        headers:{
-          Authorization: `Bearer ${tokenResult.token}`
+        headers: {
+          Authorization: `Bearer ${tokenResult.token}`,
         },
         data: {
-          did
-        }
+          did,
+        },
       });
       return result;
-    }
-    else{
+    } else {
       throw tokenResult.error;
     }
   } catch (error) {
@@ -222,41 +205,70 @@ export async function send_zada_auth_verification_request(did: string) {
   }
 }
 
-export async function get_tenant(verification:any){
+export async function get_tenant(verification: any) {
   try {
-    let connections:any = await getItem(ConstantsList.CONNECTIONS);
+    console.log('GETTING TENANT DETAILS');
 
-    if(connections == undefined || connections == null){
-      return {success:false, error: 'There are no connections in your wallet'}
+    let connections: any = await getItem(ConstantsList.CONNECTIONS);
+
+    if (connections == undefined || connections == null) {
+      return {success: false, error: 'There are no connections in your wallet'};
     }
 
     let did = undefined;
     connections = JSON.parse(connections);
 
-    connections.forEach((item:any, index:number)=>{
-      if(item.connectionId == verification.connectionId)
-        did = item.myDid;
+    connections.forEach((item: any, index: number) => {
+      if (item.connectionId == verification.connectionId) did = item.myDid;
     });
+
+    console.log('DID => ', did);
 
     // Getting Token
     const tokenResult = await authenticateZadaAuth();
 
-    if(tokenResult.success){
+    console.log('TOKEN RESULT => ', tokenResult);
+
+    if (tokenResult.success) {
       const tenant = await zadaAuthInstance({
         url: `/api/getTenant`,
-        headers:{
-          Authorization: `Bearer ${tokenResult.token}`
+        headers: {
+          Authorization: `Bearer ${tokenResult.token}`,
         },
-        params:{
+        params: {
           did: did,
-        }
+        },
       });
       return {success: true, data: tenant.data.data};
-    }
-    else{
+    } else {
       return {success: false, error: tokenResult.error.toString()};
     }
-  } catch (error:any) {
+  } catch (error: any) {
     return {success: false, error: error.toString()};
+  }
+}
+
+export async function delete_mongo_connection(did: string) {
+  try {
+    // Getting Token
+    const tokenResult = await authenticateZadaAuth();
+
+    if (tokenResult.success) {
+      const result = await zadaAuthInstance({
+        url: `/api/deleteConnection`,
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${tokenResult.token}`,
+        },
+        data: {
+          did,
+        },
+      });
+      return result;
+    } else {
+      throw tokenResult.error;
+    }
+  } catch (error) {
+    throw error;
   }
 }
