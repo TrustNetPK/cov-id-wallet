@@ -4,6 +4,7 @@ module.exports = Object.freeze({
   ZADA_AUTH_URL: 'https://auth-test.zadanetwork.com',
   //ZADA_AUTH_URL: 'http://3dc4-182-191-89-195.ngrok.io',
   ZADA_AUTH_SECRET: 'doingtestinginzadaauth',
+  ZADA_S3_BASE_URL: 'https://zada-wallet-cred-bg.s3.ap-southeast-1.amazonaws.com',
   ZADA_AUTH: 'zada_auth',
   WALLET_SECRET: 'wallet_secret',
   WALLET_NAME: 'wallet_name',

@@ -19,6 +19,7 @@ import { addVerificationToActionList } from '../helpers/ActionList';
 import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 import OverlayLoader from '../components/OverlayLoader';
 import { analytics_log_connection_delete } from '../helpers/analytics';
+import axios from 'axios';
 
 const DIMENSIONS = Dimensions.get('screen');
 

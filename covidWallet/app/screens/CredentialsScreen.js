@@ -15,6 +15,7 @@ import { get_all_credentials } from '../gateways/credentials';
 import { addVerificationToActionList } from '../helpers/ActionList';
 import { showMessage } from '../helpers/Toast';
 import moment from 'moment';
+import axios from 'axios';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -34,9 +35,9 @@ function CredentialsScreen(props) {
 
     // Fetching Connections
     const connResponse = await get_all_connections();
-    if(connResponse.data.success){
+    if (connResponse.data.success) {
       let connections = connResponse.data.connections;
-      if(connections.length)
+      if (connections.length)
         await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
       else
         await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
@@ -46,15 +47,15 @@ function CredentialsScreen(props) {
       // Fetching Credentials
       const credResponse = await get_all_credentials();
 
-      if(credResponse.data.success){
+      if (credResponse.data.success) {
         let credentials = credResponse.data.credentials;
         let CredArr = [];
-        if(credentials.length && connections.length){
+        if (credentials.length && connections.length) {
           // Looping to update credentials object in crendentials array
           credentials.forEach((cred, i) => {
             let item = connections.find(c => c.connectionId == cred.connectionId)
 
-            if(item !== undefined || null){
+            if (item !== undefined || null) {
               let obj = {
                 ...cred,
                 imageUrl: item.imageUrl,
@@ -66,9 +67,9 @@ function CredentialsScreen(props) {
                     cred.values["Vaccine Name"].length != 0 &&
                     cred.values["Dose"] != undefined &&
                     cred.values["Dose"].length != 0
-                ) ?
-                'COVIDpass (Vaccination)' :
-                "Digital Certificate",
+                  ) ?
+                    'COVIDpass (Vaccination)' :
+                    "Digital Certificate",
               };
               CredArr.push(obj);
             }
@@ -82,11 +83,11 @@ function CredentialsScreen(props) {
 
         await addVerificationToActionList();
       }
-      else{
+      else {
         showMessage('Zada Wallet', connResponse.data.error);
       }
     }
-    else{
+    else {
       showMessage('ZADA Wallet', connResponse.data.error);
     }
 
@@ -96,23 +97,23 @@ function CredentialsScreen(props) {
 
   const updateCredentialsList = async () => {
     try {
-        // Getting item from asyncstorage
-        let connections = await getItem(ConstantsList.CONNECTIONS);
-        let credentials = await getItem(ConstantsList.CREDENTIALS);
+      // Getting item from asyncstorage
+      let connections = await getItem(ConstantsList.CONNECTIONS);
+      let credentials = await getItem(ConstantsList.CREDENTIALS);
 
-        // Parsing JSON
-        let connectionsList = JSON.parse(connections) || [];
-        let credentialsList = JSON.parse(credentials) || [];
+      // Parsing JSON
+      let connectionsList = JSON.parse(connections) || [];
+      let credentialsList = JSON.parse(credentials) || [];
 
-        // If arr is empty, return
-        if (connectionsList.length === 0 || credentialsList.length === 0) {
-            setCredentials([]);
-            return
-        }
+      // If arr is empty, return
+      if (connectionsList.length === 0 || credentialsList.length === 0) {
+        setCredentials([]);
+        return
+      }
 
-        setCredentials(credentialsList);
+      setCredentials(credentialsList);
     } catch (e) {
-        console.log('error: updateCredentialList => ', e)
+      console.log('error: updateCredentialList => ', e)
     }
   }
 
@@ -141,8 +142,8 @@ function CredentialsScreen(props) {
   return (
     <View style={themeStyles.mainContainer}>
       <HeadingComponent text="Certificates" />
-      { credentials.length > 0 ?
-        <ScrollView 
+      {credentials.length > 0 ?
+        <ScrollView
           refreshControl={
             <RefreshControl
               tintColor={'#7e7e7e'}
@@ -150,11 +151,11 @@ function CredentialsScreen(props) {
               onRefresh={_fetchingAppData}
             />
           }
-          showsVerticalScrollIndicator={false} 
+          showsVerticalScrollIndicator={false}
           style={{
             flexGrow: 1,
           }}
-          contentContainerStyle={{ 
+          contentContainerStyle={{
             width: '100%',
             //height: DIMENSIONS.height,
           }}
@@ -166,18 +167,19 @@ function CredentialsScreen(props) {
             let issuedBy = v.organizationName;
             let card_type = v.type;
             let issueDate = v.values['Issue Time'];
-          
+            let schemeId = v.values['schemaId'];
+
             // Getting Date format
             let dateParts = [], date = '', time = '';
 
-            if(issueDate != null && issueDate != undefined){
+            if (issueDate != null && issueDate != undefined) {
               dateParts = issueDate.split(' ');
-              if(dateParts.length > 2){
+              if (dateParts.length > 2) {
                 // normal
                 date = moment(issueDate).format('DD/MM/YYYY');
                 time = moment(issueDate).format('HH:MM A');
               }
-              else{
+              else {
                 // not normal one
                 date = dateParts[0];
                 let timeParts = dateParts[1].split(':');
@@ -187,7 +189,7 @@ function CredentialsScreen(props) {
 
             return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
               <View style={styles.CredentialsCardContainer}>
-                <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={date} card_logo={imgURI} />
+                <CredentialsCard schemeId={schemeId} card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={date} card_logo={imgURI} />
               </View>
             </TouchableOpacity>
           })
