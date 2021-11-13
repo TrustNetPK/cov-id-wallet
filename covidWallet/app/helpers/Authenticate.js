@@ -171,7 +171,7 @@ const get_zada_auth = async () => {
     } catch (error) {
         console.log(error);
     }
-}; 
+};
 
 const getIsZadaAuthExpired = async () => {
     try {
@@ -196,34 +196,37 @@ const getIsZadaAuthExpired = async () => {
 export const authenticateZadaAuth = async () => {
     try {
         let isZadaAuthExpired = await getIsZadaAuthExpired();
-        if(isZadaAuthExpired){
+        if (isZadaAuthExpired) {
+
+            let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+            let userID = await getItem(ConstantsList.USER_ID);
+
             // Code expired generate new one and return it
             const authResult = await axios({
-                url: `${ZADA_AUTH_URL}/api/authenticate`,
+                url: `${ConstantsList.BASE_URL}/api/authenticate_zada_auth`,
                 method: 'POST',
-                data:{
-                    secret: ZADA_AUTH_SECRET,
-                }
+                data: JSON.stringify({
+                    userId: userID,
+                    secretPhrase: walletSecret,
+                })
             });
 
-            if(authResult.data.success){
+            if (authResult.data.success) {
                 // Saving zada auth
-                await saveItem(ConstantsList.ZADA_AUTH, JSON.stringify(authResult.data.data));
+                await saveItem(ConstantsList.ZADA_AUTH, JSON.stringify(authResult.data));
 
                 // getting token
-                let token = authResult.data.data.token;
+                let token = authResult.data.token;
 
-                console.log('ZADA AUTH TOKEN => ', token);
                 return { success: true, token: token }
             }
-            else{
+            else {
                 return { success: false, error: error }
             }
         }
-        else{
+        else {
             // Otherwise use existing one
             const token = (JSON.parse(await getItem(ConstantsList.ZADA_AUTH))).token;
-            console.log('ZADA AUTH TOKEN => ', token);
             return { success: true, token: token }
         }
     } catch (error) {
