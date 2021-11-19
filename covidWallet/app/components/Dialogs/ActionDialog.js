@@ -147,24 +147,6 @@ function ActionDialog(props) {
         let value = values[title];
 
         if (title == 'Issue Time') {
-            let dateParts2 = [], date2 = '', time2 = '';
-            let issueDate2 = values[title];
-
-            if (issueDate2 != null && issueDate2 != undefined) {
-                dateParts2 = issueDate2.split(' ');
-                if (dateParts2.length > 2) {
-                    // normal
-                    date2 = moment(issueDate2).format('DD/MM/YYYY');
-                    time2 = moment(issueDate2).format('HH:MM A');
-                }
-                else {
-                    // not normal one
-                    date2 = dateParts2[0];
-                    let timeParts2 = dateParts2[1].split(':');
-                    time2 = timeParts2[0] >= 12 ? `${timeParts2[0]}:${timeParts2[1]} PM` : `${timeParts2[0]}:${timeParts2[1]} AM`;
-                }
-            }
-
             return (
                 <View
                     key={index}
@@ -185,7 +167,7 @@ function ActionDialog(props) {
                         borderRadius: 16,
                         justifyContent: "center"
                     }}>
-                        <Text style={{ color: BLACK_COLOR }}>{`${date2} ${time2}`}</Text>
+                        <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
                     </View>
                 </View>
             )
