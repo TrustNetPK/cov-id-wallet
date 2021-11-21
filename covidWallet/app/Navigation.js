@@ -59,17 +59,17 @@ function NavigationComponent() {
 
   const retrieveData = async () => {
     try {
-      const value = await AsyncStorage.getItem('isfirstTime').then(async(value) => {
+      const value = await AsyncStorage.getItem('isfirstTime').then(async (value) => {
         setLoading(false);
         if (value == null) {
           SplashScreen.hide();
           getisFirstTime('true');
-        } 
+        }
         else if (value == 'true') {
           SplashScreen.hide();
           getisFirstTime('true');
         }
-        else if(value == 'false'){
+        else if (value == 'false') {
           getisFirstTime('false');
           await _fetchingAppData();
           SplashScreen.hide();
@@ -78,30 +78,28 @@ function NavigationComponent() {
     } catch (error) {
       // Error retrieving data
     }
-  }; 
+  };
 
   // Function to fetch connection and credentials
   const _fetchingAppData = async () => {
     // Fetching Connections
     const connResponse = await get_all_connections();
     let connections = connResponse.data.connections;
-    if(connections.length)
+    if (connections.length)
       await saveItem(ConstantList.CONNECTIONS, JSON.stringify(connections));
     else
       await saveItem(ConstantList.CONNECTIONS, JSON.stringify([]));
-
-    console.log("CONNECTIONS SAVED");
 
     // Fetching Credentials
     const credResponse = await get_all_credentials();
     let credentials = credResponse.data.credentials;
     let CredArr = [];
-    if(credentials.length && connections.length){
+    if (credentials.length && connections.length) {
       // Looping to update credentials object in crendentials array
       credentials.forEach((cred, i) => {
         let item = connections.find(c => c.connectionId == cred.connectionId)
 
-        if(item !== undefined || null){
+        if (item !== undefined || null) {
           let obj = {
             ...cred,
             imageUrl: item.imageUrl,
@@ -113,9 +111,9 @@ function NavigationComponent() {
                 cred.values["Vaccine Name"].length != 0 &&
                 cred.values["Dose"] != undefined &&
                 cred.values["Dose"].length != 0
-            ) ?
-            'COVIDpass (Vaccination)' :
-            "Digital Certificate",
+              ) ?
+                'COVIDpass (Vaccination)' :
+                "Digital Certificate",
           };
           CredArr.push(obj);
         }
@@ -124,8 +122,6 @@ function NavigationComponent() {
     }
     else
       await saveItem(ConstantList.CREDENTIALS, JSON.stringify([]));
-
-    console.log("CREDENTIALS SAVED");
 
     await addVerificationToActionList();
 
@@ -176,7 +172,7 @@ function NavigationComponent() {
               />
             </Stack.Navigator>
           ) : isFirstTime === 'true' ? (
-            <Stack.Navigator 
+            <Stack.Navigator
               screenOptions={{ ...navigationAnimation }}
             >
               <Stack.Screen
@@ -190,7 +186,7 @@ function NavigationComponent() {
                 component={RegistrationModule}
               />
               <Stack.Screen
-                options={{ headerShown:false }}
+                options={{ headerShown: false }}
                 name="ForgotPasswordScreen"
                 component={ForgotPasswordScreen}
               />

@@ -10,6 +10,11 @@
 		00E356F31AD99517003FC87E /* ZADATests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ZADATests.m */; };
 		043C979626B805FA006295AC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 043C979526B805FA006295AC /* GoogleService-Info.plist */; };
 		043C979726B805FA006295AC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 043C979526B805FA006295AC /* GoogleService-Info.plist */; };
+<<<<<<< HEAD
+=======
+		047DE887271035FA00CF09F1 /* libswiftWebKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 047DE886271035FA00CF09F1 /* libswiftWebKit.tbd */; };
+		0690A0437CBE13F91B81D6D7 /* libPods-ZADA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FAE94EECF7A50C499A29668 /* libPods-ZADA.a */; };
+>>>>>>> feature/qrlogin
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -48,6 +53,7 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ZADATests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZADATests.m; sourceTree = "<group>"; };
 		043C979526B805FA006295AC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		047DE886271035FA00CF09F1 /* libswiftWebKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftWebKit.tbd; path = usr/lib/swift/libswiftWebKit.tbd; sourceTree = SDKROOT; };
 		092EF3C6D0DC4D618DC6462C /* Merriweather-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Merriweather-Bold.ttf"; path = "../app/assets/fonts/Merriweather-Bold.ttf"; sourceTree = "<group>"; };
 		0B1825A891A748EFAB10A43C /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ZADA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZADA.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,7 +106,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< HEAD
 				F904B7E85FEB7797123227A9 /* libPods-ZADA.a in Frameworks */,
+=======
+				047DE887271035FA00CF09F1 /* libswiftWebKit.tbd in Frameworks */,
+				0690A0437CBE13F91B81D6D7 /* libPods-ZADA.a in Frameworks */,
+>>>>>>> feature/qrlogin
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +179,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				047DE886271035FA00CF09F1 /* libswiftWebKit.tbd */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				ECB72F7E3D6414BBB7C2AD78 /* libPods-ZADA.a */,
@@ -770,7 +782,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZADA/ZADA.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L66ZW85V2S;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -780,7 +792,11 @@
 				INFOPLIST_FILE = ZADA/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.7;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/swift",
+				);
+				MARKETING_VERSION = 1.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -804,13 +820,17 @@
 				CODE_SIGN_ENTITLEMENTS = ZADA/ZADA.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L66ZW85V2S;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ZADA/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.7;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/swift",
+				);
+				MARKETING_VERSION = 1.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

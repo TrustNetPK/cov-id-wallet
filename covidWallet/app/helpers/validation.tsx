@@ -17,18 +17,11 @@ export const validateIfLowerCased = (text: string) => {
   let isLowerCased = true;
   while (i < text.length) {
     let character = text.charAt(i);
-    if(reg.test(character)){
-    	if (character == character.toUpperCase()) {
+    if (reg.test(character)) {
+      if (character == character.toUpperCase()) {
         isLowerCased = false;
       }
     }
-    // if (!isNaN(character)) {
-    //   // console.log('character is numeric');
-    // } else {
-    //   if (character == character.toUpperCase()) {
-    //     isLowerCased = false;
-    //   }
-    // }
     i++;
   }
   return isLowerCased;

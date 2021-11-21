@@ -5,8 +5,6 @@ export async function biometricVerification(callback) {
     let isAvailable = await FingerprintScanner
         .isSensorAvailable()
 
-    console.log("isAvailable", isAvailable);
-
     if (!isAvailable) return false;
 
     FingerprintScanner.release();

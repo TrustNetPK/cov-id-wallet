@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthenticateUser} from '../helpers/Authenticate';
 import {
   analytics_log_register_success,
-  analytics_log_verifies_otp
+  analytics_log_verifies_otp,
 } from '../helpers/analytics';
 
 async function getToken() {
@@ -39,7 +39,7 @@ export const _resgiterUserAPI = async (data: Object) => {
     const result = await http_client({
       method: 'POST',
       url: '/api/register',
-      data: data
+      data: data,
     });
 
     analytics_log_register_success();
@@ -48,10 +48,10 @@ export const _resgiterUserAPI = async (data: Object) => {
   } catch (error) {
     throw error;
   }
-} 
+};
 
 // resend otp code api
-export const _resendOTPAPI = async (userID:string, type: string) => {
+export const _resendOTPAPI = async (userID: string, type: string) => {
   try {
     const result = await http_client({
       method: 'POST',
@@ -59,13 +59,13 @@ export const _resendOTPAPI = async (userID:string, type: string) => {
       data: {
         userId: userID,
         type: type,
-      }
+      },
     });
     return result;
   } catch (error) {
     throw error;
   }
-} 
+};
 
 // Send password reset link
 export const _sendPasswordResetAPI = async (phone: string) => {
@@ -74,14 +74,14 @@ export const _sendPasswordResetAPI = async (phone: string) => {
       method: 'POST',
       url: '/api/recover',
       data: {
-        phone
+        phone,
       },
     });
     return result;
   } catch (error) {
     throw error;
   }
-} 
+};
 
 // api to fetch user profile data
 export const _fetchProfileAPI = async () => {
@@ -90,15 +90,15 @@ export const _fetchProfileAPI = async () => {
     const result = await http_client({
       method: 'GET',
       url: '/api/get_user_data',
-      headers:{
-        'Authorization': `Bearer ${token}`
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
     return result;
   } catch (error) {
     throw error;
   }
-} 
+};
 
 // api to update user profile
 export const _updateProfileAPI = async (data: Object) => {
@@ -108,15 +108,15 @@ export const _updateProfileAPI = async (data: Object) => {
       method: 'POST',
       url: '/api/update_user',
       data: data,
-      headers:{
-        'Authorization': `Bearer ${token}`
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
     return result;
   } catch (error) {
     throw error;
   }
-} 
+};
 
 // Validate OTP
 export async function validateOTP(
@@ -130,8 +130,6 @@ export async function validateOTP(
       //otpmail: emailConfirmationCode,
       userId: userId,
     };
-
-    console.log("VALIDATE OBJ => ", obj);
 
     let headers = {
       'Content-Type': 'application/json',
@@ -164,8 +162,6 @@ export async function registerDeviceToken(
       deviceToken: devicePushToken,
     };
 
-    console.log(obj)
-
     let headers = {
       'Content-Type': 'application/json',
       Authorization: 'Bearer ' + (await getToken()),
@@ -177,7 +173,6 @@ export async function registerDeviceToken(
       data: obj,
       headers,
     });
-    console.log("RESULT => ", result.data);
     return result;
   } catch (error) {
     throw error;

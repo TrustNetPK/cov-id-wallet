@@ -19,14 +19,12 @@ export default function DetailsScreen(props) {
     // Sorting Values in alphabetical order
     let orderedValues = undefined;
     orderedValues = Object.keys(data.values).sort().reduce(
-        (obj, key) => { 
-            obj[key] = data.values[key]; 
+        (obj, key) => {
+            obj[key] = data.values[key];
             return obj;
-        }, 
+        },
         {}
     );
-
-    console.log("ORDERED => ", orderedValues);
 
     const vaccineName = data.name;
     const imgURI = { uri: data.imageUrl };
@@ -34,21 +32,7 @@ export default function DetailsScreen(props) {
     let card_type = data.type;
     let issueDate = data.values['Issue Time'];
 
-    let dateParts = [], date = '', time = '';
-    if(issueDate != null && issueDate != undefined){
-        dateParts = issueDate.split(' ');
-        if(dateParts.length > 2){
-            // normal
-            date = moment(issueDate).format('DD/MM/YYYY');
-            time = moment(issueDate).format('HH:MM A');
-        }
-        else{
-            // not normal one
-            date = dateParts[0];
-            let timeParts = dateParts[1].split(':');
-            time = timeParts[0] >= 12 ? `${timeParts[0]}:${timeParts[1]} PM` : `${timeParts[0]}:${timeParts[1]} AM`;
-        }
-    }
+    let date = moment(issueDate).format('DD/MM/YYYY');
 
     // States
     const [isLoading, setIsLoading] = useState(false)
@@ -98,26 +82,7 @@ export default function DetailsScreen(props) {
     function renderTitleInput(title, index) {
         let value = orderedValues[title];
 
-        if(title == 'Issue Time'){
-
-            let dateParts2 = [], date2 = '', time2 = '';
-            let issueDate2 = orderedValues[title];
-
-            if(issueDate2 != null && issueDate2 != undefined){
-                dateParts2 = issueDate2.split(' ');
-                if(dateParts2.length > 2){
-                    // normal
-                    date2 = moment(issueDate2).format('DD/MM/YYYY');
-                    time2 = moment(issueDate2).format('HH:MM A');
-                }
-                else{
-                    // not normal one
-                    date2 = dateParts2[0];
-                    let timeParts2 = dateParts2[1].split(':');
-                    time2 = timeParts2[0] >= 12 ? `${timeParts2[0]}:${timeParts2[1]} PM` : `${timeParts2[0]}:${timeParts2[1]} AM`;
-                }
-            }
-
+        if (title == 'Issue Time') {
             return (
                 <View
                     key={index}
@@ -136,7 +101,7 @@ export default function DetailsScreen(props) {
                         borderRadius: 16,
                         justifyContent: "center"
                     }}>
-                        <Text style={{ color: BLACK_COLOR }}>{`${date2} ${time2}`}</Text>
+                        <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
                     </View>
                 </View>
             )
@@ -164,14 +129,14 @@ export default function DetailsScreen(props) {
                 </View>
             )
         }
-        
+
     }
 
     return (
         <View style={[themeStyles.mainContainer]}>
             {
                 isLoading &&
-                <OverlayLoader 
+                <OverlayLoader
                     text='Deleting credential...'
                 />
             }
@@ -188,7 +153,6 @@ export default function DetailsScreen(props) {
             }}>
                 {
                     orderedValues != undefined && Object.keys(orderedValues).map((e, i) => {
-                        console.log(e, orderedValues[e]);
                         return (
                             renderTitleInput(e, i)
                         )

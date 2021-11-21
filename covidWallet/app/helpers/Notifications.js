@@ -57,25 +57,22 @@ function clearAllNotifications() {
 
 function getAllDeliveredNotifications() {
   PushNotification.getDeliveredNotifications((notifications) => {
-    console.log(notifications);
   });
 }
 
 //Android: Automatically triggered on notification arrival for android
 //IOS: Triggered on clicking notification from notification center
 async function receiveNotificationEventListener(notification) {
-  console.log('NEW NOTIFICATION:', notification);
-
-  let result = '';
+  let verData = null;
+  let result = null;
   switch (notification.data.type) {
     case CRED_OFFER:
       result = await addCredentialToActionList(notification.data.metadata);
-      console.log('HX2' + result);
       break;
 
     case VER_REQ:
       result = await addVerificationToActionList(notification.data.metadata);
-      console.log(result);
+      verData = result;
       break;
 
     default:
@@ -94,6 +91,10 @@ async function receiveNotificationEventListener(notification) {
       true,
     );
   }
+  if (notification.data.type == VER_REQ && verData.isZadaAuth)
+    return { auth_verification: true, data: verData.data };
+  else
+    return { auth_verification: false, data: null };
 }
 
 // /*
@@ -124,7 +125,6 @@ async function receiveNotificationEventListener(notification) {
 // }
 
 async function onRegisterEventListener(token) {
-  console.log('TOKEN:', token);
   PushNotification.checkPermissions((permissions) => {
     if (permissions.badge !== true || permissions.alert !== true) {
       //activate notification permision if disabled
@@ -140,8 +140,6 @@ async function onRegisterEventListener(token) {
 }
 
 function onActionEventListener(notification) {
-  console.log('ACTION:', notification.action);
-  console.log('NOTIFICATION:', notification);
   // process the action
 }
 
@@ -159,11 +157,8 @@ function initNotifications(localReceiveNotificationEventListener) {
   //   }, 5000)
   // }
 
-  console.log("INIT NOTIFICATION");
-
   if (Platform.OS === 'android') {
     PushNotification.getChannels(function (channel_ids) {
-      console.log(channel_ids); // ['channel_id_1']
     });
 
     PushNotification.channelExists(DROID_CHANNEL_ID, function (exists) {
@@ -178,7 +173,7 @@ function initNotifications(localReceiveNotificationEventListener) {
             importance: 4, // (optional) default: 4. Int value of the Android notification importance
             vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
           },
-          (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+          (created) => { } // (optional) callback returns whether the channel was created, false means it already existed.
         );
       }
     });

@@ -1,6 +1,12 @@
 module.exports = Object.freeze({
+  //BASE_URL: 'http://93aa-182-191-89-195.ngrok.io',
   BASE_URL: 'http://test-agency.zadanetwork.com',
   //BASE_URL: 'https://agency.zadanetwork.com',
+  ZADA_AUTH_URL: 'https://auth-test.zadanetwork.com',
+  //ZADA_AUTH_URL: 'http://0876-182-191-89-195.ngrok.io',
+  ZADA_AUTH_SECRET: 'doingtestinginzadaauth',
+  ZADA_S3_BASE_URL: 'https://zada-wallet-cred-bg.s3.ap-southeast-1.amazonaws.com',
+  ZADA_AUTH: 'zada_auth',
   WALLET_SECRET: 'wallet_secret',
   WALLET_NAME: 'wallet_name',
   CERT_REQ: 'connection_credential',
@@ -21,4 +27,6 @@ module.exports = Object.freeze({
   USER_PROFILE: 'user_profile',
   REGISTRATION_DATA: 'register_data',
   PIN_CODE: 'pin_code',
+  ZADA_AUTH_TEST: 'ZADA Auth Test',
+  ZADA_AUTH_CONNECTION_ID: 'f743ac9a-9758-495d-bfbc-74421ae6d1e9',
 });

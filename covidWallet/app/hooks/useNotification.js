@@ -1,5 +1,4 @@
-import { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import { initNotifications, receiveNotificationEventListener } from '../helpers/Notifications';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
@@ -9,6 +8,8 @@ import { CRED_OFFER, VER_REQ } from "../helpers/ConfigApp";
 
 const useNotification = () => {
 
+    const [isZadaAuth, setZadaAuth] = useState(false);
+    const [authData, setAuthData] = useState(null);
     const [notificationReceived, setNotificationReceived] = useState(false);
 
     useEffect(() => {
@@ -31,7 +32,15 @@ const useNotification = () => {
 
 
     async function localReceiveNotificationEventListener(notification) {
-        await receiveNotificationEventListener(notification);
+        const verData = await receiveNotificationEventListener(notification);
+        if (verData.auth_verification) {
+            setAuthData(verData.data);
+            setZadaAuth(true);
+        }
+        else {
+            setAuthData(null);
+            setZadaAuth(false);
+        }
         refreshScreen();
     }
 
@@ -55,14 +64,21 @@ const useNotification = () => {
                             await addCredentialToActionList(notifications[i].userInfo.metadata);
                             break;
                         case VER_REQ:
-                            console.log('verification request')
-                            await addVerificationToActionList();
+                            const verData = await addVerificationToActionList();
+                            if (verData.isZadaAuth) {
+                                setAuthData(verData.data);
+                                setZadaAuth(true);
+                            }
+                            else {
+                                setAuthData(null);
+                                setZadaAuth(false);
+                            }
+
                             break;
                         default:
                             console.log('notification type not found!');
                     }
                     notificationsProcessed.push(notifications[i].identifier);
-                    console.log('notificationsProcessed => ', notificationsProcessed)
                 }
                 PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
                 refreshScreen();
@@ -70,6 +86,6 @@ const useNotification = () => {
         });
     }
 
-    return { notificationReceived };
+    return { notificationReceived, isZadaAuth, authData, setZadaAuth, setAuthData };
 };
 export default useNotification;

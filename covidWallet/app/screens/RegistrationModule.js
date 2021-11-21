@@ -51,7 +51,7 @@ function RegistrationModule({ navigation }) {
   const [secret, setSecret] = useState('');
   const [secretError, setSecretError] = useState('');
   const [secureSecret, setSecureSecret] = useState(true);
-  
+
   const [progress, setProgress] = useState(false);
 
   // Toggling for password 
@@ -105,7 +105,7 @@ function RegistrationModule({ navigation }) {
       return
     }
 
-    if(phoneText.charAt(0) == '0' && activeOption == 'register'){
+    if (phoneText.charAt(0) == '0' && activeOption == 'register') {
       Alert.alert('Zada Wallet', 'Phone number should not start with zero');
       return;
     }
@@ -138,34 +138,31 @@ function RegistrationModule({ navigation }) {
           phone: phone.trim(),
           secretPhrase: secret,
         }
-        
+
         const result = await _resgiterUserAPI(data);
         const response = result.data;
 
-        if(response.success){
+        if (response.success) {
           // new user is going to register
-          console.log("NEW USER");
           await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
           await saveItem(ConstantsList.WALLET_SECRET, secret);
           navigation.replace('MultiFactorScreen');
         }
-        else if(response.verified != undefined && !response.verified){
+        else if (response.verified != undefined && !response.verified) {
           // unverified user come to register
-          console.log("UN VERIFY USER");
           await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
           await saveItem(ConstantsList.WALLET_SECRET, secret);
           navigation.replace('MultiFactorScreen');
         }
-        else if(response.verified != undefined && response.verified){
+        else if (response.verified != undefined && response.verified) {
           // verified user came again to register
-          console.log("VERIFIED USER");
           selectionOnPress('login');
           _showAlert('Zada Wallet', response.error);
         }
-        else{
+        else {
           _showAlert('Zada Wallet', response.error);
         }
-  
+
         setProgress(false);
 
         // await fetch(ConstantsList.BASE_URL + `/api/register`, {
@@ -185,10 +182,10 @@ function RegistrationModule({ navigation }) {
         //     try {
         //       let response = JSON.parse(JSON.stringify(data));
         //       if (response.success == true) {
-  
+
         //         //saving user data
         //         await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
-  
+
         //         saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
         //           navigation.replace('MultiFactorScreen');
         //         });
@@ -211,7 +208,7 @@ function RegistrationModule({ navigation }) {
       setProgress(false);
       showMessage('ZADA Wallet', error.toString());
     }
-    
+
   };
 
   const login = async () => {
@@ -227,9 +224,8 @@ function RegistrationModule({ navigation }) {
           secretPhrase: secret,
         }),
       }).then((credsResult) =>
-        credsResult.json().then(async(data) => {
+        credsResult.json().then(async (data) => {
           try {
-            console.log("LOGIN API DATA => ",JSON.stringify(data));
             let response = JSON.parse(JSON.stringify(data));
             if (response.success == true) {
               storeUserID(response.userId);
@@ -267,31 +263,28 @@ function RegistrationModule({ navigation }) {
         Authorization: 'Bearer ' + userToken,
       },
     }).then((walletResult) =>
-      walletResult.json().then(async(data) => {
+      walletResult.json().then(async (data) => {
         try {
           let response = JSON.parse(JSON.stringify(data));
-          console.log("RESPONSE => ", response);
           if (response.success == true) {
             // reauthentication
             let reAuth = await AuthenticateUser(true);
 
-            if(reAuth.success){
+            if (reAuth.success) {
               // decoding token
               const decodedreAuthToken = jwt_decode(reAuth.token);
-      
-              console.log("decodedreToken", decodedreAuthToken);
 
-              if(decodedreAuthToken.dub.length){
+              if (decodedreAuthToken.dub.length) {
                 await _fetchingAppData();
                 setProgress(false);
                 // if token has wallet id
                 navigation.replace('SecurityScreen');
               }
-              else{
+              else {
                 //await authenticateUserToken();
               }
             }
-            else{
+            else {
               setProgress(false);
               _showAlert('ZADA Wallet', `${reAuth.message}`);
             }
@@ -310,28 +303,23 @@ function RegistrationModule({ navigation }) {
       if (networkState) {
         // autthenticating user
         let resp = await AuthenticateUser(true);
-        console.log("RESP", resp);
-        if(resp.success){
+        if (resp.success) {
           // decoding token
           const decodedToken = jwt_decode(resp.token);
-  
-          console.log("decodedToken", decodedToken);
 
-          if(decodedToken.dub.length){
+          if (decodedToken.dub.length) {
             await _fetchingAppData();
             setProgress(false);
-             // if token has wallet id
+            // if token has wallet id
             navigation.replace('SecurityScreen');
           }
-          else{
+          else {
             // if token has not wallet id
             // CREATING WALLET
             await createWallet(resp.token);
-
-            console.log("HAS NOT DUB => ", decodedToken.sub)
           }
         }
-        else{
+        else {
           setProgress(false);
           _showAlert('ZADA Wallet', resp.message);
         }
@@ -343,35 +331,32 @@ function RegistrationModule({ navigation }) {
       setProgress(false);
       _showAlert('Zada Wallet', error.toString());
     }
-    
+
   };
 
   // Function to fetch connection and credentials
   const _fetchingAppData = async () => {
     // Fetching Connections
     const connResponse = await get_all_connections();
-    console.log("connResponse", connResponse.data);
 
     // If connections are available
-    if(connResponse.data.success){
+    if (connResponse.data.success) {
       let connections = connResponse.data.connections;
-      if(connections.length)
+      if (connections.length)
         await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
       else
         await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
-
-      console.log("CONNECTIONS SAVED");
 
       // Fetching Credentials
       const credResponse = await get_all_credentials();
       let credentials = credResponse.data.credentials;
       let CredArr = [];
-      if(credentials.length && connections.length){
+      if (credentials.length && connections.length) {
         // Looping to update credentials object in crendentials array
         credentials.forEach((cred, i) => {
           let item = connections.find(c => c.connectionId == cred.connectionId)
 
-          if(item !== undefined || null){
+          if (item !== undefined || null) {
             let obj = {
               ...cred,
               imageUrl: item.imageUrl,
@@ -383,9 +368,9 @@ function RegistrationModule({ navigation }) {
                   cred.values["Vaccine Name"].length != 0 &&
                   cred.values["Dose"] != undefined &&
                   cred.values["Dose"].length != 0
-              ) ?
-              'COVIDpass (Vaccination)' :
-              "Digital Certificate",
+                ) ?
+                  'COVIDpass (Vaccination)' :
+                  "Digital Certificate",
             };
             CredArr.push(obj);
           }
@@ -394,8 +379,6 @@ function RegistrationModule({ navigation }) {
       }
       else
         await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
-
-      console.log("CREDENTIALS SAVED");
 
       await addVerificationToActionList();
     }
@@ -442,7 +425,7 @@ function RegistrationModule({ navigation }) {
         onChangeFormattedText={(text) => {
           setPhone(text);
         }}
-        onChangeText={(text)=>{
+        onChangeText={(text) => {
           setPhoneText(text);
         }}
         disableArrowIcon
@@ -655,7 +638,7 @@ function RegistrationModule({ navigation }) {
                 <SimpleButton
                   loaderColor={WHITE_COLOR}
                   isLoading={progress}
-                  onPress={submit} 
+                  onPress={submit}
                   width={250}
                   title='Continue'
                   titleColor={WHITE_COLOR}
@@ -751,8 +734,8 @@ function RegistrationModule({ navigation }) {
                     }}
                   />
                 </View>
-                <Text 
-                  onPress={()=>{
+                <Text
+                  onPress={() => {
                     navigation.navigate('ForgotPasswordScreen');
                   }}
                   style={styles._forgotText}
@@ -763,7 +746,7 @@ function RegistrationModule({ navigation }) {
                 <SimpleButton
                   loaderColor={WHITE_COLOR}
                   isLoading={progress}
-                  onPress={submit} 
+                  onPress={submit}
                   width={250}
                   title='Continue'
                   titleColor={WHITE_COLOR}
@@ -790,7 +773,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     borderBottomWidth: 0,
   },
-  _forgotText:{
+  _forgotText: {
     fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: PRIMARY_COLOR,

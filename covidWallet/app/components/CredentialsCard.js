@@ -1,58 +1,92 @@
+import axios from 'axios';
 import * as React from 'react';
-import { View, Text, StyleSheet, ImageBackground, Image } from 'react-native';
-import moment from 'moment';
+import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { ZADA_S3_BASE_URL } from '../helpers/ConfigApp';
+import { PRIMARY_COLOR } from '../theme/Colors';
 
 const image = require('../assets/images/card-bg.png')
-const card_badge = require('../assets/images/badge.png')
 const planeImage = require('../assets/images/world_map.png')
 
 function CredentialsCard(props) {
 
-    return(
-        <ImageBackground
-            source={planeImage}
-            resizeMode='cover'
+    const [backgroundImage, setBakcgroundImage] = React.useState('');
+    const [loading, setLoading] = React.useState(true);
+
+    React.useLayoutEffect(() => {
+        const _checkForImageInS3 = async () => {
+            try {
+                setLoading(true);
+                let schemeId = parseFloat(props.schemeId.replace(/:/g, '.'));
+                const result = await axios.get(`${ZADA_S3_BASE_URL}/${schemeId}`);
+                if (result.status == 200) {
+                    setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}`);
+                }
+                else {
+                    setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
+                }
+                setLoading(false);
+            } catch (error) {
+                setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
+                setLoading(false);
+            }
+        }
+        _checkForImageInS3();
+    }, [])
+
+    return (
+        <View
             style={styles._mainContainer}
         >
-            <Image source={image} style={styles._frontLayer} />
-
-            <View style={styles._detailsView}>
-                <Text style={styles._cardTitle}>{props.card_type}</Text>
-            
-                <View style={styles._bottomContainer}>
-                    <Image 
-                        source={props.card_logo} 
-                        style={styles._cardLogo} 
-                    />
-                    <View style={styles._cardInfoContainer}>
-                        <View style={{
-                            width: '60%',
-                        }}>
-                            <Text style={styles.card_small_text}>Issued by</Text>
-                            <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{props.issuer}</Text>
-                        </View>
-                        {
-                            props.card_type.toLowerCase().includes('covidpass') &&
-                            props.date ? (
-                                <View>
-                                    <Text style={styles.card_small_text}>Issued Time</Text>
-                                    <Text style={[styles.card_small_text,{fontWeight: 'bold'}]}>{props.date}</Text>
-                                </View>
-                            ):(
-                                null
-                            )
-                        }
+            {
+                loading ? (
+                    <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size='small' color={PRIMARY_COLOR} />
                     </View>
-                </View>
-            
-            </View>
+                ) : (
+                    <>
+                        <Image source={{ uri: backgroundImage }} style={styles._frontLayer} />
 
-        </ImageBackground>
+                        <View style={styles._detailsView}>
+                            <Text style={styles._cardTitle}>{props.card_type}</Text>
+
+                            <View style={styles._bottomContainer}>
+                                <Image
+                                    source={props.card_logo}
+                                    style={styles._cardLogo}
+                                />
+                                <View style={styles._cardInfoContainer}>
+                                    <View style={{
+                                        width: '60%',
+                                    }}>
+                                        <Text style={styles.card_small_text}>Issued by</Text>
+                                        <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.issuer}</Text>
+                                    </View>
+                                    {
+                                        props.card_type.toLowerCase().includes('covidpass') &&
+                                            props.date ? (
+                                            <View>
+                                                <Text style={styles.card_small_text}>Issued Time</Text>
+                                                <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.date}</Text>
+                                            </View>
+                                        ) : (
+                                            null
+                                        )
+                                    }
+                                </View>
+                            </View>
+
+                        </View>
+                    </>
+                )
+            }
+
+
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    _mainContainer:{
+    _mainContainer: {
         width: '100%',
         height: 170,
         borderRadius: 20,
@@ -65,7 +99,7 @@ const styles = StyleSheet.create({
         opacity: 0.8,
         borderRadius: 15,
     },
-    _detailsView:{
+    _detailsView: {
         padding: 20,
         width: '100%',
         height: '100%',
@@ -77,7 +111,7 @@ const styles = StyleSheet.create({
         fontWeight: '100',
         fontWeight: "bold",
     },
-    _bottomContainer:{
+    _bottomContainer: {
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
@@ -85,12 +119,12 @@ const styles = StyleSheet.create({
         bottom: 20,
         left: 20,
     },
-    _cardLogo:{
-        width: 60, 
-        height: 60, 
+    _cardLogo: {
+        width: 60,
+        height: 60,
         borderRadius: 4,
     },
-    _cardInfoContainer:{
+    _cardInfoContainer: {
         width: '75%',
         flexDirection: 'row',
         alignItems: 'center',
