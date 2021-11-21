@@ -59,7 +59,6 @@ export async function accept_connection(metadata: string) {
 
     return result;
   } catch (error) {
-    console.log('THROWING ERROR => ', error);
     throw error;
   }
 }
@@ -207,8 +206,6 @@ export async function send_zada_auth_verification_request(did: string) {
 
 export async function get_tenant(verification: any) {
   try {
-    console.log('GETTING TENANT DETAILS');
-
     let connections: any = await getItem(ConstantsList.CONNECTIONS);
 
     if (connections == undefined || connections == null) {
@@ -222,16 +219,13 @@ export async function get_tenant(verification: any) {
       if (item.connectionId == verification.connectionId) did = item.myDid;
     });
 
-    console.log('DID => ', did);
-
     // Getting Token
     const tokenResult = await authenticateZadaAuth();
-
-    console.log('TOKEN RESULT => ', tokenResult);
 
     if (tokenResult.success) {
       const tenant = await zadaAuthInstance({
         url: `/api/getTenant`,
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${tokenResult.token}`,
         },

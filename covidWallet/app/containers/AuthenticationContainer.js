@@ -28,12 +28,11 @@ function AuthenticationContainer({ navigation }) {
 
     const retrieveData = async () => {
         try {
-             const value = await AsyncStorage.getItem('@passCode').then((value) => {
-                 console.log("Local Storage Password is " + value)
+            const value = await AsyncStorage.getItem('@passCode').then((value) => {
 
-                 setlocalPassCode(value)
+                setlocalPassCode(value)
 
-             })
+            })
 
 
         } catch (error) {
@@ -153,13 +152,13 @@ function AuthenticationContainer({ navigation }) {
                   your account will be compromised in case your phone is lost or stolen." />
                     </View>
 
-                    <View style={{  alignItems: 'center',marginTop:30 }}>
+                    <View style={{ alignItems: 'center', marginTop: 30 }}>
                         <ImageBoxComponent
                             source={img}
                         />
                     </View>
 
-                    <View style={{ alignItems: 'center',marginTop:35 }}>
+                    <View style={{ alignItems: 'center', marginTop: 35 }}>
                         <GreenPrimaryButton text="PASS SECURITY CHECK" nextHandler={enableSecureID} />
                     </View>
                 </View>
@@ -204,12 +203,12 @@ AuthenticationContainer.defaultProps = {
 
 const styles = StyleSheet.create({
     EmptyContainer: {
-        flex:1,
+        flex: 1,
         alignItems: 'center'
-      },
+    },
     TextContainerHead: {
-        alignItems: 'center', justifyContent: 'center', color: 'black', fontFamily:'Merriweather-Bold',
-        marginBottom:10,
+        alignItems: 'center', justifyContent: 'center', color: 'black', fontFamily: 'Merriweather-Bold',
+        marginBottom: 10,
         fontSize: 32, flexDirection: 'column',
     },
     title: {
@@ -266,7 +265,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'center',
         width: 50, height: 50, resizeMode: 'contain',
-      }
+    }
 });
 
 export default AuthenticationContainer;

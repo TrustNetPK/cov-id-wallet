@@ -205,10 +205,10 @@ export const authenticateZadaAuth = async () => {
             const authResult = await axios({
                 url: `${ConstantsList.BASE_URL}/api/authenticate_zada_auth`,
                 method: 'POST',
-                data: JSON.stringify({
+                data: {
                     userId: userID,
                     secretPhrase: walletSecret,
-                })
+                }
             });
 
             if (authResult.data.success) {
@@ -221,7 +221,7 @@ export const authenticateZadaAuth = async () => {
                 return { success: true, token: token }
             }
             else {
-                return { success: false, error: error }
+                return { success: false, error: authResult.data.message }
             }
         }
         else {

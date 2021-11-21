@@ -99,7 +99,6 @@ function ActionsScreen({ navigation }) {
 
   useLayoutEffect(() => {
     NetInfo.fetch().then((networkState) => {
-      console.log('IS CONNECTED => ', networkState.isConnected);
       setNetworkState(networkState.isConnected);
     });
   }, []);
@@ -110,7 +109,6 @@ function ActionsScreen({ navigation }) {
 
   useEffect(() => {
     if (isZadaAuth) {
-      console.log("GOT AUTH DATA => ", authData);
       toggleModal(authData);
     }
   }, [isZadaAuth, authData]);
@@ -131,7 +129,6 @@ function ActionsScreen({ navigation }) {
     const _checkPermission = async () => {
       const authorizationStatus = await messaging().hasPermission();
       if (authorizationStatus !== messaging.AuthorizationStatus.AUTHORIZED) {
-        console.log("Notification Permission => NOT AUTHORIZED");
         _fetchActionList();
         Alert.alert(
           "Zada Wallet",
@@ -139,8 +136,7 @@ function ActionsScreen({ navigation }) {
           [
             {
               text: "Okay",
-              //onPress: () => RNExitApp.exitApp(),
-              onPress: () => console.log("You pressed okay"),
+              onPress: () => { },
               style: "cancel",
             },
           ],
@@ -157,7 +153,6 @@ function ActionsScreen({ navigation }) {
   // Update Actionlist if notificationReceived is true.
   useEffect(() => {
     if (notificationReceived) {
-      console.log('UPDATING LIST UPON NOTIF');
       updateActionsList();
     }
   }, [notificationReceived])
@@ -283,8 +278,6 @@ function ActionsScreen({ navigation }) {
       else {
         console.log(result.data.error);
       }
-
-      //console.log("Connections => ", connections);
     } catch (error) {
       alert(error);
     }
@@ -320,8 +313,6 @@ function ActionsScreen({ navigation }) {
   }
 
   const toggleModal = (v) => {
-    console.log('toggling');
-    console.log(v);
     setSelectedItem(JSON.stringify(v));
 
     let data = JSON.parse(JSON.stringify(v));
@@ -358,7 +349,6 @@ function ActionsScreen({ navigation }) {
     const connections = JSON.parse(await getItem(ConstantsList.CONNECTIONS));
 
     for (let i = 0; i < connections.length; ++i) {
-      console.log(connections[i].name.toLowerCase() + '<==>' + selectedItemObj.organizationName.toLowerCase());
       if (connections[i].name.toLowerCase() === selectedItemObj.organizationName.toLowerCase())
         find = true;
     }
@@ -380,7 +370,6 @@ function ActionsScreen({ navigation }) {
     const credentials = JSON.parse(await getItem(ConstantsList.CREDENTIALS));
 
     for (let i = 0; i < credentials.length; ++i) {
-      console.log(credentials[i].credentialId + '<==>' + selectedItemObj.credentialId);
       if (credentials[i].credentialId === selectedItemObj.credentialId)
         find = true;
     }
@@ -402,7 +391,6 @@ function ActionsScreen({ navigation }) {
     const ver_requests = JSON.parse(await getItem(ConstantsList.VER_REQ));
 
     for (let i = 0; i < ver_requests.length; ++i) {
-      console.log(ver_requests[i].verificationId + '<==>' + selectedItemObj.verificationId);
       if (ver_requests[i].verificationId === selectedItemObj.verificationId)
         find = true;
     }
@@ -455,7 +443,6 @@ function ActionsScreen({ navigation }) {
           }
           catch (e) {
             setIsLoading(false);
-            console.log("ERROR => ", e)
           }
         } else {
           showMessage('ZADA Wallet', result.data.message);
@@ -506,8 +493,6 @@ function ActionsScreen({ navigation }) {
           // Finding corresponsing connection to this credential
           let item = connectionsList.find(c => c.connectionId == cred.connectionId);
 
-          console.log("OLD CREDENTIAL OBJ", cred);
-
           // Putting image, type and title in credential
           let obj = {
             ...cred,
@@ -527,8 +512,6 @@ function ActionsScreen({ navigation }) {
 
           // Adding updated credential object to credentials list
           credentialsList.unshift(obj);
-
-          console.log("UPDATED CREDENTIAL OBJ", obj);
 
           // Saving updated credentials list in local storage
           await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsList))
@@ -709,7 +692,7 @@ function ActionsScreen({ navigation }) {
       [
         {
           text: "Okay",
-          onPress: () => console.log('Success Alert Dismiss'),
+          onPress: () => { },
           style: "cancel",
         },
       ],
@@ -732,7 +715,6 @@ function ActionsScreen({ navigation }) {
   //   // }
   // }
   function onSwipeValueChange(v) {
-    console.log(v);
     // console.log(Math.abs(v.value / 75))
     // animatedScaling[key].setValue(Math.abs(value));
   }
@@ -745,7 +727,6 @@ function ActionsScreen({ navigation }) {
   const _checkPinCode = async () => {
     try {
       const isPincode = await getItem(ConstantsList.PIN_CODE);
-      console.log('isPincode', isPincode);
       if (isPincode != null && isPincode != undefined && isPincode.length != 0)
         setIsPincode(true);
       else
@@ -791,7 +772,6 @@ function ActionsScreen({ navigation }) {
 
     // Saving pincode in async
     try {
-      console.log('pincode', pincode);
       await saveItem(ConstantsList.PIN_CODE, pincode);
 
       setIsPincode(true);

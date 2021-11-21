@@ -42,8 +42,6 @@ function CredentialsScreen(props) {
       else
         await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
 
-      console.log("CONNECTIONS SAVED");
-
       // Fetching Credentials
       const credResponse = await get_all_credentials();
 
@@ -79,8 +77,6 @@ function CredentialsScreen(props) {
         else
           await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
 
-        console.log("CREDENTIALS SAVED");
-
         await addVerificationToActionList();
       }
       else {
@@ -113,7 +109,7 @@ function CredentialsScreen(props) {
 
       setCredentials(credentialsList);
     } catch (e) {
-      console.log('error: updateCredentialList => ', e)
+      console.log(e)
     }
   }
 
@@ -128,10 +124,6 @@ function CredentialsScreen(props) {
       data: v
     });
   };
-
-  useEffect(() => {
-    console.log(require('../assets/images/action.gif'));
-  }, [])
 
   return (
     <View style={themeStyles.mainContainer}>

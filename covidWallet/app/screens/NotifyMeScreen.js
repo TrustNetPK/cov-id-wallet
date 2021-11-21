@@ -12,7 +12,7 @@ import { AuthContext } from '../Navigation';
 import PushNotification from 'react-native-push-notification';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { checkNotifications, requestNotifications} from 'react-native-permissions';
+import { checkNotifications, requestNotifications } from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 
 const img = require('../assets/images/notifications.png');
@@ -23,11 +23,10 @@ function NotifyMeScreen({ navigation }) {
   const [isLoading, setLoading] = useState(false);
 
   async function enableNotifications() {
-    
+
     // ask for notification permission
     const authorizationStatus = await messaging().hasPermission();
-    if(authorizationStatus == messaging.AuthorizationStatus.AUTHORIZED){
-      console.log("Notification Permission => Already Authorized");
+    if (authorizationStatus == messaging.AuthorizationStatus.AUTHORIZED) {
       const authorizationStatus = await messaging().requestPermission({
         sound: true,
         badge: true,
@@ -41,7 +40,7 @@ function NotifyMeScreen({ navigation }) {
         console.log("Notification Permission => Disabled");
       }
     }
-    else{
+    else {
       const authorizationStatus = await messaging().requestPermission({
         sound: true,
         badge: true,

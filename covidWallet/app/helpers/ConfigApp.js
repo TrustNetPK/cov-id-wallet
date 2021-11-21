@@ -1,9 +1,9 @@
 module.exports = Object.freeze({
-  //BASE_URL: 'http://837c-39-33-189-238.ngrok.io',
+  //BASE_URL: 'http://93aa-182-191-89-195.ngrok.io',
   BASE_URL: 'http://test-agency.zadanetwork.com',
   //BASE_URL: 'https://agency.zadanetwork.com',
   ZADA_AUTH_URL: 'https://auth-test.zadanetwork.com',
-  //ZADA_AUTH_URL: 'http://3dc4-182-191-89-195.ngrok.io',
+  //ZADA_AUTH_URL: 'http://0876-182-191-89-195.ngrok.io',
   ZADA_AUTH_SECRET: 'doingtestinginzadaauth',
   ZADA_S3_BASE_URL: 'https://zada-wallet-cred-bg.s3.ap-southeast-1.amazonaws.com',
   ZADA_AUTH: 'zada_auth',

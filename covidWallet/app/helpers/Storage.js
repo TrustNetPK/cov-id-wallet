@@ -30,7 +30,6 @@ export const getItem = async (key) => {
 export const ls_addConnection = async (new_conn) => {
   let conns = [];
   let connectionsdata = await getItem(ConstantsList.CONNECTIONS)
-  console.log('connectionsdata => ', connectionsdata);
   if (connectionsdata == null) {
     conns = conns.concat(new_conn);
   } else {
@@ -38,10 +37,8 @@ export const ls_addConnection = async (new_conn) => {
       conns = JSON.parse(connectionsdata);
       conns = conns.concat(new_conn);
     } catch (e) {
-      console.log('Error Occurred ' + e);
       conns = [];
     }
-    console.log('conns => ', conns);
   }
   await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(conns));
 }
@@ -151,15 +148,14 @@ export const deleteConnAndCredByConnectionID = async (connectionId) => {
   let connections = await getItem(ConstantsList.CONNECTIONS);
   let connectionsArr = JSON.parse(connections);
 
-  for(let i = 0; i < credentialsArr.length; ++i){
-    if(credentialsArr[i].connectionId ==  connectionId)
+  for (let i = 0; i < credentialsArr.length; ++i) {
+    if (credentialsArr[i].connectionId == connectionId)
       await delete_credential(credentialsArr[i].credentialId);
   }
 
   credentialsArr = credentialsArr.filter((c) => {
     return c.connectionId != connectionId
   });
-  console.log("CREDENTIALS DELETED");
 
   connectionsArr = connectionsArr.filter((c) => {
     return c.connectionId != connectionId
@@ -167,13 +163,10 @@ export const deleteConnAndCredByConnectionID = async (connectionId) => {
 
   // Deleting Connection from DB
   await delete_connection(connectionId);
-  console.log("CONNECTION DELETED");
 
   await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsArr));
-  console.log("CREDENTIALS UPDATED", credentialsArr.length);
 
   await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsArr));
-  console.log("CONNECTIONS UPDATED");
 };
 
 export const deleteActionByConnectionID = async (connectionId) => {
@@ -219,9 +212,7 @@ export const searchConnectionByOrganizationName = async (organizationName) => {
 
   if (connections == null) return
 
-  console.log('connecitons => ', connections)
   let obj = connections.find((e) => e.name == organizationName);
-  console.log(obj)
 
   return obj
 };

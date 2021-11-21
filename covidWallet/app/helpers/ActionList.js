@@ -11,12 +11,12 @@ export const addCredentialToActionList = async (credentialID) => {
   let cred_arr = [];
   let cred_arr_archive = await getItem(ConstantsList.CRED_OFFER);
 
-  if(cred_arr_archive !== null){
-    if(JSON.parse(cred_arr_archive).find(i => i !== null))
+  if (cred_arr_archive !== null) {
+    if (JSON.parse(cred_arr_archive).find(i => i !== null))
       cred_arr = JSON.parse(cred_arr_archive);
   }
 
-  
+
 
   if (ifExist(cred_arr, credentialID)) {
     return
@@ -27,14 +27,10 @@ export const addCredentialToActionList = async (credentialID) => {
       let result = await get_credential(credentialID);
       if (result.data.success) {
 
-        console.log("IN SUCCESS");
-        
         let obj = result.data.credential;
         obj['type'] = ConstantsList.CRED_OFFER;
         obj = await addImageAndNameFromConnectionList(obj)
         cred_arr.push(obj);
-      
-        console.log("CRED ARR => ", cred_arr);
 
         // Adding item to credentials.
         await saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr));
@@ -71,15 +67,13 @@ export const addVerificationToActionList = async (credentialID) => {
         verification_arr[i]['type'] = ConstantsList.VER_REQ
       }
 
-      console.log("VERIFICATION ARRAY", verifications);
-
       // Save Verification Request.
       await saveItem(ConstantsList.VER_REQ, JSON.stringify(verification_arr));
 
-      if(verifications[0].organizationName && verifications[0].organizationName == ZADA_AUTH_TEST)
-        return {isZadaAuth: true, data: verifications[0]}
+      if (verifications[0].organizationName && verifications[0].organizationName == ZADA_AUTH_TEST)
+        return { isZadaAuth: true, data: verifications[0] }
       else
-        return {isZadaAuth: false, data: null}
+        return { isZadaAuth: false, data: null }
 
     } else {
       showMessage('ZADA Wallet', resp.message);

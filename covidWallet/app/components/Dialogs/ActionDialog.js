@@ -79,7 +79,7 @@ function ActionDialog(props) {
                     setCounter(Math.random() * 9999);
                 }
                 else {
-                    console.log(tenant.error);
+                    console.log('Tenant', tenant.error);
                 }
             }
 

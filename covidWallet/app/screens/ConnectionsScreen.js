@@ -47,7 +47,6 @@ function ConnectionsScreen(props) {
 
   const updateConnectionsList = async () => {
     let connections = (JSON.parse(await getItem(ConstantsList.CONNECTIONS)) || []);
-    console.log("Connection Lenght", connections.length);
     if (connections.length > 0) {
       setConnectionsList(connections);
       setConnection(true);
@@ -73,7 +72,6 @@ function ConnectionsScreen(props) {
           setRefreshing(false);
         }
       } else {
-        console.log(result.data);
         showMessage('ZADA Wallet', result.data.error);
         setRefreshing(false);
       }
@@ -90,7 +88,6 @@ function ConnectionsScreen(props) {
       // Delete connection with its respective certificates
       setIsLoading(true);
 
-      console.log(connection);
       await deleteConnAndCredByConnectionID(connection.connectionId);
       await deleteActionByConnectionID(connection.connectionId);
       // const verifications = await getItem(ConstantsList.VER_REQ);
@@ -114,14 +111,12 @@ function ConnectionsScreen(props) {
   }
 
   function onRejectPress() {
-    console.log('rejected!')
+    //console.log('')
   }
 
   function onDeletePressed(e) {
     setClickedConnection(e);
     setTemp(Math.random() * 999);
-
-    console.log('Clicked Connection', e);
 
     Alert.alert(
       "Are you sure you want to delete this connection?",

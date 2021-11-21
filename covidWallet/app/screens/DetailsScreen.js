@@ -153,7 +153,6 @@ export default function DetailsScreen(props) {
             }}>
                 {
                     orderedValues != undefined && Object.keys(orderedValues).map((e, i) => {
-                        console.log(e, orderedValues[e]);
                         return (
                             renderTitleInput(e, i)
                         )

@@ -33,12 +33,11 @@ const useNotification = () => {
 
     async function localReceiveNotificationEventListener(notification) {
         const verData = await receiveNotificationEventListener(notification);
-        console.log("ANDROID => ",verData);
-        if(verData.auth_verification){
+        if (verData.auth_verification) {
             setAuthData(verData.data);
             setZadaAuth(true);
         }
-        else{
+        else {
             setAuthData(null);
             setZadaAuth(false);
         }
@@ -60,22 +59,17 @@ const useNotification = () => {
                 //Use identifier to make sure you dont process twice
                 let notificationsProcessed = [];
                 for (let i = 0; i < notifications.length; i++) {
-                    console.log(`notif${i}`,notifications[i]);
                     switch (notifications[i].userInfo.type) {
                         case CRED_OFFER:
                             await addCredentialToActionList(notifications[i].userInfo.metadata);
                             break;
                         case VER_REQ:
-                            console.log("VERIFICATION REQUESTS");
-                            console.log('verification request => ', notifications[i])
                             const verData = await addVerificationToActionList();
-                            
-                            console.log("IOS => ",verData);
-                            if(verData.isZadaAuth){
+                            if (verData.isZadaAuth) {
                                 setAuthData(verData.data);
                                 setZadaAuth(true);
                             }
-                            else{
+                            else {
                                 setAuthData(null);
                                 setZadaAuth(false);
                             }
@@ -85,7 +79,6 @@ const useNotification = () => {
                             console.log('notification type not found!');
                     }
                     notificationsProcessed.push(notifications[i].identifier);
-                    console.log('notificationsProcessed => ', notificationsProcessed)
                 }
                 PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
                 refreshScreen();

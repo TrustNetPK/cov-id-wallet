@@ -142,7 +142,7 @@ function QRScreen({ route, navigation }) {
         }
       })
       .catch((e) => {
-        console.log('Error is ' + e);
+        console.log(e);
       });
 
     getItem(ConstantsList.CRED_OFFER)
@@ -168,7 +168,7 @@ function QRScreen({ route, navigation }) {
         }
       })
       .catch((e) => {
-        console.log('Error is ' + e);
+        console.log(e);
       });
 
 
@@ -186,13 +186,12 @@ function QRScreen({ route, navigation }) {
         setProofRequest(JSON.stringify(arr2));
       })
       .catch((e) => {
-        console.log('Error is ' + e);
+        console.log(e);
       });
   }, []);
 
 
   const getResponseUrl = async (inviteID, qrJSON) => {
-    console.log('TRINSIC URL => ', inviteID + '<-->' + qrJSON);
     let baseURL = 'https://trinsic.studio/url/';
     await fetch(baseURL + inviteID, {
       method: 'GET',
@@ -200,7 +199,6 @@ function QRScreen({ route, navigation }) {
         'Content-Type': 'application/json; charset=utf-8',
       },
     }).then((response) => {
-      console.log("Response => ", response);
       const parsed = queryString.parse(response.url, true);
       let urlData = Object.values(parsed)[0];
       var data = JSON.parse(Buffer.from(urlData, 'base64').toString());
@@ -208,10 +206,8 @@ function QRScreen({ route, navigation }) {
       qrJSON.imageUrl = data.imageUrl;
       qrJSON.connectionId = data['@id'];
 
-      console.log("qrJSON => ", qrJSON);
       getItem(ConstantsList.CONNECTIONS).then((connectionList) => {
         let QRConnList = JSON.parse(connectionList);
-        console.log('QRConnList => ', QRConnList)
         let connectionExists = false;
         if (QRConnList != null) {
           for (let j = 0; j < QRConnList.length; j++) {
@@ -237,8 +233,6 @@ function QRScreen({ route, navigation }) {
           );
         } else {
           cr_arr.push(qrJSON);
-          console.log("Pushing => ", qrJSON);
-          console.log("After push => ", cr_arr);
           saveItem(ConstantsList.CONN_REQ, JSON.stringify(cr_arr))
             .then(() => {
               setProgress(false);
@@ -268,7 +262,6 @@ function QRScreen({ route, navigation }) {
         },
       ).then((credential) =>
         credential.json().then(async (data) => {
-          console.log("CRED DATA => ", data);
           if (data.success == false) {
             setProgress(false);
             Alert.alert(
@@ -286,7 +279,6 @@ function QRScreen({ route, navigation }) {
             let qrJSON = data.credential;
             qrJSON.type = ConstantsList.CRED_OFFER;
             qrJSON = await addImageAndNameFromConnectionList(qrJSON);
-            console.log('qrJSON => ', qrJSON);
             cred_arr.push(qrJSON);
             saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr))
               .then(() => {
@@ -344,7 +336,8 @@ function QRScreen({ route, navigation }) {
         // Find Connection
         const response = await find_auth_connection(userId, data.tenantId);
         if (response.data.success) {
-          const sendResult = await send_zada_auth_verification_request(response.data.data.did)
+          const sendResult = await send_zada_auth_verification_request(response.data.data.did);
+
           if (sendResult.data.success) {
             setProgress(false);
             navigation.navigate('MainScreen');
@@ -358,8 +351,6 @@ function QRScreen({ route, navigation }) {
           // Accept connection
           const result = await accept_connection(ZADA_AUTH_CONNECTION_ID);
           if (result.data.success) {
-            console.log('connection => ', result.data);
-
             // Adding in user connections
             await ls_addConnection(result.data.connection);
 
@@ -446,7 +437,6 @@ function QRScreen({ route, navigation }) {
           }
           setScan(false);
         } catch (error) {
-          console.log(error.message);
           setProgress(false);
           setScan(false);
           Alert.alert(
