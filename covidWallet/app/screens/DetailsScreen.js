@@ -1,15 +1,17 @@
-import React, { useLayoutEffect, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, FlatList, Linking, Alert } from 'react-native';
-import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { BLACK_COLOR, GRAY_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import CredentialsCard from '../components/CredentialsCard';
 import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
-import { delete_credential } from '../gateways/credentials';
-import { showMessage, showAskDialog } from '../helpers/Toast';
+import { delete_credential, get_signature } from '../gateways/credentials';
+import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { deleteCredentialByCredId } from '../helpers/Storage';
 import OverlayLoader from '../components/OverlayLoader';
 import moment from 'moment';
+import { Buffer } from 'buffer';
+import ConstantList from '../helpers/ConfigApp'
 
 export default function DetailsScreen(props) {
 
@@ -36,6 +38,8 @@ export default function DetailsScreen(props) {
 
     // States
     const [isLoading, setIsLoading] = useState(false)
+    const [qrLoading, setQRLoading] = useState(false);
+    const [qr, setQR] = useState('');
 
     useLayoutEffect(() => {
         // Setting delete Icon
@@ -132,6 +136,35 @@ export default function DetailsScreen(props) {
 
     }
 
+    useEffect(() => {
+        const fetch_signature = async () => {
+            try {
+                setQRLoading(true);
+                const result = await get_signature(data.credentialId);
+                if (result.data.success) {
+                    // Converting values in base64
+                    let objJsonStr = JSON.stringify(data.values);
+                    let base64Values = Buffer.from(objJsonStr).toString("base64");
+
+                    // Making QR based on signature and base 64 encoded data
+                    let qrData = {
+                        base64: base64Values,
+                        signature: result.data.signature
+                    }
+                    setQR(`${ConstantList.QR_URL}${JSON.stringify(qrData)}`);
+                }
+                else {
+                    _showAlert('ZADA Wallet', result.data.message);
+                }
+                setQRLoading(false);
+            } catch (error) {
+                setQRLoading(false);
+                _showAlert('ZADA Wallet', error.message);
+            }
+        }
+        fetch_signature();
+    }, [])
+
     return (
         <View style={[themeStyles.mainContainer]}>
             {
@@ -142,15 +175,36 @@ export default function DetailsScreen(props) {
             }
             <View style={styles.container}>
                 <View style={styles.CredentialsCardContainer}>
-                    <CredentialsCard card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={date} card_logo={imgURI} />
+                    {
+                        qrLoading ? (
+                            <View style={{ alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                                <ActivityIndicator
+                                    size='small'
+                                    color={PRIMARY_COLOR}
+                                />
+                                <Text style={{ fontSize: 16, marginTop: 5 }}>Loading QR...</Text>
+                            </View>
+                        ) : (
+                            <Image
+                                source={{ uri: qr }}
+                                resizeMode='contain'
+                                style={{
+                                    width: 160,
+                                    height: 160,
+                                    alignSelf: 'center'
+                                }}
+                            />
+                        )
+                    }
                 </View>
             </View>
 
 
-            <KeyboardAwareScrollView style={{
-                maxHeight: '70%',
-                marginTop: 16,
-            }}>
+            <KeyboardAwareScrollView
+                style={{
+                    maxHeight: '70%',
+                    marginTop: 16,
+                }}>
                 {
                     orderedValues != undefined && Object.keys(orderedValues).map((e, i) => {
                         return (
@@ -169,7 +223,7 @@ const styles = StyleSheet.create({
         color: BLACK_COLOR
     },
     container: {
-        paddingTop: 0,
+        paddingTop: 5,
         paddingLeft: 5,
         paddingRight: 5,
     },

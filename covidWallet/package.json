@@ -27,6 +27,7 @@
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
     "expo-local-authentication": "^11.1.1",
+    "hybrid-crypto-js": "^0.2.4",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.1",
     "query-string": "^7.0.0",
@@ -56,7 +57,8 @@
     "react-native-svg": "^12.1.1",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-unimodules": "^0.14.6",
-    "react-native-vector-icons": "6.6.0"
+    "react-native-vector-icons": "6.6.0",
+    "react-zlib-js": "^1.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

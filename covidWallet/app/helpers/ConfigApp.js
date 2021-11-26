@@ -1,6 +1,6 @@
 module.exports = Object.freeze({
-  //BASE_URL: 'http://93aa-182-191-89-195.ngrok.io',
-  BASE_URL: 'http://test-agency.zadanetwork.com',
+  BASE_URL: 'http://ad1b-110-93-246-171.ngrok.io',
+  //BASE_URL: 'http://test-agency.zadanetwork.com',
   //BASE_URL: 'https://agency.zadanetwork.com',
   ZADA_AUTH_URL: 'https://auth-test.zadanetwork.com',
   //ZADA_AUTH_URL: 'http://0876-182-191-89-195.ngrok.io',
@@ -29,4 +29,5 @@ module.exports = Object.freeze({
   PIN_CODE: 'pin_code',
   ZADA_AUTH_TEST: 'ZADA Auth Test',
   ZADA_AUTH_CONNECTION_ID: 'f743ac9a-9758-495d-bfbc-74421ae6d1e9',
+  QR_URL: "https://api.qrserver.com/v1/create-qr-code/?size=512x512&data="
 });

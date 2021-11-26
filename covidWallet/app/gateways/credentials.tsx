@@ -118,3 +118,22 @@ export async function get_all_credentials_offers() {
     throw error;
   }
 }
+
+// Get signature for credential
+export async function get_signature(credentialId: string) {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_credential_signature',
+      params: {
+        credentialId: credentialId,
+      },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
