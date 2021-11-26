@@ -17,7 +17,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingsScreen from './screens/SettingsScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import QRScreen from './screens/QRScreen';
-import { BLACK_COLOR, BACKGROUND_COLOR, PRIMARY_COLOR, WHITE_COLOR } from './theme/Colors';
+import { BLACK_COLOR, BACKGROUND_COLOR } from './theme/Colors';
 import RegistrationModule from './screens/RegistrationModule';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import MultiFactorScreen from './screens/MultiFactorScreen';

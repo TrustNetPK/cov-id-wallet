@@ -1,7 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { BLACK_COLOR, GRAY_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
-import CredentialsCard from '../components/CredentialsCard';
 import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
@@ -27,14 +26,6 @@ export default function DetailsScreen(props) {
         },
         {}
     );
-
-    const vaccineName = data.name;
-    const imgURI = { uri: data.imageUrl };
-    const issuedBy = data.organizationName;
-    let card_type = data.type;
-    let issueDate = data.values['Issue Time'];
-
-    let date = moment(issueDate).format('DD/MM/YYYY');
 
     // States
     const [isLoading, setIsLoading] = useState(false)
@@ -136,6 +127,7 @@ export default function DetailsScreen(props) {
 
     }
 
+    // Effect to fetch signature
     useEffect(() => {
         const fetch_signature = async () => {
             try {
@@ -149,7 +141,8 @@ export default function DetailsScreen(props) {
                     // Making QR based on signature and base 64 encoded data
                     let qrData = {
                         base64: base64Values,
-                        signature: result.data.signature
+                        signature: result.data.signature,
+                        type: 'cred_ver'
                     }
                     setQR(`${ConstantList.QR_URL}${JSON.stringify(qrData)}`);
                 }
