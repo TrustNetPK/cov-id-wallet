@@ -29,5 +29,6 @@ module.exports = Object.freeze({
   PIN_CODE: 'pin_code',
   ZADA_AUTH_TEST: 'ZADA Auth Test',
   ZADA_AUTH_CONNECTION_ID: 'f743ac9a-9758-495d-bfbc-74421ae6d1e9',
-  QR_URL: "https://api.qrserver.com/v1/create-qr-code/?size=512x512&data="
+  QR_URL: "https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=",
+  VER_KEY: 'verkey',
 });

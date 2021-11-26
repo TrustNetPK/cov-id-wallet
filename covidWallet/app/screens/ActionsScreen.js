@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl, Dimensions } from 'react-native';
+import { Alert, View, StyleSheet, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
@@ -15,25 +15,22 @@ import HeadingComponent from '../components/HeadingComponent';
 import BorderButton from '../components/BorderButton';
 
 import messaging from '@react-native-firebase/messaging';
-import PushNotification from 'react-native-push-notification';
 
 import { themeStyles } from '../theme/Styles';
-import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 
 import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
 import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../helpers/ConfigApp';
 
-import { AuthenticateUser, authenticateZadaAuth } from '../helpers/Authenticate';
+import { AuthenticateUser } from '../helpers/Authenticate';
 import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential, delete_credential, getToken, get_credential } from '../gateways/credentials';
+import { accept_credential, delete_credential, getToken, get_credential, get_verification_key } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
-import useCredentials from '../hooks/useCredentials';
-import RNExitApp from 'react-native-exit-app';
 import http_client from '../gateways/http_client';
 import OverlayLoader from '../components/OverlayLoader';
 import { analytics_log_action_screen } from '../helpers/analytics';
@@ -53,7 +50,6 @@ function ActionsScreen({ navigation }) {
   const [actionsList, setActionsList] = useState([]);
   const [modalData, setModalData] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
-  const [hasToken, setTokenExpired] = useState(true);
   const [Uid, storeUid] = useState();
   const [secret, storeSecret] = useState('');
   const [networkState, setNetworkState] = useState(false);
@@ -74,9 +70,6 @@ function ActionsScreen({ navigation }) {
   const [verifyPincode, setVerifyPincode] = useState('');
   const [verifyPincodeError, setVerifyPincodeError] = useState('');
 
-  // Credentials hook
-  //const { credentials } = useCredentials(!isLoading);
-
   // Notification hook
   const { notificationReceived, isZadaAuth, authData, setZadaAuth, setAuthData } = useNotification();
 
@@ -96,6 +89,33 @@ function ActionsScreen({ navigation }) {
       />
     ),
   };
+
+  // Effect to check for verification Key
+  useState(() => {
+    const getVerKey = async () => {
+      try {
+        const verKey = await getItem(ConstantsList.VER_KEY);
+
+        // Ver key doesn't exists
+        if (verKey == undefined || verKey == null || verKey == "") {
+          const result = await get_verification_key();
+          if (result.data.success) {
+            console.log("FILE FETCHED", result.data);
+            await saveItem(ConstantsList.VER_KEY, result.data.file);
+          }
+          else {
+            console.log('FETCHING VER KEY =>', result.data.message);
+          }
+        }
+        else {
+          console.log("Verification Key is already fetched");
+        }
+      } catch (error) {
+        console.log('FETCHING VER KEY =>', error.message);
+      }
+    }
+    getVerKey();
+  }, [])
 
   useLayoutEffect(() => {
     NetInfo.fetch().then((networkState) => {

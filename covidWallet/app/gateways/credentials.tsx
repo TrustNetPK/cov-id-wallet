@@ -1,5 +1,4 @@
 import http_client from './http_client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthenticateUser} from '../helpers/Authenticate';
 import {
   analytics_log_accept_credential_request,
@@ -128,6 +127,22 @@ export async function get_signature(credentialId: string) {
       params: {
         credentialId: credentialId,
       },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Get verification key
+export async function get_verification_key() {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_public_ver_key',
       headers: {
         Authorization: 'Bearer ' + (await getToken()),
       },
