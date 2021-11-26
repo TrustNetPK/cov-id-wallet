@@ -1,7 +1,6 @@
-import {useEffect, useState, useRef} from 'react';
-import {AppState} from 'react-native';
+import {useState} from 'react';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {getItem, saveItem} from '../helpers/Storage';
+import {getItem} from '../helpers/Storage';
 import {BIOMETRIC_ENABLED} from '../helpers/ConfigApp';
 import {showMessage} from '../helpers/Toast';
 
