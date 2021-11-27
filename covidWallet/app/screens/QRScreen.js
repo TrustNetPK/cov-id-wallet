@@ -6,7 +6,7 @@ import {
   Text,
   Alert,
   TouchableOpacity,
-  Platform,
+  Image,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -18,12 +18,20 @@ import {
 } from '../helpers/Storage';
 import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
 import { Buffer } from 'buffer';
+import { Crypt } from 'hybrid-crypto-js';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
 import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
 import { accept_connection, add_session, find_auth_connection, save_connection, save_did, save_link, send_connection_data, send_zada_auth_verification_request } from '../gateways/connections';
+import Modal from 'react-native-modal';
+import { BACKGROUND_COLOR, BLACK_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
+import HeadingComponent from '../components/HeadingComponent';
+import moment from 'moment';
+import SimpleButton from '../components/Buttons/SimpleButton';
+import LottieView from 'lottie-react-native';
 
 function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
@@ -33,87 +41,14 @@ function QRScreen({ route, navigation }) {
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('Fetching Details');
+  const [showCredVerModal, setShowCredVerModal] = useState(true);
+  const [values, setValues] = useState(undefined);
+  const [credScanning, setCredScanning] = useState(false);
+  const [showScanningModal, setScanningModal] = useState(false);
 
   var cr_arr = [];
   var cred_arr = [];
   var arr2 = [];
-  var hasToken = true;
-  var credentialID = '';
-  var userToken = '';
-  var isConnected = false;
-
-  // useEffect(() => {
-  //   NetInfo.fetch().then((networkState) => {
-  //     setNetworkState(networkState.isConnected);
-  //   });
-  //   getItem(ConstantsList.CONN_REQ)
-  //     .then((data) => {
-  //       if (data == null) {
-  //         cr_arr = [];
-  //       } else {
-  //         try {
-  //           cr_arr = JSON.parse(data);
-  //         } catch (e) {
-  //           cr_arr = [];
-  //         }
-  //       }
-  //       setConnectionRequest(JSON.stringify(cr_arr));
-  //       if (route.params != undefined) {
-  //         setScan(false);
-  //         const { request } = route.params;
-  //         const qrJSON = JSON.parse(JSON.stringify(request));
-  //         if (request.type == 'connection_request') {
-  //           setProgress(true);
-  //           getResponseUrl(request.metadata, qrJSON);
-  //         }
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       console.log('Error is ' + e);
-  //     });
-
-  //   getItem(ConstantsList.CRED_OFFER)
-  //     .then((data) => {
-  //       if (data == null) {
-  //         cred_arr = [];
-  //       } else {
-  //         try {
-  //           cred_arr = JSON.parse(data);
-  //         } catch (e) {
-  //           cred_arr = [];
-  //         }
-  //       }
-  //       setCredentialRequest(JSON.stringify(cred_arr));
-  //     })
-  //     .catch((e) => {
-  //       console.log('Error is ' + e);
-  //     });
-
-  //   getItem(ConstantsList.PROOF_REQ)
-  //     .then((data) => {
-  //       if (data == null) {
-  //         arr2 = [];
-  //       } else {
-  //         try {
-  //           arr2 = JSON.parse(data);
-  //         } catch (e) {
-  //           arr2 = [];
-  //         }
-  //       }
-  //       setProofRequest(JSON.stringify(arr2));
-  //     })
-  //     .catch((e) => {
-  //       console.log('Error is ' + e);
-  //     });
-  // }, [
-  //   // networkState,
-  //   // connection_request,
-  //   // credential_request,
-  //   // proof_request,
-  //   // progress,
-  //   // dialogTitle,
-  //   // scan,
-  // ]);
 
   useEffect(() => {
     NetInfo.fetch().then((networkState) => {
@@ -405,15 +340,7 @@ function QRScreen({ route, navigation }) {
             arr2 = [];
           }
 
-          // let extract = e.data.toString();
-          // if (Platform.OS == "ios") {
-          //   extract = extract.replaceAll('\\', '');
-          // }
-          // const qrJSON = JSON.parse(extract);
-          // console.log(qrJSON);
-
           const qrJSON = JSON.parse(unEscapedStr);
-          // if (qrJSON.type == 'connection_credential') {
           if (qrJSON.type == 'credential_offer') {
             setScan(false);
             setProgress(true);
@@ -458,8 +385,195 @@ function QRScreen({ route, navigation }) {
     }
   };
 
+  function orderValues(values) {
+    let orderedValues = undefined;
+    orderedValues = Object.keys(values).sort().reduce(
+      (obj, key) => {
+        obj[key] = values[key];
+        return obj;
+      },
+      {}
+    );
+    return orderedValues;
+  }
+
+  // Function to handle credential verification
+  const handle_cred_verification = (credQrData) => {
+    try {
+      var credValues = JSON.parse(Buffer.from(credQrData.data, 'base64').toString());
+      setValues(credValues);
+      setShowCredVerModal(true);
+    } catch (error) {
+      _showAlert('ZADA Wallet', error.message);
+    }
+  }
+
+  function renderTitleInput(title, index) {
+    let value = values[title];
+
+    if (title == 'Issue Time') {
+      return (
+        <View
+          key={index}
+          style={{
+            marginLeft: 16,
+            marginRight: 16,
+            marginTop: 4,
+            marginBottom: 4,
+          }}>
+          <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
+          <View style={{
+            paddingLeft: 16,
+            paddingRight: 16,
+            backgroundColor: BACKGROUND_COLOR,
+            color: BLACK_COLOR,
+            height: 40,
+            marginBottom: 4,
+            borderRadius: 16,
+            justifyContent: "center"
+          }}>
+            <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
+          </View>
+        </View>
+      )
+    }
+    else {
+      return (
+        <View
+          key={index}
+          style={{
+            marginLeft: 16,
+            marginRight: 16,
+            marginTop: 4,
+            marginBottom: 4,
+          }}>
+          <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
+          <View style={{
+            paddingLeft: 16,
+            paddingRight: 16,
+            backgroundColor: WHITE_COLOR,
+            color: BLACK_COLOR,
+            height: 40,
+            marginBottom: 4,
+            borderRadius: 16,
+            justifyContent: "center"
+          }}>
+            <Text style={{ color: BLACK_COLOR }}>{value}</Text>
+          </View>
+        </View>
+      )
+    }
+
+
+  }
+
   return (
     <View style={styles.MainContainer}>
+
+      <Modal
+        animationIn='slideInLeft'
+        animationOut='slideOutRight'
+        isVisible={showScanningModal}
+      >
+        <View
+          style={{
+            borderRadius: 10,
+            backgroundColor: BACKGROUND_COLOR,
+            paddingHorizontal: 20,
+            paddingBottom: 20
+          }}
+        >
+          {
+            credScanning ? (
+              <>
+                <HeadingComponent
+                  text='Scanning...'
+                />
+                <LottieView
+                  source={require('../assets/animation/cred_scanning.json')}
+                  autoPlay
+                  loop
+                  resizeMode='cover'
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                  }}
+                />
+              </>
+            ) : (
+              <View
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <HeadingComponent
+                  text='Success'
+                />
+                <Image
+                  source={require('../assets/images/check.png')}
+                  resizeMode='cover'
+                  style={{
+                    width: 128,
+                    height: 128,
+                  }}
+                />
+                <SimpleButton
+                  buttonColor={GREEN_COLOR}
+                  onPress={() => { setScanningModal(false); navigation.goBack() }}
+                  title='OKAY'
+                  titleColor={WHITE_COLOR}
+                  width={250}
+                  style={{ marginTop: 20 }}
+                />
+              </View>
+            )
+          }
+
+        </View>
+      </Modal>
+
+      <Modal
+        animationIn='slideInLeft'
+        animationOut='slideOutRight'
+        isVisible={showCredVerModal}
+      >
+        <View style={{ backgroundColor: BACKGROUND_COLOR, borderRadius: 10, paddingHorizontal: 20, paddingBottom: 20 }}>
+          <HeadingComponent
+            text='Certificate Values'
+          />
+          <KeyboardAwareScrollView
+            style={{
+              maxHeight: 250,
+            }}
+          >
+            {
+              values != undefined && Object.keys(values).length > 0 && Object.keys(values).map((e, i) => {
+                return renderTitleInput(e, i)
+              })
+            }
+          </KeyboardAwareScrollView>
+
+          <SimpleButton
+            onPress={() => {
+              setShowCredVerModal(false);
+              setCredScanning(true);
+              setTimeout(() => {
+                setScanningModal(true);
+                setTimeout(() => {
+                  setCredScanning(false);
+                }, 10000);
+              }, 500);
+
+            }}
+            width={250}
+            title='Verify'
+            titleColor={WHITE_COLOR}
+            buttonColor={GREEN_COLOR}
+            style={{ marginTop: 20, alignSelf: 'center' }}
+          />
+        </View>
+      </Modal>
       {scan ? (
         <QRCodeScanner
           reactivate={true}

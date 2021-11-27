@@ -111,7 +111,6 @@ function ConnectionsScreen(props) {
   }
 
   function onRejectPress() {
-    //console.log('')
   }
 
   function onDeletePressed(e) {

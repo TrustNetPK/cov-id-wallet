@@ -16,8 +16,6 @@ export const addCredentialToActionList = async (credentialID) => {
       cred_arr = JSON.parse(cred_arr_archive);
   }
 
-
-
   if (ifExist(cred_arr, credentialID)) {
     return
   }
@@ -81,45 +79,6 @@ export const addVerificationToActionList = async (credentialID) => {
   } catch (e) {
     console.log(e);
   }
-
-
-
-  // let cred_arr = [];
-  // let cred_arr_archive = await getItem(ConstantsList.CRED_OFFER);
-  // console.log(cred_arr_archive);
-  // if (cred_arr_archive !== null) {
-  //   cred_arr = JSON.parse(cred_arr_archive);
-  // }
-
-  // if (ifExist(cred_arr, credentialID)) {
-  //   return
-  // }
-
-  // if (resp.success) {
-  //   try {
-  //     let result = await get_credential(credentialID);
-  //     if (result.data.success) {
-  //       let obj = result.data.credential;
-  //       obj['type'] = ConstantsList.CRED_OFFER;
-  //       cred_arr.push(obj);
-
-  //       // Adding item to credentials.
-  //       saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr)).then(
-  //         () => {
-  //           return result.data;
-  //         },
-  //       );
-
-  //     } else {
-  //       return result.data;
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }
-  // else {
-  //   showMessage('ZADA Wallet', resp.message);
-  // }
 }
 
 // Search and add Image and Name attr to Object

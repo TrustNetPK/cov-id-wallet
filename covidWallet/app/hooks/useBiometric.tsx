@@ -77,7 +77,7 @@ const useBiometric = () => {
         setAuthVisible(false);
       }
     },
-    onBackground: () => console.log(),
+    onBackground: () => {},
   });
 
   return {authStatus, oneTimeAuthentication};

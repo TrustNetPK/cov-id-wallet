@@ -27,7 +27,7 @@ var settingLocalData = {
       value: false,
       type: 'Boolean'
     },
-    'Edit Profile':{
+    'Edit Profile': {
       value: 'None',
       type: 'Text',
       key: '36',
@@ -63,9 +63,9 @@ var settingLocalData = {
 };
 
 export default function SettingsScreen(props) {
-  
+
   const [settingsData, setSettingsData] = useState(settingLocalData);
-  const {logout} = React.useContext(AuthContext);
+  const { logout } = React.useContext(AuthContext);
 
   useEffect(() => {
     const updatevalues = async () => {
@@ -226,7 +226,7 @@ export default function SettingsScreen(props) {
                           />
                         );
                       } else {
-                        
+
                         if (item != 'Logout' && item != "Edit Profile") {
                           return (
                             <TextTypeView
@@ -247,7 +247,7 @@ export default function SettingsScreen(props) {
                               endIcon="right"
                               onHandlePress={() => {
                                 item == 'Logout' ? onLogoutPressed() : _onEditProfileClick()
-                                  
+
                               }}
                             />
                           );

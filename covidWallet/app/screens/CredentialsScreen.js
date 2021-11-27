@@ -1,5 +1,5 @@
 import { useFocusEffect, } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import CredentialsCard from '../components/CredentialsCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
@@ -7,89 +7,17 @@ import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-//import useCredentials from '../hooks/useCredentials';
-import { getItem, saveItem } from '../helpers/Storage';
+import { getItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
-import { get_all_connections } from '../gateways/connections';
-import { get_all_credentials } from '../gateways/credentials';
-import { addVerificationToActionList } from '../helpers/ActionList';
-import { showMessage } from '../helpers/Toast';
 import moment from 'moment';
-import axios from 'axios';
+import { _fetchingAppData } from '../helpers/AppData';
 
 const DIMENSIONS = Dimensions.get('screen');
 
 function CredentialsScreen(props) {
 
-  const [isCredential, setCredential] = useState(false);
   const [credentials, setCredentials] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Credentials hook
-  //const { credentials } = useCredentials(isCredential);
-
-  // Function to fetch connection and credentials
-  const _fetchingAppData = async () => {
-
-    setRefreshing(true);
-
-    // Fetching Connections
-    const connResponse = await get_all_connections();
-    if (connResponse.data.success) {
-      let connections = connResponse.data.connections;
-      if (connections.length)
-        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
-      else
-        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
-
-      // Fetching Credentials
-      const credResponse = await get_all_credentials();
-
-      if (credResponse.data.success) {
-        let credentials = credResponse.data.credentials;
-        let CredArr = [];
-        if (credentials.length && connections.length) {
-          // Looping to update credentials object in crendentials array
-          credentials.forEach((cred, i) => {
-            let item = connections.find(c => c.connectionId == cred.connectionId)
-
-            if (item !== undefined || null) {
-              let obj = {
-                ...cred,
-                imageUrl: item.imageUrl,
-                organizationName: item.name,
-                type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
-                  (
-                    (cred.values != undefined || cred.values != null) &&
-                    cred.values["Vaccine Name"] != undefined &&
-                    cred.values["Vaccine Name"].length != 0 &&
-                    cred.values["Dose"] != undefined &&
-                    cred.values["Dose"].length != 0
-                  ) ?
-                    'COVIDpass (Vaccination)' :
-                    "Digital Certificate",
-              };
-              CredArr.push(obj);
-            }
-          });
-          await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
-        }
-        else
-          await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
-
-        await addVerificationToActionList();
-      }
-      else {
-        showMessage('Zada Wallet', connResponse.data.error);
-      }
-    }
-    else {
-      showMessage('ZADA Wallet', connResponse.data.error);
-    }
-
-    setRefreshing(false);
-
-  }
 
   const updateCredentialsList = async () => {
     try {

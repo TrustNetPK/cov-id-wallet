@@ -29,6 +29,8 @@
     "expo-local-authentication": "^11.1.1",
     "hybrid-crypto-js": "^0.2.4",
     "jwt-decode": "^3.1.2",
+    "lottie-ios": "3.2.3",
+    "lottie-react-native": "^5.0.1",
     "moment": "^2.29.1",
     "query-string": "^7.0.0",
     "random-words": "^1.1.1",

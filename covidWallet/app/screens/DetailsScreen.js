@@ -1,16 +1,16 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
-import { BLACK_COLOR, GRAY_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import React, { useLayoutEffect, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ImageBackground, Image, Dimensions } from 'react-native';
+import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
-import { delete_credential, get_signature } from '../gateways/credentials';
+import { delete_credential } from '../gateways/credentials';
 import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { deleteCredentialByCredId } from '../helpers/Storage';
 import OverlayLoader from '../components/OverlayLoader';
 import moment from 'moment';
-import { Buffer } from 'buffer';
-import ConstantList from '../helpers/ConfigApp'
+import Modal from 'react-native-modal';
+import HeadingComponent from '../components/HeadingComponent';
 
 export default function DetailsScreen(props) {
 
@@ -29,8 +29,7 @@ export default function DetailsScreen(props) {
 
     // States
     const [isLoading, setIsLoading] = useState(false)
-    const [qrLoading, setQRLoading] = useState(false);
-    const [qr, setQR] = useState('');
+    const [showQRModal, setShowQRModal] = useState(false);
 
     useLayoutEffect(() => {
         // Setting delete Icon
@@ -127,39 +126,35 @@ export default function DetailsScreen(props) {
 
     }
 
-    // Effect to fetch signature
-    useEffect(() => {
-        const fetch_signature = async () => {
-            try {
-                setQRLoading(true);
-                const result = await get_signature(data.credentialId);
-                if (result.data.success) {
-                    // Converting values in base64
-                    let objJsonStr = JSON.stringify(data.values);
-                    let base64Values = Buffer.from(objJsonStr).toString("base64");
-
-                    // Making QR based on signature and base 64 encoded data
-                    let qrData = {
-                        base64: base64Values,
-                        signature: result.data.signature,
-                        type: 'cred_ver'
-                    }
-                    setQR(`${ConstantList.QR_URL}${JSON.stringify(qrData)}`);
-                }
-                else {
-                    _showAlert('ZADA Wallet', result.data.message);
-                }
-                setQRLoading(false);
-            } catch (error) {
-                setQRLoading(false);
-                _showAlert('ZADA Wallet', error.message);
-            }
-        }
-        fetch_signature();
-    }, [])
-
     return (
         <View style={[themeStyles.mainContainer]}>
+
+            <Modal
+                isVisible={showQRModal}
+                onBackdropPress={() => { setShowQRModal(false) }}
+                onBackButtonPress={() => { setShowQRModal(false) }}
+            >
+                <View style={styles._qrContainer}>
+                    <HeadingComponent
+                        text={`Scan QR to \n verify credential`}
+                    />
+                    <Image
+                        source={{ uri: data.qrCode }}
+                        resizeMode='contain'
+                        style={{
+                            width: Dimensions.get('screen').width * 0.6,
+                            height: Dimensions.get('screen').width * 0.6,
+                        }}
+                    />
+                    <TouchableOpacity
+                        onPress={() => { setShowQRModal(false) }}
+                        style={{ marginTop: 15 }}
+                    >
+                        <Text style={{ fontSize: 16, color: 'black', fontWeight: 'bold' }}>CLOSE</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
             {
                 isLoading &&
                 <OverlayLoader
@@ -167,29 +162,32 @@ export default function DetailsScreen(props) {
                 />
             }
             <View style={styles.container}>
-                <View style={styles.CredentialsCardContainer}>
+                <TouchableOpacity
+                    onPress={() => { setShowQRModal(true) }}
+                    activeOpacity={0.9}
+                    style={styles.CredentialsCardContainer}
+                >
                     {
-                        qrLoading ? (
-                            <View style={{ alignSelf: 'center', alignItems: 'center', justifyContent: 'center' }}>
-                                <ActivityIndicator
-                                    size='small'
-                                    color={PRIMARY_COLOR}
-                                />
-                                <Text style={{ fontSize: 16, marginTop: 5 }}>Loading QR...</Text>
-                            </View>
-                        ) : (
-                            <Image
-                                source={{ uri: qr }}
-                                resizeMode='contain'
+                        data.qrCode ? (
+                            <ImageBackground
+                                source={require('../assets/images/blur_qrcode.png')}
                                 style={{
-                                    width: 160,
-                                    height: 160,
-                                    alignSelf: 'center'
-                                }}
-                            />
+                                    width: '100%',
+                                    height: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>Show QR Code</Text>
+                            </ImageBackground>
+                        ) : (
+                            <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>Certificate has no QR Code to verify</Text>
+                            </View>
                         )
                     }
-                </View>
+
+                </TouchableOpacity>
+
             </View>
 
 
@@ -197,6 +195,9 @@ export default function DetailsScreen(props) {
                 style={{
                     maxHeight: '70%',
                     marginTop: 16,
+                }}
+                contentContainerStyle={{
+                    paddingBottom: '10%'
                 }}>
                 {
                     orderedValues != undefined && Object.keys(orderedValues).map((e, i) => {
@@ -221,6 +222,17 @@ const styles = StyleSheet.create({
         paddingRight: 5,
     },
     CredentialsCardContainer: {
-        paddingTop: 5
+        width: 200,
+        height: 200,
+        alignSelf: 'center',
+        borderRadius: 10,
+        overflow: 'hidden'
+    },
+    _qrContainer: {
+        backgroundColor: BACKGROUND_COLOR,
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        borderRadius: 10,
+        alignItems: 'center',
     },
 });

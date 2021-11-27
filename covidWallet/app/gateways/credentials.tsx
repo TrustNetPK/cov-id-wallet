@@ -1,4 +1,6 @@
 import http_client from './http_client';
+import {Buffer} from 'buffer';
+import ConstantsList from '../helpers/ConfigApp';
 import {AuthenticateUser} from '../helpers/Authenticate';
 import {
   analytics_log_accept_credential_request,
@@ -152,3 +154,33 @@ export async function get_verification_key() {
     throw error;
   }
 }
+
+// Fetching signature for credential
+export const fetch_signature_by_cred_id = async (
+  credentialId: string,
+  values: Object,
+) => {
+  try {
+    const result = await get_signature(credentialId);
+    if (result.data.success) {
+      // Converting values in base64
+      let objJsonStr = JSON.stringify(values);
+      let base64Values = Buffer.from(objJsonStr).toString('base64');
+
+      // Making QR based on signature and base 64 encoded data
+      let qrData = {
+        data: base64Values,
+        signature: result.data.signature,
+        type: 'cred_ver',
+      };
+      return {
+        success: true,
+        qrcode: `${ConstantsList.QR_URL}${JSON.stringify(qrData)}`,
+      };
+    } else {
+      return {success: false};
+    }
+  } catch (error) {
+    return {success: false};
+  }
+};

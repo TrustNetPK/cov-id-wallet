@@ -27,7 +27,7 @@ import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential, delete_credential, getToken, get_credential, get_verification_key } from '../gateways/credentials';
+import { accept_credential, delete_credential, fetch_signature_by_cred_id, getToken, get_credential, get_signature, get_verification_key } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
@@ -100,18 +100,17 @@ function ActionsScreen({ navigation }) {
         if (verKey == undefined || verKey == null || verKey == "") {
           const result = await get_verification_key();
           if (result.data.success) {
-            console.log("FILE FETCHED", result.data);
             await saveItem(ConstantsList.VER_KEY, result.data.file);
           }
           else {
-            console.log('FETCHING VER KEY =>', result.data.message);
+            console.log('VER KEY ERROR', result.data.message);
           }
         }
         else {
-          console.log("Verification Key is already fetched");
+          // Verification Key is already fetched
         }
       } catch (error) {
-        console.log('FETCHING VER KEY =>', error.message);
+        console.log('VER KEY ERROR', error.message);
       }
     }
     getVerKey();
@@ -200,22 +199,17 @@ function ActionsScreen({ navigation }) {
     } else {
       initialUrl = await Linking.getInitialURL()
     }
-    // console.log('url =>', url);
-    // console.log('initialUrl =>', initialUrl);
     if (initialUrl === null) {
       setDeepLink(true);
       return;
     } else {
-      // console.log("DEEP LINK", initialUrl);
       const parsed = initialUrl.split('/');
       var item = {};
       item['type'] = parsed[3];
       item['metadata'] = parsed[4];
       requestArray.push(item);
-      //console.log("DEEP LINK ITEM => ", item);
       const requestJson = JSON.parse(JSON.stringify(item));
       setDeepLink(true);
-      //console.log("GOING TO QR CODE SCREEN");
 
       navigation.navigate('QRScreen', {
         request: requestJson,
@@ -266,7 +260,6 @@ function ActionsScreen({ navigation }) {
     // SetState ActionList
     if (finalObj.length > 0) {
       setActionsList(finalObj);
-      //console.log("FINAL OBJ => ", finalObj);
       setAction(true);
     } else {
       setAction(false);
@@ -274,9 +267,6 @@ function ActionsScreen({ navigation }) {
   };
 
   const _fetchActionList = async () => {
-
-    //console.log("IN");
-
     setRefreshing(true);
     let credentials = [], connections = [];
 
@@ -513,11 +503,14 @@ function ActionsScreen({ navigation }) {
           // Finding corresponsing connection to this credential
           let item = connectionsList.find(c => c.connectionId == cred.connectionId);
 
+          const qr_code = await fetch_signature_by_cred_id(selectedItemObj.credentialId, selectedItemObj.values);
+
           // Putting image, type and title in credential
           let obj = {
             ...cred,
             imageUrl: item.imageUrl,
             organizationName: item.name,
+            qrCode: qr_code.success ? qr_code.qrcode : undefined,
             type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
               (
                 (cred.values != undefined || cred.values != null) &&
@@ -727,18 +720,6 @@ function ActionsScreen({ navigation }) {
     setModalVisible(false);
   };
 
-  // async function handleDeletePressed(v) {
-  //   // Get connection id
-  //   console.log('conenctionId => ', v)
-  //   // try {
-  //   //   let result = await delete_connection();
-  //   // }
-  // }
-  function onSwipeValueChange(v) {
-    // console.log(Math.abs(v.value / 75))
-    // animatedScaling[key].setValue(Math.abs(value));
-  }
-
   const onDeletePressed = (item) => {
     showAskDialog("Are you sure?", "Are you sure you want to delete this request?", () => rejectModal(item), () => { });
   }
@@ -844,34 +825,6 @@ function ActionsScreen({ navigation }) {
         setIsLoading(false);
         _showAlert("ZADA Wallet", e.toString());
       }
-      // if(!(await _isVerRequestAlreadyExist())){
-      //   try {
-
-      //     console.log('NOT EXISTS');
-
-      //     let policyName = selectedItemObj.policy.attributes[0].policyName;
-
-      //     console.log('POLICY NAME');
-
-      //     // Submit Verification Api call
-      //     let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
-      //     if (result.data.success) {
-      //       await deleteActionByVerID(selectedItemObj.verificationId)
-      //       updateActionsList();
-      //       showMessage('Zada Wallet','Verification request has been submitted successfully');
-      //     } else {
-      //       showMessage('Zada Wallet', result.data.error)
-      //     }
-      //     setIsLoading(false);
-      //   } catch (e) {
-      //     setIsLoading(false);
-      //   }
-      // }
-      // else{
-      //   setModalVisible(false);
-      //   setIsLoading(false);
-      //   showMessage('ZADA Wallet', 'Verification request is already accepted')
-      // }
     }
     else {
       showMessage('Zada Wallet', "You entered incorrect pincode. Please check your pincode and try again");
