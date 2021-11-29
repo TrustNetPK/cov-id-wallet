@@ -144,7 +144,7 @@ export async function get_verification_key() {
   try {
     const result = await http_client({
       method: 'GET',
-      url: '/api/credential/get_public_ver_key',
+      url: '/api/credential/get_public_key',
       headers: {
         Authorization: 'Bearer ' + (await getToken()),
       },

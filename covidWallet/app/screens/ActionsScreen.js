@@ -100,7 +100,7 @@ function ActionsScreen({ navigation }) {
         if (verKey == undefined || verKey == null || verKey == "") {
           const result = await get_verification_key();
           if (result.data.success) {
-            await saveItem(ConstantsList.VER_KEY, result.data.file);
+            await saveItem(ConstantsList.VER_KEY, result.data.data);
           }
           else {
             console.log('VER KEY ERROR', result.data.message);

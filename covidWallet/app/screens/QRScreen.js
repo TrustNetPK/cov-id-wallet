@@ -19,6 +19,10 @@ import {
 import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
 import { Buffer } from 'buffer';
 import { Crypt } from 'hybrid-crypto-js';
+import {
+  inflateRawSync,
+  Z_BEST_COMPRESSION
+} from 'react-zlib-js';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
@@ -41,10 +45,12 @@ function QRScreen({ route, navigation }) {
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('Fetching Details');
-  const [showCredVerModal, setShowCredVerModal] = useState(true);
+  const [showCredVerModal, setShowCredVerModal] = useState(false);
   const [values, setValues] = useState(undefined);
   const [credScanning, setCredScanning] = useState(false);
   const [showScanningModal, setScanningModal] = useState(false);
+  const [credentialData, setCredentialData] = useState(null);
+  const [isSuccess, setIsSuccess] = useState(undefined);
 
   var cr_arr = [];
   var cred_arr = [];
@@ -324,6 +330,9 @@ function QRScreen({ route, navigation }) {
     unEscapedStr = unEscapedStr.replace(/“/g, '"');
 
     try {
+      if (JSON.parse(unEscapedStr).type == 'cred_ver') {
+        handle_cred_verification(JSON.parse(unEscapedStr));
+      }
       if (JSON.parse(unEscapedStr).type == 'zadaauth') {
         _handleZadaAuth(JSON.parse(e.data));
       }
@@ -400,10 +409,60 @@ function QRScreen({ route, navigation }) {
   // Function to handle credential verification
   const handle_cred_verification = (credQrData) => {
     try {
-      var credValues = JSON.parse(Buffer.from(credQrData.data, 'base64').toString());
+      var credValues = orderValues(JSON.parse(Buffer.from(credQrData.data, 'base64').toString()));
+      setCredentialData(credQrData);
       setValues(credValues);
-      setShowCredVerModal(true);
+      setTimeout(() => {
+        setShowCredVerModal(true);
+      }, 500);
     } catch (error) {
+      _showAlert('ZADA Wallet', error.message);
+    }
+  }
+
+  // When user will click on verification button
+  const on_verify_click = async () => {
+    try {
+      setShowCredVerModal(false);
+      setTimeout(async () => {
+        setScanningModal(true);
+        setCredScanning(true);
+
+        // Get Public Key
+        const ver_key = await getItem(ConstantsList.VER_KEY);
+        if (pub_key) {
+          var crypt = new Crypt();
+          let payload = credentialData;
+          let decompSig = payload['signature'];
+          delete payload.signature;
+          delete payload.type;
+
+          let signature = '{ "signature": "' + decompSig + '", "md": "sha256" }'
+          var verified = crypt.verify(
+            ver_key,
+            signature,
+            JSON.stringify(payload),
+          );
+
+          if (verified == true) {
+            setIsSuccess(true);
+            setCredScanning(false);
+          }
+          else {
+            setIsSuccess(false);
+            setCredScanning(false);
+          }
+        }
+        else {
+          setIsSuccess(false);
+          setCredScanning(false);
+          _showAlert('ZADA Wallet', 'Verification key does not exist');
+        }
+      }, 500);
+
+    } catch (error) {
+      setCredScanning(false);
+      setIsSuccess(false);
       _showAlert('ZADA Wallet', error.message);
     }
   }
@@ -484,7 +543,7 @@ function QRScreen({ route, navigation }) {
           }}
         >
           {
-            credScanning ? (
+            credScanning && isSuccess == undefined ? (
               <>
                 <HeadingComponent
                   text='Scanning...'
@@ -501,32 +560,61 @@ function QRScreen({ route, navigation }) {
                 />
               </>
             ) : (
-              <View
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <HeadingComponent
-                  text='Success'
-                />
-                <Image
-                  source={require('../assets/images/check.png')}
-                  resizeMode='cover'
+              isSuccess == true ? (
+                <View
                   style={{
-                    width: 128,
-                    height: 128,
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
-                />
-                <SimpleButton
-                  buttonColor={GREEN_COLOR}
-                  onPress={() => { setScanningModal(false); navigation.goBack() }}
-                  title='OKAY'
-                  titleColor={WHITE_COLOR}
-                  width={250}
-                  style={{ marginTop: 20 }}
-                />
-              </View>
+                >
+                  <HeadingComponent
+                    text='Success'
+                  />
+                  <Image
+                    source={require('../assets/images/check.png')}
+                    resizeMode='cover'
+                    style={{
+                      width: 128,
+                      height: 128,
+                    }}
+                  />
+                  <SimpleButton
+                    buttonColor={GREEN_COLOR}
+                    onPress={() => { setScanningModal(false); navigation.goBack() }}
+                    title='OKAY'
+                    titleColor={WHITE_COLOR}
+                    width={250}
+                    style={{ marginTop: 20 }}
+                  />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <HeadingComponent
+                    text='Error'
+                  />
+                  <Image
+                    source={require('../assets/images/cross.png')}
+                    resizeMode='cover'
+                    style={{
+                      width: 128,
+                      height: 128,
+                    }}
+                  />
+                  <SimpleButton
+                    buttonColor={GREEN_COLOR}
+                    onPress={() => { setScanningModal(false); navigation.goBack() }}
+                    title='OKAY'
+                    titleColor={WHITE_COLOR}
+                    width={250}
+                    style={{ marginTop: 20 }}
+                  />
+                </View>
+              )
             )
           }
 
@@ -555,17 +643,7 @@ function QRScreen({ route, navigation }) {
           </KeyboardAwareScrollView>
 
           <SimpleButton
-            onPress={() => {
-              setShowCredVerModal(false);
-              setCredScanning(true);
-              setTimeout(() => {
-                setScanningModal(true);
-                setTimeout(() => {
-                  setCredScanning(false);
-                }, 10000);
-              }, 500);
-
-            }}
+            onPress={() => { on_verify_click() }}
             width={250}
             title='Verify'
             titleColor={WHITE_COLOR}
@@ -574,6 +652,7 @@ function QRScreen({ route, navigation }) {
           />
         </View>
       </Modal>
+
       {scan ? (
         <QRCodeScanner
           reactivate={true}
