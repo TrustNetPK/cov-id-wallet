@@ -7,6 +7,8 @@ import {
   analytics_log_credential_delete,
   analytics_log_reject_credential_request,
 } from '../helpers/analytics';
+import {getItem, saveItem} from '../helpers/Storage';
+import {get_all_connections} from './connections';
 
 export async function getToken() {
   let resp = await AuthenticateUser();
@@ -47,6 +49,56 @@ export async function get_all_credentials() {
   } catch (error) {
     throw error;
   }
+}
+
+export async function get_all_qr_credentials() {
+  try {
+    // Fetching Connections
+    const connectionResult = await get_all_connections();
+    let connections = connectionResult.data.connections;
+
+    // Fetching Credentials
+    const credentialResult = await get_all_credentials();
+    let credentials = credentialResult.data.credentials;
+
+    let CredArr: any = [];
+    if (credentials.length && connections.length) {
+      for (let i = 0; i < credentials.length; ++i) {
+        let cred = credentials[i];
+        let item = connections.find(
+          (c: any) => c.connectionId == cred.connectionId,
+        );
+        let qrResult = await fetch_signature_by_cred_id(
+          cred.credentialId,
+          cred.values,
+        );
+        if (item !== undefined || null) {
+          let obj = {
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            qrCode: qrResult.success ? qrResult.qrcode : undefined,
+            type:
+              cred.values != undefined && cred.values.type != undefined
+                ? cred.values.type
+                : (cred.values != undefined || cred.values != null) &&
+                  cred.values['Vaccine Name'] != undefined &&
+                  cred.values['Vaccine Name'].length != 0 &&
+                  cred.values['Dose'] != undefined &&
+                  cred.values['Dose'].length != 0
+                ? 'COVIDpass (Vaccination)'
+                : 'Digital Certificate',
+          };
+          CredArr.push(obj);
+        }
+      }
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+    } else {
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+    }
+  } catch (error) {}
 }
 
 // Accept Crendentials API
@@ -170,7 +222,7 @@ export const fetch_signature_by_cred_id = async (
       // Making QR based on signature and base 64 encoded data
       let qrData = {
         data: base64Values,
-        signature: result.data.signature,
+        signature: result.data.data,
         type: 'cred_ver',
       };
       return {

@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  ScrollView,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import PhoneInput from "react-native-phone-number-input";
@@ -20,11 +19,10 @@ import {
   GRAY_COLOR,
 } from '../theme/Colors';
 import HeadingComponent from '../components/HeadingComponent';
-import { StackActions } from '@react-navigation/native';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
 import { saveItem } from '../helpers/Storage';
-import { showMessage, _showAlert } from '../helpers/Toast';
+import { showMessage, showNetworkMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { InputComponent } from '../components/Input/inputComponent';
 import { nameRegex, validateIfLowerCased } from '../helpers/validation';
@@ -32,12 +30,14 @@ import { _resgiterUserAPI } from '../gateways/auth';
 import SimpleButton from '../components/Buttons/SimpleButton';
 import jwt_decode from 'jwt-decode';
 import { _fetchingAppData } from '../helpers/AppData';
+import useNetwork from '../hooks/useNetwork';
 
 const { width } = Dimensions.get('window');
 
 function RegistrationModule({ navigation }) {
+
+  const { isConnected } = useNetwork();
   const [activeOption, updateActiveOption] = useState('register');
-  const [networkState, setNetworkState] = useState(false);
 
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
@@ -60,10 +60,8 @@ function RegistrationModule({ navigation }) {
   const selectionOnPress = (userType) => {
     updateActiveOption(userType);
   };
+
   React.useEffect(() => {
-    NetInfo.fetch().then((networkState) => {
-      setNetworkState(networkState.isConnected);
-    });
     if (activeOption == 'register') {
       setPhone('');
       // setSecret(randomString(24))
@@ -71,14 +69,7 @@ function RegistrationModule({ navigation }) {
     } else {
       setSecret('');
     }
-  }, [activeOption, networkState]);
-
-  const nextHandler = () => {
-    navigation.dispatch({
-      index: 0,
-      actions: [StackActions.replace({ routeName: 'MultiFactorScreen' })],
-    });
-  };
+  }, [activeOption]);
 
   const submit = () => {
 
@@ -88,13 +79,6 @@ function RegistrationModule({ navigation }) {
       return
     }
     setNameError('');
-
-    // Check if email is valid
-    // if (!emailRegex.test(email)) {
-    //   setEmailError("Please enter a valid email address.")
-    //   return
-    // }
-    // setEmailError('');
 
     // Check if phone number is valid
     const checkValid = phoneInput.current?.isValidNumber(phone);
@@ -130,7 +114,7 @@ function RegistrationModule({ navigation }) {
 
   const register = async () => {
     try {
-      if (networkState) {
+      if (isConnected) {
         let data = {
           name: name.trim(),
           phone: phone.trim(),
@@ -162,45 +146,9 @@ function RegistrationModule({ navigation }) {
         }
 
         setProgress(false);
-
-        // await fetch(ConstantsList.BASE_URL + `/api/register`, {
-        //   method: 'POST',
-        //   headers: {
-        //     Accept: 'application/json',
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     name: name,
-        //     email: email.toLocaleLowerCase(),
-        //     phone: phone,
-        //     secretPhrase: secret,
-        //   }),
-        // }).then((registerResult) =>
-        //   registerResult.json().then(async(data) => {
-        //     try {
-        //       let response = JSON.parse(JSON.stringify(data));
-        //       if (response.success == true) {
-
-        //         //saving user data
-        //         await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
-
-        //         saveItem(ConstantsList.WALLET_SECRET, secret).then(() => {
-        //           navigation.replace('MultiFactorScreen');
-        //         });
-        //       } else {
-        //         showMessage('ZADA Wallet', response.error);
-        //         setProgress(false);
-        //       }
-        //     } catch (error) {
-        //       console.error(error);
-        //     } finally {
-        //       setProgress(false);
-        //     }
-        //   }),
-        // );
       } else {
         setProgress(false);
-        showMessage('ZADA Wallet', 'Internet Connection is not available');
+        showNetworkMessage();
       }
     } catch (error) {
       setProgress(false);
@@ -210,7 +158,7 @@ function RegistrationModule({ navigation }) {
   };
 
   const login = async () => {
-    if (networkState) {
+    if (isConnected) {
       await fetch(ConstantsList.BASE_URL + `/api/login`, {
         method: 'POST',
         headers: {
@@ -242,7 +190,7 @@ function RegistrationModule({ navigation }) {
       );
     } else {
       setProgress(false);
-      showMessage('ZADA Wallet', 'Internet Connection is not available');
+      showNetworkMessage();
     }
   };
 
@@ -273,7 +221,7 @@ function RegistrationModule({ navigation }) {
               const decodedreAuthToken = jwt_decode(reAuth.token);
 
               if (decodedreAuthToken.dub.length) {
-                await _fetchingAppData();
+                await _fetchingAppData(isConnected);
                 setProgress(false);
                 // if token has wallet id
                 navigation.replace('SecurityScreen');
@@ -298,7 +246,7 @@ function RegistrationModule({ navigation }) {
 
   const authenticateUserToken = async () => {
     try {
-      if (networkState) {
+      if (isConnected) {
         // autthenticating user
         let resp = await AuthenticateUser(true);
         if (resp.success) {
@@ -306,7 +254,7 @@ function RegistrationModule({ navigation }) {
           const decodedToken = jwt_decode(resp.token);
 
           if (decodedToken.dub.length) {
-            await _fetchingAppData();
+            await _fetchingAppData(isConnected);
             setProgress(false);
             // if token has wallet id
             navigation.replace('SecurityScreen');
@@ -323,7 +271,7 @@ function RegistrationModule({ navigation }) {
         }
       } else {
         setProgress(false);
-        _showAlert('ZADA Wallet', 'Internet Connection is not available');
+        showNetworkMessage();
       }
     } catch (error) {
       setProgress(false);
@@ -363,8 +311,11 @@ function RegistrationModule({ navigation }) {
         withShadow
       />
     )
-
   }
+
+  // KEYBOARD AVOIDING VIEW
+  const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
+  const keyboardBehaviour = Platform.OS == 'ios' ? 'padding' : null
 
   return (
     <View
@@ -375,6 +326,8 @@ function RegistrationModule({ navigation }) {
         backgroundColor: PRIMARY_COLOR,
       }}>
       <KeyboardAwareScrollView
+        behavior={keyboardBehaviour}
+        keyboardVerticalOffset={keyboardVerticalOffset}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
         <View
@@ -472,215 +425,116 @@ function RegistrationModule({ navigation }) {
           </View>
           {activeOption == 'register' && (
             <View>
-              <ScrollView showsVerticalScrollIndicator={true}>
-                <View>
-                  <InputComponent
-                    placeholderText="Full Name (Official Name)"
-                    errorMessage={nameError}
-                    value={name}
-                    isSecureText={false}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => setName(text)}
-                  />
-                </View>
-                {/* <View>
-                  <InputComponent
-                    placeholderText="Email"
-                    errorMessage={emailError}
-                    value={email}
-                    keyboardType="email-address"
-                    isSecureText={false}
-                    autoCapitalize={'none'}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => {
-                      setEmail(text);
-
-                      let domain = text.split('@');
-                      if(domain.length == 2){
-
-                        let domainName = domain[1].toLowerCase();
-
-                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
-                          setEmailWarning(true);
-                          return
-                        }
-                        setEmailWarning(false);
-                        return
-
-                      }
-                      else
-                        setEmailWarning(false);
-                    }}
-                  />
-                </View> */}
-                {/* {
-                  emailWarning &&
-                  <Text style={{
-                    color: '#CCCC00',
-                    fontSize: 10,
-                    marginLeft: 24,
-                    marginRight: 24,
-                    marginTop: 5,
-                  }}>May be your email is incorrect, please check it carefully. If you know it is correct then proceed.</Text>
-                } */}
-                {renderPhoneNumberInput()}
-                <Text style={styles.secretMessage}>
-                  Password (please save in safe place)
-                </Text>
-                <View>
-                  <InputComponent
-                    type={'secret'}
-                    toggleSecureEntry={_toggleSecureSecretEntry}
-                    placeholderText="Password"
-                    errorMessage={secretError}
-                    value={secret}
-                    keyboardType="default"
-                    isSecureText={secureSecret}
-                    autoCapitalize={'none'}
-                    inputContainerStyle={{ width: '80%' }}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => {
-                      setSecret(text.replace(',', ''))
-                      if (text.length < 1) {
-                        setSecretError('Password is required.')
-                      } else {
-                        setSecretError('')
-                      }
-                    }}
-                  />
-                </View>
-
-                <Text
-                  style={{
-                    color: GRAY_COLOR,
-                    fontFamily: 'Poppins-Regular',
-                    marginLeft: 20,
-                    fontSize: 12,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    marginTop: 10,
-                    marginRight: 20,
-                  }}>
-                  We need your details as your ZADA WALLET will be based on it.
-                  We are not going to send you ads or spam email, or sell your
-                  information to a 3rd party.
-                </Text>
-                <SimpleButton
-                  loaderColor={WHITE_COLOR}
-                  isLoading={progress}
-                  onPress={submit}
-                  width={250}
-                  title='Continue'
-                  titleColor={WHITE_COLOR}
-                  buttonColor={GREEN_COLOR}
-                  style={{ marginVertical: 20, alignSelf: 'center' }}
+              <View>
+                <InputComponent
+                  placeholderText="Full Name (Official Name)"
+                  errorMessage={nameError}
+                  value={name}
+                  isSecureText={false}
+                  inputContainerStyle={styles.inputView}
+                  setStateValue={(text) => setName(text)}
                 />
-                {/* {progress ? (
-                  <ActivityIndicator
-                    style={styles.primaryButton}
-                    size="small"
-                    color={WHITE_COLOR}
-                  />
-                ) : (
-                  <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={submit}>
-                    <Text style={styles.text}>CONTINUE</Text>
-                  </TouchableOpacity>
-                )} */}
-              </ScrollView>
+              </View>
+
+              {renderPhoneNumberInput()}
+              <Text style={styles.secretMessage}>
+                Password (please save in safe place)
+              </Text>
+              <View>
+                <InputComponent
+                  type={'secret'}
+                  toggleSecureEntry={_toggleSecureSecretEntry}
+                  placeholderText="Password"
+                  errorMessage={secretError}
+                  value={secret}
+                  keyboardType="default"
+                  isSecureText={secureSecret}
+                  autoCapitalize={'none'}
+                  inputContainerStyle={{ width: '80%' }}
+                  inputContainerStyle={styles.inputView}
+                  setStateValue={(text) => {
+                    setSecret(text.replace(',', ''))
+                    if (text.length < 1) {
+                      setSecretError('Password is required.')
+                    } else {
+                      setSecretError('')
+                    }
+                  }}
+                />
+              </View>
+
+              <Text
+                style={{
+                  color: GRAY_COLOR,
+                  fontFamily: 'Poppins-Regular',
+                  marginLeft: 20,
+                  fontSize: 12,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  marginTop: 10,
+                  marginRight: 20,
+                }}>
+                We need your details as your ZADA WALLET will be based on it.
+                We are not going to send you ads or spam email, or sell your
+                information to a 3rd party.
+              </Text>
+              <SimpleButton
+                loaderColor={WHITE_COLOR}
+                isLoading={progress}
+                onPress={submit}
+                width={250}
+                title='Continue'
+                titleColor={WHITE_COLOR}
+                buttonColor={GREEN_COLOR}
+                style={{ marginVertical: 20, alignSelf: 'center' }}
+              />
             </View>
           )}
           {activeOption == 'login' && (
             <View>
-              <ScrollView showsVerticalScrollIndicator={true}>
-                {/* <View>
-                  <InputComponent
-                    placeholderText="Email"
-                    errorMessage={emailError}
-                    value={email}
-                    autoCapitalize={'none'}
-                    keyboardType="email-address"
-                    isSecureText={false}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => {
-                      
-                      setEmail(text);
+              {renderPhoneNumberInput()}
 
-                      let domain = text.split('@');
-                      if(domain.length == 2){
-
-                        let domainName = domain[1].toLowerCase();
-
-                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
-                          setEmailWarning(true);
-                          return
-                        }
-
-                        setEmailWarning(false);
-                        return
-
-                      }
-                      else
-                        setEmailWarning(false);
-
-                    }}
-                  />
-                </View>
-                {
-                  emailWarning &&
-                  <Text style={{
-                    color: '#CCCC00',
-                    fontSize: 10,
-                    marginLeft: 24,
-                    marginRight: 24,
-                    marginTop: 5,
-                  }}>May be your email is incorrect, please check it carefully. If you know it is correct then proceed.</Text>
-                } */}
-                {renderPhoneNumberInput()}
-
-                <View>
-                  <InputComponent
-                    type={'secret'}
-                    toggleSecureEntry={_toggleSecureSecretEntry}
-                    placeholderText="Password"
-                    errorMessage={secretError}
-                    value={secret}
-                    keyboardType="default"
-                    isSecureText={secureSecret}
-                    autoCapitalize={'none'}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={(text) => {
-                      setSecret(text.replace(',', ''))
-                      if (text.length < 1) {
-                        setSecretError('Password is required.')
-                      } else {
-                        setSecretError('')
-                      }
-                    }}
-                  />
-                </View>
-                <Text
-                  onPress={() => {
-                    navigation.navigate('ForgotPasswordScreen');
+              <View>
+                <InputComponent
+                  type={'secret'}
+                  toggleSecureEntry={_toggleSecureSecretEntry}
+                  placeholderText="Password"
+                  errorMessage={secretError}
+                  value={secret}
+                  keyboardType="default"
+                  isSecureText={secureSecret}
+                  autoCapitalize={'none'}
+                  inputContainerStyle={styles.inputView}
+                  setStateValue={(text) => {
+                    setSecret(text.replace(',', ''))
+                    if (text.length < 1) {
+                      setSecretError('Password is required.')
+                    } else {
+                      setSecretError('')
+                    }
                   }}
-                  style={styles._forgotText}
-                >
-                  Forgot password?
-                </Text>
-
-                <SimpleButton
-                  loaderColor={WHITE_COLOR}
-                  isLoading={progress}
-                  onPress={submit}
-                  width={250}
-                  title='Continue'
-                  titleColor={WHITE_COLOR}
-                  buttonColor={GREEN_COLOR}
-                  style={{ marginVertical: 20, alignSelf: 'center' }}
                 />
-              </ScrollView>
+              </View>
+              <Text
+                onPress={() => {
+                  navigation.navigate('ForgotPasswordScreen');
+                }}
+                style={styles._forgotText}
+              >
+                Forgot password?
+              </Text>
+
+              <SimpleButton
+                loaderColor={WHITE_COLOR}
+                isLoading={progress}
+                onPress={submit}
+                width={250}
+                title='Continue'
+                titleColor={WHITE_COLOR}
+                buttonColor={GREEN_COLOR}
+                style={{ marginVertical: 20, alignSelf: 'center' }}
+              />
             </View>
           )}
         </View>
@@ -792,7 +646,6 @@ const styles = StyleSheet.create({
   },
   textRightIcon: {
     alignSelf: 'center',
-    // padding: 8,
     color: GRAY_COLOR,
     position: "absolute",
     right: '10%',

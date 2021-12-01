@@ -1,26 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator
 } from 'react-native';
 import { PRIMARY_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import { AuthContext } from '../Navigation';
-import PushNotification from 'react-native-push-notification';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { checkNotifications, requestNotifications } from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 
 const img = require('../assets/images/notifications.png');
 
-function NotifyMeScreen({ navigation }) {
+function NotifyMeScreen() {
+
   const { isFirstTimeFunction } = React.useContext(AuthContext);
-  const ctx = React.useContext(AuthContext);
-  const [isLoading, setLoading] = useState(false);
 
   async function enableNotifications() {
 
@@ -58,16 +54,6 @@ function NotifyMeScreen({ navigation }) {
     await AsyncStorage.setItem('isfirstTime', 'false').then(() => {
       isFirstTimeFunction();
     });
-
-    // await PushNotification.checkPermissions((permissions) => {
-    //   if (permissions.badge !== true || permissions.alert !== true || permissions.sound !== false) {
-    //     //activate notification permision if disabled
-    //     PushNotification.requestPermissions();
-    //   }
-    // });
-    // await AsyncStorage.setItem('isfirstTime', 'false').then(() => {
-    //   isFirstTimeFunction();
-    // });
   }
 
   return (
@@ -94,9 +80,6 @@ function NotifyMeScreen({ navigation }) {
           text="ENABLE NOTIFICATIONS"
           nextHandler={enableNotifications}
         />
-        {/* <TouchableOpacity onPress={isFirstTimeFunction}>
-          <Text style={styles.TextContainerEnd}>Continue without alerts</Text>
-        </TouchableOpacity> */}
       </View>
     </View>
   );

@@ -27,6 +27,7 @@ import { RefreshContextProvider } from './context/RefreshContextProvider';
 import useBiometric from './hooks/useBiometric';
 import { analytics_log_logout } from './helpers/analytics';
 import { _fetchingAppData } from './helpers/AppData';
+import useNetwork from './hooks/useNetwork';
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,9 @@ const navigationAnimation =
     : TransitionPresets.RevealFromBottomAndroid;
 
 function NavigationComponent() {
+
+  const { isConnected } = useNetwork();
+
   const linking = {
     prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
   };
@@ -67,7 +71,7 @@ function NavigationComponent() {
         }
         else if (value == 'false') {
           getisFirstTime('false');
-          await _fetchingAppData();
+          await _fetchingAppData(isConnected);
           SplashScreen.hide();
         }
       });

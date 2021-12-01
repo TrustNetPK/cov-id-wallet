@@ -95,7 +95,6 @@ function ActionsScreen({ navigation }) {
     const getVerKey = async () => {
       try {
         const verKey = await getItem(ConstantsList.VER_KEY);
-
         // Ver key doesn't exists
         if (verKey == undefined || verKey == null || verKey == "") {
           const result = await get_verification_key();

@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { AlertIOS, StyleSheet, View, Text, Alert, Platform } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { BACKGROUND_COLOR } from '../theme/Colors'
-import PrimaryButton from '../components/PrimaryButton';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
-import { saveItem } from '../helpers/Storage';
-import { BIOMETRIC_ENABLED } from '../helpers/ConfigApp';
 
 const img = require('../assets/images/security.png');
 

@@ -9,7 +9,8 @@
     "test": "jest",
     "lint": "eslint .",
     "clean:android": "cd android && gradlew clean && npx react-native run-android",
-    "clean:ios": "cd ios && xcodebuild clean && npx react-native run-ios"
+    "clean:ios": "cd ios && xcodebuild clean && npx react-native run-ios",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@eliav2/react-native-collapsible-view": "^1.4.0",
@@ -32,6 +33,7 @@
     "lottie-ios": "3.2.3",
     "lottie-react-native": "^5.0.1",
     "moment": "^2.29.1",
+    "patch-package": "^6.4.7",
     "query-string": "^7.0.0",
     "random-words": "^1.1.1",
     "react": "17.0.1",
@@ -49,6 +51,7 @@
     "react-native-parsed-text": "0.0.22",
     "react-native-permissions": "^3.0.5",
     "react-native-phone-number-input": "^2.1.0",
+    "react-native-prevent-screenshots": "^1.0.0",
     "react-native-push-notification": "^7.3.1",
     "react-native-qrcode-scanner": "^1.4.1",
     "react-native-reanimated": "^1.8.0",
@@ -59,8 +62,7 @@
     "react-native-svg": "^12.1.1",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-unimodules": "^0.14.6",
-    "react-native-vector-icons": "6.6.0",
-    "react-zlib-js": "^1.0.5"
+    "react-native-vector-icons": "6.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

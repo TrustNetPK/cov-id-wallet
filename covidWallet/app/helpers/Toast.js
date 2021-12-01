@@ -35,3 +35,10 @@ export function showAskDialog(title, message, onSuccessPress, onRejectPress) {
     },
   );
 }
+
+export function showNetworkMessage() {
+  Alert.alert(
+    'No Internet',
+    'You are not connected with internet. Please connect and try again.'
+  )
+}

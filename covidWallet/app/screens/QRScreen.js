@@ -6,7 +6,6 @@ import {
   Text,
   Alert,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -19,23 +18,16 @@ import {
 import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
 import { Buffer } from 'buffer';
 import { Crypt } from 'hybrid-crypto-js';
-import {
-  inflateRawSync,
-  Z_BEST_COMPRESSION
-} from 'react-zlib-js';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
 import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
 import { accept_connection, add_session, find_auth_connection, save_connection, save_did, save_link, send_connection_data, send_zada_auth_verification_request } from '../gateways/connections';
-import Modal from 'react-native-modal';
-import { BACKGROUND_COLOR, BLACK_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
-import HeadingComponent from '../components/HeadingComponent';
-import moment from 'moment';
-import SimpleButton from '../components/Buttons/SimpleButton';
-import LottieView from 'lottie-react-native';
+import SuccessModal from '../components/SuccessModal';
+import FailureModal from '../components/FailureModal';
+import CredValuesModal from '../components/CredValuesModal';
+import { analytics_log_unverified_credential, analytics_log_verified_credential, analytics_log_verify_cred_qr } from '../helpers/analytics';
 
 function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
@@ -45,12 +37,15 @@ function QRScreen({ route, navigation }) {
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('Fetching Details');
-  const [showCredVerModal, setShowCredVerModal] = useState(false);
   const [values, setValues] = useState(undefined);
-  const [credScanning, setCredScanning] = useState(false);
-  const [showScanningModal, setScanningModal] = useState(false);
   const [credentialData, setCredentialData] = useState(null);
-  const [isSuccess, setIsSuccess] = useState(undefined);
+
+  // For Modals
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [isScanning, setScanning] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
 
   var cr_arr = [];
   var cred_arr = [];
@@ -324,11 +319,9 @@ function QRScreen({ route, navigation }) {
   }
 
   const onSuccess = (e) => {
-
     let unEscapedStr = e.data;
     unEscapedStr = unEscapedStr.replace(/\\/g, "");
     unEscapedStr = unEscapedStr.replace(/“/g, '"');
-
     try {
       if (JSON.parse(unEscapedStr).type == 'cred_ver') {
         handle_cred_verification(JSON.parse(unEscapedStr));
@@ -394,7 +387,7 @@ function QRScreen({ route, navigation }) {
     }
   };
 
-  function orderValues(values) {
+  function arrangeValues(values) {
     let orderedValues = undefined;
     orderedValues = Object.keys(values).sort().reduce(
       (obj, key) => {
@@ -409,11 +402,15 @@ function QRScreen({ route, navigation }) {
   // Function to handle credential verification
   const handle_cred_verification = (credQrData) => {
     try {
-      var credValues = orderValues(JSON.parse(Buffer.from(credQrData.data, 'base64').toString()));
-      setCredentialData(credQrData);
-      setValues(credValues);
+      let credValues = Buffer.from(credQrData.data, 'base64').toString();
+      var orderValues = arrangeValues(JSON.parse(credValues));
+      setCredentialData({
+        values: JSON.stringify(orderValues),
+        signature: Buffer.from(credQrData.signature, 'base64').toString(),
+      });
+      setValues(orderValues);
       setTimeout(() => {
-        setShowCredVerModal(true);
+        setShowVerifyModal(true);
       }, 500);
     } catch (error) {
       _showAlert('ZADA Wallet', error.message);
@@ -423,235 +420,90 @@ function QRScreen({ route, navigation }) {
   // When user will click on verification button
   const on_verify_click = async () => {
     try {
-      setShowCredVerModal(false);
-      setTimeout(async () => {
-        setScanningModal(true);
-        setCredScanning(true);
 
-        // Get Public Key
-        const ver_key = await getItem(ConstantsList.VER_KEY);
-        if (pub_key) {
-          var crypt = new Crypt();
-          let payload = credentialData;
-          let decompSig = payload['signature'];
-          delete payload.signature;
-          delete payload.type;
+      analytics_log_verify_cred_qr();
 
-          let signature = '{ "signature": "' + decompSig + '", "md": "sha256" }'
-          var verified = crypt.verify(
-            ver_key,
-            signature,
-            JSON.stringify(payload),
-          );
+      setScanning(true);
+      // Get Public Key
+      const ver_key = await getItem(ConstantsList.VER_KEY);
 
+      if (ver_key) {
+
+        var crypt = new Crypt();
+
+        var verified = crypt.verify(
+          ver_key,
+          credentialData.signature,
+          credentialData.values,
+        );
+
+        setTimeout(() => {
           if (verified == true) {
-            setIsSuccess(true);
-            setCredScanning(false);
+            setScanning(false);
+            setShowVerifyModal(false);
+            setTimeout(() => {
+              setShowSuccessModal(true);
+            }, 500);
+            analytics_log_verified_credential();
           }
           else {
-            setIsSuccess(false);
-            setCredScanning(false);
+            setErrMsg('Failed to validate credential');
+            setScanning(false);
+            setShowVerifyModal(false);
+            setTimeout(() => {
+              setShowErrorModal(true);
+            }, 500);
+            analytics_log_unverified_credential()
           }
-        }
-        else {
-          setIsSuccess(false);
-          setCredScanning(false);
-          _showAlert('ZADA Wallet', 'Verification key does not exist');
-        }
-      }, 500);
-
+        }, 500);
+      }
+      else {
+        setErrMsg('Unable to verify credential');
+        setScanning(false);
+        setShowVerifyModal(false);
+        setTimeout(() => {
+          setShowErrorModal(true);
+        }, 500);
+        analytics_log_unverified_credential()
+      }
     } catch (error) {
-      setCredScanning(false);
-      setIsSuccess(false);
-      _showAlert('ZADA Wallet', error.message);
+      setErrMsg('Unable to verify credential');
+      setScanning(false);
+      setShowVerifyModal(false);
+      setTimeout(() => {
+        setShowErrorModal(true);
+      }, 500);
+      analytics_log_unverified_credential()
     }
-  }
-
-  function renderTitleInput(title, index) {
-    let value = values[title];
-
-    if (title == 'Issue Time') {
-      return (
-        <View
-          key={index}
-          style={{
-            marginLeft: 16,
-            marginRight: 16,
-            marginTop: 4,
-            marginBottom: 4,
-          }}>
-          <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
-          <View style={{
-            paddingLeft: 16,
-            paddingRight: 16,
-            backgroundColor: BACKGROUND_COLOR,
-            color: BLACK_COLOR,
-            height: 40,
-            marginBottom: 4,
-            borderRadius: 16,
-            justifyContent: "center"
-          }}>
-            <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
-          </View>
-        </View>
-      )
-    }
-    else {
-      return (
-        <View
-          key={index}
-          style={{
-            marginLeft: 16,
-            marginRight: 16,
-            marginTop: 4,
-            marginBottom: 4,
-          }}>
-          <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
-          <View style={{
-            paddingLeft: 16,
-            paddingRight: 16,
-            backgroundColor: WHITE_COLOR,
-            color: BLACK_COLOR,
-            height: 40,
-            marginBottom: 4,
-            borderRadius: 16,
-            justifyContent: "center"
-          }}>
-            <Text style={{ color: BLACK_COLOR }}>{value}</Text>
-          </View>
-        </View>
-      )
-    }
-
-
   }
 
   return (
     <View style={styles.MainContainer}>
 
-      <Modal
-        animationIn='slideInLeft'
-        animationOut='slideOutRight'
-        isVisible={showScanningModal}
-      >
-        <View
-          style={{
-            borderRadius: 10,
-            backgroundColor: BACKGROUND_COLOR,
-            paddingHorizontal: 20,
-            paddingBottom: 20
-          }}
-        >
-          {
-            credScanning && isSuccess == undefined ? (
-              <>
-                <HeadingComponent
-                  text='Scanning...'
-                />
-                <LottieView
-                  source={require('../assets/animation/cred_scanning.json')}
-                  autoPlay
-                  loop
-                  resizeMode='cover'
-                  style={{
-                    width: '100%',
-                    alignSelf: 'center',
-                  }}
-                />
-              </>
-            ) : (
-              isSuccess == true ? (
-                <View
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <HeadingComponent
-                    text='Success'
-                  />
-                  <Image
-                    source={require('../assets/images/check.png')}
-                    resizeMode='cover'
-                    style={{
-                      width: 128,
-                      height: 128,
-                    }}
-                  />
-                  <SimpleButton
-                    buttonColor={GREEN_COLOR}
-                    onPress={() => { setScanningModal(false); navigation.goBack() }}
-                    title='OKAY'
-                    titleColor={WHITE_COLOR}
-                    width={250}
-                    style={{ marginTop: 20 }}
-                  />
-                </View>
-              ) : (
-                <View
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <HeadingComponent
-                    text='Error'
-                  />
-                  <Image
-                    source={require('../assets/images/cross.png')}
-                    resizeMode='cover'
-                    style={{
-                      width: 128,
-                      height: 128,
-                    }}
-                  />
-                  <SimpleButton
-                    buttonColor={GREEN_COLOR}
-                    onPress={() => { setScanningModal(false); navigation.goBack() }}
-                    title='OKAY'
-                    titleColor={WHITE_COLOR}
-                    width={250}
-                    style={{ marginTop: 20 }}
-                  />
-                </View>
-              )
-            )
-          }
+      <CredValuesModal
+        values={values}
+        isVisible={showVerifyModal}
+        heading={isScanning ? `Verifying...` : `Credential\nInformation`}
+        isScanning={isScanning}
+        onCloseClick={() => { setShowVerifyModal(false); setScan(true) }}
+        onVerifyPress={() => { on_verify_click() }}
+      />
 
-        </View>
-      </Modal>
+      <SuccessModal
+        isVisible={showSuccessModal}
+        heading='Success'
+        info='Credential is verified successfully'
+        onCloseClick={() => { setShowSuccessModal(false) }}
+        onOkayPress={() => { setShowSuccessModal(false); setScan(true) }}
+      />
 
-      <Modal
-        animationIn='slideInLeft'
-        animationOut='slideOutRight'
-        isVisible={showCredVerModal}
-      >
-        <View style={{ backgroundColor: BACKGROUND_COLOR, borderRadius: 10, paddingHorizontal: 20, paddingBottom: 20 }}>
-          <HeadingComponent
-            text='Certificate Values'
-          />
-          <KeyboardAwareScrollView
-            style={{
-              maxHeight: 250,
-            }}
-          >
-            {
-              values != undefined && Object.keys(values).length > 0 && Object.keys(values).map((e, i) => {
-                return renderTitleInput(e, i)
-              })
-            }
-          </KeyboardAwareScrollView>
-
-          <SimpleButton
-            onPress={() => { on_verify_click() }}
-            width={250}
-            title='Verify'
-            titleColor={WHITE_COLOR}
-            buttonColor={GREEN_COLOR}
-            style={{ marginTop: 20, alignSelf: 'center' }}
-          />
-        </View>
-      </Modal>
+      <FailureModal
+        isVisible={showErrorModal}
+        heading='Invalid Credential'
+        info={errMsg}
+        onCloseClick={() => { setShowErrorModal(false) }}
+        onOkayPress={() => { setShowErrorModal(false); setScan(true) }}
+      />
 
       {scan ? (
         <QRCodeScanner

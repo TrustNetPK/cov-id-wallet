@@ -1,6 +1,6 @@
 import { useFocusEffect, } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import CredentialsCard from '../components/CredentialsCard';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
@@ -11,11 +11,12 @@ import { getItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import moment from 'moment';
 import { _fetchingAppData } from '../helpers/AppData';
-
-const DIMENSIONS = Dimensions.get('screen');
+import useNetwork from '../hooks/useNetwork';
+import { get_all_qr_credentials } from '../gateways/credentials';
 
 function CredentialsScreen(props) {
 
+  const { isConnected } = useNetwork();
   const [credentials, setCredentials] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -37,7 +38,24 @@ function CredentialsScreen(props) {
 
       setCredentials(credentialsList);
     } catch (e) {
-      console.log(e)
+      console.log("UPDATING CREDENTIALS FAILED =>", e);
+    }
+  }
+
+  const getAllCredential = async () => {
+    try {
+      setRefreshing(true);
+      if (isConnected) {
+        await get_all_qr_credentials();
+        await updateCredentialsList();
+      }
+      else {
+        await updateCredentialsList();
+      }
+      setRefreshing(false);
+    } catch (error) {
+      setRefreshing(false);
+      console.log('FETCHING CREDENTIALS ERROR =>', error);
     }
   }
 
@@ -62,7 +80,7 @@ function CredentialsScreen(props) {
             <RefreshControl
               tintColor={'#7e7e7e'}
               refreshing={refreshing}
-              onRefresh={_fetchingAppData}
+              onRefresh={() => { _fetchingAppData(isConnected) }}
             />
           }
           showsVerticalScrollIndicator={false}
@@ -71,10 +89,8 @@ function CredentialsScreen(props) {
           }}
           contentContainerStyle={{
             width: '100%',
-            //height: DIMENSIONS.height,
           }}
         >
-          {/* <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} /> */}
           {credentials.length > 0 && credentials.map((v, i) => {
             let imgURI = { uri: v.imageUrl };
             let vaccineName = v.name;
@@ -83,7 +99,6 @@ function CredentialsScreen(props) {
             let issueDate = v.values['Issue Time'];
             let schemeId = v.values['schemaId'];
 
-            // Getting Date format
             let date = moment(issueDate).format('DD/MM/YYYY');
 
             return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
@@ -102,7 +117,7 @@ function CredentialsScreen(props) {
             <RefreshControl
               tintColor={'#7e7e7e'}
               refreshing={refreshing}
-              onRefresh={_fetchingAppData}
+              onRefresh={() => { getAllCredential() }}
             />
           }
           showsVerticalScrollIndicator={false}

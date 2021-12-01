@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { 
-    StyleSheet, 
-    Text, 
+import {
+    StyleSheet,
+    Text,
     View,
     ScrollView,
     KeyboardAvoidingView,
@@ -14,14 +14,12 @@ import OverlayLoader from '../components/OverlayLoader';
 import { _fetchProfileAPI, _updateProfileAPI } from '../gateways/auth';
 import { showMessage, _showAlert } from '../helpers/Toast';
 import { emailRegex, nameRegex, pincodeRegex, validateIfLowerCased } from '../helpers/validation';
-import { BLACK_COLOR, GREEN_COLOR, PRIMARY_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BLACK_COLOR, GREEN_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { getItem, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import SimpleButton from '../components/Buttons/SimpleButton';
 import EmailWarning from '../components/EmailWarning';
 import PincodeModal from '../components/PincodeModal';
-
-const window = Dimensions.get('window');
 
 const ProfileScreen = () => {
 
@@ -118,19 +116,19 @@ const ProfileScreen = () => {
             let data = {
                 name: name.trim().toString()
             };
-    
+
             const result = await _updateProfileAPI(data);
-            if(result.data.success){
-                _showAlert('Zada Wallet','Profile has been updated successfully');
+            if (result.data.success) {
+                _showAlert('Zada Wallet', 'Profile has been updated successfully');
                 setDisableName(true);
             }
-            else{
-                _showAlert('Zada Wallet',result.data.error)
+            else {
+                _showAlert('Zada Wallet', result.data.error)
             }
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet',error.toString());
+            _showAlert('Zada Wallet', error.toString());
         }
 
     }
@@ -152,19 +150,19 @@ const ProfileScreen = () => {
             let data = {
                 email: email.toLowerCase().trim().toString()
             };
-    
+
             const result = await _updateProfileAPI(data);
-            if(result.data.success){
-                _showAlert('Zada Wallet','Profile has been updated successfully');
+            if (result.data.success) {
+                _showAlert('Zada Wallet', 'Profile has been updated successfully');
                 setDisableEmail(true);
             }
-            else{
-                _showAlert('Zada Wallet',result.data.error)
+            else {
+                _showAlert('Zada Wallet', result.data.error)
             }
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet',error.toString());
+            _showAlert('Zada Wallet', error.toString());
         }
     }
 
@@ -173,17 +171,17 @@ const ProfileScreen = () => {
         try {
             setProfileLoading(true);
             const result = await _fetchProfileAPI();
-            if(result.data.success){
+            if (result.data.success) {
                 await saveItem(ConstantsList.USER_PROFILE, JSON.stringify(result.data.user))
                 setName(result.data.user.name);
                 setEmail(result.data.user.email);
             }
-            else{
+            else {
                 _showAlert('Zada Wallet', result.data.error.toString());
-            } 
-            setProfileLoading(false);  
+            }
+            setProfileLoading(false);
         } catch (error) {
-            setProfileLoading(false); 
+            setProfileLoading(false);
             _showAlert('Zada Wallet', error.toString());
         }
     }
@@ -199,12 +197,12 @@ const ProfileScreen = () => {
             return
         }
         setCurrPasswordError('');
-    
+
         if (newPassword == "") {
             setNewPasswordError('New password is required.');
             return;
         }
-        
+
         if (!validateIfLowerCased(newPassword)) {
             setNewPasswordError('New password must be in lowercase.')
             return
@@ -215,15 +213,15 @@ const ProfileScreen = () => {
             setRePasswordError('Confirm password is required.');
             return;
         }
-        
+
         if (!validateIfLowerCased(rePassword)) {
             setRePasswordError('Confirm password must be in lowercase.')
             return
         }
         setRePasswordError('');
 
-        if(newPassword != rePassword){
-            showMessage('Zada Wallet','New Password and Confirm Password should be same');
+        if (newPassword != rePassword) {
+            showMessage('Zada Wallet', 'New Password and Confirm Password should be same');
             return;
         }
 
@@ -235,75 +233,75 @@ const ProfileScreen = () => {
                 oldSecretPhrase: currPassword.trim(),
                 newSecretPhrase: newPassword.trim(),
             };
-    
+
             const result = await _updateProfileAPI(data);
-            if(result.data.success){
+            if (result.data.success) {
                 await saveItem(ConstantsList.WALLET_SECRET, newPassword.trim());
-                _showAlert('Zada Wallet','Password has been updated successfully');
+                _showAlert('Zada Wallet', 'Password has been updated successfully');
                 setCurrPassword('');
                 setNewPassword('');
                 setRePassword('');
             }
-            else{
-                _showAlert('Zada Wallet',result.data.error)
+            else {
+                _showAlert('Zada Wallet', result.data.error)
             }
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet',error.toString());
+            _showAlert('Zada Wallet', error.toString());
         }
-    
+
     }
 
     // Effect to fetch user profile
-    useEffect(()=>{
+    useEffect(() => {
         _fetchProfile();
-    },[])
+    }, [])
 
     // Checking is Pincode set or not
     const _checkPinCode = async () => {
         try {
-        const isPincode = await getItem(ConstantsList.PIN_CODE); 
-        if(isPincode != null && isPincode != undefined && isPincode.length != 0)
-            setIsPincode(true);
-        else
-            setIsPincode(false);
+            const isPincode = await getItem(ConstantsList.PIN_CODE);
+            if (isPincode != null && isPincode != undefined && isPincode.length != 0)
+                setIsPincode(true);
+            else
+                setIsPincode(false);
         } catch (error) {
             showMessage('Zada Wallet', error.toString());
         }
     }
 
-    React.useLayoutEffect(()=>{
+    React.useLayoutEffect(() => {
         _checkPinCode();
-    },[]);
+    }, []);
 
     const _setPinCode = async () => {
-        if(pincode.length == 0){
-          setPincodeError('Pincode is required.');
-          return;
+        if (pincode.length == 0) {
+            setPincodeError('Pincode is required.');
+            return;
         }
         setPincodeError('');
-    
-        if(!pincodeRegex.test(pincode)){
-          setPincodeError('Pincode should contain only 6 digits.');
-          return;
+
+        if (!pincodeRegex.test(pincode)) {
+            setPincodeError('Pincode should contain only 6 digits.');
+            return;
         }
         setPincodeError('');
-    
-        if(confirmPincode.length == 0){
-          setConfirmPincodeError('Confirm pincode is required.');
-          return;
+
+        if (confirmPincode.length == 0) {
+            setConfirmPincodeError('Confirm pincode is required.');
+            return;
         }
         setConfirmPincodeError('');
-    
-        if(!pincodeRegex.test(confirmPincode)){
-          setConfirmPincodeError('Confirm pincode should contain only 6 digits.');
-          return;
+
+        if (!pincodeRegex.test(confirmPincode)) {
+            setConfirmPincodeError('Confirm pincode should contain only 6 digits.');
+            return;
         }
         setConfirmPincodeError('');
-    
-        if(pincode != confirmPincode){
-          showMessage('Zada Wallet','Pincode and confirm pincode are not same. Please check them carefully');
+
+        if (pincode != confirmPincode) {
+            showMessage('Zada Wallet', 'Pincode and confirm pincode are not same. Please check them carefully');
         }
 
         // Saving pincode in async
@@ -322,58 +320,58 @@ const ProfileScreen = () => {
     }
 
     const _updatePincode = async () => {
-        if(oldPincode.length == 0){
+        if (oldPincode.length == 0) {
             setOldPincodeError('Old pincode is required.');
             return;
         }
         setOldPincodeError('');
-    
-        if(!pincodeRegex.test(oldPincode)){
+
+        if (!pincodeRegex.test(oldPincode)) {
             setOldPincodeError('Old pincode should contain only 6 digits.');
             return;
         }
         setOldPincodeError('');
-    
-        if(newPincode.length == 0){
+
+        if (newPincode.length == 0) {
             setNewPincodeError('New pincode is required.');
             return;
         }
         setNewPincodeError('');
-    
-        if(!pincodeRegex.test(newPincode)){
+
+        if (!pincodeRegex.test(newPincode)) {
             setNewPincodeError('New pincode should contain only 6 digits.');
             return;
         }
         setNewPincodeError('');
 
-        if(rePincode.length == 0){
+        if (rePincode.length == 0) {
             setRePincodeError('Confirm pincode is required.');
             return;
         }
         setRePincodeError('');
-    
-        if(!pincodeRegex.test(rePincode)){
+
+        if (!pincodeRegex.test(rePincode)) {
             setRePincodeError('Confirm pincode should contain only 6 digits.');
             return;
         }
         setRePincodeError('');
 
-        if(newPincode != rePincode){
-            showMessage('Zada Wallet','New pincode and confirm pincode should be same');
+        if (newPincode != rePincode) {
+            showMessage('Zada Wallet', 'New pincode and confirm pincode should be same');
             return;
         }
 
         // Updating Pincode
         try {
             const code = await getItem(ConstantsList.PIN_CODE);
-            if(code == oldPincode){
+            if (code == oldPincode) {
                 await saveItem(ConstantsList.PIN_CODE, newPincode);
                 showMessage('Zada Wallet', 'Pincode is updated successfully.');
                 setOldPincode('');
                 setNewpincode('');
                 setRepincode('');
             }
-            else{
+            else {
                 showMessage('Zada Wallet', 'You entered wrong old pincode. Please enter the correct.');
             }
         } catch (error) {
@@ -383,60 +381,59 @@ const ProfileScreen = () => {
     }
 
     return (
-        // <View style={styles._mainContainer}>
-
         <KeyboardAvoidingView
-            behavior={keyboardBehaviour} keyboardVerticalOffset={keyboardVerticalOffset}
+            behavior={keyboardBehaviour}
+            keyboardVerticalOffset={keyboardVerticalOffset}
             style={styles._mainContainer}
         >
             {/* PinCode Modal */}
-            <PincodeModal 
+            <PincodeModal
                 isVisible={showPincodeModal}
                 pincode={pincode}
-                onPincodeChange={(text)=>{
-                setPincode(text);
-                if(text.length == 0)
-                    setPincodeError('');
+                onPincodeChange={(text) => {
+                    setPincode(text);
+                    if (text.length == 0)
+                        setPincodeError('');
                 }}
                 pincodeError={pincodeError}
                 confirmPincode={confirmPincode}
-                onConfirmPincodeChange={(text)=>{
-                setConfirmPincode(text);
-                if(text.length == 0)
-                    setConfirmPincodeError('');
+                onConfirmPincodeChange={(text) => {
+                    setConfirmPincode(text);
+                    if (text.length == 0)
+                        setConfirmPincodeError('');
                 }}
                 confirmPincodeError={confirmPincodeError}
-                onCloseClick={()=>{ setShowPinCodeModal(!showPincodeModal) }}
+                onCloseClick={() => { setShowPinCodeModal(!showPincodeModal) }}
                 onContinueClick={_setPinCode}
             />
 
             {
                 isLoading &&
-                <OverlayLoader 
+                <OverlayLoader
                     text='Updating your profile...'
                 />
             }
 
             {
                 profileLoading &&
-                <OverlayLoader 
+                <OverlayLoader
                     text='Fetching your profile'
                 />
-            }                
-                <ScrollView
-                    bounces={false}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles._scrollContainer}
-                >
-                    {/* General Items */}
-                    <Text style={styles._parent}>General</Text>
-                    
-                    {/* Name */}
-                    <View style={styles._itemContainer}>
+            }
+            <ScrollView
+                bounces={false}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles._scrollContainer}
+            >
+                {/* General Items */}
+                <Text style={styles._parent}>General</Text>
+
+                {/* Name */}
+                <View style={styles._itemContainer}>
                     <Text style={styles._itemLabel}>Full Name (Official Name)</Text>
                     <View style={styles._row}>
-                        
-                        <View style={{width: '85%'}}>
+
+                        <View style={{ width: '85%' }}>
                             <InputComponent
                                 height={45}
                                 placeholderText="Name"
@@ -444,35 +441,35 @@ const ProfileScreen = () => {
                                 value={name}
                                 isSecureText={false}
                                 inputContainerStyle={styles._inputView}
-                                setStateValue={(text) =>{
+                                setStateValue={(text) => {
                                     setName(text);
                                 }}
                                 disabled={disableName}
                             />
                         </View>
-                        
-                        <Text 
-                            onPress={()=>{
+
+                        <Text
+                            onPress={() => {
                                 disableName ? (
                                     setDisableName(!disableName)
-                                ):(
+                                ) : (
                                     _onNameSave()
                                 )
-                                
-                            }} 
+
+                            }}
                             style={styles._editText}
                         >
                             {disableName ? 'Edit' : 'Save'}
                         </Text>
                     </View>
                 </View>
-            
+
                 {/* Email */}
                 <View style={styles._itemContainer}>
                     <Text style={styles._itemLabel}>Email</Text>
                     <View style={styles._row}>
-                        
-                        <View style={{width: '85%'}}>
+
+                        <View style={{ width: '85%' }}>
                             <InputComponent
                                 height={45}
                                 placeholderText="Email"
@@ -480,18 +477,18 @@ const ProfileScreen = () => {
                                 value={email}
                                 isSecureText={false}
                                 inputContainerStyle={styles._inputView}
-                                setStateValue={(text) =>{
+                                setStateValue={(text) => {
                                     setEmail(text);
                                     let domain = text.split('@');
-                                    if(domain.length == 2){
+                                    if (domain.length == 2) {
 
                                         let domainName = domain[1].toLowerCase();
 
-                                        if(domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com'){
+                                        if (domainName !== 'gmail.com' && domainName !== 'yahoo.com' && domainName !== 'outlook.com') {
                                             setEmailWarning(true);
                                             return
                                         }
-                                        
+
                                         setEmailWarning(false);
                                         return
 
@@ -503,7 +500,7 @@ const ProfileScreen = () => {
                             />
                             {
                                 emailWarning &&
-                                <EmailWarning 
+                                <EmailWarning
                                     style={{
                                         marginLeft: 12,
                                         marginRight: 12,
@@ -512,15 +509,15 @@ const ProfileScreen = () => {
                                 />
                             }
                         </View>
-                        
-                        <Text 
-                            onPress={()=>{
+
+                        <Text
+                            onPress={() => {
                                 disableEmail ? (
                                     setDisableEmail(!disableEmail)
-                                ):(
+                                ) : (
                                     _onEmailSave()
                                 )
-                                
+
                             }}
                             style={styles._editText}
                         >
@@ -528,13 +525,13 @@ const ProfileScreen = () => {
                         </Text>
                     </View>
                 </View>
-            
+
                 {/* Change Password */}
                 <Text style={styles._parent}>Change Password</Text>
-                
+
                 {/* Current Password */}
                 <View style={styles._itemContainer}>
-                    <View style={{width: '100%'}}>
+                    <View style={{ width: '100%' }}>
                         <InputComponent
                             height={45}
                             type={'secret'}
@@ -555,7 +552,7 @@ const ProfileScreen = () => {
 
                 {/* New Password */}
                 <View style={styles._itemContainer}>
-                    <View style={{width: '100%'}}>
+                    <View style={{ width: '100%' }}>
                         <InputComponent
                             height={45}
                             type={'secret'}
@@ -576,7 +573,7 @@ const ProfileScreen = () => {
 
                 {/* Re Enter New Password */}
                 <View style={styles._itemContainer}>
-                    <View style={{width: '100%'}}>
+                    <View style={{ width: '100%' }}>
                         <InputComponent
                             height={45}
                             type={'secret'}
@@ -597,8 +594,8 @@ const ProfileScreen = () => {
 
                 {/* Update Password Button */}
                 <View style={styles._itemContainer}>
-                    <View style={{width: 250, alignSelf: 'center'}}>
-                        <SimpleButton 
+                    <View style={{ width: 250, alignSelf: 'center' }}>
+                        <SimpleButton
                             onPress={_onUpdatePasswordClick}
                             width={'100%'}
                             title='Update Password'
@@ -610,7 +607,7 @@ const ProfileScreen = () => {
                         />
                     </View>
                 </View>
-                
+
                 {/* Pincode */}
                 <Text style={styles._parent}>Pincode</Text>
                 {
@@ -619,9 +616,9 @@ const ProfileScreen = () => {
                             <Text style={styles._pincodeInfo}>You didn't set your pincode yet. Please click below button to set your 6 digit pincode</Text>
                             {/* Set Pincode Button */}
                             <View style={styles._itemContainer}>
-                                <View style={{width: 250, alignSelf: 'center'}}>
-                                    <SimpleButton 
-                                        onPress={()=>{ setShowPinCodeModal(!showPincodeModal) }}
+                                <View style={{ width: 250, alignSelf: 'center' }}>
+                                    <SimpleButton
+                                        onPress={() => { setShowPinCodeModal(!showPincodeModal) }}
                                         width={'100%'}
                                         title='Set Pincode'
                                         titleColor={WHITE_COLOR}
@@ -633,11 +630,11 @@ const ProfileScreen = () => {
                                 </View>
                             </View>
                         </>
-                    ):(
+                    ) : (
                         <>
                             {/* Old Pincode */}
                             <View style={styles._itemContainer}>
-                                <View style={{width: '100%'}}>
+                                <View style={{ width: '100%' }}>
                                     <InputComponent
                                         height={45}
                                         type={'secret'}
@@ -652,16 +649,16 @@ const ProfileScreen = () => {
                                         inputContainerStyle={styles._inputView}
                                         setStateValue={text => {
                                             setOldPincode(text);
-                                            if(text.length == 0 || text == undefined)
+                                            if (text.length == 0 || text == undefined)
                                                 setOldPincodeError('');
                                         }}
                                     />
                                 </View>
                             </View>
-                            
+
                             {/* New Pincode */}
                             <View style={styles._itemContainer}>
-                                <View style={{width: '100%'}}>
+                                <View style={{ width: '100%' }}>
                                     <InputComponent
                                         height={45}
                                         type={'secret'}
@@ -676,7 +673,7 @@ const ProfileScreen = () => {
                                         inputContainerStyle={styles._inputView}
                                         setStateValue={text => {
                                             setNewpincode(text);
-                                            if(text.length == 0 || text == undefined)
+                                            if (text.length == 0 || text == undefined)
                                                 setNewPincodeError('');
                                         }}
                                     />
@@ -685,7 +682,7 @@ const ProfileScreen = () => {
 
                             {/* Re Enter Pincode */}
                             <View style={styles._itemContainer}>
-                                <View style={{width: '100%'}}>
+                                <View style={{ width: '100%' }}>
                                     <InputComponent
                                         height={45}
                                         type={'secret'}
@@ -700,7 +697,7 @@ const ProfileScreen = () => {
                                         inputContainerStyle={styles._inputView}
                                         setStateValue={text => {
                                             setRepincode(text);
-                                            if(text.length == 0 || text == undefined)
+                                            if (text.length == 0 || text == undefined)
                                                 setRePincodeError('');
                                         }}
                                     />
@@ -709,9 +706,9 @@ const ProfileScreen = () => {
 
                             {/* Set Pincode Button */}
                             <View style={styles._itemContainer}>
-                                <View style={{width: 250, alignSelf: 'center'}}>
-                                    <SimpleButton 
-                                        onPress={()=>{ _updatePincode() }}
+                                <View style={{ width: 250, alignSelf: 'center' }}>
+                                    <SimpleButton
+                                        onPress={() => { _updatePincode() }}
                                         width={'100%'}
                                         title='Update Pincode'
                                         titleColor={WHITE_COLOR}
@@ -726,46 +723,46 @@ const ProfileScreen = () => {
                     )
                 }
             </ScrollView>
-        </KeyboardAvoidingView>  
+        </KeyboardAvoidingView>
     )
 }
 
 const styles = StyleSheet.create({
-    _mainContainer:{
+    _mainContainer: {
         flex: 1,
     },
-    _scrollContainer:{
+    _scrollContainer: {
         paddingLeft: 5,
         paddingRight: 5,
         backgroundColor: '#f7f7f7',
         paddingBottom: '50%',
     },
-    _parent:{
+    _parent: {
         marginHorizontal: 5,
         marginTop: 20,
         fontSize: 15,
         color: '#6f6f6f',
         marginBottom: 10,
     },
-    _itemContainer:{
+    _itemContainer: {
         paddingHorizontal: 10,
         borderRadius: 10,
         marginBottom: 10,
     },
-    _itemLabel:{
+    _itemLabel: {
         fontSize: 15,
         fontFamily: 'Poppins-Regular',
         color: BLACK_COLOR,
         marginLeft: 10,
         marginBottom: 5,
     },
-    _row:{
+    _row: {
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
     },
-    _inputView:{
+    _inputView: {
         backgroundColor: WHITE_COLOR,
         borderRadius: 10,
         width: '100%',
@@ -774,12 +771,12 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         borderBottomWidth: 0,
     },
-    _editText:{
+    _editText: {
         fontSize: 15,
         fontFamily: 'Poppins-Regular',
         marginRight: 14,
     },
-    _pincodeInfo:{
+    _pincodeInfo: {
         fontFamily: 'Poppins-regular',
         fontSize: 12,
         marginHorizontal: 20,
