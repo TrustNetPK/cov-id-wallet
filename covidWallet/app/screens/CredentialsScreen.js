@@ -10,7 +10,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { getItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import moment from 'moment';
-import { _fetchingAppData } from '../helpers/AppData';
 import useNetwork from '../hooks/useNetwork';
 import { get_all_qr_credentials } from '../gateways/credentials';
 
@@ -19,6 +18,8 @@ function CredentialsScreen(props) {
   const { isConnected } = useNetwork();
   const [credentials, setCredentials] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  console.log('isConnected', isConnected);
 
   const updateCredentialsList = async () => {
     try {
@@ -80,7 +81,7 @@ function CredentialsScreen(props) {
             <RefreshControl
               tintColor={'#7e7e7e'}
               refreshing={refreshing}
-              onRefresh={() => { _fetchingAppData(isConnected) }}
+              onRefresh={() => { getAllCredential() }}
             />
           }
           showsVerticalScrollIndicator={false}
