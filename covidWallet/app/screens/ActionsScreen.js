@@ -133,13 +133,13 @@ function ActionsScreen({ navigation }) {
 
   useEffect(() => {
     // Setting listener for deeplink
+    let deepEvent = undefined;
     if (!deepLink) {
-      Linking.addEventListener('url', ({ url }) => {
+      deepEvent = Linking.addEventListener('url', ({ url }) => {
         getUrl(url);
       });
     }
-
-    return () => Linking.removeAllListeners();
+    return () => deepEvent && deepEvent;
   }, [])
 
   //Checking Notification Status
