@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ScrollView, Alert, View, TouchableOpacity, Animated, StyleSheet, RefreshControl, Dimensions } from 'react-native';
+import { Alert, View, TouchableOpacity, Animated, StyleSheet, RefreshControl, Dimensions } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
@@ -16,6 +15,8 @@ import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 import OverlayLoader from '../components/OverlayLoader';
 import { analytics_log_connection_delete } from '../helpers/analytics';
 import useNetwork from '../hooks/useNetwork';
+import PullToRefresh from '../components/PullToRefresh';
+import EmptyList from '../components/EmptyList';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -114,6 +115,8 @@ function ConnectionsScreen() {
 
   return (
     <View style={themeStyles.mainContainer}>
+
+      <PullToRefresh />
       <HeadingComponent text="Connections" />
       {
         isLoading &&
@@ -123,7 +126,7 @@ function ConnectionsScreen() {
       }
 
       {
-        connectionsList.length ?
+        connectionsList.length ? (
           <>
             <View pointerEvents={isLoading ? 'none' : 'auto'}>
               <SwipeListView
@@ -183,24 +186,14 @@ function ConnectionsScreen() {
               />
             </View>
           </>
-          :
-          <ScrollView
-            refreshControl={
-              <RefreshControl
-                tintColor={'#7e7e7e'}
-                refreshing={refreshing}
-                onRefresh={getAllConnections}
-              />
-            }
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.EmptyContainer}
-          >
-            <TextComponent text="You have no connections yet." />
-            <ImageBoxComponent
-              source={require('../assets/images/connectionsempty.png')}
-            />
-          </ScrollView>
-      }
+        ) : (
+          <EmptyList
+            refreshing={refreshing}
+            onRefresh={() => { getAllConnections() }}
+            text="You have no connections yet."
+            image={require('../assets/images/connectionsempty.png')}
+          />
+        )}
     </View >
   );
 }

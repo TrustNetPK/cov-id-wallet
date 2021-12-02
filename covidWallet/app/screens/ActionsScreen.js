@@ -37,6 +37,8 @@ import { analytics_log_action_screen } from '../helpers/analytics';
 import PincodeModal from '../components/PincodeModal';
 import { pincodeRegex } from '../helpers/validation';
 import ConfirmPincodeModal from '../components/ConfirmPincodeModal';
+import PullToRefresh from '../components/PullToRefresh';
+import EmptyList from '../components/EmptyList';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -870,25 +872,9 @@ function ActionsScreen({ navigation }) {
         />
       }
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: isLoading ? 25 : 0,
-        }}
-      >
-        <AntIcon
-          name='arrowdown'
-          size={15}
-          color={'#7e7e7e'}
-        />
-        <Text style={{
-          alignSelf: 'center',
-          color: '#7e7e7e',
-          marginLeft: 5,
-        }}>Pull to refresh</Text>
-      </View>
+      <PullToRefresh
+        isLoading={isLoading}
+      />
 
       <HeadingComponent text="Actions" />
 
@@ -985,47 +971,25 @@ function ActionsScreen({ navigation }) {
           </View>
         </>
       ) : (
-        <>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                tintColor={'#7e7e7e'}
-                refreshing={refreshing}
-                onRefresh={_fetchActionList}
-              />
-            }
-            contentContainerStyle={styles.EmptyContainer}
-          >
-            <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
-            <ImageBoxComponent
-              source={require('../assets/images/action.png')}
-            />
-            <View style={{
-              alignItems: "center",
-              position: 'absolute',
-              bottom: '3%',
-            }}>
-              <BorderButton
-                nextHandler={() => {
-                  navigation.navigate('QRScreen')
-                }}
-                text="QR CODE"
-                color={BLACK_COLOR}
-                textColor={BLACK_COLOR}
-                backgroundColor={BACKGROUND_COLOR}
-                isIconVisible={true}
-              />
-            </View>
-          </ScrollView>
-        </>
-      )
-      }
+        <EmptyList
+          refreshing={refreshing}
+          onRefresh={_fetchActionList}
+          text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it."
+          image={require('../assets/images/action.png')}
+          onPress={() => { navigation.navigate('QRScreen') }}
+          screen='actions'
+        />
+      )}
     </View >
   );
 }
 
 const styles = StyleSheet.create({
+  pullToRefreshContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   EmptyContainer: {
     flex: 1,
     alignItems: 'center',
