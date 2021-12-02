@@ -19,8 +19,6 @@ function CredentialsScreen(props) {
   const [credentials, setCredentials] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  console.log('isConnected', isConnected);
-
   const updateCredentialsList = async () => {
     try {
       // Getting item from asyncstorage
