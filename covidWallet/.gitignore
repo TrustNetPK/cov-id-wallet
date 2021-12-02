@@ -36,6 +36,9 @@ local.properties
 *.iml
 google-services.json
 *.hprof
+release/
+android/app/release/
+
 
 # node.js
 #
