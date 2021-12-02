@@ -38,7 +38,9 @@ google-services.json
 *.hprof
 release/
 android/app/release/
-
+android/app/build/
+android/app/private_key.pepk
+private_key.pepk
 
 # node.js
 #
