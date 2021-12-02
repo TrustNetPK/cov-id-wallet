@@ -1,33 +1,30 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, View, StyleSheet, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl, Dimensions } from 'react-native';
+import { Alert, View, StyleSheet, Linking, TouchableOpacity, Animated, RefreshControl, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import AntIcon from 'react-native-vector-icons/AntDesign';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import FlatCard from '../components/FlatCard';
-import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import ActionDialog from '../components/Dialogs/ActionDialog';
 import HeadingComponent from '../components/HeadingComponent';
-import BorderButton from '../components/BorderButton';
 
 import messaging from '@react-native-firebase/messaging';
 
 import { themeStyles } from '../theme/Styles';
-import { BACKGROUND_COLOR, BLACK_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BLACK_COLOR, RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
-import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
-import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../helpers/ConfigApp';
+import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, saveItem } from '../helpers/Storage';
+import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
 
 import { AuthenticateUser } from '../helpers/Authenticate';
 import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential, delete_credential, fetch_signature_by_cred_id, getToken, get_credential, get_signature, get_verification_key } from '../gateways/credentials';
+import { accept_credential, delete_credential, fetch_signature_by_cred_id, getToken, get_credential, get_verification_key } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
@@ -188,9 +185,6 @@ function ActionsScreen({ navigation }) {
     navigation
       .dangerouslyGetParent()
       .setOptions(headerOptions);
-    // navigation
-    //   .dangerouslyGetParent()
-    //   .setOptions(isAction ? headerOptions : undefined);
   }, [isAction, navigation]);
 
   const getUrl = async (url) => {
@@ -663,8 +657,6 @@ function ActionsScreen({ navigation }) {
       if (BioResult) {
         setModalVisible(false);
         try {
-
-          //setIsLoading(true);
           // Submit Verification Api call
           let result = await delete_verification(selectedItemObj.verificationId);
 
@@ -947,12 +939,11 @@ function ActionsScreen({ navigation }) {
                 <View key={index} style={styles.rowBack}>
                   <TextComponent text="" />
                   <Animated.View>
-                    <TouchableOpacity onPress={() => onDeletePressed(item)} activeOpacity={0.8}
+                    <TouchableOpacity
+                      onPress={() => onDeletePressed(item)}
+                      activeOpacity={0.8}
                       style={[
                         styles.swipeableViewStyle,
-                        // {
-                        //   transform: [{ scale: animatedScaling }]
-                        // }
                       ]}
                     >
                       <MaterialCommunityIcons
@@ -985,24 +976,10 @@ function ActionsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  pullToRefreshContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  EmptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  bottom: {
-    width: 50,
-    height: 50,
-  },
   headerRightIcon: {
     padding: 10,
     color: BLACK_COLOR,
   },
-  imageProps: {},
   rowBack: {
     alignItems: 'center',
     flex: 1,

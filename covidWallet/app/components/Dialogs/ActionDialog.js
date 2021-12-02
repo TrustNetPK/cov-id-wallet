@@ -91,7 +91,6 @@ function ActionDialog(props) {
     }
 
     useLayoutEffect(() => {
-        // If type = verification_request
         if (props.data.type == VER_REQ) {
             getAllCredForVeri();
         } else {
@@ -104,7 +103,6 @@ function ActionDialog(props) {
         let val = values;
 
         // If no certificate is selected.
-        //Object.keys(selectedCred).length === 0
         if (props.data.type == VER_REQ && (selectedCred == null || val == null)) {
             alert('Please select a certificate');
             return
@@ -383,32 +381,6 @@ function ActionDialog(props) {
                             </>
                         )
                     }
-
-                    {/* {spinner &&
-                        <View style={{
-                            zIndex: 10, justifyContent: "center",
-                            alignItems: "center",
-                        }}>
-                            <ActivityIndicator color={"#000"} size={"small"} />
-                        </View>
-                    } 
-                    {
-                        <FlatList
-                            data={credential}
-                            extraData={counter}
-                            keyExtractor={(item, index) => {
-                                return index;
-                            }}
-                            renderItem={({ item, index }) => {
-                                return (
-                                    <RadioButton isChecked={selectedCred == item} item={item} setSelected={setSelected}>
-                                        <CustomAccordian item />
-                                    </RadioButton>
-                                )
-                            }}
-                        />
-                    } */}
-
                 </View>
             </Modal>
         </View >
