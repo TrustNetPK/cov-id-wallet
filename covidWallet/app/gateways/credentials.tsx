@@ -206,7 +206,9 @@ export const fetch_signature_by_cred_id = async (
       // Making QR based on signature and base 64 encoded data
       let qrData = {
         data: base64Values,
-        signature: result.data.data,
+        signature: result.data.signature,
+        tenantId: result.data.tenantId,
+        keyVersion: result.data.keyVersion,
         type: 'cred_ver',
       };
       return {

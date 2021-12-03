@@ -406,7 +406,7 @@ function QRScreen({ route, navigation }) {
       let credValues = Buffer.from(credQrData.data, 'base64').toString();
       var orderValues = arrangeValues(JSON.parse(credValues));
       setCredentialData({
-        values: credQrData.data,
+        values: Buffer.from(JSON.stringify(orderValues)).toString('base64'),
         signature: credQrData.signature,
         tenantId: credQrData.tenantId,
         keyVersion: credQrData.keyVersion,
