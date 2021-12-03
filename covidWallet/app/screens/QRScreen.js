@@ -28,6 +28,7 @@ import SuccessModal from '../components/SuccessModal';
 import FailureModal from '../components/FailureModal';
 import CredValuesModal from '../components/CredValuesModal';
 import { analytics_log_unverified_credential, analytics_log_verified_credential, analytics_log_verify_cred_qr } from '../helpers/analytics';
+import { get_cold_verification } from '../gateways/credentials';
 
 function QRScreen({ route, navigation }) {
   const [scan, setScan] = useState(true);
@@ -405,8 +406,10 @@ function QRScreen({ route, navigation }) {
       let credValues = Buffer.from(credQrData.data, 'base64').toString();
       var orderValues = arrangeValues(JSON.parse(credValues));
       setCredentialData({
-        values: JSON.stringify(orderValues),
-        signature: Buffer.from(credQrData.signature, 'base64').toString(),
+        values: credQrData.data,
+        signature: credQrData.signature,
+        tenantId: credQrData.tenantId,
+        keyVersion: credQrData.keyVersion,
       });
       setValues(orderValues);
       setTimeout(() => {
@@ -424,41 +427,24 @@ function QRScreen({ route, navigation }) {
       analytics_log_verify_cred_qr();
 
       setScanning(true);
-      // Get Public Key
-      const ver_key = await getItem(ConstantsList.VER_KEY);
 
-      if (ver_key) {
+      const result = await get_cold_verification(
+        credentialData.values,
+        credentialData.signature,
+        credentialData.tenantId,
+        credentialData.keyVersion
+      );
 
-        var crypt = new Crypt();
-
-        var verified = crypt.verify(
-          ver_key,
-          credentialData.signature,
-          credentialData.values,
-        );
-
+      if (result.data.success) {
+        setScanning(false);
+        setShowVerifyModal(false);
         setTimeout(() => {
-          if (verified == true) {
-            setScanning(false);
-            setShowVerifyModal(false);
-            setTimeout(() => {
-              setShowSuccessModal(true);
-            }, 500);
-            analytics_log_verified_credential();
-          }
-          else {
-            setErrMsg('Failed to validate credential');
-            setScanning(false);
-            setShowVerifyModal(false);
-            setTimeout(() => {
-              setShowErrorModal(true);
-            }, 500);
-            analytics_log_unverified_credential()
-          }
+          setShowSuccessModal(true);
         }, 500);
+        analytics_log_verified_credential();
       }
       else {
-        setErrMsg('Unable to verify credential');
+        setErrMsg('Failed to validate credential');
         setScanning(false);
         setShowVerifyModal(false);
         setTimeout(() => {

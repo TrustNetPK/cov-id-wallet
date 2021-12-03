@@ -24,7 +24,7 @@ import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential, delete_credential, fetch_signature_by_cred_id, getToken, get_credential, get_verification_key } from '../gateways/credentials';
+import { accept_credential, delete_credential, fetch_signature_by_cred_id, getToken, get_credential } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
@@ -88,31 +88,6 @@ function ActionsScreen({ navigation }) {
       />
     ),
   };
-
-  // Effect to check for verification Key
-  useState(() => {
-    const getVerKey = async () => {
-      try {
-        const verKey = await getItem(ConstantsList.VER_KEY);
-        // Ver key doesn't exists
-        if (verKey == undefined || verKey == null || verKey == "") {
-          const result = await get_verification_key();
-          if (result.data.success) {
-            await saveItem(ConstantsList.VER_KEY, result.data.data);
-          }
-          else {
-            console.log('VER KEY ERROR', result.data.message);
-          }
-        }
-        else {
-          // Verification Key is already fetched
-        }
-      } catch (error) {
-        console.log('VER KEY ERROR', error.message);
-      }
-    }
-    getVerKey();
-  }, [])
 
   useLayoutEffect(() => {
     NetInfo.fetch().then((networkState) => {

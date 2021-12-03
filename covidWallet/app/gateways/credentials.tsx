@@ -191,22 +191,6 @@ export async function get_signature(credentialId: string) {
   }
 }
 
-// Get verification key
-export async function get_verification_key() {
-  try {
-    const result = await http_client({
-      method: 'GET',
-      url: '/api/credential/get_public_key',
-      headers: {
-        Authorization: 'Bearer ' + (await getToken()),
-      },
-    });
-    return result;
-  } catch (error) {
-    throw error;
-  }
-}
-
 // Fetching signature for credential
 export const fetch_signature_by_cred_id = async (
   credentialId: string,
@@ -234,5 +218,32 @@ export const fetch_signature_by_cred_id = async (
     }
   } catch (error) {
     return {success: false};
+  }
+};
+
+// Do verification of credential
+export const get_cold_verification = async (
+  values: String,
+  signature: String,
+  tenantId: String,
+  keyVersion: String,
+) => {
+  try {
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/credential/get_cold_verification',
+      data: {
+        values,
+        signature,
+        tenantId,
+        keyVersion,
+      },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
   }
 };
