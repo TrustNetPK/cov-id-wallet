@@ -76,3 +76,7 @@ export const analytics_log_verified_credential = async () => {
 export const analytics_log_unverified_credential = async () => {
     await analytics().logEvent('QR_Credential_Unverified')
 }
+
+export const analytics_log_app_error = async (stackTrace) => {
+    await analytics().logEvent('APP_ERROR', { stackTrace: stackTrace })
+}
