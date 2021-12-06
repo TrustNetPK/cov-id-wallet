@@ -17,7 +17,6 @@ import {
 } from '../helpers/Storage';
 import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
 import { Buffer } from 'buffer';
-import { Crypt } from 'hybrid-crypto-js';
 import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
 import { showMessage, _showAlert } from '../helpers/Toast';

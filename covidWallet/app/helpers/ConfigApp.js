@@ -1,6 +1,6 @@
 module.exports = Object.freeze({
-  //BASE_URL: 'http://dfd6-39-36-125-138.ngrok.io',
-  BASE_URL: 'http://test-agency.zadanetwork.com',
+  BASE_URL: 'http://9fd5-110-93-246-171.ngrok.io',
+  //BASE_URL: 'http://test-agency.zadanetwork.com',
   //BASE_URL: 'https://agency.zadanetwork.com',
   ZADA_AUTH_URL: 'https://auth-test.zadanetwork.com',
   //ZADA_AUTH_URL: 'http://0876-182-191-89-195.ngrok.io',
