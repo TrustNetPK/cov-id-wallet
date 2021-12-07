@@ -21,12 +21,12 @@ import CustomProgressBar from '../components/CustomProgressBar';
 import { showMessage, showNetworkMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
 import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
-import { accept_connection, add_session, find_auth_connection, save_connection, save_did, save_link, send_connection_data, send_zada_auth_verification_request } from '../gateways/connections';
+import { accept_connection, add_session, find_auth_connection, save_did, send_zada_auth_verification_request } from '../gateways/connections';
 import SuccessModal from '../components/SuccessModal';
 import FailureModal from '../components/FailureModal';
 import CredValuesModal from '../components/CredValuesModal';
 import { analytics_log_unverified_credential, analytics_log_verified_credential, analytics_log_verify_cred_qr } from '../helpers/analytics';
-import { get_cold_verification } from '../gateways/credentials';
+import { submit_cold_verification } from '../gateways/credentials';
 import useNetwork from '../hooks/useNetwork';
 
 function QRScreen({ route, navigation }) {
@@ -415,7 +415,7 @@ function QRScreen({ route, navigation }) {
       let credValues = Buffer.from(credQrData.data, 'base64').toString();
       var orderValues = arrangeValues(JSON.parse(credValues));
       setCredentialData({
-        values: Buffer.from(JSON.stringify(orderValues)).toString('base64'),
+        data: Buffer.from(JSON.stringify(orderValues)).toString('base64'),
         signature: credQrData.signature,
         tenantId: credQrData.tenantId,
         keyVersion: credQrData.keyVersion,
@@ -438,8 +438,8 @@ function QRScreen({ route, navigation }) {
 
         setScanning(true);
 
-        const result = await get_cold_verification(
-          credentialData.values,
+        const result = await submit_cold_verification(
+          credentialData.data,
           credentialData.signature,
           credentialData.tenantId,
           credentialData.keyVersion

@@ -224,7 +224,7 @@ export const fetch_signature_by_cred_id = async (
 };
 
 // Do verification of credential
-export const get_cold_verification = async (
+export const submit_cold_verification = async (
   values: String,
   signature: String,
   tenantId: String,
@@ -233,7 +233,7 @@ export const get_cold_verification = async (
   try {
     const result = await http_client({
       method: 'POST',
-      url: '/api/credential/get_cold_verification',
+      url: '/api/credential/submit_cold_verification',
       data: {
         values,
         signature,
