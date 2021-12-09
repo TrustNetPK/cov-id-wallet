@@ -90,7 +90,7 @@ function CredentialsScreen(props) {
     <View style={themeStyles.mainContainer}>
 
       <FeatureVideo
-        isVisible={true}
+        isVisible={showVideo}
         onCloseClick={() => { setShowVideo(prev => !prev) }}
       />
 
