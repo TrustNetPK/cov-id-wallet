@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { StyleSheet, Image, View, Dimensions, ActivityIndicator } from 'react-native'
 import Modal from 'react-native-modal';
-import { BACKGROUND_COLOR, GREEN_COLOR, PRIMARY_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, GRAY_COLOR, GREEN_COLOR } from '../theme/Colors';
 import SimpleButton from './Buttons/SimpleButton';
 import HeadingComponent from './HeadingComponent';
 
@@ -33,7 +33,7 @@ const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
                     loadingQR &&
                     <ActivityIndicator
                         size='large'
-                        color={PRIMARY_COLOR}
+                        color={GRAY_COLOR}
                         style={{
                             position: 'absolute',
                             alignSelf: 'center',

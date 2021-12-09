@@ -5,13 +5,14 @@ import CredentialsCard from '../components/CredentialsCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { getItem } from '../helpers/Storage';
+import { getItem, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 import moment from 'moment';
 import useNetwork from '../hooks/useNetwork';
 import { get_all_qr_credentials } from '../gateways/credentials';
 import PullToRefresh from '../components/PullToRefresh';
 import EmptyList from '../components/EmptyList';
+import FeatureVideo from '../components/FeatureVideo';
 
 function CredentialsScreen(props) {
 
@@ -70,8 +71,28 @@ function CredentialsScreen(props) {
     });
   };
 
+  // For Youtube Video
+  const [showVideo, setShowVideo] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      const _checkForFeatureVideo = async () => {
+        const playFeatureVideo = await getItem('feature_video');
+        if (playFeatureVideo == undefined || playFeatureVideo == null || playFeatureVideo == '') {
+          setShowVideo(true);
+          await saveItem('feature_video', 'false');
+        }
+      }
+      _checkForFeatureVideo();
+    }, [])
+  );
+
   return (
     <View style={themeStyles.mainContainer}>
+
+      <FeatureVideo
+        isVisible={true}
+        onCloseClick={() => { setShowVideo(prev => !prev) }}
+      />
 
       <PullToRefresh />
 
