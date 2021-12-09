@@ -1,19 +1,19 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, Image, Text, Dimensions } from 'react-native';
 import { BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { delete_credential } from '../gateways/credentials';
+import { delete_credential, generate_credential_qr } from '../gateways/credentials';
 import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
-import { deleteCredentialByCredId } from '../helpers/Storage';
+import { deleteCredentialByCredId, getItem, saveItem } from '../helpers/Storage';
 import OverlayLoader from '../components/OverlayLoader';
 import SimpleButton from '../components/Buttons/SimpleButton';
 import { analytics_log_show_cred_qr } from '../helpers/analytics';
 import { PreventScreenshots } from 'react-native-prevent-screenshots';
 import CredQRModal from '../components/CredQRModal';
 import RenderValues from '../components/RenderValues';
-import CredentialsCard from '../components/CredentialsCard';
-import moment from 'moment';
+import ConstantsList from '../helpers/ConfigApp';
+import { Buffer } from 'buffer';
 
 function DetailsScreen(props) {
 
@@ -23,6 +23,7 @@ function DetailsScreen(props) {
     // States
     const [isLoading, setIsLoading] = useState(false)
     const [showQRModal, setShowQRModal] = useState(false);
+    const [isGenerating, setGenerating] = useState(false);
 
     // Setting delete Icon
     useLayoutEffect(() => {
@@ -64,6 +65,49 @@ function DetailsScreen(props) {
         showAskDialog("Are you sure?", "Are you sure you want to delete this certificate?", onSuccess, () => { });
     }
 
+    async function generateQrCode() {
+        try {
+            setGenerating(true);
+            let credentialId = data.credentialId;
+
+            const result = await generate_credential_qr(credentialId);
+            if (result.data.success) {
+                let signature = result.data.signature;
+                let tenantId = result.data.tenantId;
+                let keyVersion = result.data.keyVersion;
+
+                // Making QR based on signature and base 64 encoded data
+                let qrData = {
+                    data: Buffer.from(JSON.stringify(data.values)).toString('base64'),
+                    signature: signature,
+                    tenantId: tenantId,
+                    keyVersion: keyVersion,
+                    type: 'cred_ver',
+                };
+
+                let QR = `${ConstantsList.QR_URL}${JSON.stringify(qrData)}`;
+
+                // Get all credentials
+                let credentials = JSON.parse(await getItem(ConstantsList.CREDENTIALS));
+
+                // Find this credential and update it with QR
+                let index = credentials.findIndex(item => item.credentialId == credentialId)
+                credentials[index].qrCode = QR;
+                await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentials));
+
+                // Open QR After Updating Credentials
+                data.qrCode = QR;
+            }
+            else {
+                _showAlert('ZADA Wallet', error.message);
+            }
+            setGenerating(false);
+        } catch (error) {
+            setGenerating(false);
+            _showAlert('ZADA Wallet', error.message);
+        }
+    }
+
     useEffect(() => {
         const focusEvent = props.navigation.addListener('focus', () => {
             PreventScreenshots.start();
@@ -85,6 +129,13 @@ function DetailsScreen(props) {
                 isLoading &&
                 <OverlayLoader
                     text='Deleting credential...'
+                />
+            }
+
+            {
+                isGenerating &&
+                <OverlayLoader
+                    text='Generating credential QR...'
                 />
             }
 
@@ -113,14 +164,19 @@ function DetailsScreen(props) {
                     </View>
                 ) : (
                     <View style={{ margin: 15 }}>
-                        <CredentialsCard
-                            schemeId={data.values.schemaId}
-                            card_title={data.name}
-                            card_type={data.type}
-                            issuer={data.organizationName}
-                            card_user=""
-                            date={moment(data.values['Issue Time']).format('DD/MM/YYYY')}
-                            card_logo={{ uri: data.imageUrl }} />
+                        <Text style={styles._noQr}>You do not have QR of your credential.</Text>
+                        <SimpleButton
+                            width={250}
+                            onPress={generateQrCode}
+                            width={Dimensions.get('window').width * 0.25}
+                            title='Get QR'
+                            titleColor={WHITE_COLOR}
+                            buttonColor={GREEN_COLOR}
+                            style={{
+                                marginTop: 10,
+                                alignSelf: 'center',
+                            }}
+                        />
                     </View>
                 )
             }
@@ -161,6 +217,12 @@ const styles = StyleSheet.create({
     headerRightIcon: {
         paddingRight: 15,
         color: BLACK_COLOR
+    },
+    _noQr: {
+        fontSize: 16,
+        fontFamily: 'Poppins-Bold',
+        textAlign: 'center',
+        alignSelf: 'center',
     },
 });
 

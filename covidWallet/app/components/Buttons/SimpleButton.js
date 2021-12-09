@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-    StyleSheet, 
+import {
+    StyleSheet,
     Text,
     TouchableOpacity,
     ActivityIndicator,
@@ -8,7 +8,7 @@ import {
 
 import { GREEN_COLOR, WHITE_COLOR } from '../../theme/Colors';
 
-const SimpleButton = ({isLoading, loaderColor, title, titleColor, buttonColor, style, width, onPress}) => {
+const SimpleButton = ({ isLoading, loaderColor, title, titleColor, buttonColor, style, width, onPress }) => {
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -16,15 +16,15 @@ const SimpleButton = ({isLoading, loaderColor, title, titleColor, buttonColor, s
         >
             {
                 isLoading ? (
-                    <ActivityIndicator 
+                    <ActivityIndicator
                         size={'small'}
                         color={loaderColor}
                         style={{
                             alignSelf: 'center',
                         }}
                     />
-                ):(
-                    <Text style={[styles._title,{color: titleColor}]}>{title}</Text>
+                ) : (
+                    <Text style={[styles._title, { color: titleColor }]}>{title}</Text>
                 )
             }
         </TouchableOpacity>
@@ -32,16 +32,14 @@ const SimpleButton = ({isLoading, loaderColor, title, titleColor, buttonColor, s
 }
 
 const styles = StyleSheet.create({
-    _btnContainer:{
-        borderColor: GREEN_COLOR,
-        borderWidth: 2,
+    _btnContainer: {
         borderRadius: 20,
         paddingTop: 10,
         paddingLeft: 20,
         paddingBottom: 10,
         paddingRight: 20,
     },
-    _title:{
+    _title: {
         color: WHITE_COLOR,
         alignSelf: 'center',
         fontFamily: 'Merriweather-Bold',

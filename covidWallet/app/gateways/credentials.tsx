@@ -191,6 +191,25 @@ export async function get_signature(credentialId: string) {
   }
 }
 
+// Generate signature
+export async function generate_credential_qr(credentialId: string) {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_credential_qr',
+      params: {
+        credentialId: credentialId,
+      },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Fetching signature for credential
 export const fetch_signature_by_cred_id = async (
   credentialId: string,

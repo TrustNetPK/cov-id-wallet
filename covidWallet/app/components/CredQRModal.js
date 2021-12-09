@@ -1,11 +1,14 @@
-import React from 'react'
-import { StyleSheet, Image, View, Dimensions } from 'react-native'
+import React, { useState } from 'react'
+import { StyleSheet, Image, View, Dimensions, ActivityIndicator } from 'react-native'
 import Modal from 'react-native-modal';
-import { BACKGROUND_COLOR, GREEN_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, GREEN_COLOR, PRIMARY_COLOR } from '../theme/Colors';
 import SimpleButton from './Buttons/SimpleButton';
 import HeadingComponent from './HeadingComponent';
 
 const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
+
+    const [loadingQR, setLoadingQR] = useState(false);
+
     return (
         <Modal
             isVisible={isVisible}
@@ -17,6 +20,8 @@ const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
                     text={`Scan to verify`}
                 />
                 <Image
+                    onLoadStart={() => { setLoadingQR(true) }}
+                    onLoadEnd={() => { setLoadingQR(false) }}
                     source={{ uri: qrCode }}
                     resizeMode='contain'
                     style={{
@@ -24,6 +29,19 @@ const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
                         height: Dimensions.get('screen').width * 0.6,
                     }}
                 />
+                {
+                    loadingQR &&
+                    <ActivityIndicator
+                        size='large'
+                        color={PRIMARY_COLOR}
+                        style={{
+                            position: 'absolute',
+                            alignSelf: 'center',
+                            top: '50%',
+                        }}
+                    />
+                }
+
                 <SimpleButton
                     onPress={onCloseClick}
                     title='Close'
