@@ -26,7 +26,7 @@ const CredValuesModal = ({ isVisible, heading, values, onVerifyPress, onCloseCli
                     <View style={{
                         paddingLeft: 16,
                         paddingRight: 16,
-                        backgroundColor: BACKGROUND_COLOR,
+                        backgroundColor: WHITE_COLOR,
                         color: BLACK_COLOR,
                         height: 40,
                         marginBottom: 4,
@@ -153,4 +153,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CredValuesModal
+export default CredValuesModal;
