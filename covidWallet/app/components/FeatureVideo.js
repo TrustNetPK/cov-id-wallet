@@ -1,18 +1,14 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { ActivityIndicator, Dimensions, StyleSheet, View } from 'react-native'
 import Modal from 'react-native-modal';
 import YoutubePlayer from "react-native-youtube-iframe";
-import { GRAY_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { GRAY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import SimpleButton from './Buttons/SimpleButton';
 import HeadingComponent from './HeadingComponent';
 
-const FeatureVideo = ({ isVisible, onCloseClick }) => {
+const FeatureVideo = ({ isVisible, onStateChange, onCloseClick }) => {
 
     const [loading, setLoading] = useState(true);
-
-    const onStateChange = useCallback((state) => {
-        console.log(state);
-    }, []);
 
     return (
         <Modal
@@ -37,14 +33,21 @@ const FeatureVideo = ({ isVisible, onCloseClick }) => {
                 }
                 <YoutubePlayer
                     width={'100%'}
-                    height={Dimensions.get('window').width * 0.5}
+                    height={Dimensions.get('window').width * 0.45}
                     onReady={() => {
                         setLoading(false);
                     }}
-                    webViewStyle={{
-                        borderRadius: 12,
-                        marginBottom: 20,
+                    play={true}
+                    initialPlayerParams={{
+                        controls: false,
                     }}
+                    webViewProps={{
+                        style: {
+                            borderRadius: 12,
+                        },
+                    }}
+                    forceAndroidAutoplay={true}
+                    contentScale={0.6}
                     videoId={"iee2TATGMyI"}
                     onChangeState={onStateChange}
                 />
@@ -56,7 +59,8 @@ const FeatureVideo = ({ isVisible, onCloseClick }) => {
                     titleColor={WHITE_COLOR}
                     buttonColor={GRAY_COLOR}
                     style={{
-                        alignSelf: 'center'
+                        alignSelf: 'center',
+                        marginTop: 20,
                     }}
                 />
             </View>
