@@ -48,7 +48,7 @@ const FeatureVideo = ({ isVisible, onStateChange, onCloseClick }) => {
                     }}
                     forceAndroidAutoplay={true}
                     contentScale={0.6}
-                    videoId={"iee2TATGMyI"}
+                    videoId={"bOcJZZapxKw"}
                     onChangeState={onStateChange}
                 />
 
