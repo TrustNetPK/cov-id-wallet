@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, StyleSheet, View } from 'react-native'
 import Modal from 'react-native-modal';
 import YoutubePlayer from "react-native-youtube-iframe";
@@ -6,7 +6,15 @@ import { GRAY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import SimpleButton from './Buttons/SimpleButton';
 import HeadingComponent from './HeadingComponent';
 
-const FeatureVideo = ({ isVisible, onStateChange, onCloseClick }) => {
+const FeatureVideo = ({ isVisible, onCloseClick }) => {
+
+    const playerRef = useRef();
+
+    const onStateChange = useCallback((state) => {
+        if (state == "ended") {
+            playerRef.current.seekTo(0, true);
+        }
+    }, []);
 
     const [loading, setLoading] = useState(true);
 
@@ -32,6 +40,7 @@ const FeatureVideo = ({ isVisible, onStateChange, onCloseClick }) => {
                     />
                 }
                 <YoutubePlayer
+                    ref={playerRef}
                     width={'100%'}
                     height={Dimensions.get('window').width * 0.45}
                     onReady={() => {
@@ -40,6 +49,8 @@ const FeatureVideo = ({ isVisible, onStateChange, onCloseClick }) => {
                     play={true}
                     initialPlayerParams={{
                         controls: false,
+                        loop: 1,
+
                     }}
                     webViewProps={{
                         style: {

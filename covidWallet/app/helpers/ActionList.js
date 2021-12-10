@@ -74,7 +74,7 @@ export const addVerificationToActionList = async (credentialID) => {
         return { isZadaAuth: false, data: null }
 
     } else {
-      showMessage('ZADA Wallet', resp.message);
+      showMessage('ZADA Wallet', result.data.message);
     }
   } catch (e) {
     console.log(e);

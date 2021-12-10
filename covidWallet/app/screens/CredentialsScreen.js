@@ -1,5 +1,5 @@
 import { useFocusEffect, } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 import CredentialsCard from '../components/CredentialsCard';
 import HeadingComponent from '../components/HeadingComponent';
@@ -86,19 +86,12 @@ function CredentialsScreen(props) {
     }, [])
   );
 
-  const onStateChange = useCallback((state) => {
-    if (state == "ended") {
-      setShowVideo(false);
-    }
-  }, []);
-
   return (
     <View style={themeStyles.mainContainer}>
 
       <FeatureVideo
         isVisible={showVideo}
         onCloseClick={() => { setShowVideo(prev => !prev) }}
-        onStateChange={onStateChange}
       />
 
       <PullToRefresh />
