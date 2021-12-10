@@ -7,7 +7,9 @@ import HeadingComponent from './HeadingComponent';
 
 const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
 
-    const [loadingQR, setLoadingQR] = useState(false);
+    const [loadingQR, setLoadingQR] = useState(true);
+
+    console.log(qrCode);
 
     return (
         <Modal
@@ -20,7 +22,6 @@ const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
                     text={`Scan to verify`}
                 />
                 <Image
-                    onLoadStart={() => { setLoadingQR(true) }}
                     onLoadEnd={() => { setLoadingQR(false) }}
                     source={{ uri: qrCode }}
                     resizeMode='contain'
