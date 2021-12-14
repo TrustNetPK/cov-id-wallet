@@ -232,7 +232,7 @@ export const fetch_signature_by_cred_id = async (
       };
       return {
         success: true,
-        qrcode: `${ConstantsList.QR_URL}${JSON.stringify(qrData)}`,
+        qrcode: `${JSON.stringify(qrData)}`,
       };
     } else {
       return {success: false};

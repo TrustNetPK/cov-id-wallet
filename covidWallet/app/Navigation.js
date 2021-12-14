@@ -28,6 +28,7 @@ import useBiometric from './hooks/useBiometric';
 import { analytics_log_logout } from './helpers/analytics';
 import { _fetchingAppData } from './helpers/AppData';
 import useNetwork from './hooks/useNetwork';
+import NetInfo from "@react-native-community/netinfo";
 
 const Stack = createStackNavigator();
 
@@ -71,8 +72,10 @@ function NavigationComponent() {
         }
         else if (value == 'false') {
           getisFirstTime('false');
-          await _fetchingAppData(isConnected);
-          SplashScreen.hide();
+          NetInfo.fetch().then(async (state) => {
+            await _fetchingAppData(state.isConnected);
+            SplashScreen.hide();
+          });
         }
       });
     } catch (error) {

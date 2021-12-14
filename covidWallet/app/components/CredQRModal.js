@@ -1,16 +1,13 @@
-import React, { useState } from 'react'
-import { StyleSheet, Image, View, Dimensions, ActivityIndicator } from 'react-native'
+import React from 'react'
+import { StyleSheet, View, Dimensions } from 'react-native'
 import Modal from 'react-native-modal';
-import { BACKGROUND_COLOR, GRAY_COLOR, GREEN_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, GREEN_COLOR } from '../theme/Colors';
 import SimpleButton from './Buttons/SimpleButton';
 import HeadingComponent from './HeadingComponent';
+import QRCode from 'react-native-qrcode-svg';
+
 
 const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
-
-    const [loadingQR, setLoadingQR] = useState(true);
-
-    console.log(qrCode);
-
     return (
         <Modal
             isVisible={isVisible}
@@ -21,27 +18,13 @@ const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
                 <HeadingComponent
                     text={`Scan to verify`}
                 />
-                <Image
-                    onLoadEnd={() => { setLoadingQR(false) }}
-                    source={{ uri: qrCode }}
-                    resizeMode='contain'
-                    style={{
-                        width: Dimensions.get('screen').width * 0.6,
-                        height: Dimensions.get('screen').width * 0.6,
-                    }}
+
+                <QRCode
+                    value={qrCode}
+                    backgroundColor={BACKGROUND_COLOR}
+                    size={Dimensions.get('window').width * 0.7}
+                    ecl='L'
                 />
-                {
-                    loadingQR &&
-                    <ActivityIndicator
-                        size='large'
-                        color={GRAY_COLOR}
-                        style={{
-                            position: 'absolute',
-                            alignSelf: 'center',
-                            top: '50%',
-                        }}
-                    />
-                }
 
                 <SimpleButton
                     onPress={onCloseClick}
