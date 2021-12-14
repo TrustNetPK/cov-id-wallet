@@ -29,7 +29,14 @@ function CredentialsScreen(props) {
     if (searchText != null && searchText.length != 0) {
       let searchCreds = [];
       credentials.forEach((item) => {
-        if (item.type != undefined && item.type != undefined && item.type.toLowerCase().includes(searchText.toLowerCase()))
+        console.log(item);
+        if ((item.type != undefined &&
+          item.type != undefined &&
+          item.type.toLowerCase().includes(searchText.toLowerCase())) ||
+          (item.organizationName != undefined &&
+            item.organizationName != undefined &&
+            item.organizationName.toLowerCase().includes(searchText.toLowerCase()))
+        )
           searchCreds.push(item);
       });
       setFilteredCreds(searchCreds);
