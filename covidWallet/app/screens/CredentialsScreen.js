@@ -77,7 +77,7 @@ function CredentialsScreen(props) {
     React.useCallback(() => {
       const _checkForFeatureVideo = async () => {
         const playFeatureVideo = await getItem('feature_video');
-        if (playFeatureVideo == undefined || playFeatureVideo == null || playFeatureVideo == '') {
+        if (playFeatureVideo != undefined && playFeatureVideo != null && playFeatureVideo != '' && isConnected) {
           setShowVideo(true);
           await saveItem('feature_video', 'false');
         }
