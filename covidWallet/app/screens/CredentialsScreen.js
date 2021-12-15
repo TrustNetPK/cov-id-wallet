@@ -1,217 +1,89 @@
-import { useFocusEffect, } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
-import CredentialsCard from '../components/CredentialsCard';
-import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/Styles';
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { getItem, saveItem } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
-import moment from 'moment';
-import useNetwork from '../hooks/useNetwork';
-import { get_all_qr_credentials } from '../gateways/credentials';
-import PullToRefresh from '../components/PullToRefresh';
-import EmptyList from '../components/EmptyList';
-import FeatureVideo from '../components/FeatureVideo';
-import { PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View
+} from 'react-native';
+import { BACKGROUND_COLOR, PRIMARY_COLOR } from '../theme/Colors'
+import { TabView, SceneMap } from 'react-native-tab-view';
+import Credentials from './Credentials';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import CredentialGroups from './CredentialGroups';
 
-function CredentialsScreen(props) {
+const CredentialsScreen = (props) => {
 
-  const { isConnected } = useNetwork();
-  const [credentials, setCredentials] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState('');
-  const [filteredCreds, setFilteredCreds] = useState([]);
+  const layout = useWindowDimensions();
 
-  const _searchInputHandler = (searchText) => {
-    setSearch(searchText);
-    if (searchText != null && searchText.length != 0) {
-      let searchCreds = [];
-      credentials.forEach((item) => {
-        console.log(item);
-        if ((item.type != undefined &&
-          item.type != undefined &&
-          item.type.toLowerCase().includes(searchText.toLowerCase())) ||
-          (item.organizationName != undefined &&
-            item.organizationName != undefined &&
-            item.organizationName.toLowerCase().includes(searchText.toLowerCase()))
-        )
-          searchCreds.push(item);
-      });
-      setFilteredCreds(searchCreds);
-    }
-    else {
-      setFilteredCreds([]);
-    }
-  }
+  const renderScene = SceneMap({
+    certificates: () => <Credentials {...props} />,
+    groups: () => <CredentialGroups {...props} />,
+  });
 
-  const updateCredentialsList = async () => {
-    try {
-      // Getting item from asyncstorage
-      let connections = await getItem(ConstantsList.CONNECTIONS);
-      let credentials = await getItem(ConstantsList.CREDENTIALS);
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'certificates', title: 'All Certificates' },
+    { key: 'groups', title: 'Groups' },
+  ]);
 
-      // Parsing JSON
-      let connectionsList = JSON.parse(connections) || [];
-      let credentialsList = JSON.parse(credentials) || [];
-
-      // If arr is empty, return
-      if (connectionsList.length === 0 || credentialsList.length === 0) {
-        setCredentials([]);
-        return
-      }
-
-      setCredentials(credentialsList);
-    } catch (e) {
-      console.log("UPDATING CREDENTIALS FAILED =>", e);
-    }
-  }
-
-  const getAllCredential = async () => {
-    try {
-      setRefreshing(true);
-      if (isConnected) {
-        await get_all_qr_credentials();
-        await updateCredentialsList();
-      }
-      else {
-        await updateCredentialsList();
-      }
-      setRefreshing(false);
-    } catch (error) {
-      setRefreshing(false);
-      console.log('FETCHING CREDENTIALS ERROR =>', error);
-    }
-  }
-
-  useFocusEffect(
-    React.useCallback(() => {
-      updateCredentialsList();
-    }, [])
-  );
-
-  const toggleModal = (v) => {
-    props.navigation.navigate("DetailsScreen", {
-      data: v
-    });
+  const CustomTabbAr = (props) => {
+    return (
+      <View style={styles._mainTabbarView}>
+        {props.navigationState.routes.map((route, i) => {
+          return (
+            <TouchableOpacity
+              style={[styles._tabbar, {
+                borderBottomColor: PRIMARY_COLOR,
+                borderBottomWidth: index == i ? 2 : 0,
+              }]}
+              onPress={() => setIndex(i)}
+            >
+              <Text style={[styles._tabText]}>{route.title}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
   };
 
-  // For Youtube Video
-  const [showVideo, setShowVideo] = useState(false);
-  useFocusEffect(
-    React.useCallback(() => {
-      const _checkForFeatureVideo = async () => {
-        const playFeatureVideo = await getItem('feature_video');
-        if ((playFeatureVideo == undefined || playFeatureVideo == null || playFeatureVideo == '') && isConnected) {
-          setShowVideo(true);
-          await saveItem('feature_video', 'false');
-        }
-      }
-      _checkForFeatureVideo();
-    }, [])
-  );
-
   return (
-    <View style={themeStyles.mainContainer}>
+    <View style={styles._mainContainer}>
+      <TabView
+        renderTabBar={(props) => <CustomTabbAr {...props} />}
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
 
-      <FeatureVideo
-        isVisible={showVideo}
-        onCloseClick={() => { setShowVideo(prev => !prev) }}
       />
-
-      <PullToRefresh />
-
-      <HeadingComponent text="Certificates" />
-      {credentials.length > 0 ? (
-        <>
-          <View style={styles._searchContainer}>
-            <TextInput
-              placeholder='Search'
-              value={search}
-              onChangeText={_searchInputHandler}
-              style={styles._searchInput}
-            />
-            <FeatherIcon
-              name='search'
-              size={24}
-              color={PRIMARY_COLOR}
-            />
-          </View>
-          <FlatList
-            refreshControl={
-              <RefreshControl
-                tintColor={'#7e7e7e'}
-                refreshing={refreshing}
-                onRefresh={() => { getAllCredential() }}
-              />
-            }
-            showsVerticalScrollIndicator={false}
-            style={{
-              flexGrow: 1,
-            }}
-            data={search ? filteredCreds : credentials}
-            contentContainerStyle={{
-              width: '100%',
-            }}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({ item, index }) => {
-              return (
-                <TouchableOpacity onPress={() => toggleModal(item)} activeOpacity={0.9}>
-                  <View style={styles.CredentialsCardContainer}>
-                    <CredentialsCard
-                      schemeId={item.values['schemaId']}
-                      card_title={item.name}
-                      card_type={item.type}
-                      issuer={item.organizationName}
-                      card_user=""
-                      date={moment(item.values['Issue Time']).format('DD/MM/YYYY')}
-                      card_logo={{ uri: item.imageUrl }} />
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
-        </>
-      ) : (
-        <EmptyList
-          refreshing={refreshing}
-          onRefresh={() => { getAllCredential() }}
-          text="There are no certificates in your wallet. Once you receive a certificate, it will show up here."
-          image={require('../assets/images/credentialsempty.png')}
-        />
-      )}
-    </View >
-  );
+    </View>
+  )
 }
 
-
 const styles = StyleSheet.create({
-  _searchContainer: {
+  _mainContainer: {
+    flex: 1,
+    backgroundColor: BACKGROUND_COLOR,
+  },
+  _mainTabbarView: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
+    marginHorizontal: 10,
+    marginVertical: 10,
+    alignSelf: 'center',
+  },
+  _tabbar: {
+    width: Dimensions.get('window').width * 0.48,
+    alignItems: 'center',
+    justifyContent: 'center',
     height: 45,
     borderRadius: 10,
-    backgroundColor: WHITE_COLOR,
-    paddingHorizontal: 20,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-    marginBottom: 10
   },
-  _searchInput: {
-    width: '88%',
-    height: '100%',
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular'
+  _tabText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
   },
-  CredentialsCardContainer: {
-    paddingTop: 5,
-  },
-});
+})
 
 export default CredentialsScreen;
