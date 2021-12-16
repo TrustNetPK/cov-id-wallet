@@ -55,7 +55,7 @@ const CredentialsScreen = (props) => {
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
-
+        swipeEnabled={false}
       />
     </View>
   )

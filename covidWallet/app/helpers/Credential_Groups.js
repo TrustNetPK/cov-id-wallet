@@ -2,6 +2,7 @@
     Function related to credential groups feature
 */
 
+import moment from "moment";
 import { getItem, saveItem } from "./Storage";
 
 const GROUP_ASYNC_ENUM = {
@@ -34,6 +35,9 @@ export const add_credential_group = async (groupName, credentials) => {
     try {
         let groups = await fetch_all_groups();
         let group = {
+            id: Date.now().toString(),
+            createdAt: moment(),
+            updatedAt: moment(),
             group_name: groupName,
             credentials: credentials,
         };
@@ -49,21 +53,48 @@ export const add_credential_group = async (groupName, credentials) => {
  * @param {String} groupName 
  * @param {Array} credentials 
  */
-export const _editCredentialGroup = (groupName, credentials) => {
+export const edit_credential_group = async (groupName, group, credentials) => {
     try {
-
+        let groups = await fetch_all_groups();
+        let index = groups.findIndex(item => item.id == group.id);
+        if (index >= 0) {
+            let updatedGroup = {
+                ...groups[index],
+                updatedAt: moment(),
+                group_name: groupName,
+                credentials: credentials,
+            };
+            groups[index] = updatedGroup;
+            await saveItem(GROUP_ASYNC_ENUM.CREDENTIAL_GROUPS, JSON.stringify([...groups]));
+        }
+        else {
+            throw { message: 'Unable to update group' }
+        }
     } catch (error) {
         throw error;
     }
 }
 
 /**
- * 
- * @param {String} groupName 
+ * Fcuntion to delete credential group
+ * @param {String} group 
  */
-export const _deleteCredentialGroup = (groupName) => {
+export const delete_credential_group = async (group) => {
     try {
+        let groups = await fetch_all_groups();
+        groups = groups.filter(item => item.id != group.id);
+        await saveItem(GROUP_ASYNC_ENUM.CREDENTIAL_GROUPS, JSON.stringify(groups));
+    } catch (error) {
+        throw error;
+    }
+}
 
+/**
+ * Remove all groups
+ */
+export const remove_all_credentials_group = async () => {
+    try {
+        await saveItem(GROUP_ASYNC_ENUM.CREDENTIAL_GROUPS, JSON.stringify([]));
     } catch (error) {
         throw error;
     }

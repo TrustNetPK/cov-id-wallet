@@ -16,7 +16,7 @@ import CredentialsCard from './CredentialsCard';
 import moment from 'moment';
 import EmptyList from './EmptyList';
 
-const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGroupNameChange, onCreateGroupClick, onCloseClick, onRefresh, refreshing }) => {
+const EditGroupModal = ({ isVisible, groupCredentials, credentials, groupName, groupNameError, onGroupNameChange, onUpdateGroupClick, onCloseClick, onRefresh, refreshing }) => {
 
     const [search, setSearch] = useState('');
     const [filteredCreds, setFilteredCreds] = useState([]);
@@ -24,15 +24,25 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
 
     useEffect(() => {
         const _changeCreds = () => {
-            let temp = [];
+            let notSelectedCreds = [], selectedCreds = [];
             credentials.forEach((item, index) => {
-                let obj = {
-                    ...item,
-                    selected: false,
-                };
-                temp.push(obj);
+                let selected = groupCredentials.find(groupCred => groupCred.credentialId == item.credentialId);
+                if (selected) {
+                    let obj = {
+                        ...item,
+                        selected: true,
+                    };
+                    selectedCreds.push(obj);
+                }
+                else {
+                    let obj = {
+                        ...item,
+                        selected: false,
+                    };
+                    notSelectedCreds.push(obj);
+                }
             });
-            setCreds(temp);
+            setCreds([...selectedCreds, ...notSelectedCreds]);
         }
         _changeCreds();
     }, [isVisible])
@@ -73,7 +83,7 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
         >
             <View style={styles._mainContainer}>
                 <HeadingComponent
-                    text={`New Group`}
+                    text={`Edit Group`}
                 />
 
                 {/* Group Name */}
@@ -176,8 +186,8 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
 
                 <SimpleButton
                     width={250}
-                    onPress={() => { onCreateGroupClick(creds) }}
-                    title='Create Group'
+                    onPress={() => { onUpdateGroupClick(creds) }}
+                    title='Update Group'
                     titleColor={WHITE_COLOR}
                     buttonColor={GREEN_COLOR}
                     style={{ marginTop: 20 }}
@@ -241,4 +251,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddGroupModal;
+export default EditGroupModal;
