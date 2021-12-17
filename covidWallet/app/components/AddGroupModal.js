@@ -3,7 +3,11 @@ import {
     Dimensions,
     FlatList,
     StyleSheet,
-    View
+    View,
+    KeyboardAvoidingView,
+    PlatformColor,
+    SafeAreaView,
+    Pressable
 } from 'react-native';
 import Modal from 'react-native-modal';
 import { BACKGROUND_COLOR, WHITE_COLOR, PRIMARY_COLOR, GREEN_COLOR, GRAY_COLOR } from '../theme/Colors';
@@ -71,13 +75,19 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                 margin: 0,
             }}
         >
-            <View style={styles._mainContainer}>
+            <SafeAreaView
+                style={styles._mainContainer}
+            >
                 <HeadingComponent
                     text={`New Group`}
                 />
 
                 {/* Group Name */}
-                <View>
+                <View style={{
+                    width: '95%',
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                }}>
                     <InputComponent
                         type='default'
                         height={45}
@@ -90,7 +100,11 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                 </View>
 
                 {/* Search Credentials */}
-                <View>
+                <View style={{
+                    width: '95%',
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                }}>
                     <InputComponent
                         type='default'
                         height={45}
@@ -118,15 +132,19 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                             data={search ? filteredCreds : creds}
                             style={{
                                 width: '100%',
-                                flexGrow: 1,
+                                height: Dimensions.get('window').width * 0.6,
                                 marginTop: 25,
+                            }}
+                            contentContainerStyle={{
+                                width: '90%',
+                                alignSelf: 'center',
                             }}
                             keyExtractor={item => item.crendetialId}
                             renderItem={({ item, index }) => (
-                                <TouchableOpacity
-                                    activeOpacity={0.9}
+                                <Pressable
                                     style={{ marginBottom: 5 }}
                                     onPress={() => {
+                                        console.log();
                                         if (creds[index].selected) {
                                             creds[index].selected = false
                                         }
@@ -158,7 +176,7 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                                             }}
                                         />
                                     }
-                                </TouchableOpacity>
+                                </Pressable>
                             )}
                         />
                     ) : (
@@ -173,7 +191,6 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                         />
                     )
                 }
-
                 <SimpleButton
                     width={250}
                     onPress={() => { onCreateGroupClick(creds) }}
@@ -190,21 +207,14 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                     buttonColor={GRAY_COLOR}
                     style={{ marginTop: 5 }}
                 />
-
-            </View>
+            </SafeAreaView>
         </Modal>
     )
 }
 
 const styles = StyleSheet.create({
     _mainContainer: {
-        width: '100%',
-        height: Dimensions.get('screen').height * 0.9,
-        position: 'absolute',
-        bottom: 0,
-        borderTopRightRadius: 15,
-        borderTopLeftRadius: 15,
-        paddingHorizontal: 20,
+        flex: 1,
         paddingBottom: 40,
         backgroundColor: BACKGROUND_COLOR,
         alignItems: 'center',
