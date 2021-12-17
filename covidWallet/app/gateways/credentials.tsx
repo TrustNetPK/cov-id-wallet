@@ -79,8 +79,8 @@ export async function get_all_qr_credentials() {
             organizationName: item.name,
             qrCode: qrResult.success ? qrResult.qrcode : undefined,
             type:
-              cred.values != undefined && cred.values.type != undefined
-                ? cred.values.type
+              cred.values != undefined && cred.values.Type != undefined
+                ? cred.values.Type
                 : (cred.values != undefined || cred.values != null) &&
                   cred.values['Vaccine Name'] != undefined &&
                   cred.values['Vaccine Name'].length != 0 &&

@@ -481,7 +481,7 @@ function ActionsScreen({ navigation }) {
             imageUrl: item.imageUrl,
             organizationName: item.name,
             qrCode: qr_code.success ? qr_code.qrcode : undefined,
-            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+            type: (cred.values != undefined && cred.values.Type != undefined) ? cred.values.Type :
               (
                 (cred.values != undefined || cred.values != null) &&
                 cred.values["Vaccine Name"] != undefined &&

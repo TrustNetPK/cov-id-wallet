@@ -25,8 +25,6 @@ function DetailsScreen(props) {
     const [showQRModal, setShowQRModal] = useState(false);
     const [isGenerating, setGenerating] = useState(false);
 
-    console.log(data);
-
     // Setting delete Icon
     useLayoutEffect(() => {
         props.navigation.setOptions({
@@ -87,7 +85,7 @@ function DetailsScreen(props) {
                     type: 'cred_ver',
                 };
 
-                let QR = `${ConstantsList.QR_URL}${JSON.stringify(qrData)}`;
+                let QR = `${JSON.stringify(qrData)}`;
 
                 // Get all credentials
                 let credentials = JSON.parse(await getItem(ConstantsList.CREDENTIALS));
@@ -168,9 +166,8 @@ function DetailsScreen(props) {
                     <View style={{ margin: 15 }}>
                         <Text style={styles._noQr}>You do not have QR of your credential.</Text>
                         <SimpleButton
-                            width={250}
                             onPress={generateQrCode}
-                            width={Dimensions.get('window').width * 0.25}
+                            width={Dimensions.get('window').width * 0.32}
                             title='Get QR'
                             titleColor={WHITE_COLOR}
                             buttonColor={GREEN_COLOR}
