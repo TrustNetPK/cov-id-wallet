@@ -9,6 +9,10 @@ import QRCode from 'react-native-qrcode-svg';
 
 const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
 
+    let values = JSON.parse(qrCode);
+    values = { ...values, issuer: 'zada' };
+    values = JSON.stringify(values);
+
     return (
         <Modal
             isVisible={isVisible}
@@ -21,7 +25,7 @@ const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
                 />
 
                 <QRCode
-                    value={qrCode}
+                    value={values}
                     backgroundColor={BACKGROUND_COLOR}
                     size={Dimensions.get('window').width * 0.7}
                     ecl='L'

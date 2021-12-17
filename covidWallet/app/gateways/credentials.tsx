@@ -229,7 +229,6 @@ export const fetch_signature_by_cred_id = async (
         tenantId: result.data.tenantId,
         keyVersion: result.data.keyVersion,
         type: 'cred_ver',
-        issuer: 'zada',
       };
       return {
         success: true,
