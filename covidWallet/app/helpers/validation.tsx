@@ -1,4 +1,5 @@
 export const nameRegex = RegExp('^[a-zA-Z\\s]{2,1000}$');
+export const groupNameRegex = RegExp('^[a-zA-Z\\s]{2,1000}$');
 
 export const pincodeRegex = RegExp('^([0-9]{6})$');
 

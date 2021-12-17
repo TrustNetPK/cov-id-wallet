@@ -11,10 +11,11 @@ import BorderButton from './BorderButton';
 import ImageBoxComponent from './ImageBoxComponent';
 import TextComponent from './TextComponent';
 
-const EmptyList = ({ refreshing, onRefresh, text, image, screen, onPress }) => {
+const EmptyList = ({ refreshing, onRefresh, text, image, screen, onPress, style }) => {
     return (
         <ScrollView
             showsVerticalScrollIndicator={false}
+            style={style}
             refreshControl={
                 <RefreshControl
                     tintColor={'#7e7e7e'}
