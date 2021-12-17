@@ -25,6 +25,8 @@ function DetailsScreen(props) {
     const [showQRModal, setShowQRModal] = useState(false);
     const [isGenerating, setGenerating] = useState(false);
 
+    console.log(data);
+
     // Setting delete Icon
     useLayoutEffect(() => {
         props.navigation.setOptions({

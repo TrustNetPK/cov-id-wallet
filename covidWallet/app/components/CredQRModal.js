@@ -8,6 +8,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 
 const CredQRModal = ({ isVisible, onCloseClick, qrCode }) => {
+
     return (
         <Modal
             isVisible={isVisible}
