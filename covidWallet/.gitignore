@@ -23,6 +23,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+*.pbxproj merge=union
 
 # Android/IntelliJ
 #
