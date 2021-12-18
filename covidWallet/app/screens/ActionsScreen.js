@@ -1,45 +1,41 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, View, StyleSheet, ActivityIndicator, Linking, TouchableOpacity, Text, Animated, ScrollView, RefreshControl, Dimensions } from 'react-native';
+import { Alert, View, StyleSheet, Linking, TouchableOpacity, Animated, RefreshControl, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import NetInfo from '@react-native-community/netinfo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import AntIcon from 'react-native-vector-icons/AntDesign';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import FlatCard from '../components/FlatCard';
-import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import ActionDialog from '../components/Dialogs/ActionDialog';
 import HeadingComponent from '../components/HeadingComponent';
-import BorderButton from '../components/BorderButton';
 
 import messaging from '@react-native-firebase/messaging';
-import PushNotification from 'react-native-push-notification';
 
 import { themeStyles } from '../theme/Styles';
-import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, RED_COLOR, SECONDARY_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BLACK_COLOR, RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
 
-import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, ls_addCredential, saveItem } from '../helpers/Storage';
-import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ, ZADA_AUTH_TEST } from '../helpers/ConfigApp';
+import { getItem, ls_addConnection, deleteActionByConnId, deleteActionByCredId, deleteActionByVerID, saveItem } from '../helpers/Storage';
+import ConstantsList, { CONN_REQ, CRED_OFFER, VER_REQ } from '../helpers/ConfigApp';
 
-import { AuthenticateUser, authenticateZadaAuth } from '../helpers/Authenticate';
+import { AuthenticateUser } from '../helpers/Authenticate';
 import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
 import { biometricVerification } from '../helpers/Biometric';
 import { addCredentialToActionList, addVerificationToActionList, getActionHeader } from '../helpers/ActionList';
 
-import { accept_credential, delete_credential, getToken, get_credential } from '../gateways/credentials';
+import { accept_credential, delete_credential, fetch_signature_by_cred_id, getToken, get_credential } from '../gateways/credentials';
 import { accept_connection, delete_connection } from '../gateways/connections';
 import { delete_verification, submit_verification } from '../gateways/verifications';
 import useNotification from '../hooks/useNotification';
-import useCredentials from '../hooks/useCredentials';
-import RNExitApp from 'react-native-exit-app';
 import http_client from '../gateways/http_client';
 import OverlayLoader from '../components/OverlayLoader';
 import { analytics_log_action_screen } from '../helpers/analytics';
 import PincodeModal from '../components/PincodeModal';
 import { pincodeRegex } from '../helpers/validation';
 import ConfirmPincodeModal from '../components/ConfirmPincodeModal';
+import PullToRefresh from '../components/PullToRefresh';
+import EmptyList from '../components/EmptyList';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -53,7 +49,6 @@ function ActionsScreen({ navigation }) {
   const [actionsList, setActionsList] = useState([]);
   const [modalData, setModalData] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
-  const [hasToken, setTokenExpired] = useState(true);
   const [Uid, storeUid] = useState();
   const [secret, storeSecret] = useState('');
   const [networkState, setNetworkState] = useState(false);
@@ -73,9 +68,6 @@ function ActionsScreen({ navigation }) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [verifyPincode, setVerifyPincode] = useState('');
   const [verifyPincodeError, setVerifyPincodeError] = useState('');
-
-  // Credentials hook
-  //const { credentials } = useCredentials(!isLoading);
 
   // Notification hook
   const { notificationReceived, isZadaAuth, authData, setZadaAuth, setAuthData } = useNotification();
@@ -115,13 +107,13 @@ function ActionsScreen({ navigation }) {
 
   useEffect(() => {
     // Setting listener for deeplink
+    let deepEvent = undefined;
     if (!deepLink) {
-      Linking.addEventListener('url', ({ url }) => {
+      deepEvent = Linking.addEventListener('url', ({ url }) => {
         getUrl(url);
       });
     }
-
-    return () => Linking.removeAllListeners();
+    return () => deepEvent && deepEvent;
   }, [])
 
   //Checking Notification Status
@@ -168,9 +160,6 @@ function ActionsScreen({ navigation }) {
     navigation
       .dangerouslyGetParent()
       .setOptions(headerOptions);
-    // navigation
-    //   .dangerouslyGetParent()
-    //   .setOptions(isAction ? headerOptions : undefined);
   }, [isAction, navigation]);
 
   const getUrl = async (url) => {
@@ -180,22 +169,17 @@ function ActionsScreen({ navigation }) {
     } else {
       initialUrl = await Linking.getInitialURL()
     }
-    // console.log('url =>', url);
-    // console.log('initialUrl =>', initialUrl);
     if (initialUrl === null) {
       setDeepLink(true);
       return;
     } else {
-      // console.log("DEEP LINK", initialUrl);
       const parsed = initialUrl.split('/');
       var item = {};
       item['type'] = parsed[3];
       item['metadata'] = parsed[4];
       requestArray.push(item);
-      //console.log("DEEP LINK ITEM => ", item);
       const requestJson = JSON.parse(JSON.stringify(item));
       setDeepLink(true);
-      //console.log("GOING TO QR CODE SCREEN");
 
       navigation.navigate('QRScreen', {
         request: requestJson,
@@ -246,7 +230,6 @@ function ActionsScreen({ navigation }) {
     // SetState ActionList
     if (finalObj.length > 0) {
       setActionsList(finalObj);
-      //console.log("FINAL OBJ => ", finalObj);
       setAction(true);
     } else {
       setAction(false);
@@ -254,9 +237,6 @@ function ActionsScreen({ navigation }) {
   };
 
   const _fetchActionList = async () => {
-
-    //console.log("IN");
-
     setRefreshing(true);
     let credentials = [], connections = [];
 
@@ -493,12 +473,15 @@ function ActionsScreen({ navigation }) {
           // Finding corresponsing connection to this credential
           let item = connectionsList.find(c => c.connectionId == cred.connectionId);
 
+          const qr_code = await fetch_signature_by_cred_id(selectedItemObj.credentialId, selectedItemObj.values);
+
           // Putting image, type and title in credential
           let obj = {
             ...cred,
             imageUrl: item.imageUrl,
             organizationName: item.name,
-            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+            qrCode: qr_code.success ? qr_code.qrcode : undefined,
+            type: (cred.values != undefined && cred.values.Type != undefined) ? cred.values.Type :
               (
                 (cred.values != undefined || cred.values != null) &&
                 cred.values["Vaccine Name"] != undefined &&
@@ -650,8 +633,6 @@ function ActionsScreen({ navigation }) {
       if (BioResult) {
         setModalVisible(false);
         try {
-
-          //setIsLoading(true);
           // Submit Verification Api call
           let result = await delete_verification(selectedItemObj.verificationId);
 
@@ -707,18 +688,6 @@ function ActionsScreen({ navigation }) {
     setModalVisible(false);
     setModalVisible(false);
   };
-
-  // async function handleDeletePressed(v) {
-  //   // Get connection id
-  //   console.log('conenctionId => ', v)
-  //   // try {
-  //   //   let result = await delete_connection();
-  //   // }
-  // }
-  function onSwipeValueChange(v) {
-    // console.log(Math.abs(v.value / 75))
-    // animatedScaling[key].setValue(Math.abs(value));
-  }
 
   const onDeletePressed = (item) => {
     showAskDialog("Are you sure?", "Are you sure you want to delete this request?", () => rejectModal(item), () => { });
@@ -825,34 +794,6 @@ function ActionsScreen({ navigation }) {
         setIsLoading(false);
         _showAlert("ZADA Wallet", e.toString());
       }
-      // if(!(await _isVerRequestAlreadyExist())){
-      //   try {
-
-      //     console.log('NOT EXISTS');
-
-      //     let policyName = selectedItemObj.policy.attributes[0].policyName;
-
-      //     console.log('POLICY NAME');
-
-      //     // Submit Verification Api call
-      //     let result = await submit_verification(selectedItemObj.verificationId, dialogData.credentialId, policyName);
-      //     if (result.data.success) {
-      //       await deleteActionByVerID(selectedItemObj.verificationId)
-      //       updateActionsList();
-      //       showMessage('Zada Wallet','Verification request has been submitted successfully');
-      //     } else {
-      //       showMessage('Zada Wallet', result.data.error)
-      //     }
-      //     setIsLoading(false);
-      //   } catch (e) {
-      //     setIsLoading(false);
-      //   }
-      // }
-      // else{
-      //   setModalVisible(false);
-      //   setIsLoading(false);
-      //   showMessage('ZADA Wallet', 'Verification request is already accepted')
-      // }
     }
     else {
       showMessage('Zada Wallet', "You entered incorrect pincode. Please check your pincode and try again");
@@ -899,25 +840,9 @@ function ActionsScreen({ navigation }) {
         />
       }
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: isLoading ? 25 : 0,
-        }}
-      >
-        <AntIcon
-          name='arrowdown'
-          size={15}
-          color={'#7e7e7e'}
-        />
-        <Text style={{
-          alignSelf: 'center',
-          color: '#7e7e7e',
-          marginLeft: 5,
-        }}>Pull to refresh</Text>
-      </View>
+      <PullToRefresh
+        isLoading={isLoading}
+      />
 
       <HeadingComponent text="Actions" />
 
@@ -990,12 +915,11 @@ function ActionsScreen({ navigation }) {
                 <View key={index} style={styles.rowBack}>
                   <TextComponent text="" />
                   <Animated.View>
-                    <TouchableOpacity onPress={() => onDeletePressed(item)} activeOpacity={0.8}
+                    <TouchableOpacity
+                      onPress={() => onDeletePressed(item)}
+                      activeOpacity={0.8}
                       style={[
                         styles.swipeableViewStyle,
-                        // {
-                        //   transform: [{ scale: animatedScaling }]
-                        // }
                       ]}
                     >
                       <MaterialCommunityIcons
@@ -1014,60 +938,24 @@ function ActionsScreen({ navigation }) {
           </View>
         </>
       ) : (
-        <>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                tintColor={'#7e7e7e'}
-                refreshing={refreshing}
-                onRefresh={_fetchActionList}
-              />
-            }
-            contentContainerStyle={styles.EmptyContainer}
-          >
-            <TextComponent text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it." />
-            <ImageBoxComponent
-              source={require('../assets/images/action.png')}
-            />
-            <View style={{
-              alignItems: "center",
-              position: 'absolute',
-              bottom: '3%',
-            }}>
-              <BorderButton
-                nextHandler={() => {
-                  navigation.navigate('QRScreen')
-                }}
-                text="QR CODE"
-                color={BLACK_COLOR}
-                textColor={BLACK_COLOR}
-                backgroundColor={BACKGROUND_COLOR}
-                isIconVisible={true}
-              />
-            </View>
-          </ScrollView>
-        </>
-      )
-      }
+        <EmptyList
+          refreshing={refreshing}
+          onRefresh={_fetchActionList}
+          text="There are no actions to complete, Please scan a QR code to either get a digital certificate or to prove it."
+          image={require('../assets/images/action.png')}
+          onPress={() => { navigation.navigate('QRScreen') }}
+          screen='actions'
+        />
+      )}
     </View >
   );
 }
 
 const styles = StyleSheet.create({
-  EmptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  bottom: {
-    width: 50,
-    height: 50,
-  },
   headerRightIcon: {
     padding: 10,
     color: BLACK_COLOR,
   },
-  imageProps: {},
   rowBack: {
     alignItems: 'center',
     flex: 1,

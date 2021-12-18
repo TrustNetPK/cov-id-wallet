@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-appstate-hook/dist/index.js b/node_modules/react-native-appstate-hook/dist/index.js
+index 1200bee..ee3dca8 100644
+--- a/node_modules/react-native-appstate-hook/dist/index.js
++++ b/node_modules/react-native-appstate-hook/dist/index.js
+@@ -17,7 +17,7 @@ export default function useAppState(settings) {
+     }
+     const appState = AppState.addEventListener('change', handleAppStateChange);
+ 
+-    return () => appState.remove();
++    return () => appState && appState.remove();
+   }, [onChange, onForeground, onBackground, appState]);
+ 
+   // settings validation

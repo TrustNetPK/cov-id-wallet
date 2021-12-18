@@ -6,7 +6,6 @@ import {
   Text,
   Alert,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -18,176 +17,117 @@ import {
 } from '../helpers/Storage';
 import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
 import { Buffer } from 'buffer';
-import NetInfo from '@react-native-community/netinfo';
 import CustomProgressBar from '../components/CustomProgressBar';
-import { showMessage, _showAlert } from '../helpers/Toast';
+import { showMessage, showNetworkMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
 import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
-import { accept_connection, add_session, find_auth_connection, save_connection, save_did, save_link, send_connection_data, send_zada_auth_verification_request } from '../gateways/connections';
+import { accept_connection, add_session, find_auth_connection, save_did, send_zada_auth_verification_request } from '../gateways/connections';
+import SuccessModal from '../components/SuccessModal';
+import FailureModal from '../components/FailureModal';
+import CredValuesModal from '../components/CredValuesModal';
+import { analytics_log_unverified_credential, analytics_log_verified_credential, analytics_log_verify_cred_qr } from '../helpers/analytics';
+import { submit_cold_verification } from '../gateways/credentials';
+import useNetwork from '../hooks/useNetwork';
 
 function QRScreen({ route, navigation }) {
+
+  const { isConnected } = useNetwork();
+
   const [scan, setScan] = useState(true);
-  const [networkState, setNetworkState] = useState(false);
   const [connection_request, setConnectionRequest] = useState('');
   const [credential_request, setCredentialRequest] = useState('');
   const [proof_request, setProofRequest] = useState('');
   const [progress, setProgress] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('Fetching Details');
+  const [values, setValues] = useState(undefined);
+  const [credentialData, setCredentialData] = useState(null);
+
+  // For Modals
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [isScanning, setScanning] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
 
   var cr_arr = [];
   var cred_arr = [];
   var arr2 = [];
-  var hasToken = true;
-  var credentialID = '';
-  var userToken = '';
-  var isConnected = false;
-
-  // useEffect(() => {
-  //   NetInfo.fetch().then((networkState) => {
-  //     setNetworkState(networkState.isConnected);
-  //   });
-  //   getItem(ConstantsList.CONN_REQ)
-  //     .then((data) => {
-  //       if (data == null) {
-  //         cr_arr = [];
-  //       } else {
-  //         try {
-  //           cr_arr = JSON.parse(data);
-  //         } catch (e) {
-  //           cr_arr = [];
-  //         }
-  //       }
-  //       setConnectionRequest(JSON.stringify(cr_arr));
-  //       if (route.params != undefined) {
-  //         setScan(false);
-  //         const { request } = route.params;
-  //         const qrJSON = JSON.parse(JSON.stringify(request));
-  //         if (request.type == 'connection_request') {
-  //           setProgress(true);
-  //           getResponseUrl(request.metadata, qrJSON);
-  //         }
-  //       }
-  //     })
-  //     .catch((e) => {
-  //       console.log('Error is ' + e);
-  //     });
-
-  //   getItem(ConstantsList.CRED_OFFER)
-  //     .then((data) => {
-  //       if (data == null) {
-  //         cred_arr = [];
-  //       } else {
-  //         try {
-  //           cred_arr = JSON.parse(data);
-  //         } catch (e) {
-  //           cred_arr = [];
-  //         }
-  //       }
-  //       setCredentialRequest(JSON.stringify(cred_arr));
-  //     })
-  //     .catch((e) => {
-  //       console.log('Error is ' + e);
-  //     });
-
-  //   getItem(ConstantsList.PROOF_REQ)
-  //     .then((data) => {
-  //       if (data == null) {
-  //         arr2 = [];
-  //       } else {
-  //         try {
-  //           arr2 = JSON.parse(data);
-  //         } catch (e) {
-  //           arr2 = [];
-  //         }
-  //       }
-  //       setProofRequest(JSON.stringify(arr2));
-  //     })
-  //     .catch((e) => {
-  //       console.log('Error is ' + e);
-  //     });
-  // }, [
-  //   // networkState,
-  //   // connection_request,
-  //   // credential_request,
-  //   // proof_request,
-  //   // progress,
-  //   // dialogTitle,
-  //   // scan,
-  // ]);
 
   useEffect(() => {
-    NetInfo.fetch().then((networkState) => {
-      setNetworkState(networkState.isConnected);
-    });
-    getItem(ConstantsList.CONN_REQ)
-      .then((data) => {
-        if (data == null) {
-          cr_arr = [];
-        } else {
-          try {
-            cr_arr = JSON.parse(data);
-          } catch (e) {
+    if (isConnected) {
+      getItem(ConstantsList.CONN_REQ)
+        .then((data) => {
+          if (data == null) {
             cr_arr = [];
+          } else {
+            try {
+              cr_arr = JSON.parse(data);
+            } catch (e) {
+              cr_arr = [];
+            }
           }
-        }
-        setConnectionRequest(JSON.stringify(cr_arr));
-        if (route.params != undefined) {
-          setScan(false);
-          const { request } = route.params;
-          const qrJSON = JSON.parse(JSON.stringify(request));
-          if (request.type == 'connection_request') {
-            setProgress(true);
-            getResponseUrl(request.metadata, qrJSON);
+          setConnectionRequest(JSON.stringify(cr_arr));
+          if (route.params != undefined) {
+            setScan(false);
+            const { request } = route.params;
+            const qrJSON = JSON.parse(JSON.stringify(request));
+            if (request.type == 'connection_request') {
+              setProgress(true);
+              getResponseUrl(request.metadata, qrJSON);
+            }
           }
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+        })
+        .catch((e) => {
+          console.log(e);
+        });
 
-    getItem(ConstantsList.CRED_OFFER)
-      .then((data) => {
-        if (data == null) {
-          cred_arr = [];
-        } else {
-          try {
-            cred_arr = JSON.parse(data);
-          } catch (e) {
+      getItem(ConstantsList.CRED_OFFER)
+        .then((data) => {
+          if (data == null) {
             cred_arr = [];
+          } else {
+            try {
+              cred_arr = JSON.parse(data);
+            } catch (e) {
+              cred_arr = [];
+            }
           }
-        }
-        setCredentialRequest(JSON.stringify(cred_arr));
-        if (route.params != undefined) {
-          setScan(false);
-          const { request } = route.params;
-          const qrJSON = JSON.parse(JSON.stringify(request));
-          if (request.type == 'credential_offer') {
-            setProgress(true);
-            getCredential(request.metadata);
+          setCredentialRequest(JSON.stringify(cred_arr));
+          if (route.params != undefined) {
+            setScan(false);
+            const { request } = route.params;
+            const qrJSON = JSON.parse(JSON.stringify(request));
+            if (request.type == 'credential_offer') {
+              setProgress(true);
+              getCredential(request.metadata);
+            }
           }
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+        })
+        .catch((e) => {
+          console.log(e);
+        });
 
 
-    getItem(ConstantsList.PROOF_REQ)
-      .then((data) => {
-        if (data == null) {
-          arr2 = [];
-        } else {
-          try {
-            arr2 = JSON.parse(data);
-          } catch (e) {
+      getItem(ConstantsList.PROOF_REQ)
+        .then((data) => {
+          if (data == null) {
             arr2 = [];
+          } else {
+            try {
+              arr2 = JSON.parse(data);
+            } catch (e) {
+              arr2 = [];
+            }
           }
-        }
-        setProofRequest(JSON.stringify(arr2));
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+          setProofRequest(JSON.stringify(arr2));
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+    else {
+      showNetworkMessage();
+    }
   }, []);
 
 
@@ -383,83 +323,189 @@ function QRScreen({ route, navigation }) {
   }
 
   const onSuccess = (e) => {
-
-    let unEscapedStr = e.data;
-    unEscapedStr = unEscapedStr.replace(/\\/g, "");
-    unEscapedStr = unEscapedStr.replace(/“/g, '"');
-
-    try {
-      if (JSON.parse(unEscapedStr).type == 'zadaauth') {
-        _handleZadaAuth(JSON.parse(e.data));
-      }
-      else {
-        try {
-          let title = '';
+    if (isConnected) {
+      let unEscapedStr = e.data;
+      unEscapedStr = unEscapedStr.replace(/\\/g, "");
+      unEscapedStr = unEscapedStr.replace(/“/g, '"');
+      try {
+        if (JSON.parse(unEscapedStr).type == 'cred_ver') {
+          handle_cred_verification(JSON.parse(unEscapedStr));
+        }
+        if (JSON.parse(unEscapedStr).type == 'zadaauth') {
+          _handleZadaAuth(JSON.parse(e.data));
+        }
+        else {
           try {
-            cr_arr = JSON.parse(connection_request);
-            cred_arr = JSON.parse(credential_request);
-            arr2 = JSON.parse(proof_request);
-          } catch {
-            cr_arr = [];
-            cred_arr = [];
-            arr2 = [];
-          }
+            let title = '';
+            try {
+              cr_arr = JSON.parse(connection_request);
+              cred_arr = JSON.parse(credential_request);
+              arr2 = JSON.parse(proof_request);
+            } catch {
+              cr_arr = [];
+              cred_arr = [];
+              arr2 = [];
+            }
 
-          // let extract = e.data.toString();
-          // if (Platform.OS == "ios") {
-          //   extract = extract.replaceAll('\\', '');
-          // }
-          // const qrJSON = JSON.parse(extract);
-          // console.log(qrJSON);
+            const qrJSON = JSON.parse(unEscapedStr);
+            if (qrJSON.type == 'credential_offer') {
+              setScan(false);
+              setProgress(true);
 
-          const qrJSON = JSON.parse(unEscapedStr);
-          // if (qrJSON.type == 'connection_credential') {
-          if (qrJSON.type == 'credential_offer') {
+              setDialogTitle('Fetching Credential Details');
+              credentialID = qrJSON.metadata;
+              getCredential();
+            } else if (qrJSON.type == 'connection_request') {
+              setDialogTitle('Fetching Connection Details');
+              setScan(false);
+              setProgress(true);
+              getResponseUrl(qrJSON.metadata, qrJSON);
+            } else if (qrJSON.type == 'connection_proof') {
+              title = 'Digital Proof Request Added';
+              arr2.push(qrJSON);
+              saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
+                .then(() => { })
+                .catch((e) => { });
+            } else {
+              title = 'Invalid QR Code';
+            }
             setScan(false);
-            setProgress(true);
-
-            setDialogTitle('Fetching Credential Details');
-            credentialID = qrJSON.metadata;
-            getCredential();
-          } else if (qrJSON.type == 'connection_request') {
-            setDialogTitle('Fetching Connection Details');
+          } catch (error) {
+            setProgress(false);
             setScan(false);
-            setProgress(true);
-            getResponseUrl(qrJSON.metadata, qrJSON);
-          } else if (qrJSON.type == 'connection_proof') {
-            title = 'Digital Proof Request Added';
-            arr2.push(qrJSON);
-            saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
-              .then(() => { })
-              .catch((e) => { });
-          } else {
-            title = 'Invalid QR Code';
-          }
-          setScan(false);
-        } catch (error) {
-          setProgress(false);
-          setScan(false);
-          Alert.alert(
-            'ZADA',
-            'Invalid QR Code, Please try with a different QR',
-            [
-              {
-                text: 'OK',
-                onPress: () => navigation.navigate('MainScreen'),
-              },
-            ],
-            { cancelable: false },
-          );
+            Alert.alert(
+              'ZADA',
+              'Invalid QR Code, Please try with a different QR',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.navigate('MainScreen'),
+                },
+              ],
+              { cancelable: false },
+            );
 
+          }
+        }
+      } catch (error) {
+        _showAlert('Zada WAllet', error.toString());
+      }
+    }
+    else {
+      showNetworkMessage();
+    }
+
+  };
+
+  function arrangeValues(values) {
+    let orderedValues = undefined;
+    orderedValues = Object.keys(values).sort().reduce(
+      (obj, key) => {
+        obj[key] = values[key];
+        return obj;
+      },
+      {}
+    );
+    return orderedValues;
+  }
+
+  // Function to handle credential verification
+  const handle_cred_verification = (credQrData) => {
+    try {
+      let credValues = Buffer.from(credQrData.data, 'base64').toString();
+      var orderValues = arrangeValues(JSON.parse(credValues));
+      setCredentialData({
+        data: Buffer.from(JSON.stringify(orderValues)).toString('base64'),
+        signature: credQrData.signature,
+        tenantId: credQrData.tenantId,
+        keyVersion: credQrData.keyVersion,
+      });
+      setValues(orderValues);
+      setTimeout(() => {
+        setShowVerifyModal(true);
+      }, 500);
+    } catch (error) {
+      _showAlert('ZADA Wallet', error.message);
+    }
+  }
+
+  // When user will click on verification button
+  const on_verify_click = async () => {
+    try {
+
+      if (isConnected) {
+        analytics_log_verify_cred_qr();
+
+        setScanning(true);
+
+        const result = await submit_cold_verification(
+          credentialData.data,
+          credentialData.signature,
+          credentialData.tenantId,
+          credentialData.keyVersion
+        );
+
+        if (result.data.success) {
+          setScanning(false);
+          setShowVerifyModal(false);
+          setTimeout(() => {
+            setShowSuccessModal(true);
+          }, 500);
+          analytics_log_verified_credential();
+        }
+        else {
+          setErrMsg('Failed to validate credential');
+          setScanning(false);
+          setShowVerifyModal(false);
+          setTimeout(() => {
+            setShowErrorModal(true);
+          }, 500);
+          analytics_log_unverified_credential()
         }
       }
+      else {
+        showNetworkMessage();
+      }
+
     } catch (error) {
-      _showAlert('Zada WAllet', error.toString());
+      setErrMsg('Unable to verify credential');
+      setScanning(false);
+      setShowVerifyModal(false);
+      setTimeout(() => {
+        setShowErrorModal(true);
+      }, 500);
+      analytics_log_unverified_credential()
     }
-  };
+  }
 
   return (
     <View style={styles.MainContainer}>
+
+      <CredValuesModal
+        values={values}
+        isVisible={showVerifyModal}
+        heading={isScanning ? `Verifying...` : `Credential\nInformation`}
+        isScanning={isScanning}
+        onCloseClick={() => { setShowVerifyModal(false); setScan(true) }}
+        onVerifyPress={() => { on_verify_click() }}
+      />
+
+      <SuccessModal
+        isVisible={showSuccessModal}
+        heading='Success'
+        info='Credential is verified successfully'
+        onCloseClick={() => { setShowSuccessModal(false) }}
+        onOkayPress={() => { setShowSuccessModal(false); setScan(true) }}
+      />
+
+      <FailureModal
+        isVisible={showErrorModal}
+        heading='Invalid Credential'
+        info={errMsg}
+        onCloseClick={() => { setShowErrorModal(false) }}
+        onOkayPress={() => { setShowErrorModal(false); setScan(true) }}
+      />
+
       {scan ? (
         <QRCodeScanner
           reactivate={true}

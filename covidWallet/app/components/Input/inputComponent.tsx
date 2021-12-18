@@ -23,7 +23,7 @@ interface InputIProps {
   leftIconName?: string;
   rightIcon?: any;
   isSecureText?: boolean;
-  toggleSecureEntry?: any,
+  toggleSecureEntry?: any;
   value?: any;
   keyboardType?: string;
   disabled?: boolean;
@@ -33,8 +33,8 @@ interface InputIProps {
   infoText?: string;
   inputContainerStyle?: any;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  type: 'default' | 'secret',
-  height: Number,
+  type: 'default' | 'secret';
+  height: Number;
 }
 
 export function InputComponent(props: InputIProps) {
@@ -117,27 +117,28 @@ export function InputComponent(props: InputIProps) {
                 />
               </TouchableOpacity>
             </View>
+          ) : props.type == 'secret' ? (
+            <FontAwesome
+              onPress={props.toggleSecureEntry}
+              name={props.isSecureText ? 'eye-slash' : 'eye'}
+              size={25}
+              color={GRAY_COLOR}
+              style={{
+                paddingRight: 5,
+              }}
+            />
           ) : (
-            props.type == 'secret' ? (
-                <FontAwesome
-                  onPress={props.toggleSecureEntry}
-                  name={props.isSecureText ? "eye-slash" : "eye"}
-                  size={25}
-                  color={GRAY_COLOR}
-                  style={{
-                    paddingRight: 5,
-                  }}
-                />
-            ):(
-              <View></View>
-            )
+            props.rightIcon
           )
         }
         onChangeText={(newText) => {
           setInputValue(newText);
           props.setStateValue(newText);
         }}
-        containerStyle={[props.style, {height: props.height ? props.height : 55}]}
+        containerStyle={[
+          props.style,
+          {height: props.height ? props.height : 55},
+        ]}
         inputContainerStyle={props.inputContainerStyle}
       />
       {showErrorMessage && (

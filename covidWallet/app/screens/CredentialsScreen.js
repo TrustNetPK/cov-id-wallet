@@ -1,207 +1,89 @@
-import { useFocusEffect, } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Dimensions } from 'react-native';
-import CredentialsCard from '../components/CredentialsCard';
-import ImageBoxComponent from '../components/ImageBoxComponent';
-import TextComponent from '../components/TextComponent';
-import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/Styles';
+import React, { useState } from 'react';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View
+} from 'react-native';
+import { BACKGROUND_COLOR, PRIMARY_COLOR } from '../theme/Colors'
+import { TabView, SceneMap } from 'react-native-tab-view';
+import Credentials from './Credentials';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-//import useCredentials from '../hooks/useCredentials';
-import { getItem, saveItem } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
-import { get_all_connections } from '../gateways/connections';
-import { get_all_credentials } from '../gateways/credentials';
-import { addVerificationToActionList } from '../helpers/ActionList';
-import { showMessage } from '../helpers/Toast';
-import moment from 'moment';
-import axios from 'axios';
+import CredentialGroups from './CredentialGroups';
 
-const DIMENSIONS = Dimensions.get('screen');
+const CredentialsScreen = (props) => {
 
-function CredentialsScreen(props) {
+  const layout = useWindowDimensions();
 
-  const [isCredential, setCredential] = useState(false);
-  const [credentials, setCredentials] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const renderScene = SceneMap({
+    certificates: () => <Credentials {...props} />,
+    groups: () => <CredentialGroups {...props} />,
+  });
 
-  // Credentials hook
-  //const { credentials } = useCredentials(isCredential);
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'certificates', title: 'All Certificates' },
+    { key: 'groups', title: 'Groups' },
+  ]);
 
-  // Function to fetch connection and credentials
-  const _fetchingAppData = async () => {
-
-    setRefreshing(true);
-
-    // Fetching Connections
-    const connResponse = await get_all_connections();
-    if (connResponse.data.success) {
-      let connections = connResponse.data.connections;
-      if (connections.length)
-        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
-      else
-        await saveItem(ConstantsList.CONNECTIONS, JSON.stringify([]));
-
-      // Fetching Credentials
-      const credResponse = await get_all_credentials();
-
-      if (credResponse.data.success) {
-        let credentials = credResponse.data.credentials;
-        let CredArr = [];
-        if (credentials.length && connections.length) {
-          // Looping to update credentials object in crendentials array
-          credentials.forEach((cred, i) => {
-            let item = connections.find(c => c.connectionId == cred.connectionId)
-
-            if (item !== undefined || null) {
-              let obj = {
-                ...cred,
-                imageUrl: item.imageUrl,
-                organizationName: item.name,
-                type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
-                  (
-                    (cred.values != undefined || cred.values != null) &&
-                    cred.values["Vaccine Name"] != undefined &&
-                    cred.values["Vaccine Name"].length != 0 &&
-                    cred.values["Dose"] != undefined &&
-                    cred.values["Dose"].length != 0
-                  ) ?
-                    'COVIDpass (Vaccination)' :
-                    "Digital Certificate",
-              };
-              CredArr.push(obj);
-            }
-          });
-          await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
-        }
-        else
-          await saveItem(ConstantsList.CREDENTIALS, JSON.stringify([]));
-
-        await addVerificationToActionList();
-      }
-      else {
-        showMessage('Zada Wallet', connResponse.data.error);
-      }
-    }
-    else {
-      showMessage('ZADA Wallet', connResponse.data.error);
-    }
-
-    setRefreshing(false);
-
-  }
-
-  const updateCredentialsList = async () => {
-    try {
-      // Getting item from asyncstorage
-      let connections = await getItem(ConstantsList.CONNECTIONS);
-      let credentials = await getItem(ConstantsList.CREDENTIALS);
-
-      // Parsing JSON
-      let connectionsList = JSON.parse(connections) || [];
-      let credentialsList = JSON.parse(credentials) || [];
-
-      // If arr is empty, return
-      if (connectionsList.length === 0 || credentialsList.length === 0) {
-        setCredentials([]);
-        return
-      }
-
-      setCredentials(credentialsList);
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  useFocusEffect(
-    React.useCallback(() => {
-      updateCredentialsList();
-    }, [])
-  );
-
-  const toggleModal = (v) => {
-    props.navigation.navigate("DetailsScreen", {
-      data: v
-    });
+  const CustomTabbAr = (props) => {
+    return (
+      <View style={styles._mainTabbarView}>
+        {props.navigationState.routes.map((route, i) => {
+          return (
+            <TouchableOpacity
+              style={[styles._tabbar, {
+                borderBottomColor: PRIMARY_COLOR,
+                borderBottomWidth: index == i ? 2 : 0,
+              }]}
+              onPress={() => setIndex(i)}
+            >
+              <Text style={[styles._tabText]}>{route.title}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
   };
 
   return (
-    <View style={themeStyles.mainContainer}>
-      <HeadingComponent text="Certificates" />
-      {credentials.length > 0 ?
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              tintColor={'#7e7e7e'}
-              refreshing={refreshing}
-              onRefresh={_fetchingAppData}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          style={{
-            flexGrow: 1,
-          }}
-          contentContainerStyle={{
-            width: '100%',
-            //height: DIMENSIONS.height,
-          }}
-        >
-          {/* <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} /> */}
-          {credentials.length > 0 && credentials.map((v, i) => {
-            let imgURI = { uri: v.imageUrl };
-            let vaccineName = v.name;
-            let issuedBy = v.organizationName;
-            let card_type = v.type;
-            let issueDate = v.values['Issue Time'];
-            let schemeId = v.values['schemaId'];
-
-            // Getting Date format
-            let date = moment(issueDate).format('DD/MM/YYYY');
-
-            return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
-              <View style={styles.CredentialsCardContainer}>
-                <CredentialsCard schemeId={schemeId} card_title={vaccineName} card_type={card_type} issuer={issuedBy} card_user="SAEED AHMAD" date={date} card_logo={imgURI} />
-              </View>
-            </TouchableOpacity>
-          })
-
-          }
-        </ScrollView>
-        :
-
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              tintColor={'#7e7e7e'}
-              refreshing={refreshing}
-              onRefresh={_fetchingAppData}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.EmptyContainer}
-        >
-          <TextComponent text="There are no certificates in your wallet. Once you receive a certificate, it will show up here." />
-          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
-        </ScrollView>
-      }
-    </View >
-  );
+    <View style={styles._mainContainer}>
+      <TabView
+        renderTabBar={(props) => <CustomTabbAr {...props} />}
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        swipeEnabled={false}
+      />
+    </View>
+  )
 }
 
-
 const styles = StyleSheet.create({
-  EmptyContainer: {
+  _mainContainer: {
+    flex: 1,
+    backgroundColor: BACKGROUND_COLOR,
+  },
+  _mainTabbarView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 10,
+    alignSelf: 'center',
+  },
+  _tabbar: {
+    width: Dimensions.get('window').width * 0.48,
     alignItems: 'center',
     justifyContent: 'center',
+    height: 45,
+    borderRadius: 10,
   },
-  CredentialsCardContainer: {
-    paddingTop: 5,
+  _tabText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
   },
-  refreshButton: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain'
-  },
-});
+})
 
 export default CredentialsScreen;

@@ -35,7 +35,7 @@ const useCredentials = (isCredential) => {
                         ...cred,
                         imageUrl: item.imageUrl,
                         organizationName: item.name,
-                        type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
+                        type: (cred.values != undefined && cred.values.Type != undefined) ? cred.values.Type :
                             (
                                 (cred.values != undefined || cred.values != null) &&
                                 cred.values["Vaccine Name"] != undefined &&

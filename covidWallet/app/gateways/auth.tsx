@@ -15,24 +15,6 @@ async function getToken() {
   }
 }
 
-// Login Api
-export async function login(email: string, password: string) {
-  // let fd = new FormData();
-  // fd.append('email', email);
-  // fd.append('password', password);
-  // try {
-  //   const result = await http_client({
-  //     method: 'POST',
-  //     url: 'login',
-  //     data: fd,
-  //   });
-  //   return result;
-  // } catch (error) {
-  //   console.log('error => ', error);
-  //   alert(error.response.data.message);
-  // }
-}
-
 // register user api
 export const _resgiterUserAPI = async (data: Object) => {
   try {

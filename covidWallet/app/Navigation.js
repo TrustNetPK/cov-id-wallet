@@ -17,7 +17,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import SettingsScreen from './screens/SettingsScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import QRScreen from './screens/QRScreen';
-import { BLACK_COLOR, BACKGROUND_COLOR, PRIMARY_COLOR, WHITE_COLOR } from './theme/Colors';
+import { BLACK_COLOR, BACKGROUND_COLOR } from './theme/Colors';
 import RegistrationModule from './screens/RegistrationModule';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import MultiFactorScreen from './screens/MultiFactorScreen';
@@ -25,12 +25,10 @@ import LoadingScreen from './screens/LoadingScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { RefreshContextProvider } from './context/RefreshContextProvider';
 import useBiometric from './hooks/useBiometric';
-import { get_all_connections } from './gateways/connections';
-import { get_all_credentials } from './gateways/credentials';
-import { saveItem } from './helpers/Storage';
-import ConstantList from './helpers/ConfigApp';
-import { addVerificationToActionList } from './helpers/ActionList';
 import { analytics_log_logout } from './helpers/analytics';
+import { _fetchingAppData } from './helpers/AppData';
+import useNetwork from './hooks/useNetwork';
+import NetInfo from "@react-native-community/netinfo";
 
 const Stack = createStackNavigator();
 
@@ -40,6 +38,9 @@ const navigationAnimation =
     : TransitionPresets.RevealFromBottomAndroid;
 
 function NavigationComponent() {
+
+  const { isConnected } = useNetwork();
+
   const linking = {
     prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
   };
@@ -71,61 +72,16 @@ function NavigationComponent() {
         }
         else if (value == 'false') {
           getisFirstTime('false');
-          await _fetchingAppData();
-          SplashScreen.hide();
+          NetInfo.fetch().then(async (state) => {
+            await _fetchingAppData(state.isConnected);
+            SplashScreen.hide();
+          });
         }
       });
     } catch (error) {
       // Error retrieving data
     }
   };
-
-  // Function to fetch connection and credentials
-  const _fetchingAppData = async () => {
-    // Fetching Connections
-    const connResponse = await get_all_connections();
-    let connections = connResponse.data.connections;
-    if (connections.length)
-      await saveItem(ConstantList.CONNECTIONS, JSON.stringify(connections));
-    else
-      await saveItem(ConstantList.CONNECTIONS, JSON.stringify([]));
-
-    // Fetching Credentials
-    const credResponse = await get_all_credentials();
-    let credentials = credResponse.data.credentials;
-    let CredArr = [];
-    if (credentials.length && connections.length) {
-      // Looping to update credentials object in crendentials array
-      credentials.forEach((cred, i) => {
-        let item = connections.find(c => c.connectionId == cred.connectionId)
-
-        if (item !== undefined || null) {
-          let obj = {
-            ...cred,
-            imageUrl: item.imageUrl,
-            organizationName: item.name,
-            type: (cred.values != undefined && cred.values.type != undefined) ? cred.values.type :
-              (
-                (cred.values != undefined || cred.values != null) &&
-                cred.values["Vaccine Name"] != undefined &&
-                cred.values["Vaccine Name"].length != 0 &&
-                cred.values["Dose"] != undefined &&
-                cred.values["Dose"].length != 0
-              ) ?
-                'COVIDpass (Vaccination)' :
-                "Digital Certificate",
-          };
-          CredArr.push(obj);
-        }
-      });
-      await saveItem(ConstantList.CREDENTIALS, JSON.stringify(CredArr));
-    }
-    else
-      await saveItem(ConstantList.CREDENTIALS, JSON.stringify([]));
-
-    await addVerificationToActionList();
-
-  }
 
   // Checking auth status
   const _checkAuthStatus = () => {

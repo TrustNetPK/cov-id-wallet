@@ -61,17 +61,10 @@ function CredentialsCard(props) {
                                         <Text style={styles.card_small_text}>Issued by</Text>
                                         <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.issuer}</Text>
                                     </View>
-                                    {
-                                        props.card_type.toLowerCase().includes('covidpass') &&
-                                            props.date ? (
-                                            <View>
-                                                <Text style={styles.card_small_text}>Issued Time</Text>
-                                                <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.date}</Text>
-                                            </View>
-                                        ) : (
-                                            null
-                                        )
-                                    }
+                                    <View>
+                                        <Text style={styles.card_small_text}>Issued Time</Text>
+                                        <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.date}</Text>
+                                    </View>
                                 </View>
                             </View>
 
