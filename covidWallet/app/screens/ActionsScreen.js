@@ -36,6 +36,7 @@ import { pincodeRegex } from '../helpers/validation';
 import ConfirmPincodeModal from '../components/ConfirmPincodeModal';
 import PullToRefresh from '../components/PullToRefresh';
 import EmptyList from '../components/EmptyList';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -259,7 +260,7 @@ function ActionsScreen({ navigation }) {
         console.log(result.data.error);
       }
     } catch (error) {
-      alert(error);
+      _handleAxiosError(error);
     }
 
     // Fetching Credentials offers
@@ -282,7 +283,7 @@ function ActionsScreen({ navigation }) {
         console.log(result.data.error);
       }
     } catch (error) {
-      alert(error);
+      _handleAxiosError(error);
     }
 
     await addVerificationToActionList();

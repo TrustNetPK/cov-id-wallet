@@ -17,6 +17,7 @@ import { analytics_log_connection_delete } from '../helpers/analytics';
 import useNetwork from '../hooks/useNetwork';
 import PullToRefresh from '../components/PullToRefresh';
 import EmptyList from '../components/EmptyList';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const DIMENSIONS = Dimensions.get('screen');
 
@@ -55,7 +56,7 @@ function ConnectionsScreen() {
       setRefreshing(false);
     } catch (e) {
       setRefreshing(false);
-      console.log(e)
+      _handleAxiosError(e);
     }
 
   }
@@ -84,8 +85,10 @@ function ConnectionsScreen() {
       else {
         showNetworkMessage();
       }
+      setIsLoading(false);
     } catch (error) {
-      _showAlert('ZADA Wallet', error.toString());
+      setIsLoading(false);
+      _handleAxiosError(error);
     }
   }
 

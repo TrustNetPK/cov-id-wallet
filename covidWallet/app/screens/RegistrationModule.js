@@ -31,6 +31,7 @@ import SimpleButton from '../components/Buttons/SimpleButton';
 import jwt_decode from 'jwt-decode';
 import { _fetchingAppData } from '../helpers/AppData';
 import useNetwork from '../hooks/useNetwork';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const { width } = Dimensions.get('window');
 
@@ -182,7 +183,7 @@ function RegistrationModule({ navigation }) {
               setProgress(false);
             }
           } catch (error) {
-            console.error(error);
+            _handleAxiosError(error);
           } finally {
             setProgress(false);
           }

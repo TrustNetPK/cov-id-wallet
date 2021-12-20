@@ -14,6 +14,7 @@ import EmptyList from '../components/EmptyList';
 import FeatureVideo from '../components/FeatureVideo';
 import { PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 function Credentials(props) {
 
@@ -80,7 +81,7 @@ function Credentials(props) {
             setRefreshing(false);
         } catch (error) {
             setRefreshing(false);
-            console.log('FETCHING CREDENTIALS ERROR =>', error);
+            _handleAxiosError(error);
         }
     }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Linking, Platform, View, Text } from 'react-native';
+import { StyleSheet, Platform, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import TabNavigator from './components/TabNavigator';
@@ -27,7 +27,6 @@ import { RefreshContextProvider } from './context/RefreshContextProvider';
 import useBiometric from './hooks/useBiometric';
 import { analytics_log_logout } from './helpers/analytics';
 import { _fetchingAppData } from './helpers/AppData';
-import useNetwork from './hooks/useNetwork';
 import NetInfo from "@react-native-community/netinfo";
 
 const Stack = createStackNavigator();
@@ -38,8 +37,6 @@ const navigationAnimation =
     : TransitionPresets.RevealFromBottomAndroid;
 
 function NavigationComponent() {
-
-  const { isConnected } = useNetwork();
 
   const linking = {
     prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android

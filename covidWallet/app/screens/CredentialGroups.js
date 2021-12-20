@@ -30,6 +30,7 @@ import CredentialsCard from '../components/CredentialsCard';
 import moment from 'moment';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditGroupModal from '../components/EditGroupModal';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const CredentialGroups = (props) => {
 
@@ -91,7 +92,7 @@ const CredentialGroups = (props) => {
                 await updateCredentialsList();
             }
         } catch (error) {
-            console.log('FETCHING CREDENTIALS ERROR =>', error);
+            _handleAxiosError(error, 'Unable to fetch groups and credentials', true);
         }
     }
 
@@ -138,7 +139,7 @@ const CredentialGroups = (props) => {
             setRefreshing(false);
         } catch (error) {
             setRefreshing(false);
-            _showAlert('ZADA Wallet', error.message);
+            _handleAxiosError(error);
         }
     }
 

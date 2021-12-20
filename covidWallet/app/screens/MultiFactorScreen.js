@@ -26,6 +26,7 @@ import { AuthenticateUser } from '../helpers/Authenticate'
 import { validateOTP, _resendOTPAPI } from '../gateways/auth';
 import SimpleButton from '../components/Buttons/SimpleButton';
 import useNetwork from '../hooks/useNetwork';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const { width } = Dimensions.get('window');
 
@@ -96,7 +97,7 @@ function MultiFactorScreen({ navigation }) {
       setProgress(false);
     } catch (error) {
       setProgress(false);
-      _showAlert('Zada Wallet', error.toString());
+      _handleAxiosError(error);
     }
   };
 
@@ -157,7 +158,7 @@ function MultiFactorScreen({ navigation }) {
               showMessage('ZADA Wallet', response.error)
             }
           } catch (error) {
-            console.error(error);
+            _handleAxiosError(error);
           } finally {
             setProgress(false);
           }

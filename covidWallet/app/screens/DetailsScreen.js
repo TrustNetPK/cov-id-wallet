@@ -14,6 +14,7 @@ import CredQRModal from '../components/CredQRModal';
 import RenderValues from '../components/RenderValues';
 import ConstantsList from '../helpers/ConfigApp';
 import { Buffer } from 'buffer';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 function DetailsScreen(props) {
 
@@ -56,7 +57,7 @@ function DetailsScreen(props) {
 
             setIsLoading(false)
         } catch (e) {
-            console.log(e);
+            _handleAxiosError(e);
             setIsLoading(false)
         }
     }

@@ -2,15 +2,11 @@ import React, { useState, useRef } from 'react';
 import {
     StyleSheet,
     View,
-    KeyboardAvoidingView,
     Platform,
     Dimensions,
-    ScrollView,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
-
 const { width } = Dimensions.get('window');
-
 import PhoneInput from "react-native-phone-number-input";
 import HeadingComponent from '../components/HeadingComponent';
 import { BACKGROUND_COLOR, GREEN_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
@@ -20,6 +16,7 @@ import BackButton from '../components/Buttons/BackButton';
 import { _sendPasswordResetAPI } from '../gateways/auth';
 import { analytics_log_reset_password } from '../helpers/analytics';
 import useNetwork from '../hooks/useNetwork';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const ForgotPasswordScreen = ({ navigation }) => {
 
@@ -61,7 +58,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             }
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet', error.toString());
+            _handleAxiosError(error);
         }
     }
 

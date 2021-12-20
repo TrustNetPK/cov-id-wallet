@@ -28,6 +28,7 @@ import CredValuesModal from '../components/CredValuesModal';
 import { analytics_log_unverified_credential, analytics_log_verified_credential, analytics_log_verify_cred_qr } from '../helpers/analytics';
 import { submit_cold_verification } from '../gateways/credentials';
 import useNetwork from '../hooks/useNetwork';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 function QRScreen({ route, navigation }) {
 
@@ -187,76 +188,80 @@ function QRScreen({ route, navigation }) {
   };
 
   const getCredential = async (credID) => {
-    let resp = await AuthenticateUser();
-    if (resp.success) {
-      await fetch(
-        ConstantsList.BASE_URL +
-        '/api/credential/get_credential' +
-        `?credentialId=${credID}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + resp.token,
+    try {
+      let resp = await AuthenticateUser();
+      if (resp.success) {
+        await fetch(
+          ConstantsList.BASE_URL +
+          '/api/credential/get_credential' +
+          `?credentialId=${credID}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + resp.token,
+            },
           },
-        },
-      ).then((credential) =>
-        credential.json().then(async (data) => {
-          if (data.success == false) {
-            setProgress(false);
-            Alert.alert(
-              'ZADA',
-              data.error,
-              [
-                {
-                  text: 'OK',
-                  onPress: () => navigation.navigate('MainScreen'),
-                },
-              ],
-              { cancelable: false },
-            );
-          } else if (data.success == true) {
-            let qrJSON = data.credential;
-            qrJSON.type = ConstantsList.CRED_OFFER;
-            qrJSON = await addImageAndNameFromConnectionList(qrJSON);
-            cred_arr.push(qrJSON);
-            saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr))
-              .then(() => {
-                setProgress(false);
-                navigation.navigate('MainScreen');
-              })
-              .catch((e) => {
-                setProgress(false);
-                Alert.alert(
-                  'ZADA',
-                  'Failed in fetching details of credential',
-                  [
-                    {
-                      text: 'OK',
-                      onPress: () => navigation.navigate('MainScreen'),
-                    },
-                  ],
-                  { cancelable: false },
-                );
-              });
-          } else {
-            setProgress(false);
-            Alert.alert(
-              'ZADA',
-              'Failed to fetch details of credential',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => navigation.navigate('MainScreen'),
-                },
-              ],
-              { cancelable: false },
-            );
-          }
-        }),
-      );
-    } else {
-      showMessage('ZADA Wallet', resp.message);
+        ).then((credential) =>
+          credential.json().then(async (data) => {
+            if (data.success == false) {
+              setProgress(false);
+              Alert.alert(
+                'ZADA',
+                data.error,
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.navigate('MainScreen'),
+                  },
+                ],
+                { cancelable: false },
+              );
+            } else if (data.success == true) {
+              let qrJSON = data.credential;
+              qrJSON.type = ConstantsList.CRED_OFFER;
+              qrJSON = await addImageAndNameFromConnectionList(qrJSON);
+              cred_arr.push(qrJSON);
+              saveItem(ConstantsList.CRED_OFFER, JSON.stringify(cred_arr))
+                .then(() => {
+                  setProgress(false);
+                  navigation.navigate('MainScreen');
+                })
+                .catch((e) => {
+                  setProgress(false);
+                  Alert.alert(
+                    'ZADA',
+                    'Failed in fetching details of credential',
+                    [
+                      {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('MainScreen'),
+                      },
+                    ],
+                    { cancelable: false },
+                  );
+                });
+            } else {
+              setProgress(false);
+              Alert.alert(
+                'ZADA',
+                'Failed to fetch details of credential',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.navigate('MainScreen'),
+                  },
+                ],
+                { cancelable: false },
+              );
+            }
+          }),
+        );
+      } else {
+        showMessage('ZADA Wallet', resp.message);
+      }
+    } catch (error) {
+      _handleAxiosError(error, 'Unable to fetch credential', true);
     }
   };
 
@@ -318,83 +323,86 @@ function QRScreen({ route, navigation }) {
       setProgress(false);
     } catch (error) {
       setProgress(false);
-      _showAlert('Zada Wallet', error.toString());
+      _handleAxiosError(error);
     }
   }
 
   const onSuccess = (e) => {
-    if (isConnected) {
-      let unEscapedStr = e.data;
-      unEscapedStr = unEscapedStr.replace(/\\/g, "");
-      unEscapedStr = unEscapedStr.replace(/“/g, '"');
-      try {
-        if (JSON.parse(unEscapedStr).type == 'cred_ver') {
-          handle_cred_verification(JSON.parse(unEscapedStr));
-        }
-        if (JSON.parse(unEscapedStr).type == 'zadaauth') {
-          _handleZadaAuth(JSON.parse(e.data));
-        }
-        else {
-          try {
-            let title = '';
-            try {
-              cr_arr = JSON.parse(connection_request);
-              cred_arr = JSON.parse(credential_request);
-              arr2 = JSON.parse(proof_request);
-            } catch {
-              cr_arr = [];
-              cred_arr = [];
-              arr2 = [];
-            }
-
-            const qrJSON = JSON.parse(unEscapedStr);
-            if (qrJSON.type == 'credential_offer') {
-              setScan(false);
-              setProgress(true);
-
-              setDialogTitle('Fetching Credential Details');
-              credentialID = qrJSON.metadata;
-              getCredential();
-            } else if (qrJSON.type == 'connection_request') {
-              setDialogTitle('Fetching Connection Details');
-              setScan(false);
-              setProgress(true);
-              getResponseUrl(qrJSON.metadata, qrJSON);
-            } else if (qrJSON.type == 'connection_proof') {
-              title = 'Digital Proof Request Added';
-              arr2.push(qrJSON);
-              saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
-                .then(() => { })
-                .catch((e) => { });
-            } else {
-              title = 'Invalid QR Code';
-            }
-            setScan(false);
-          } catch (error) {
-            setProgress(false);
-            setScan(false);
-            Alert.alert(
-              'ZADA',
-              'Invalid QR Code, Please try with a different QR',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => navigation.navigate('MainScreen'),
-                },
-              ],
-              { cancelable: false },
-            );
-
+    try {
+      if (isConnected) {
+        let unEscapedStr = e.data;
+        unEscapedStr = unEscapedStr.replace(/\\/g, "");
+        unEscapedStr = unEscapedStr.replace(/“/g, '"');
+        try {
+          if (JSON.parse(unEscapedStr).type == 'cred_ver') {
+            handle_cred_verification(JSON.parse(unEscapedStr));
           }
-        }
-      } catch (error) {
-        _showAlert('Zada WAllet', error.toString());
-      }
-    }
-    else {
-      showNetworkMessage();
-    }
+          if (JSON.parse(unEscapedStr).type == 'zadaauth') {
+            _handleZadaAuth(JSON.parse(e.data));
+          }
+          else {
+            try {
+              let title = '';
+              try {
+                cr_arr = JSON.parse(connection_request);
+                cred_arr = JSON.parse(credential_request);
+                arr2 = JSON.parse(proof_request);
+              } catch {
+                cr_arr = [];
+                cred_arr = [];
+                arr2 = [];
+              }
 
+              const qrJSON = JSON.parse(unEscapedStr);
+              if (qrJSON.type == 'credential_offer') {
+                setScan(false);
+                setProgress(true);
+
+                setDialogTitle('Fetching Credential Details');
+                credentialID = qrJSON.metadata;
+                getCredential();
+              } else if (qrJSON.type == 'connection_request') {
+                setDialogTitle('Fetching Connection Details');
+                setScan(false);
+                setProgress(true);
+                getResponseUrl(qrJSON.metadata, qrJSON);
+              } else if (qrJSON.type == 'connection_proof') {
+                title = 'Digital Proof Request Added';
+                arr2.push(qrJSON);
+                saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
+                  .then(() => { })
+                  .catch((e) => { });
+              } else {
+                title = 'Invalid QR Code';
+              }
+              setScan(false);
+            } catch (error) {
+              setProgress(false);
+              setScan(false);
+              Alert.alert(
+                'ZADA',
+                'Invalid QR Code, Please try with a different QR',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.navigate('MainScreen'),
+                  },
+                ],
+                { cancelable: false },
+              );
+
+            }
+          }
+        } catch (error) {
+          _showAlert('Zada WAllet', error.toString());
+        }
+      }
+      else {
+        showNetworkMessage();
+      }
+    } catch (error) {
+      _handleAxiosError(error, 'Unable to process your request, try again');
+    }
   };
 
   function arrangeValues(values) {

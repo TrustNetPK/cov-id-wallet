@@ -6,7 +6,6 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Dimensions,
 } from 'react-native';
 
 import { InputComponent } from '../components/Input/inputComponent';
@@ -20,6 +19,7 @@ import ConstantsList from '../helpers/ConfigApp';
 import SimpleButton from '../components/Buttons/SimpleButton';
 import EmailWarning from '../components/EmailWarning';
 import PincodeModal from '../components/PincodeModal';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const ProfileScreen = () => {
 
@@ -128,7 +128,7 @@ const ProfileScreen = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet', error.toString());
+            _handleAxiosError(error);
         }
 
     }
@@ -162,7 +162,7 @@ const ProfileScreen = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet', error.toString());
+            _handleAxiosError(error);
         }
     }
 
@@ -182,7 +182,7 @@ const ProfileScreen = () => {
             setProfileLoading(false);
         } catch (error) {
             setProfileLoading(false);
-            _showAlert('Zada Wallet', error.toString());
+            _handleAxiosError(error);
         }
     }
 
@@ -248,7 +248,7 @@ const ProfileScreen = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            _showAlert('Zada Wallet', error.toString());
+            _handleAxiosError(error);
         }
 
     }
