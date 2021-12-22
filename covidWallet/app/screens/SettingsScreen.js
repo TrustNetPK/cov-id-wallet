@@ -9,6 +9,7 @@ import useBiometric from '../hooks/useBiometric';
 import { showMessage } from '../helpers/Toast';
 import { AuthContext } from '../context/AuthContext';
 import ConstantsList from '../helpers/ConfigApp';
+import ZignSecModal from '../components/ZignSecModal';
 
 var settingLocalData = {
   GENERAL: {
@@ -60,6 +61,14 @@ var settingLocalData = {
     },
     key: '3',
   },
+  ZIGNSEC: {
+    key: '4',
+    'Scan Document': {
+      value: 'None',
+      type: 'Text',
+      key: '40',
+    }
+  }
 };
 
 export default function SettingsScreen(props) {
@@ -132,9 +141,22 @@ export default function SettingsScreen(props) {
     props.navigation.navigate('ProfileScreen');
   }
 
+  // on Scan Document click
+  const _onScanDocumentClick = () => {
+    setZignSecModal(true)
+  }
+
+  const [showZignSecModal, setZignSecModal] = useState(false);
+
   return (
     <View style={styles.container}>
-      {/* */}
+
+      <ZignSecModal
+        isVisible={showZignSecModal}
+        onContinueClick={() => { setZignSecModal(false) }}
+        onLaterClick={() => { setZignSecModal(false) }}
+      />
+
       <FlatList
         data={Object.keys(settingsData)}
         keyExtractor={(item, index) => settingsData[item].key}
@@ -227,7 +249,7 @@ export default function SettingsScreen(props) {
                         );
                       } else {
 
-                        if (item != 'Logout' && item != "Edit Profile") {
+                        if (item != 'Logout' && item != "Edit Profile" && item != "Scan Document") {
                           return (
                             <TextTypeView
                               startValue={item}
@@ -246,8 +268,7 @@ export default function SettingsScreen(props) {
                               endValue="Edit"
                               endIcon="right"
                               onHandlePress={() => {
-                                item == 'Logout' ? onLogoutPressed() : _onEditProfileClick()
-
+                                item == 'Logout' ? onLogoutPressed() : item == 'Scan Document' ? _onScanDocumentClick() : _onEditProfileClick()
                               }}
                             />
                           );

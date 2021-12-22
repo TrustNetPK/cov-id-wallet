@@ -143,6 +143,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		04F090062770BBB3001D3E0B /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				ECB72F7E3D6414BBB7C2AD78 /* libPods-ZADA.a */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* ZADA */ = {
 			isa = PBXGroup;
 			children = (
@@ -199,6 +207,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				B1DAB91C524C4395AD0820E6 /* Resources */,
 				1E15BCA4B5553E09EE64AF66 /* Pods */,
+				04F090062770BBB3001D3E0B /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -795,7 +804,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZADA/ZADA.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L66ZW85V2S;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -809,7 +818,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/swift",
 				);
-				MARKETING_VERSION = 1.1.5;
+				MARKETING_VERSION = 1.1.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -833,7 +842,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZADA/ZADA.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = L66ZW85V2S;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ZADA/Info.plist;
@@ -843,7 +852,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/swift",
 				);
-				MARKETING_VERSION = 1.1.5;
+				MARKETING_VERSION = 1.1.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
