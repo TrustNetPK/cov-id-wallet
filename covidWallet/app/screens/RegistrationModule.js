@@ -153,7 +153,7 @@ function RegistrationModule({ navigation }) {
       }
     } catch (error) {
       setProgress(false);
-      showMessage('ZADA Wallet', error.toString());
+      _handleAxiosError(error);
     }
 
   };
