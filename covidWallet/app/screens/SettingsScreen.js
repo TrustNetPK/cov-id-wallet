@@ -61,14 +61,14 @@ var settingLocalData = {
     },
     key: '3',
   },
-  ZIGNSEC: {
-    key: '4',
-    'Scan Document': {
-      value: 'None',
-      type: 'Text',
-      key: '40',
-    }
-  }
+  // ZIGNSEC: {
+  //   key: '4',
+  //   'Scan Document': {
+  //     value: 'None',
+  //     type: 'Text',
+  //     key: '40',
+  //   }
+  // }
 };
 
 export default function SettingsScreen(props) {
