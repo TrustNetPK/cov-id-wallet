@@ -1,7 +1,7 @@
-import moment from 'moment';
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
+import { get_local_issue_time } from '../helpers/time';
 import { GRAY_COLOR } from '../theme/Colors';
 
 const RenderValues = ({ values, labelColor, inputTextColor, inputBackground, width, mainStyle, listStyle, listContainerStyle }) => {
@@ -30,7 +30,7 @@ const RenderValues = ({ values, labelColor, inputTextColor, inputBackground, wid
                             <View style={[styles._inputContainer, { backgroundColor: inputBackground }]}>
                                 {
                                     key == 'Issue Time' ? (
-                                        <Text style={[styles._inputText, { color: inputTextColor }]}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
+                                        <Text style={[styles._inputText, { color: inputTextColor }]}>{get_local_issue_time(value)}</Text>
                                     ) : (
                                         <Text style={[styles._inputText, { color: inputTextColor }]}>{value}</Text>
                                     )

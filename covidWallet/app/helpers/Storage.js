@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { delete_credential, get_all_credentials } from '../gateways/credentials';
 import { delete_connection } from '../gateways/connections';
 import { showMessage } from './Toast';
+import { delete_credential_from_groups } from './Credential_Groups';
 
 export const savePassCode = async (PassCode) => {
   return await AsyncStorage.setItem('@passCode', PassCode);
@@ -132,9 +133,10 @@ export const deleteCredentialByCredId = async (credentialId) => {
 
   credentialsArr = credentialsArr.filter((c) => {
     return c.credentialId != credentialId
-  })
+  });
 
   await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentialsArr))
+  await delete_credential_from_groups(credentialId);
 };
 
 // Delete Connection and Credential by connection ID.
@@ -149,8 +151,10 @@ export const deleteConnAndCredByConnectionID = async (connectionId) => {
   let connectionsArr = JSON.parse(connections);
 
   for (let i = 0; i < credentialsArr.length; ++i) {
-    if (credentialsArr[i].connectionId == connectionId)
+    if (credentialsArr[i].connectionId == connectionId) {
       await delete_credential(credentialsArr[i].credentialId);
+      await delete_credential_from_groups(credentialsArr[i].credentialId);
+    }
   }
 
   credentialsArr = credentialsArr.filter((c) => {

@@ -16,9 +16,8 @@ import { showMessage } from '../../helpers/Toast';
 import { get_all_credentials_for_verification } from '../../gateways/verifications';
 import { getActionText } from '../../helpers/ActionList';
 import CustomAccordian from './components/CustomAccordian';
-import moment from 'moment';
 import { get_tenant } from '../../gateways/connections';
-
+import RenderValues from '../RenderValues';
 
 function ActionDialog(props) {
 
@@ -139,65 +138,6 @@ function ActionDialog(props) {
 
     function setSelected(e) {
         setSelectedCred(e);
-    }
-
-    function renderTitleInput(title, index) {
-        let value = values[title];
-
-        if (title == 'Issue Time') {
-            return (
-                <View
-                    key={index}
-                    style={{
-                        marginLeft: 16,
-                        marginRight: 16,
-                        marginTop: 4,
-                        marginBottom: 4,
-                    }}>
-                    <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
-                    <View style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        backgroundColor: BACKGROUND_COLOR,
-                        color: BLACK_COLOR,
-                        height: 40,
-                        marginBottom: 4,
-                        borderRadius: 16,
-                        justifyContent: "center"
-                    }}>
-                        <Text style={{ color: BLACK_COLOR }}>{moment(value).format('DD/MM/YYYY HH:MM A')}</Text>
-                    </View>
-                </View>
-            )
-        }
-        else {
-            return (
-                <View
-                    key={index}
-                    style={{
-                        marginLeft: 16,
-                        marginRight: 16,
-                        marginTop: 4,
-                        marginBottom: 4,
-                    }}>
-                    <Text style={{ color: BLACK_COLOR, marginLeft: 8, marginBottom: 8, }}>{title}</Text>
-                    <View style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        backgroundColor: BACKGROUND_COLOR,
-                        color: BLACK_COLOR,
-                        height: 40,
-                        marginBottom: 4,
-                        borderRadius: 16,
-                        justifyContent: "center"
-                    }}>
-                        <Text style={{ color: BLACK_COLOR }}>{value}</Text>
-                    </View>
-                </View>
-            )
-        }
-
-
     }
 
     return (
@@ -349,9 +289,21 @@ function ActionDialog(props) {
                                                 (
                                                     <CustomAccordian credential={credential} setSelected={setSelected} />
                                                 ) : (
-                                                    values != undefined && Object.keys(values).length > 1 && Object.keys(values).map((e, i) => {
-                                                        return renderTitleInput(e, i)
-                                                    })
+                                                    values != undefined && Object.keys(values).length > 0 ? (
+                                                        <RenderValues
+                                                            values={values}
+                                                            inputBackground={BACKGROUND_COLOR}
+                                                            inputTextColor={BLACK_COLOR}
+                                                            labelColor={BLACK_COLOR}
+                                                            listStyle={{ flexGrow: 1 }}
+                                                            listContainerStyle={{
+                                                                flexGrow: 1,
+                                                                paddingHorizontal: 15,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        null
+                                                    )
                                                 )
                                         )
                                     }

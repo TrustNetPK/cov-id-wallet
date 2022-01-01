@@ -15,6 +15,7 @@ import FeatureVideo from '../components/FeatureVideo';
 import { PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { _handleAxiosError } from '../helpers/AxiosResponse';
+import { get_local_issue_date } from '../helpers/time';
 
 function Credentials(props) {
 
@@ -166,7 +167,7 @@ function Credentials(props) {
                                             card_type={item.type}
                                             issuer={item.organizationName}
                                             card_user=""
-                                            date={moment(item.values['Issue Time']).format('DD/MM/YYYY')}
+                                            date={get_local_issue_date(item.values['Issue Time'])}
                                             card_logo={{ uri: item.imageUrl }} />
                                     </View>
                                 </TouchableOpacity>

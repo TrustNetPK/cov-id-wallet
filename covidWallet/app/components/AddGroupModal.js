@@ -4,8 +4,6 @@ import {
     FlatList,
     StyleSheet,
     View,
-    KeyboardAvoidingView,
-    PlatformColor,
     SafeAreaView,
     Pressable
 } from 'react-native';
@@ -15,10 +13,9 @@ import HeadingComponent from './HeadingComponent';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { InputComponent } from './Input/inputComponent';
 import SimpleButton from './Buttons/SimpleButton';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import CredentialsCard from './CredentialsCard';
-import moment from 'moment';
 import EmptyList from './EmptyList';
+import { get_local_issue_date } from '../helpers/time';
 
 const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGroupNameChange, onCreateGroupClick, onCloseClick, onRefresh, refreshing }) => {
 
@@ -160,7 +157,7 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                                         card_type={item.type}
                                         issuer={item.organizationName}
                                         card_user=""
-                                        date={moment(item.values['Issue Time']).format('DD/MM/YYYY')}
+                                        date={get_local_issue_date(item.values['Issue Time'])}
                                         card_logo={{ uri: item.imageUrl }}
                                     />
                                     {

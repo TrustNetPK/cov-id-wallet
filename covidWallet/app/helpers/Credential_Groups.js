@@ -99,3 +99,32 @@ export const remove_all_credentials_group = async () => {
         throw error;
     }
 }
+
+/**
+ * Function to delete credential from local groups on deleting credential from credential screen
+ * @param {String} credentialId 
+ */
+export const delete_credential_from_groups = async (credentialId) => {
+    try {
+        const groups = await fetch_all_groups();
+        let updatedGroups = [];
+
+        groups.forEach((group) => {
+            let credArray = group.credentials.filter((c) => {
+                return c.credentialId != credentialId
+            });
+            if (credArray.length > 0) {
+                let newGroup = {
+                    ...group,
+                    credentials: credArray,
+                };
+                updatedGroups.push(newGroup);
+            }
+        });
+
+        await saveItem(GROUP_ASYNC_ENUM.CREDENTIAL_GROUPS, JSON.stringify(updatedGroups))
+
+    } catch (error) {
+        throw error;
+    }
+}

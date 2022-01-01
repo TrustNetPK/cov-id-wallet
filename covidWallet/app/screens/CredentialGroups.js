@@ -31,6 +31,7 @@ import moment from 'moment';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditGroupModal from '../components/EditGroupModal';
 import { _handleAxiosError } from '../helpers/AxiosResponse';
+import { get_local_issue_date } from '../helpers/time';
 
 const CredentialGroups = (props) => {
 
@@ -402,7 +403,7 @@ const CredentialGroups = (props) => {
                                                                         card_type={cred.type}
                                                                         issuer={cred.organizationName}
                                                                         card_user=""
-                                                                        date={moment(cred.values['Issue Time']).format('DD/MM/YYYY')}
+                                                                        date={get_local_issue_date(cred.values['Issue Time'])}
                                                                         card_logo={{ uri: cred.imageUrl }} />
                                                                 </TouchableOpacity>
                                                             ))
@@ -495,7 +496,7 @@ const CredentialGroups = (props) => {
                                                                         card_type={cred.type}
                                                                         issuer={cred.organizationName}
                                                                         card_user=""
-                                                                        date={moment(cred.values['Issue Time']).format('DD/MM/YYYY')}
+                                                                        date={get_local_issue_date(cred.values['Issue Time'])}
                                                                         card_logo={{ uri: cred.imageUrl }} />
                                                                 </TouchableOpacity>
                                                             ))
