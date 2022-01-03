@@ -460,6 +460,8 @@ PODS:
     - React
   - RNCPushNotificationIOS (1.8.0):
     - React-Core
+  - RNDeviceInfo (8.4.8):
+    - React-Core
   - RNExitApp (1.1.0):
     - React
   - RNFBAnalytics (12.5.0):
@@ -590,6 +592,7 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNExitApp (from `../node_modules/react-native-exit-app`)
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
@@ -723,6 +726,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/masked-view"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNExitApp:
     :path: "../node_modules/react-native-exit-app"
   RNFBAnalytics:
@@ -822,6 +827,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
+  RNDeviceInfo: 417b2ef4456c13a9d50ad8c57895eea837b735a8
   RNExitApp: 7d81855142a4d11eb75f4f06fdebf5a950d7aef2
   RNFBAnalytics: f333ca7f05d2cccd0f7092e54434d10a4f5982d1
   RNFBApp: 5f583e80cd7a32621d6057da3b786c4db96f1ef4

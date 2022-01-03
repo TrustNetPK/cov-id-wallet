@@ -1,123 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, Linking, Alert, Switch } from 'react-native';
-import { TextTypeView, BooleanTypeView } from '../components/ShowTypesView';
+import { StyleSheet, Text, View, Linking, Switch, Dimensions, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PRIMARY_COLOR } from '../theme/Colors';
+import { BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { getItem, saveItem } from '../helpers/Storage';
 import { BIOMETRIC_ENABLED } from '../helpers/ConfigApp';
-import useBiometric from '../hooks/useBiometric';
 import { showMessage } from '../helpers/Toast';
 import { AuthContext } from '../context/AuthContext';
 import ConstantsList from '../helpers/ConfigApp';
 import ZignSecModal from '../components/ZignSecModal';
-
-var settingLocalData = {
-  GENERAL: {
-    // Agent: {
-    //   value: 'Phone',
-    //   type: 'Text',
-    //   key: '11',
-    // },
-    // Network: {
-    //   value: 'Sovrin Network',
-    //   type: 'Radio',
-    //   key: '12',
-    //   options: ['Soverin', 'non-soverin'],
-    // },
-    Biometric: {
-      value: false,
-      type: 'Boolean'
-    },
-    'Edit Profile': {
-      value: 'None',
-      type: 'Text',
-      key: '36',
-    },
-    'Logout': {
-      value: 'None',
-      type: 'Text',
-      key: '34',
-    },
-    key: '1',
-  },
-  SUPPORT: {
-    'Contact us': {
-      value: 'None',
-      type: 'Link',
-      key: '31',
-      to: 'mailto:support@zada.com',
-    },
-    'License and agreements': {
-      value: 'None',
-      type: 'Link',
-      key: '32',
-      to: 'https://zada.io/privacy-policy/',
-    },
-    'About us': {
-      value: 'None',
-      type: 'Text',
-      key: '33',
-      to: 'https://zada.io/',
-    },
-    key: '3',
-  },
-  // ZIGNSEC: {
-  //   key: '4',
-  //   'Scan Document': {
-  //     value: 'None',
-  //     type: 'Text',
-  //     key: '40',
-  //   }
-  // }
-};
+import { getBuildNumber, getVersion } from 'react-native-device-info';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 export default function SettingsScreen(props) {
 
-  const [settingsData, setSettingsData] = useState(settingLocalData);
   const { logout } = React.useContext(AuthContext);
+  const [isBioEnable, setBioEnable] = useState(false);
 
   useEffect(() => {
     const updatevalues = async () => {
       let biometric = JSON.parse(await getItem(BIOMETRIC_ENABLED) || 'false');
-      const tempSettings = { ...settingsData };
-      tempSettings.GENERAL.Biometric.value = biometric;
-      setSettingsData({ ...tempSettings });
+      setBioEnable(biometric);
     }
-
     updatevalues();
   }, [])
 
-  const toggleSwitch = async (parent, child) => {
-    // If child == 'Biometric'
-    if (child == 'Biometric') {
-      props.route.params.oneTimeAuthentication((e) => biometricResult(e, parent, child))
-      return
-    }
+  const _toggleBio = (value) => {
+    props.route.params.oneTimeAuthentication((e) => _bioResult(e, value))
+  }
 
-    // Updating UI
-    const tempSettings = { ...settingsData };
-    tempSettings[parent][child].value = !tempSettings[parent][child].value;
-    setSettingsData({ ...tempSettings });
-  };
-
-  const biometricResult = async (result, parent, child) => {
+  const _bioResult = async (result, value) => {
     if (result) {
-      // Updating UI
-      const tempSettings = { ...settingsData };
-      tempSettings[parent][child].value = !tempSettings[parent][child].value;
-      setSettingsData({ ...tempSettings });
 
       // Saving preference in asyncstorage.
-      await saveItem(BIOMETRIC_ENABLED, JSON.stringify(tempSettings[parent][child].value))
+      await saveItem(BIOMETRIC_ENABLED, JSON.stringify(value));
 
       // Display message.
-      if (tempSettings[parent][child].value) {
+      if (value) {
+        setBioEnable(true);
         // Display message.
         showMessage(
           'ZADA Wallet',
           'Biometric enabled!',
         );
       } else {
+        setBioEnable(false);
         showMessage(
           'ZADA Wallet',
           'Biometric disabled!',
@@ -125,6 +52,7 @@ export default function SettingsScreen(props) {
       }
 
     } else {
+      setBioEnable(false);
       console.log('biometric false')
     }
   }
@@ -149,7 +77,7 @@ export default function SettingsScreen(props) {
   const [showZignSecModal, setZignSecModal] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View style={styles._mainContainer}>
 
       <ZignSecModal
         isVisible={showZignSecModal}
@@ -157,131 +85,99 @@ export default function SettingsScreen(props) {
         onLaterClick={() => { setZignSecModal(false) }}
       />
 
-      <FlatList
-        data={Object.keys(settingsData)}
-        keyExtractor={(item, index) => settingsData[item].key}
-        renderItem={({ item }) => {
-          const parent = item;
-          const parentData = settingsData[parent];
-          return (
-            <View>
-              <Text style={styles.parentItem}>{parent}</Text>
-              <FlatList
-                data={Object.keys(parentData)}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => {
-                  const childData = settingsData[parent][item];
-                  if (item !== 'key' && item !== '') {
-                    if (childData.value !== 'None') {
-                      if (childData.type === 'Text') {
-                        return (
-                          <TextTypeView
-                            startValue={item + ':  ' + childData.value}
-                            endValue="Edit"
-                            endIcon=""
-                          />
-                        );
-                      }
-                      else if (childData.type === 'Radio') {
-                        return (
-                          <TextTypeView
-                            startValue={item + ':  ' + childData.value}
-                            endIcon="right"
-                          />
-                        );
-                      } else if (childData.type === 'Boolean') {
-                        return (
-                          <BooleanTypeView
-                            parentValue={parent}
-                            startValue={item}
-                            endValue={childData.value}
-                            toChangeValue={childData.value}
-                            valueHandler={toggleSwitch}
-                          />
-                        );
-                      } else {
-                        return (
-                          <TextTypeView
-                            startValue={item + ':  ' + childData.value}
-                            endIcon="right"
-                          />
-                        );
-                      }
-                    } else {
-                      if (childData.to === 'reset') {
-                        return (
-                          <TextTypeView
-                            startValue={item}
-                            endValue="Edit"
-                            endIcon="right"
-                            onHandlePress={() => {
-                              Alert.alert(
-                                'Vaccify',
-                                'Are you sure you want to reset your app wallet?',
-                                [
-                                  {
-                                    text: 'Yes', onPress: () => {
-                                      AsyncStorage.removeItem('wallet_secret');
-                                      AsyncStorage.removeItem('wallet_name');
-                                      AsyncStorage.removeItem('connection_credential');
-                                      AsyncStorage.removeItem('connection_proof');
-                                      AsyncStorage.removeItem('connections');
-                                      AsyncStorage.removeItem('credentials');
-                                      AsyncStorage.removeItem('isfirstTime').then((value) => {
-                                        Alert.alert(
-                                          'Vaccify',
-                                          'Wallet Reset Successful, Please close the app!',
-                                          [
-                                            { text: 'OK', onPress: () => { } }
-                                          ],
-                                          { cancelable: false }
-                                        )
-                                      })
-                                    }
-                                  },
-                                  { text: 'No', onPress: () => { } }
-                                ],
-                                { cancelable: true }
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles._list}
+        contentContainerStyle={styles._listContainer}
+      >
+        <Text style={styles._rowHeading}>General</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => { }}
+        >
+          <Text style={styles._rowLabel}>Biometric</Text>
+          <Switch
+            trackColor={{ false: '#81b0ff', true: '#3ab6ae' }}
+            ios_backgroundColor="#ffffff"
+            onValueChange={_toggleBio}
+            value={isBioEnable}
+          />
+        </TouchableOpacity>
 
-                              );
-                            }}
-                          />
-                        );
-                      } else {
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => {
+            _onEditProfileClick();
+          }}
+        >
+          <Text style={styles._rowLabel}>Edit Profile</Text>
+          <Icon name='right' color={GREEN_COLOR} size={18} />
+        </TouchableOpacity>
 
-                        if (item != 'Logout' && item != "Edit Profile" && item != "Scan Document") {
-                          return (
-                            <TextTypeView
-                              startValue={item}
-                              endValue="Edit"
-                              endIcon="right"
-                              onHandlePress={() => {
-                                childData.to && Linking.openURL(childData.to);
-                              }}
-                            />
-                          );
-                        }
-                        else {
-                          return (
-                            <TextTypeView
-                              startValue={item}
-                              endValue="Edit"
-                              endIcon="right"
-                              onHandlePress={() => {
-                                item == 'Logout' ? onLogoutPressed() : item == 'Scan Document' ? _onScanDocumentClick() : _onEditProfileClick()
-                              }}
-                            />
-                          );
-                        }
-                      }
-                    }
-                  }
-                }}
-              />
-            </View>
-          );
-        }}
-      />
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => {
+            onLogoutPressed();
+          }}
+        >
+          <Text style={styles._rowLabel}>Logout</Text>
+          <Icon name='right' color={GREEN_COLOR} size={18} />
+        </TouchableOpacity>
+
+
+        <Text style={[styles._rowHeading, { marginTop: 15 }]}>Support</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => {
+            Linking.openURL('mailto:support@zada.com');
+          }}
+        >
+          <Text style={styles._rowLabel}>Contact Us</Text>
+          <Icon name='right' color={GREEN_COLOR} size={18} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => {
+            Linking.openURL('https://zada.io/privacy-policy/');
+          }}
+        >
+          <Text style={styles._rowLabel}>License and agreements</Text>
+          <Icon name='right' color={GREEN_COLOR} size={18} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => {
+            Linking.openURL('https://zada.io/');
+          }}
+        >
+          <Text style={styles._rowLabel}>About Us</Text>
+          <Icon name='right' color={GREEN_COLOR} size={18} />
+        </TouchableOpacity>
+
+        <Text style={[styles._rowHeading, { marginTop: 15 }]}>App Version</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles._row}
+          onPress={() => {
+            if (Platform.OS === 'android')
+              Linking.openURL('https://play.google.com/store/apps/details?id=com.zadanetwork.wallet');
+            else
+              Linking.openURL('https://apps.apple.com/us/app/zada-wallet/id1578666669');
+          }}
+        >
+          <Text style={styles._rowLabel}>{`${getVersion()} (${getBuildNumber()})`}</Text>
+          <Icon name='right' color={GREEN_COLOR} size={18} />
+        </TouchableOpacity>
+
+      </ScrollView>
       <View style={styles.footer}>
         <Text style={styles.footerText} >In Collaboration with&nbsp;
           <Text
@@ -298,40 +194,44 @@ export default function SettingsScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  _mainContainer: {
     flex: 1,
-    paddingTop: 0,
-    paddingLeft: 5,
-    paddingRight: 5,
-    backgroundColor: '#f7f7f7',
   },
-  parentItem: {
-    flex: 1,
-    margin: 5,
-    marginTop: 20,
-    backgroundColor: '#f7f7f7',
-    fontSize: 15,
-    color: '#6f6f6f',
+  _list: {
+    flexGrow: 1
   },
-  childItem: {
-    flex: 1,
-    padding: 8,
-    margin: 1,
-    backgroundColor: '#ffffff',
-    fontSize: 20,
-    color: '#0f0f0f',
-    borderRadius: 10,
+  _listContainer: {
+    flexGrow: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
   },
-  headingContainer: {
+  _row: {
+    width: '100%',
+    height: Dimensions.get('screen').height * 0.06,
     flexDirection: 'row',
-    alignContent: 'center',
-  },
-  backButton: {
-    color: 'black',
-    margin: 15,
-    alignSelf: 'flex-start',
-    marginRight: 60,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: WHITE_COLOR,
+    borderRadius: 10,
     padding: 10,
+    shadowColor: BLACK_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
+    marginBottom: 5,
+  },
+  _rowHeading: {
+    fontSize: 16,
+    textTransform: 'uppercase',
+    color: GRAY_COLOR,
+    marginBottom: 5,
+  },
+  _rowLabel: {
+    flex: 1,
+    marginRight: 10,
+    fontSize: 16,
+    color: BLACK_COLOR
   },
   footer: {
     justifyContent: 'center',
@@ -345,6 +245,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     margin: 10,
     fontFamily: 'Poppins-Regular',
-
   }
 });
