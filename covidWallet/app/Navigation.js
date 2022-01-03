@@ -28,7 +28,10 @@ import useBiometric from './hooks/useBiometric';
 import { analytics_log_logout } from './helpers/analytics';
 import { _fetchingAppData } from './helpers/AppData';
 import NetInfo from "@react-native-community/netinfo";
-
+import { checkVersion } from "react-native-check-version";
+import VersionModal from './components/VersionModal';
+import { saveItem } from './helpers/Storage';
+import ContantList from './helpers/ConfigApp';
 const Stack = createStackNavigator();
 
 const navigationAnimation =
@@ -43,8 +46,9 @@ function NavigationComponent() {
   };
 
   // Biometric Hook
+  const [isNewVersion, setIsNewVersion] = useState(false);
+  const [versionDetails, setVersionDetails] = useState(null);
   const { authStatus, oneTimeAuthentication } = useBiometric();
-
   const [isFirstTime, getisFirstTime] = React.useState('true');
   const [isLoading, setLoading] = useState(true);
   const storeData = async () => {
@@ -85,10 +89,6 @@ function NavigationComponent() {
     retrieveData();
   }
 
-  React.useEffect(() => {
-    _checkAuthStatus();
-  }, [isFirstTime]);
-
   const _loggingOut = () => {
     try {
       AsyncStorage.setItem('isfirstTime', 'true');
@@ -112,10 +112,29 @@ function NavigationComponent() {
     [],
   );
 
+  React.useEffect(() => {
+    const _checkVersion = async () => {
+      const version = await checkVersion();
+      if (version.needsUpdate) {
+        setIsNewVersion(true);
+        setVersionDetails(version);
+        await saveItem(ContantList.APP_VERSION, JSON.stringify(version));
+      }
+      else {
+        _checkAuthStatus();
+      }
+    }
+    _checkVersion();
+  }, [isFirstTime])
+
   return (
     <AuthContext.Provider value={authContext}>
       <RefreshContextProvider>
         <NavigationContainer linking={linking}>
+          <VersionModal
+            isVisible={isNewVersion}
+            versionDetails={versionDetails}
+          />
           {isLoading ? (
             <Stack.Navigator>
               <Stack.Screen

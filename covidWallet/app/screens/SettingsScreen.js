@@ -8,7 +8,7 @@ import { showMessage } from '../helpers/Toast';
 import { AuthContext } from '../context/AuthContext';
 import ConstantsList from '../helpers/ConfigApp';
 import ZignSecModal from '../components/ZignSecModal';
-import { getBuildNumber, getVersion } from 'react-native-device-info';
+import { getVersion } from 'react-native-device-info';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -16,11 +16,14 @@ export default function SettingsScreen(props) {
 
   const { logout } = React.useContext(AuthContext);
   const [isBioEnable, setBioEnable] = useState(false);
+  const [version, setVersion] = useState(null);
 
   useEffect(() => {
     const updatevalues = async () => {
+      let version = JSON.parse(await getItem(ConstantsList.APP_VERSION) || null);
       let biometric = JSON.parse(await getItem(BIOMETRIC_ENABLED) || 'false');
       setBioEnable(biometric);
+      setVersion(version);
     }
     updatevalues();
   }, [])
@@ -173,7 +176,7 @@ export default function SettingsScreen(props) {
               Linking.openURL('https://apps.apple.com/us/app/zada-wallet/id1578666669');
           }}
         >
-          <Text style={styles._rowLabel}>{`${getVersion()} (${getBuildNumber()})`}</Text>
+          <Text style={styles._rowLabel}>{`${version == null ? getVersion() : version.version}`}</Text>
           <Icon name='right' color={GREEN_COLOR} size={18} />
         </TouchableOpacity>
 
