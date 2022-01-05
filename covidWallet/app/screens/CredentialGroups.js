@@ -398,7 +398,7 @@ const CredentialGroups = (props) => {
                                                                     style={styles._credentialsCardContainer}
                                                                 >
                                                                     <CredentialsCard
-                                                                        schemeId={cred.values['schemaId']}
+                                                                        schemeId={cred['schemaId']}
                                                                         card_title={cred.name}
                                                                         card_type={cred.type}
                                                                         issuer={cred.organizationName}
@@ -491,7 +491,7 @@ const CredentialGroups = (props) => {
                                                                     style={styles._credentialsCardContainer}
                                                                 >
                                                                     <CredentialsCard
-                                                                        schemeId={cred.values['schemaId']}
+                                                                        schemeId={cred['schemaId']}
                                                                         card_title={cred.name}
                                                                         card_type={cred.type}
                                                                         issuer={cred.organizationName}

@@ -2,21 +2,29 @@ import axios from 'axios';
 import * as React from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { ZADA_S3_BASE_URL } from '../helpers/ConfigApp';
-import { PRIMARY_COLOR } from '../theme/Colors';
+import useNetwork from '../hooks/useNetwork';
+import { BLACK_COLOR, WHITE_COLOR } from '../theme/Colors';
 
-const image = require('../assets/images/card-bg.png')
-const planeImage = require('../assets/images/world_map.png')
+const CARD_BG = require('../assets/images/card-bg.png');
 
 function CredentialsCard(props) {
 
+    const { isConnected } = useNetwork();
     const [backgroundImage, setBakcgroundImage] = React.useState('');
     const [loading, setLoading] = React.useState(true);
+    const [isUrl, setUrl] = React.useState(false);
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         const _checkForImageInS3 = async () => {
             try {
+                if (!isConnected) {
+                    setBakcgroundImage(CARD_BG);
+                    setUrl(false);
+                    return;
+                }
                 setLoading(true);
-                let schemeId = parseFloat(props.schemeId.replace(/:/g, '.'));
+                let schemeId = props.schemeId.replace(/:/g, '.');
+                console.log('schemeId', schemeId);
                 const result = await axios.get(`${ZADA_S3_BASE_URL}/${schemeId}`);
                 if (result.status == 200) {
                     setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}`);
@@ -24,9 +32,11 @@ function CredentialsCard(props) {
                 else {
                     setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
                 }
+                setUrl(true);
                 setLoading(false);
             } catch (error) {
-                setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
+                setUrl(false);
+                setBakcgroundImage(CARD_BG);
                 setLoading(false);
             }
         }
@@ -40,11 +50,11 @@ function CredentialsCard(props) {
             {
                 loading ? (
                     <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                        <ActivityIndicator size='small' color={PRIMARY_COLOR} />
+                        <ActivityIndicator size='small' color={WHITE_COLOR} />
                     </View>
                 ) : (
                     <>
-                        <Image source={{ uri: backgroundImage }} style={styles._frontLayer} />
+                        <Image source={isUrl ? { uri: backgroundImage } : backgroundImage} style={styles._frontLayer} />
 
                         <View style={styles._detailsView}>
                             <Text style={styles._cardTitle}>{props.card_type}</Text>
@@ -83,7 +93,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 170,
         borderRadius: 20,
-        backgroundColor: 'black',
+        backgroundColor: BLACK_COLOR,
     },
     _frontLayer: {
         position: "absolute",

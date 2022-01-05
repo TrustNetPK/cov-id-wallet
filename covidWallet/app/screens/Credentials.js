@@ -120,11 +120,7 @@ function Credentials(props) {
                 isVisible={showVideo}
                 onCloseClick={() => { setShowVideo(prev => !prev) }}
             />
-
             <PullToRefresh />
-
-            {/* <HeadingComponent text="Certificates" /> */}
-
             {credentials.length > 0 ? (
                 <>
                     <View style={styles._searchContainer}>
@@ -162,7 +158,7 @@ function Credentials(props) {
                                 <TouchableOpacity onPress={() => toggleModal(item)} activeOpacity={0.9}>
                                     <View style={styles.CredentialsCardContainer}>
                                         <CredentialsCard
-                                            schemeId={item.values['schemaId']}
+                                            schemeId={item['schemaId']}
                                             card_title={item.name}
                                             card_type={item.type}
                                             issuer={item.organizationName}

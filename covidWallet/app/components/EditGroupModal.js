@@ -161,7 +161,7 @@ const EditGroupModal = ({ isVisible, groupCredentials, credentials, groupName, g
                                     }}
                                 >
                                     <CredentialsCard
-                                        schemeId={item.values['schemaId']}
+                                        schemeId={item['schemaId']}
                                         card_title={item.name}
                                         card_type={item.type}
                                         issuer={item.organizationName}
