@@ -176,7 +176,7 @@ export default function SettingsScreen(props) {
               Linking.openURL('https://apps.apple.com/us/app/zada-wallet/id1578666669');
           }}
         >
-          <Text style={styles._rowLabel}>{`${version == null ? getVersion() : version.version}`}</Text>
+          <Text style={styles._rowLabel}>{`${version == undefined || version === null ? getVersion().toString() : version.version}`}</Text>
           <Icon name='right' color={GREEN_COLOR} size={18} />
         </TouchableOpacity>
 

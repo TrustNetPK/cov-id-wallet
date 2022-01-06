@@ -32,6 +32,7 @@ import { checkVersion } from "react-native-check-version";
 import VersionModal from './components/VersionModal';
 import { saveItem } from './helpers/Storage';
 import ContantList from './helpers/ConfigApp';
+import useNetwork from './hooks/useNetwork';
 const Stack = createStackNavigator();
 
 const navigationAnimation =
@@ -51,6 +52,7 @@ function NavigationComponent() {
   const { authStatus, oneTimeAuthentication } = useBiometric();
   const [isFirstTime, getisFirstTime] = React.useState('true');
   const [isLoading, setLoading] = useState(true);
+
   const storeData = async () => {
     try {
       await AsyncStorage.setItem('isfirstTime', 'false');

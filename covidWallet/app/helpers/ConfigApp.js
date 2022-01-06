@@ -36,4 +36,5 @@ module.exports = Object.freeze({
   VER_KEY: 'verkey',
   ZIGN_SEC_TIME: 'zignsectime',
   KYC_STATUS: 'kyc_status',
+  APP_VERSION: 'app_version'
 });
