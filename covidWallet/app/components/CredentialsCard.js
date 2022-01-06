@@ -24,10 +24,9 @@ function CredentialsCard(props) {
                 }
                 setLoading(true);
                 let schemeId = props.schemeId.replace(/:/g, '.');
-                console.log('schemeId', schemeId);
-                const result = await axios.get(`${ZADA_S3_BASE_URL}/${schemeId}`);
+                const result = await axios.get(`${ZADA_S3_BASE_URL}/${schemeId}.png`);
                 if (result.status == 200) {
-                    setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}`);
+                    setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}.png`);
                 }
                 else {
                     setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
