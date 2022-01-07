@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Linking, Switch, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Text, View, Linking, Switch, Dimensions, Platform, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, PRIMARY_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { getItem, saveItem } from '../helpers/Storage';
@@ -162,23 +162,14 @@ export default function SettingsScreen(props) {
           <Icon name='right' color={GREEN_COLOR} size={18} />
         </TouchableOpacity>
 
-        <Text style={[styles._rowHeading, { marginTop: 15 }]}>App Version</Text>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles._row}
-          onPress={() => {
-            if (Platform.OS === 'android')
-              Linking.openURL('https://play.google.com/store/apps/details?id=com.zadanetwork.wallet');
-            else
-              Linking.openURL('https://apps.apple.com/us/app/zada-wallet/id1578666669');
-          }}
-        >
-          <Text style={styles._rowLabel}>{`${getVersion()} (${getBuildNumber()})`}</Text>
-          <Icon name='right' color={GREEN_COLOR} size={18} />
-        </TouchableOpacity>
-
       </ScrollView>
       <View style={styles.footer}>
+        <Text onPress={() => {
+          if (Platform.OS === 'android')
+            Linking.openURL('https://play.google.com/store/apps/details?id=com.zadanetwork.wallet');
+          else
+            Linking.openURL('https://apps.apple.com/us/app/zada-wallet/id1578666669');
+        }} style={styles._appVersion}>{`Version ${getVersion()}`}</Text>
         <Text style={styles.footerText} >In Collaboration with&nbsp;
           <Text
             style={{ color: PRIMARY_COLOR, }}
@@ -233,17 +224,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: BLACK_COLOR
   },
+  _appVersion: {
+    fontSize: 14,
+    color: BLACK_COLOR,
+    textAlign: 'center',
+    alignSelf: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontWeight: 'bold',
+  },
   footer: {
     justifyContent: 'center',
     textAlign: 'center',
     alignContent: 'center',
+
   },
   footerText: {
     textAlign: 'center',
     color: 'black',
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    paddingTop: 5,
     fontSize: 14,
-    margin: 10,
+    marginHorizontal: 10,
+    marginBottom: 10,
     fontFamily: 'Poppins-Regular',
   }
 });
