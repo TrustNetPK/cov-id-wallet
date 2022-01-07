@@ -131,7 +131,7 @@ function ConnectionsScreen() {
       {
         connectionsList.length ? (
           <>
-            <View pointerEvents={isLoading ? 'none' : 'auto'}>
+            <View style={{ flex: 1 }} pointerEvents={isLoading ? 'none' : 'auto'}>
               <SwipeListView
                 showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -148,8 +148,7 @@ function ConnectionsScreen() {
                   flexGrow: 1,
                 }}
                 contentContainerStyle={{
-                  width: '100%',
-                  height: DIMENSIONS.height,
+                  flexGrow: 1,
                 }}
                 keyExtractor={(rowData, index) => {
                   return index;
