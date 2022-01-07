@@ -138,8 +138,8 @@ android {
         applicationId "com.zadanetwork.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 65
-        versionName "1.1.8 (2)"
+        versionCode 68
+        versionName "1.1.8 (4)"
         setProperty("archivesBaseName", "ZADA-V-$versionName")
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'react-native-camera', 'mlkit'
