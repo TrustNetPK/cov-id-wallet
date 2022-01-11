@@ -6,7 +6,6 @@ import { themeStyles } from '../theme/Styles';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { getItem, saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
-import moment from 'moment';
 import useNetwork from '../hooks/useNetwork';
 import { get_all_qr_credentials } from '../gateways/credentials';
 import PullToRefresh from '../components/PullToRefresh';
@@ -163,7 +162,7 @@ function Credentials(props) {
                                             card_type={item.type}
                                             issuer={item.organizationName}
                                             card_user=""
-                                            date={get_local_issue_date(item.values['Issue Time'])}
+                                            date={item.values['Issue Time'] ? get_local_issue_date(item.values['Issue Time']) : undefined}
                                             card_logo={{ uri: item.imageUrl }} />
                                     </View>
                                 </TouchableOpacity>

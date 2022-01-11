@@ -70,10 +70,16 @@ function CredentialsCard(props) {
                                         <Text style={styles.card_small_text}>Issued by</Text>
                                         <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.issuer}</Text>
                                     </View>
-                                    <View>
-                                        <Text style={styles.card_small_text}>Issued Time</Text>
-                                        <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.date}</Text>
-                                    </View>
+                                    {
+                                        props.date ? (
+                                            <View>
+                                                <Text style={styles.card_small_text}>Issued Time</Text>
+                                                <Text style={[styles.card_small_text, { fontWeight: 'bold' }]}>{props.date}</Text>
+                                            </View>
+                                        ) : (
+                                            null
+                                        )
+                                    }
                                 </View>
                             </View>
 

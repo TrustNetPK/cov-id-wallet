@@ -157,7 +157,7 @@ const AddGroupModal = ({ isVisible, credentials, groupName, groupNameError, onGr
                                         card_type={item.type}
                                         issuer={item.organizationName}
                                         card_user=""
-                                        date={get_local_issue_date(item.values['Issue Time'])}
+                                        date={item.values['Issue Time'] ? get_local_issue_date(item.values['Issue Time']) : undefined}
                                         card_logo={{ uri: item.imageUrl }}
                                     />
                                     {

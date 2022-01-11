@@ -403,7 +403,7 @@ const CredentialGroups = (props) => {
                                                                         card_type={cred.type}
                                                                         issuer={cred.organizationName}
                                                                         card_user=""
-                                                                        date={get_local_issue_date(cred.values['Issue Time'])}
+                                                                        date={cred.values['Issue Time'] ? get_local_issue_date(cred.values['Issue Time']) : undefined}
                                                                         card_logo={{ uri: cred.imageUrl }} />
                                                                 </TouchableOpacity>
                                                             ))
@@ -496,7 +496,7 @@ const CredentialGroups = (props) => {
                                                                         card_type={cred.type}
                                                                         issuer={cred.organizationName}
                                                                         card_user=""
-                                                                        date={get_local_issue_date(cred.values['Issue Time'])}
+                                                                        date={cred.values['Issue Time'] ? get_local_issue_date(cred.values['Issue Time']) : undefined}
                                                                         card_logo={{ uri: cred.imageUrl }} />
                                                                 </TouchableOpacity>
                                                             ))
