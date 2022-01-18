@@ -35,6 +35,8 @@ const ProfileScreen = () => {
     const [emailWarning, setEmailWarning] = useState(false);
     const [disableEmail, setDisableEmail] = useState(true);
 
+    const [phone, setPhone] = useState('');
+
     const [isCurrPassSecure, setCurrPassSecure] = useState(true);
     const [currPassword, setCurrPassword] = useState('');
     const [currPasswordError, setCurrPasswordError] = useState('');
@@ -175,6 +177,7 @@ const ProfileScreen = () => {
                 await saveItem(ConstantsList.USER_PROFILE, JSON.stringify(result.data.user))
                 setName(result.data.user.name);
                 setEmail(result.data.user.email);
+                setPhone(result.data.user.phone ?? '');
             }
             else {
                 _showAlert('Zada Wallet', result.data.error.toString());
@@ -523,6 +526,26 @@ const ProfileScreen = () => {
                         >
                             {disableEmail ? 'Edit' : 'Save'}
                         </Text>
+                    </View>
+                </View>
+
+                <View style={styles._itemContainer}>
+                    <Text style={styles._itemLabel}>Phone Number</Text>
+                    <View style={styles._row}>
+
+                        <View style={{ width: '100%' }}>
+                            <InputComponent
+                                height={45}
+                                placeholderText="Phone Number"
+                                errorMessage={''}
+                                value={phone}
+                                isSecureText={false}
+                                inputContainerStyle={styles._inputView}
+                                setStateValue={(text) => {
+                                }}
+                                disabled={true}
+                            />
+                        </View>
                     </View>
                 </View>
 
