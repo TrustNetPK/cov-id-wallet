@@ -272,7 +272,7 @@ const CredentialGroups = (props) => {
             <EditGroupModal
                 isVisible={showEditGroup}
                 credentials={credentials}
-                groupCredentials={selectedEditGroup.credentials}
+                groupCredentials={selectedEditGroup.credentials ?? []}
                 groupName={groupName}
                 groupNameError={groupNameError}
                 onGroupNameChange={text => {
