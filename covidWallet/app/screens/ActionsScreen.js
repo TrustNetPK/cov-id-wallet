@@ -540,6 +540,8 @@ function ActionsScreen({ navigation }) {
 
     setDialogData(data);
 
+    console.log('isPincodeSet', isPincodeSet);
+
     // Check Either pincode set or not
     if (isPincodeSet) {
       setModalVisible(false);
@@ -698,19 +700,22 @@ function ActionsScreen({ navigation }) {
   const _checkPinCode = async () => {
     try {
       const isPincode = await getItem(ConstantsList.PIN_CODE);
+      console.log('isPincode', isPincode);
       if (isPincode != null && isPincode != undefined && isPincode.length != 0)
         setIsPincode(true);
       else
         setIsPincode(false);
     } catch (error) {
+      setPincodeChecked(false);
       showMessage('Zada Wallet', error.toString());
     }
-    setPincodeChecked(true);
   }
 
-  React.useLayoutEffect(() => {
-    _checkPinCode();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      _checkPinCode();
+    }, [])
+  );
 
   const _setPinCode = async () => {
     if (pincode.length == 0) {
@@ -743,7 +748,7 @@ function ActionsScreen({ navigation }) {
 
     // Saving pincode in async
     try {
-      await saveItem(ConstantsList.PIN_CODE, pincode);
+      await saveItem(ConstantsList.PIN_CODE, pincode.toString());
 
       setIsPincode(true);
       showMessage('Zada Wallet', 'Your pincode is set successfully. Please keep it safe and secure.');

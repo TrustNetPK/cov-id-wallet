@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-    StyleSheet, 
-    Text, 
+import {
+    StyleSheet,
+    Text,
     View,
     TouchableOpacity,
     KeyboardAvoidingView,
@@ -15,7 +15,7 @@ import HeadingComponent from './HeadingComponent';
 import { InputComponent } from './Input/inputComponent';
 const window = Dimensions.get('window');
 
-const PincodeModal = ({isVisible, onCloseClick, onContinueClick, pincode, pincodeError, onPincodeChange, confirmPincode, confirmPincodeError, onConfirmPincodeChange }) => {
+const PincodeModal = ({ isVisible, onCloseClick, onContinueClick, pincode, pincodeError, onPincodeChange, confirmPincode, confirmPincodeError, onConfirmPincodeChange }) => {
 
     const [pincodeSecurity, setPincodeSecurity] = useState(true);
     const [confirmPincodeSecurity, setConfirmPincodeSecurity] = useState(true);
@@ -44,74 +44,74 @@ const PincodeModal = ({isVisible, onCloseClick, onContinueClick, pincode, pincod
                 style={{ height: window.height * 0.5, alignItems: 'center', justifyContent: 'center' }}
                 behavior={Platform.OS == 'ios' ? 'position' : 'height'}
             >
-                <View style={[styles._mainContainer, {backgroundColor: BACKGROUND_COLOR}]}>
-                <HeadingComponent 
-                    text='Set Pincode!'
-                />
+                <View style={[styles._mainContainer, { backgroundColor: BACKGROUND_COLOR }]}>
+                    <HeadingComponent
+                        text='Set Pincode!'
+                    />
 
-                <Text style={styles._infoText}>Please set a 6 digit pincode e.g 123456</Text>
+                    <Text style={styles._infoText}>Please set a 6 digit pincode e.g 123456</Text>
 
-                {/* Pincode */}
-                <View>
-                <InputComponent
-                    type={'secret'}
-                    toggleSecureEntry={_togglePincodeSecurity}
-                    placeholderText="Pincode"
-                    errorMessage={pincodeError}
-                    value={pincode}
-                    keyboardType="number-pad"
-                    isSecureText={pincodeSecurity}
-                    autoCapitalize={'none'}
-                    inputContainerStyle={{ width: '80%' }}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={onPincodeChange}
-                />
+                    {/* Pincode */}
+                    <View>
+                        <InputComponent
+                            type={'secret'}
+                            toggleSecureEntry={_togglePincodeSecurity}
+                            placeholderText="Pincode"
+                            errorMessage={pincodeError}
+                            value={pincode}
+                            keyboardType="number-pad"
+                            isSecureText={pincodeSecurity}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={{ width: '80%' }}
+                            inputContainerStyle={styles.inputView}
+                            setStateValue={onPincodeChange}
+                        />
+                    </View>
+
+                    {/* Confirm Pincode */}
+                    <View>
+                        <InputComponent
+                            type={'secret'}
+                            toggleSecureEntry={_toggleConfirmPincodeSecurity}
+                            placeholderText="Confirm pincode"
+                            errorMessage={confirmPincodeError}
+                            value={confirmPincode}
+                            keyboardType="number-pad"
+                            isSecureText={confirmPincodeSecurity}
+                            autoCapitalize={'none'}
+                            inputContainerStyle={{ width: '80%' }}
+                            inputContainerStyle={styles.inputView}
+                            setStateValue={onConfirmPincodeChange}
+                        />
+                    </View>
+
+                    {/* Buttons */}
+                    <View style={styles._btnContainer}>
+                        <TouchableOpacity
+                            onPress={onCloseClick}
+                            style={[styles._button, { backgroundColor: SECONDARY_COLOR }]}
+                        >
+                            <Text style={styles._btnTitle}>LATER</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={onContinueClick}
+                            style={[styles._button, { backgroundColor: GREEN_COLOR }]}
+                        >
+                            <Text style={styles._btnTitle}>CONTINUE</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
-
-                {/* Confirm Pincode */}
-                <View>
-                <InputComponent
-                    type={'secret'}
-                    toggleSecureEntry={_toggleConfirmPincodeSecurity}
-                    placeholderText="Confirm pincode"
-                    errorMessage={confirmPincodeError}
-                    value={confirmPincode}
-                    keyboardType="number-pad"
-                    isSecureText={confirmPincodeSecurity}
-                    autoCapitalize={'none'}
-                    inputContainerStyle={{ width: '80%' }}
-                    inputContainerStyle={styles.inputView}
-                    setStateValue={onConfirmPincodeChange}
-                />
-                </View>
-
-                {/* Buttons */}
-                <View style={styles._btnContainer}>
-                    <TouchableOpacity
-                        onPress={onCloseClick}
-                        style={[styles._button, {backgroundColor: SECONDARY_COLOR}]}
-                    >
-                        <Text style={styles._btnTitle}>DO IT LATER</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={onContinueClick}
-                        style={[styles._button, {backgroundColor: GREEN_COLOR}]}
-                    >
-                        <Text style={styles._btnTitle}>CONTINUE</Text>
-                    </TouchableOpacity>
-                </View>
-
-            </View>
             </KeyboardAvoidingView>
         </Modal>
     )
 }
 
 const styles = StyleSheet.create({
-    _mainContainer:{
+    _mainContainer: {
         borderRadius: 10,
     },
-    _infoText:{
+    _infoText: {
         paddingHorizontal: 20,
     },
     inputView: {
@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
         paddingLeft: 16,
         borderBottomWidth: 0,
     },
-    _btnContainer:{
+    _btnContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         marginVertical: 20,
     },
-    _button:{
+    _button: {
         width: '45%',
         alignItems: 'center',
         justifyContent: 'center',
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
     },
-    _btnTitle:{
+    _btnTitle: {
         fontSize: 14,
         fontFamily: 'Poppins-Regular',
         color: WHITE_COLOR
