@@ -145,18 +145,41 @@ function RegistrationModule({ navigation }) {
         else {
           _showAlert('Zada Wallet', response.error);
         }
-
         setProgress(false);
       } else {
         setProgress(false);
         showNetworkMessage();
       }
     } catch (error) {
+      console.log(error.response);
       setProgress(false);
-      _handleAxiosError(error);
+      if (error.response && error.response.data) {
+        _checkForVerification(error.response.data);
+      }
     }
 
   };
+
+  const _checkForVerification = async (response) => {
+    try {
+      if (response.verified != undefined && !response.verified) {
+        // unverified user come to register
+        await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+        await saveItem(ConstantsList.WALLET_SECRET, secret);
+        navigation.replace('MultiFactorScreen');
+      }
+      else if (response.verified != undefined && response.verified) {
+        // verified user came again to register
+        selectionOnPress('login');
+        _showAlert('Zada Wallet', response.error);
+      }
+      else {
+        _showAlert('Zada Wallet', response.error);
+      }
+    } catch (error) {
+      _handleAxiosError(error);
+    }
+  }
 
   const login = async () => {
     if (isConnected) {
