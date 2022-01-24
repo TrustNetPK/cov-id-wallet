@@ -32,7 +32,6 @@ import { checkVersion } from "react-native-check-version";
 import VersionModal from './components/VersionModal';
 import { saveItem } from './helpers/Storage';
 import ContantList from './helpers/ConfigApp';
-import useNetwork from './hooks/useNetwork';
 const Stack = createStackNavigator();
 
 const navigationAnimation =
@@ -129,6 +128,12 @@ function NavigationComponent() {
     _checkVersion();
   }, [isFirstTime])
 
+  // On Version skip click
+  const _onSkipClick = () => {
+    setIsNewVersion(false);
+    _checkAuthStatus();
+  }
+
   return (
     <AuthContext.Provider value={authContext}>
       <RefreshContextProvider>
@@ -136,6 +141,9 @@ function NavigationComponent() {
           <VersionModal
             isVisible={isNewVersion}
             versionDetails={versionDetails}
+            skipCallback={() => {
+              _onSkipClick();
+            }}
           />
           {isLoading ? (
             <Stack.Navigator>

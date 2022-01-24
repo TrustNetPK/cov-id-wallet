@@ -1,10 +1,10 @@
 import React from 'react';
 import { Dimensions, Image, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { BACKGROUND_COLOR, BLACK_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
 import SimpleButton from './Buttons/SimpleButton';
 
-const VersionModal = ({ isVisible, versionDetails }) => {
+const VersionModal = ({ isVisible, versionDetails, skipCallback }) => {
     return (
         <Modal
             isVisible={isVisible}
@@ -45,6 +45,24 @@ const VersionModal = ({ isVisible, versionDetails }) => {
                         marginTop: 20,
                     }}
                 />
+                {
+                    skipCallback ? (
+                        <SimpleButton
+                            onPress={() => {
+                                skipCallback();
+                            }}
+                            width={250}
+                            title={'Skip'}
+                            titleColor={GRAY_COLOR}
+                            buttonColor={'transparent'}
+                            style={{
+                                alignSelf: 'center',
+                                marginTop: 5,
+                            }}
+                        />
+                    ) : null
+                }
+
             </View>
         </Modal>
     )

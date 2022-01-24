@@ -37,6 +37,7 @@ import ConfirmPincodeModal from '../components/ConfirmPincodeModal';
 import PullToRefresh from '../components/PullToRefresh';
 import EmptyList from '../components/EmptyList';
 import { _handleAxiosError } from '../helpers/AxiosResponse';
+import VersionModal from '../components/VersionModal';
 
 const DIMENSIONS = Dimensions.get('screen');
 
