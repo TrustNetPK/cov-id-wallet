@@ -32,6 +32,7 @@ import { checkVersion } from "react-native-check-version";
 import VersionModal from './components/VersionModal';
 import { saveItem } from './helpers/Storage';
 import ContantList from './helpers/ConfigApp';
+import useNetwork from './hooks/useNetwork';
 const Stack = createStackNavigator();
 
 const navigationAnimation =
@@ -45,6 +46,7 @@ function NavigationComponent() {
     prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
   };
 
+  const { isConnected } = useNetwork();
   // Biometric Hook
   const [isNewVersion, setIsNewVersion] = useState(false);
   const [versionDetails, setVersionDetails] = useState(null);
@@ -115,13 +117,18 @@ function NavigationComponent() {
 
   React.useEffect(() => {
     const _checkVersion = async () => {
-      const version = await checkVersion();
-      if (version.needsUpdate) {
-        setIsNewVersion(true);
-        setVersionDetails(version);
-        await saveItem(ContantList.APP_VERSION, JSON.stringify(version));
-      }
-      else {
+
+      if (isConnected) {
+        const version = await checkVersion();
+        if (version.needsUpdate) {
+          setIsNewVersion(true);
+          setVersionDetails(version);
+          await saveItem(ContantList.APP_VERSION, JSON.stringify(version));
+        }
+        else {
+          _checkAuthStatus();
+        }
+      } else {
         _checkAuthStatus();
       }
     }

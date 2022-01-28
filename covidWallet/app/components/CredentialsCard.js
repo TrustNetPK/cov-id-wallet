@@ -18,6 +18,7 @@ function CredentialsCard(props) {
         const _checkForImageInS3 = async () => {
             try {
                 if (!isConnected) {
+                    setLoading(false);
                     setBakcgroundImage(CARD_BG);
                     setUrl(false);
                     return;

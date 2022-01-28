@@ -560,8 +560,8 @@ function ActionsScreen({ navigation }) {
 
         setModalVisible(false);
         setIsLoading(true);
-
-        if (!(await _isVerRequestAlreadyExist())) {
+        let alreadyExist = await _isVerRequestAlreadyExist();
+        if (alreadyExist) {
           try {
 
             let policyName = selectedItemObj.policy.attributes[0].policyName;
