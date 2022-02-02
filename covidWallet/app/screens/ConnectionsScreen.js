@@ -1,105 +1,201 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Platform, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import ImageBoxComponent from '../components/ImageBoxComponent';
+import { Alert, View, TouchableOpacity, Animated, StyleSheet, RefreshControl, Dimensions } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { SwipeListView } from 'react-native-swipe-list-view';
 import TextComponent from '../components/TextComponent';
 import FlatCard from '../components/FlatCard';
 import HeadingComponent from '../components/HeadingComponent';
 import { themeStyles } from '../theme/Styles';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import ModalComponent from '../components/ModalComponent';
-import { getItem, deleteActionByConnId, saveItem } from '../helpers/Storage';
-import ConstantsList from '../helpers/ConfigApp';
-import { get_all_connections } from '../gateways/connections';
-import { showMessage } from '../helpers/Toast';
-import { addVerificationToActionList } from '../helpers/ActionList';
+import { getItem, deleteConnAndCredByConnectionID, deleteActionByConnectionID } from '../helpers/Storage';
+import ConstantsList, { ZADA_AUTH_TEST } from '../helpers/ConfigApp';
+import { delete_mongo_connection, get_all_connections_for_screen } from '../gateways/connections';
+import { showNetworkMessage, _showAlert } from '../helpers/Toast';
+import { RED_COLOR, SECONDARY_COLOR } from '../theme/Colors';
+import OverlayLoader from '../components/OverlayLoader';
+import { analytics_log_connection_delete } from '../helpers/analytics';
+import useNetwork from '../hooks/useNetwork';
+import PullToRefresh from '../components/PullToRefresh';
+import EmptyList from '../components/EmptyList';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
-function ConnectionsScreen(props) {
-  const [isConnection, setConnection] = useState(true);
+const DIMENSIONS = Dimensions.get('screen');
+
+function ConnectionsScreen() {
+
+  const { isConnected } = useNetwork();
   const [connectionsList, setConnectionsList] = useState([]);
-  const [isModalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    getAllConnections();
-    addVerificationToActionList()
-  }, [])
+  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
       updateConnectionsList();
-      return;
-    }, [isConnection]),
+    }, []),
   );
 
   const updateConnectionsList = async () => {
     let connections = (JSON.parse(await getItem(ConstantsList.CONNECTIONS)) || []);
     if (connections.length > 0) {
       setConnectionsList(connections);
-      setConnection(true);
     } else {
-      setConnection(false);
+      setConnectionsList([]);
     }
   };
 
   const getAllConnections = async () => {
-    setIsLoading(true);
     try {
-      let result = await get_all_connections();
-      if (result.data.success) {
-        let connectionsList = result.data.connections;
-
-        if (connectionsList.length > 0) {
-          await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connectionsList));
-          updateConnectionsList()
-        } else {
-          setConnection(false);
-        }
-      } else {
-        showMessage('ZADA Wallet', resp.message);
+      setRefreshing(true);
+      if (isConnected) {
+        await get_all_connections_for_screen();
+        await updateConnectionsList();
       }
-      setIsLoading(false);
+      else {
+        await updateConnectionsList();
+      }
+      setRefreshing(false);
     } catch (e) {
-      setIsLoading(false);
-      console.log(e)
+      setRefreshing(false);
+      _handleAxiosError(e);
     }
 
   }
 
+  async function onSuccessPress(connection) {
+    try {
+      if (isConnected) {
+        // Delete connection with its respective certificates
+        setIsLoading(true);
+
+        await deleteConnAndCredByConnectionID(connection.connectionId);
+        await deleteActionByConnectionID(connection.connectionId);
+
+        if (connection.name == ZADA_AUTH_TEST)
+          await delete_mongo_connection(connection.myDid);
+
+        _showAlert('Zada Wallet', 'Connection is deleted successfully');
+
+        analytics_log_connection_delete();
+
+        setTimeout(() => {
+          updateConnectionsList();
+          setIsLoading(false);
+        }, 1200);
+      }
+      else {
+        showNetworkMessage();
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      _handleAxiosError(error);
+    }
+  }
+
+  function onDeletePressed(e) {
+    Alert.alert(
+      "Are you sure you want to delete this connection?",
+      "This will also delete all certificates issued by this connection.",
+      [
+        {
+          text: 'Cancel',
+          onPress: () => { },
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => onSuccessPress(e),
+          style: 'default',
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () =>
+          onRejectPress()
+      },
+    );
+  }
+
   return (
     <View style={themeStyles.mainContainer}>
+
+      <PullToRefresh />
       <HeadingComponent text="Connections" />
-      {isLoading &&
-        <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator color={"#000"} size={"large"} />
-        </View>
+      {
+        isLoading &&
+        <OverlayLoader
+          text='Deleting connection...'
+        />
       }
-      {connectionsList.length > 0 ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingTop: 8, }}>
-          {connectionsList.map((v, i) => {
-            let imgURI = v.imageUrl;
-            let header = v.name != undefined ? v.name : "";
-            let subtitle =
-              'The connection between you and ' +
-              header.toLowerCase() +
-              ' is secure and encrypted.';
-            return (
-              <View key={i}>
-                <FlatCard onPress={() => { }} imageURL={imgURI} heading={header} text={subtitle} />
-              </View>
-            );
-          })}
-        </ScrollView>
-      ) :
-        (
-          <View style={styles.EmptyContainer}>
-            <TextComponent text="You have no connections yet." />
-            <ImageBoxComponent
-              source={require('../assets/images/connectionsempty.png')}
-            />
-          </View>
-        )
-      }
+
+      {
+        connectionsList.length ? (
+          <>
+            <View style={{ flex: 1 }} pointerEvents={isLoading ? 'none' : 'auto'}>
+              <SwipeListView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    tintColor={'#7e7e7e'}
+                    refreshing={refreshing}
+                    onRefresh={getAllConnections}
+                  />
+                }
+                useFlatList
+                disableRightSwipe
+                data={connectionsList}
+                style={{
+                  flexGrow: 1,
+                }}
+                contentContainerStyle={{
+                  flexGrow: 1,
+                }}
+                keyExtractor={(rowData, index) => {
+                  return index;
+                }}
+                renderItem={(rowData, rowMap) => {
+                  let imgURI = rowData.item.imageUrl;
+                  let header = rowData.item.name != undefined ? rowData.item.name : "";
+                  let subtitle =
+                    'The connection between you and ' +
+                    header.toLowerCase() +
+                    ' is secure and encrypted.';
+                  return (
+                    <FlatCard onPress={() => { }} imageURL={imgURI} heading={header} text={subtitle} />
+                  );
+                }}
+                renderHiddenItem={({ item, index }) => (
+                  <View key={index} style={styles.rowBack}>
+                    <TextComponent text="" />
+                    <Animated.View>
+                      <TouchableOpacity onPress={() => onDeletePressed(item)} activeOpacity={0.8}
+                        style={[
+                          styles.swipeableViewStyle,
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          size={30}
+                          name="delete"
+                          padding={30}
+                          color={RED_COLOR}
+                        />
+                      </TouchableOpacity>
+                    </Animated.View>
+                  </View>
+                )}
+                leftOpenValue={75}
+                rightOpenValue={-75}
+              />
+            </View>
+          </>
+        ) : (
+          <EmptyList
+            refreshing={refreshing}
+            onRefresh={() => { getAllConnections() }}
+            text="You have no connections yet."
+            image={require('../assets/images/connectionsempty.png')}
+          />
+        )}
     </View >
   );
 }
@@ -113,6 +209,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rowBack: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingLeft: 15,
+  },
+  swipeableViewStyle: {
+    width: 60,
+    height: 60,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    shadowColor: SECONDARY_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 5,
+    flexDirection: 'row',
+    marginBottom: 8,
+  }
 });
 
 export default ConnectionsScreen;

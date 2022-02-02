@@ -1,5 +1,10 @@
 import http_client from './http_client';
 import {AuthenticateUser} from '../helpers/Authenticate';
+import {
+  analytics_log_accept_verification_request,
+  analytics_log_reject_verification_request,
+} from '../helpers/analytics';
+import {ZADA_AUTH_TEST} from '../helpers/ConfigApp';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -67,6 +72,10 @@ export async function delete_verification(verificationId: string) {
       data: obj,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_reject_verification_request();
+
     return result;
   } catch (error) {
     throw error;
@@ -78,6 +87,7 @@ export async function submit_verification(
   verificationId: string,
   credentialId: string,
   policyName: string,
+  organizationName: string,
 ) {
   try {
     let obj = {
@@ -97,6 +107,10 @@ export async function submit_verification(
       data: obj,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_accept_verification_request();
+
     return result;
   } catch (error) {
     throw error;

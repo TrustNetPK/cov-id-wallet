@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { get_all_credentials } from "../gateways/credentials";
 import { getItem, saveItem } from "../helpers/Storage";
 import ConstantsList from '../helpers/ConfigApp';
+import { showMessage } from '../helpers/Toast';
 
 const useCredentials = (isCredential) => {
 
@@ -19,20 +20,39 @@ const useCredentials = (isCredential) => {
 
             // If arr is empty, return
             if (connectionsList.length === 0 || credentialsList.length === 0) {
+                setCredentials([]);
                 return
             }
+
+            let CredArr = [];
 
             // Looping to get values from crendentials array
             credentialsList.forEach((cred, i) => {
                 let item = connectionsList.find(c => c.connectionId == cred.connectionId)
-                credentialsList[i].imageUrl = item.imageUrl
-                credentialsList[i].organizationName = item.name
+
+                if (item !== undefined || null) {
+                    let obj = {
+                        ...cred,
+                        imageUrl: item.imageUrl,
+                        organizationName: item.name,
+                        type: (cred.values != undefined && cred.values.Type != undefined) ? cred.values.Type :
+                            (
+                                (cred.values != undefined || cred.values != null) &&
+                                cred.values["Vaccine Name"] != undefined &&
+                                cred.values["Vaccine Name"].length != 0 &&
+                                cred.values["Dose"] != undefined &&
+                                cred.values["Dose"].length != 0
+                            ) ?
+                                'COVIDpass (Vaccination)' :
+                                "Digital Certificate",
+                    };
+                    CredArr.push(obj);
+                }
             });
 
-            // Set data
-            setCredentials(credentialsList);
+            setCredentials(CredArr);
         } catch (e) {
-            console.log('error: updateCredentialList => ', e)
+            console.log(e)
         }
     }
 

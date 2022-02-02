@@ -1,6 +1,6 @@
 import { ToastAndroid, Platform, Alert } from 'react-native';
 
-function showMessage(title, message) {
+export function showMessage(title, message) {
   if (Platform.OS === 'android') {
     ToastAndroid.show(message, ToastAndroid.SHORT);
   } else {
@@ -8,7 +8,11 @@ function showMessage(title, message) {
   }
 }
 
-function showAskDialog(title, message, onSuccessPress, onRejectPress) {
+export function _showAlert(title, message) {
+  Alert.alert(title, message);
+}
+
+export function showAskDialog(title, message, onSuccessPress, onRejectPress) {
   Alert.alert(
     title,
     message,
@@ -32,7 +36,9 @@ function showAskDialog(title, message, onSuccessPress, onRejectPress) {
   );
 }
 
-module.exports = {
-  showMessage,
-  showAskDialog,
-};
+export function showNetworkMessage() {
+  Alert.alert(
+    'No Internet',
+    'You are not connected with internet. Please connect and try again.'
+  )
+}

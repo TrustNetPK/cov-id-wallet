@@ -57,25 +57,22 @@ function clearAllNotifications() {
 
 function getAllDeliveredNotifications() {
   PushNotification.getDeliveredNotifications((notifications) => {
-    console.log(notifications);
   });
 }
 
 //Android: Automatically triggered on notification arrival for android
 //IOS: Triggered on clicking notification from notification center
 async function receiveNotificationEventListener(notification) {
-  console.log('NEW NOTIFICATION:', notification);
-
-  let result = '';
+  let verData = null;
+  let result = null;
   switch (notification.data.type) {
     case CRED_OFFER:
       result = await addCredentialToActionList(notification.data.metadata);
-      console.log('HX2' + result);
       break;
 
     case VER_REQ:
       result = await addVerificationToActionList(notification.data.metadata);
-      console.log(result);
+      verData = result;
       break;
 
     default:
@@ -94,37 +91,13 @@ async function receiveNotificationEventListener(notification) {
       true,
     );
   }
-}
-
-/*
-This function triggers automatically every 5 second *ONLY ON IOS*
-because receiveNotificationEventListener is not called automatically 
-when notification is received.
-*/
-function iOSforegroundTrigger() {
-  PushNotification.getDeliveredNotifications((notifications) => {
-    if (notifications.length !== 0) {
-      //TODO: Process IOS notification here
-      //MAKE SURE YOU DONT PROCESS IT TWICE AS receiveNotificationEventListener might also process it
-      //Use identifier to make sure you dont process twice
-      let notificationsProcessed = [];
-      notifications.forEach((notification) => {
-        console.log(
-          notification.userInfo.type + ' : ' + notification.userInfo.metadata,
-        );
-        if (notification.userInfo.type === 'credential_offer') {
-          let x = addCredentialToActionList(notification.userInfo.metadata);
-          console.log('HX1' + x);
-        }
-        notificationsProcessed.push(notification.identifier);
-      });
-      PushNotificationIOS.removeDeliveredNotifications(notificationsProcessed);
-    }
-  });
+  if (notification.data.type == VER_REQ && verData.isZadaAuth)
+    return { auth_verification: true, data: verData.data };
+  else
+    return { auth_verification: false, data: null };
 }
 
 async function onRegisterEventListener(token) {
-  console.log('TOKEN:', token);
   PushNotification.checkPermissions((permissions) => {
     if (permissions.badge !== true || permissions.alert !== true) {
       //activate notification permision if disabled
@@ -140,8 +113,6 @@ async function onRegisterEventListener(token) {
 }
 
 function onActionEventListener(notification) {
-  console.log('ACTION:', notification.action);
-  console.log('NOTIFICATION:', notification);
   // process the action
 }
 
@@ -161,7 +132,6 @@ function initNotifications(localReceiveNotificationEventListener) {
 
   if (Platform.OS === 'android') {
     PushNotification.getChannels(function (channel_ids) {
-      console.log(channel_ids); // ['channel_id_1']
     });
 
     PushNotification.channelExists(DROID_CHANNEL_ID, function (exists) {
@@ -176,7 +146,7 @@ function initNotifications(localReceiveNotificationEventListener) {
             importance: 4, // (optional) default: 4. Int value of the Android notification importance
             vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
           },
-          (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+          (created) => { } // (optional) callback returns whether the channel was created, false means it already existed.
         );
       }
     });
@@ -214,7 +184,7 @@ function initNotifications(localReceiveNotificationEventListener) {
      * - if you are not using remote notification or do not have Firebase installed, use this:
      *     requestPermissions: Platform.OS === 'ios'
      */
-    requestPermissions: Platform.OS !== 'ios',
+    //requestPermissions: Platform.OS !== 'ios',
   });
 }
 
@@ -229,7 +199,7 @@ module.exports = {
   onActionEventListener: onActionEventListener,
   onRegistrationErrorEventListener: onRegistrationErrorEventListener,
   getAllDeliveredNotifications: getAllDeliveredNotifications,
-  iOSforegroundTrigger: iOSforegroundTrigger,
+  // iOSforegroundTrigger: iOSforegroundTrigger,
   initNotifications: initNotifications,
   DROID_CHANNEL_ID: DROID_CHANNEL_ID,
 };

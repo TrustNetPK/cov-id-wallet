@@ -1,98 +1,89 @@
-import { useFocusEffect, } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import CredentialsCard from '../components/CredentialsCard';
-import ImageBoxComponent from '../components/ImageBoxComponent';
-import TextComponent from '../components/TextComponent';
-import HeadingComponent from '../components/HeadingComponent';
-import { themeStyles } from '../theme/Styles';
+import React, { useState } from 'react';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View
+} from 'react-native';
+import { BACKGROUND_COLOR, PRIMARY_COLOR } from '../theme/Colors'
+import { TabView, SceneMap } from 'react-native-tab-view';
+import Credentials from './Credentials';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import useCredentials from '../hooks/useCredentials';
+import CredentialGroups from './CredentialGroups';
 
+const CredentialsScreen = (props) => {
 
-function CredentialsScreen(props) {
+  const layout = useWindowDimensions();
 
-  const [isCredential, setCredential] = useState(false);
-  // const [isLoading, setIsLoading] = useState(true);
+  const renderScene = SceneMap({
+    certificates: () => <Credentials {...props} />,
+    groups: () => <CredentialGroups {...props} />,
+  });
 
-  // Credentials hook
-  const { credentials } = useCredentials(isCredential);
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'certificates', title: 'All Certificates' },
+    { key: 'groups', title: 'Groups' },
+  ]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setCredential(true);
-      return () => setCredential(false);
-    }, [])
-  );
-
-
-  useEffect(() => {
-    if (isCredential) {
-      setCredential(false);
-    }
-  }, [isCredential])
-
-
-
-  const toggleModal = (v) => {
-    props.navigation.navigate("DetailsScreen", {
-      data: v
-    });
+  const CustomTabbAr = (props) => {
+    return (
+      <View style={styles._mainTabbarView}>
+        {props.navigationState.routes.map((route, i) => {
+          return (
+            <TouchableOpacity
+              style={[styles._tabbar, {
+                borderBottomColor: PRIMARY_COLOR,
+                borderBottomWidth: index == i ? 2 : 0,
+              }]}
+              onPress={() => setIndex(i)}
+            >
+              <Text style={[styles._tabText]}>{route.title}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
   };
 
   return (
-    <View style={themeStyles.mainContainer}>
-      <HeadingComponent text="Certificates" />
-      {credentials.length > 0 &&
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-          {/* <ModalComponent credentials={false} data={modalData} isVisible={isModalVisible} toggleModal={toggleModal} dismissModal={dismissModal} /> */}
-          {credentials.length > 0 && credentials.map((v, i) => {
-            let imgURI = { uri: v.imageUrl };
-            let vaccineName = v.name;
-            let issuedBy = v.organizationName;
-
-
-            return <TouchableOpacity key={i} onPress={() => toggleModal(v)} activeOpacity={0.9}>
-              <View style={styles.CredentialsCardContainer}>
-                <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
-              </View>
-            </TouchableOpacity>
-          })
-
-          }
-        </ScrollView>}
-      {credentials.length < 1 &&
-        <View style={styles.EmptyContainer}>
-          <TextComponent text="There are no certificates in your wallet. Once you receive a certificate, it will show up here." />
-          <ImageBoxComponent source={require('../assets/images/credentialsempty.png')} />
-        </View>}
-
-      {/* <View style={{
-        position: 'absolute',
-        bottom: '5%', right: '5%', alignItems: 'center', justifyContent: 'center'
-      }}>
-        <TouchableOpacity activeOpacity={.5} onPress={() => setCredential(true)}>
-          <Image source={refresh_img} style={styles.refreshButton} />
-        </TouchableOpacity>
-      </View> */}
-    </View >
-  );
+    <View style={styles._mainContainer}>
+      <TabView
+        renderTabBar={(props) => <CustomTabbAr {...props} />}
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        swipeEnabled={false}
+      />
+    </View>
+  )
 }
 
-
 const styles = StyleSheet.create({
-  EmptyContainer: {
+  _mainContainer: {
+    flex: 1,
+    backgroundColor: BACKGROUND_COLOR,
+  },
+  _mainTabbarView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 10,
+    alignSelf: 'center',
+  },
+  _tabbar: {
+    width: Dimensions.get('window').width * 0.48,
     alignItems: 'center',
     justifyContent: 'center',
+    height: 45,
+    borderRadius: 10,
   },
-  CredentialsCardContainer: {
-    paddingTop: 5,
+  _tabText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
   },
-  refreshButton: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain'
-  },
-});
+})
 
 export default CredentialsScreen;

@@ -5,15 +5,15 @@ import {
   Linking,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
+  ScrollView,
 } from 'react-native';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
   GREEN_COLOR,
   WHITE_COLOR,
-  SECONDARY_COLOR,
 } from '../theme/Colors';
+
 import TextComponent from '../components/TextComponent';
 import HeadingComponent from '../components/HeadingComponent';
 
@@ -23,7 +23,7 @@ function WelcomeScreen({ navigation }) {
   const nextHandler = () => {
     navigation.navigate('RegistrationScreen');
   };
-
+  
   return (
     <View
       style={{
@@ -32,8 +32,13 @@ function WelcomeScreen({ navigation }) {
         justifyContent: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <View
+      <ScrollView
+        bounces={false}
+        showsVerticalScrollIndicator={false}
         style={{
+          flexGrow: 0,
+        }}
+        contentContainerStyle={{
           // flex: 1,
           backgroundColor: BACKGROUND_COLOR,
           alignContent: 'center',
@@ -44,6 +49,7 @@ function WelcomeScreen({ navigation }) {
           // marginBottom: 150,
           borderRadius: 10,
         }}>
+
         <View
           style={{
             // height: 400,
@@ -53,7 +59,7 @@ function WelcomeScreen({ navigation }) {
             textAlign: 'center',
           }}>
           <View style={{ marginTop: 20, marginLeft: 25, marginRight: 25 }}>
-            <HeadingComponent text="Zada is your Digital ID Wallet!" />
+            <HeadingComponent text="ZADA is your Digital ID Wallet!" />
           </View>
           <TextComponent
             onboarding={true}
@@ -76,7 +82,7 @@ function WelcomeScreen({ navigation }) {
                 fontFamily: 'Merriweather-Bold',
                 paddingTop: 30,
               }}>
-              We provide your privacy and data.
+              We protect your privacy and data.
             </Text>
             <Text
               style={{
@@ -124,7 +130,7 @@ function WelcomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-      </View>
+      </ScrollView>
     </View>
   );
 }

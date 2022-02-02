@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
-import NetInfo from '@react-native-community/netinfo';
-import { KeyboardAvoidingView } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
   Dimensions,
-  ScrollView,
+  Platform,
 } from 'react-native';
 import {
   PRIMARY_COLOR,
@@ -19,37 +16,61 @@ import {
   GRAY_COLOR,
   BLACK_COLOR,
 } from '../theme/Colors';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveItem, getItem } from '../helpers/Storage';
-import { showMessage } from '../helpers/Toast';
+import { showMessage, showNetworkMessage, _showAlert } from '../helpers/Toast';
 import { AuthenticateUser } from '../helpers/Authenticate'
-import { validateOTP } from '../gateways/auth';
+import { validateOTP, _resendOTPAPI } from '../gateways/auth';
+import SimpleButton from '../components/Buttons/SimpleButton';
+import useNetwork from '../hooks/useNetwork';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
-const { height, width } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-function MultiFactorScreen({ route, navigation }) {
-  const [emailConfirmationCode, setEmailConfirmationCode] = useState('');
+function MultiFactorScreen({ navigation }) {
+
+  const { isConnected } = useNetwork();
   const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
-  const [networkState, setNetworkState] = useState(false);
-  const [secret, setSecret] = useState('');
   const [progress, setProgress] = useState(false);
   const [isAuthenticated, setAuthentication] = useState(false);
   const [isWalletCreated, setWallet] = useState(false);
+  const [userData, setUserData] = useState(null);
 
+  // Countdown
+  const [phoneMins, setPhoneMins] = useState(1);
+  const [phoneSecs, setPhoneSecs] = useState(59);
+  const [phoneTimeout, setPhoneTimeout] = useState(false);
 
+  const [phoneCodeLoading, setPhoneCodeLoading] = useState(false);
+
+  // Effect for phone code countdown
   React.useEffect(() => {
-    NetInfo.fetch().then((networkState) => {
-      setNetworkState(networkState.isConnected);
-    });
-  }, [networkState]);
+    let interval = setInterval(() => {
+      let tempSec = phoneSecs - 1;
+      if (tempSec <= 0 && phoneMins > 0) {
+        setPhoneSecs(59);
+        setPhoneMins(phoneMins - 1);
+      }
+      else if (tempSec <= 0 && phoneMins == 0) {
+        setPhoneSecs(0);
+        setPhoneMins(0);
+        clearInterval(interval);
+        setPhoneTimeout(true);
+      }
+      else {
+        setPhoneSecs(tempSec);
+      }
+    }, 1000) //each count lasts for a second
+    //cleanup the interval on complete
+    return () => clearInterval(interval)
+  })
 
   const submit = () => {
     if (
-      phoneConfirmationCode == '' ||
-      emailConfirmationCode == '' ||
-      secret == ''
+      phoneConfirmationCode == ''
     ) {
       showMessage('ZADA Wallet', 'Fill the empty fields');
     } else {
@@ -59,38 +80,36 @@ function MultiFactorScreen({ route, navigation }) {
   };
 
   const validate = async () => {
-    if (networkState) {
-      let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
-      if (walletSecret !== secret) {
-        showMessage('ZADA Wallet', 'Your wallet secret is mismatching, Please try again!');
-      } else {
+    try {
+      if (isConnected) {
+        let result = await validateOTP(phoneConfirmationCode, userData.userId);
 
-        // Validate OTP Api call.
-        try {
-          let result = await validateOTP(phoneConfirmationCode, emailConfirmationCode, secret);
-
-          if (result.data.success) {
-            await saveItem(ConstantsList.USER_ID, result.data.userId)
-            await authenticateUser();
-          } else {
-            showMessage('ZADA Wallet', result.data.error);
-          }
-
-        } catch (e) {
-          console.log(e)
+        if (result.data.success) {
+          await saveItem(ConstantsList.USER_ID, result.data.userId);
+          await authenticateUser();
         }
+        else {
+          showMessage('ZADA Wallet', result.data.error);
+        }
+      } else {
+        showNetworkMessage();
       }
       setProgress(false);
-    } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+    } catch (error) {
+      setProgress(false);
+      _handleAxiosError(error);
     }
   };
 
   const reNewAuthenticationToken = async () => {
-    if (networkState) {
+    if (isConnected) {
       setAuthentication(true);
       let resp = await AuthenticateUser(true);
       if (resp.success) {
+
+        // Put User isFirsTime Logic here as well
+        await AsyncStorage.setItem('isfirstTime', 'false');
+
         navigation.replace('SecurityScreen');
         setProgress(false);
       } else {
@@ -98,13 +117,13 @@ function MultiFactorScreen({ route, navigation }) {
         setProgress(false);
       }
     } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available');
+      showNetworkMessage();
       setProgress(false);
     }
   };
 
   const authenticateUser = async () => {
-    if (networkState) {
+    if (isConnected) {
       setAuthentication(true);
       let resp = await AuthenticateUser();
       if (resp.success) {
@@ -116,13 +135,13 @@ function MultiFactorScreen({ route, navigation }) {
         setProgress(false);
       }
     } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+      showNetworkMessage();
       setAuthentication(false);
     }
   };
 
   const createWallet = async (userToken) => {
-    if (networkState) {
+    if (isConnected) {
       await fetch(ConstantsList.BASE_URL + `/api/wallet/create`, {
         method: 'POST',
         headers: {
@@ -139,16 +158,57 @@ function MultiFactorScreen({ route, navigation }) {
               showMessage('ZADA Wallet', response.error)
             }
           } catch (error) {
-            console.error(error);
+            _handleAxiosError(error);
           } finally {
             setProgress(false);
           }
         }),
       );
     } else {
-      showMessage('ZADA Wallet', 'Internet Connection is not available')
+      showNetworkMessage();
     }
   };
+
+  // Funcion to resend phone code
+  const _reSendPhoneCode = async () => {
+    try {
+      if (isConnected) {
+        setPhoneCodeLoading(true);
+        const result = await _resendOTPAPI(userData.userId, 'phone');
+        if (result.data.success) {
+          setPhoneTimeout(false);
+          setPhoneMins(1);
+          setPhoneSecs(59);
+        }
+        else {
+          _showAlert("Zada Wallet", result.data.error.toString());
+        }
+      }
+      else {
+        showNetworkMessage();
+      }
+      setPhoneCodeLoading(false);
+    } catch (error) {
+      setPhoneCodeLoading(false);
+      _showAlert("Zada Wallet", error.toString());
+    }
+  }
+
+  // Function to get registeration data of user
+  const _getRegisterUserInfo = async () => {
+    const regData = JSON.parse(await getItem(ConstantsList.REGISTRATION_DATA));
+    // sending phone OTP
+    _resendOTPAPI(regData.userId, 'phone');
+    setUserData(regData);
+  }
+
+  useLayoutEffect(() => {
+    _getRegisterUserInfo();
+  }, [])
+
+  // KEYBOARD AVOIDING VIEW
+  const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
+  const keyboardBehaviour = Platform.OS == 'ios' ? 'padding' : null
 
   return (
     <View
@@ -157,115 +217,108 @@ function MultiFactorScreen({ route, navigation }) {
         alignItems: 'center',
         backgroundColor: PRIMARY_COLOR,
       }}>
-      <KeyboardAvoidingView behavior="padding" enabled>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-          <View
-            style={{
-              backgroundColor: BACKGROUND_COLOR,
-              alignContent: 'center',
-              width: width - 40,
-              marginTop: height / 20,
-              marginBottom: height / 20,
-              justifyContent: 'space-around',
-              borderRadius: 10,
-            }}>
-            {isWalletCreated || isAuthenticated ? (
-              <>
-                <View style={{ marginLeft: 30, marginRight: 30 }}>
-                  <HeadingComponent text="We're getting things ready!" />
-                </View>
-                <Text style={styles.textView}>Thanks for your patience</Text>
-                <ActivityIndicator
-                  style={styles.progressView}
-                  size="large"
-                  color={PRIMARY_COLOR}
-                />
-                {isAuthenticated ? (
-                  <Text style={styles.opTextView}>Authenticating User...</Text>
-                ) : (
-                  <Text style={styles.optextView}>Creating Wallet...</Text>
-                )}
-              </>
-            ) : (
-              <>
-                <View style={{ marginLeft: 30, marginRight: 30 }}>
-                  <HeadingComponent text="Multi Factor Authentication to keep you safe!" />
-                </View>
-                <Text style={styles.textView}>
-                  We have sent confirmation code to both of your email and your
-                  phone. Please input them below.
-                </Text>
-                <View>
-                  <ScrollView showsVerticalScrollIndicator={true}>
-                    <View style={styles.inputView}>
-                      <TextInput
-                        style={styles.TextInput}
-                        placeholder="Phone Confirmation Code"
-                        placeholderTextColor="grey"
-                        keyboardType="number-pad"
-                        onChangeText={(confirmationCode) => {
-                          setPhoneConfirmationCode(confirmationCode);
-                        }}
-                      />
-                    </View>
-                    <View style={styles.inputView}>
-                      <TextInput
-                        style={styles.TextInput}
-                        placeholderTextColor="grey"
-                        placeholder="Email Confirmation Code"
-                        keyboardType="number-pad"
-                        onChangeText={(confirmationCode) => {
-                          setEmailConfirmationCode(confirmationCode);
-                        }}
-                      />
-                    </View>
-                    <Text style={styles.textView}>
-                      And the secret phrase you saved in previous phrase step.
-                    </Text>
-                    <Text style={styles.secretMessage}>Your Secret phrase</Text>
-                    <View
-                      style={styles.inputView}>
-                      <TextInput
-                        style={styles.TextInput}
-                        placeholderTextColor="grey"
-                        placeholder="Secret Phrase"
-                        multiline={false}
-                        keyboardType="name-phone-pad"
-                        onChangeText={(secretPhrase) => {
-                          setSecret(secretPhrase);
-                        }}
-                      />
-                    </View>
-                    <Text style={styles.textView}>
-                      The code expires in 5 minutes - Go back to retry again incase code expires.
-                    </Text>
-                    {/* <TouchableOpacity style={styles.borderButton}>
-                    <Text style={styles.borderText}>RESEND EMAIL</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.borderButton}>
-                    <Text style={styles.borderText}>RESEND SMS</Text>
-                  </TouchableOpacity> */}
-                    {progress ? (
-                      <ActivityIndicator
-                        style={styles.primaryButton}
-                        size="large"
-                        color={WHITE_COLOR}
-                      />
+      <KeyboardAwareScrollView
+        behavior={keyboardBehaviour}
+        keyboardVerticalOffset={keyboardVerticalOffset}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+      >
+        <View
+          style={{
+            backgroundColor: BACKGROUND_COLOR,
+            alignContent: 'center',
+            width: width - 40,
+            justifyContent: 'space-around',
+            borderRadius: 10,
+          }}>
+          {isWalletCreated || isAuthenticated ? (
+            <>
+              <View style={{ marginLeft: 30, marginRight: 30 }}>
+                <HeadingComponent text="We're getting things ready!" />
+              </View>
+              <Text style={styles.textView}>Thanks for your patience</Text>
+              <ActivityIndicator
+                style={styles.progressView}
+                size="small"
+                color={PRIMARY_COLOR}
+              />
+              {isAuthenticated ? (
+                <Text style={styles.opTextView}>Authenticating User...</Text>
+              ) : (
+                <Text style={styles.optextView}>Creating Wallet...</Text>
+              )}
+            </>
+          ) : (
+            <>
+              <View style={{ marginLeft: 30, marginRight: 30 }}>
+                <HeadingComponent text="Multi Factor Authentication to keep you safe!" />
+              </View>
+              <Text style={styles.textView}>
+                We have sent confirmation code to your
+                phone. Please input it below.
+              </Text>
+              <View>
+                {/* Phone Confirmation Code */}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View style={styles.inputView}>
+                    <TextInput
+                      style={styles.TextInput}
+                      placeholder="Phone Confirmation Code"
+                      placeholderTextColor="grey"
+                      keyboardType="number-pad"
+                      onChangeText={(confirmationCode) => {
+                        setPhoneConfirmationCode(confirmationCode);
+                      }}
+                    />
+                  </View>
+                  {
+                    phoneTimeout ? (
+                      !phoneCodeLoading ? (
+                        <Text onPress={_reSendPhoneCode} style={styles._expireText}>Send Again</Text>
+                      ) : (
+                        <ActivityIndicator
+                          color={PRIMARY_COLOR}
+                          size={'small'}
+                          style={{
+                            marginLeft: 30,
+                          }}
+                        />
+                      )
                     ) : (
-                      <TouchableOpacity
-                        style={styles.primaryButton}
-                        onPress={submit}>
-                        <Text style={styles.text}>CONTINUE</Text>
-                      </TouchableOpacity>
-                    )}
-                  </ScrollView>
+                      <Text style={styles._countdown}>{('0' + phoneMins).slice(-2)} : {('0' + phoneSecs).slice(-2)}</Text>
+                    )
+                  }
                 </View>
-              </>
-            )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+                <Text style={styles.textView}>
+                  Please wait until 2 minutes for the code. If you will not receive then you will be able to resend it
+                </Text>
+
+                <SimpleButton
+                  loaderColor={WHITE_COLOR}
+                  isLoading={progress}
+                  width={250}
+                  onPress={() => {
+                    submit()
+                  }}
+                  title='Continue'
+                  titleColor={WHITE_COLOR}
+                  buttonColor={GREEN_COLOR}
+                  style={{
+                    alignSelf: 'center',
+                    marginVertical: 20,
+                  }}
+                />
+              </View>
+            </>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -274,21 +327,10 @@ const styles = StyleSheet.create({
   inputView: {
     backgroundColor: WHITE_COLOR,
     borderRadius: 10,
-    width: '94%',
+    width: '65%',
     height: 45,
     marginLeft: 10,
     marginTop: 8,
-  },
-  secretMessage: {
-    marginLeft: 15,
-    color: 'grey',
-  },
-  SecretTextInput: {
-    textAlign: 'center',
-    height: 80,
-    flex: 5,
-    padding: 5,
-    marginLeft: 5,
   },
   TextInput: {
     height: 50,
@@ -305,6 +347,24 @@ const styles = StyleSheet.create({
   ErrorBox: {
     color: 'red',
     fontSize: 13,
+  },
+  _countdownView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: 10,
+  },
+  _countdown: {
+    color: PRIMARY_COLOR,
+    marginLeft: 25,
+    marginTop: 10,
+  },
+  _expireText: {
+    marginTop: 10,
+    color: PRIMARY_COLOR,
+    marginLeft: 15,
+    textDecorationLine: 'underline'
   },
   checkboxContainer: {
     flexDirection: 'row',
@@ -328,6 +388,19 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
     marginBottom: 20,
+  },
+  _resendButton: {
+    alignSelf: 'center',
+    borderColor: GREEN_COLOR,
+    borderWidth: 2,
+    borderRadius: 20,
+    backgroundColor: GREEN_COLOR,
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    paddingRight: 20,
+    marginTop: 10,
+    width: 150,
   },
   primaryButton: {
     alignSelf: 'center',

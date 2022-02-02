@@ -1,11 +1,11 @@
 import { AlertIOS, Alert } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 
-export async function biometricVerification(callback) {
+export async function biometricVerification() {
     let isAvailable = await FingerprintScanner
         .isSensorAvailable()
 
-    if (!isAvailable) return
+    if (!isAvailable) return false;
 
     FingerprintScanner.release();
     try {

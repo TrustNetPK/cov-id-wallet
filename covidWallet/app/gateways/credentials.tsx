@@ -1,8 +1,16 @@
 import http_client from './http_client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Buffer} from 'buffer';
+import ConstantsList from '../helpers/ConfigApp';
 import {AuthenticateUser} from '../helpers/Authenticate';
+import {
+  analytics_log_accept_credential_request,
+  analytics_log_credential_delete,
+  analytics_log_reject_credential_request,
+} from '../helpers/analytics';
+import {getItem, saveItem} from '../helpers/Storage';
+import {get_all_connections} from './connections';
 
-async function getToken() {
+export async function getToken() {
   let resp = await AuthenticateUser();
   if (resp.success) {
     return resp.token;
@@ -43,6 +51,56 @@ export async function get_all_credentials() {
   }
 }
 
+export async function get_all_qr_credentials() {
+  try {
+    // Fetching Connections
+    const connectionResult = await get_all_connections();
+    let connections = connectionResult.data.connections;
+
+    // Fetching Credentials
+    const credentialResult = await get_all_credentials();
+    let credentials = credentialResult.data.credentials;
+
+    let CredArr: any = [];
+    if (credentials.length && connections.length) {
+      for (let i = 0; i < credentials.length; ++i) {
+        let cred = credentials[i];
+        let item = connections.find(
+          (c: any) => c.connectionId == cred.connectionId,
+        );
+        let qrResult = await fetch_signature_by_cred_id(
+          cred.credentialId,
+          cred.values,
+        );
+        if (item !== undefined || null) {
+          let obj = {
+            ...cred,
+            imageUrl: item.imageUrl,
+            organizationName: item.name,
+            qrCode: qrResult.success ? qrResult.qrcode : undefined,
+            type:
+              cred.values != undefined && cred.values.Type != undefined
+                ? cred.values.Type
+                : (cred.values != undefined || cred.values != null) &&
+                  cred.values['Vaccine Name'] != undefined &&
+                  cred.values['Vaccine Name'].length != 0 &&
+                  cred.values['Dose'] != undefined &&
+                  cred.values['Dose'].length != 0
+                ? 'COVIDpass (Vaccination)'
+                : 'Digital Certificate',
+          };
+          CredArr.push(obj);
+        }
+      }
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+    } else {
+      await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(CredArr));
+      await saveItem(ConstantsList.CONNECTIONS, JSON.stringify(connections));
+    }
+  } catch (error) {}
+}
+
 // Accept Crendentials API
 export async function accept_credential(credentialId: string) {
   try {
@@ -60,6 +118,10 @@ export async function accept_credential(credentialId: string) {
       data: params,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_accept_credential_request();
+
     return result;
   } catch (error) {
     throw error;
@@ -83,8 +145,126 @@ export async function delete_credential(credentialId: string) {
       data: params,
       headers,
     });
+
+    // Google Analytics
+    analytics_log_reject_credential_request();
+    analytics_log_credential_delete();
+
     return result;
   } catch (error) {
     throw error;
   }
 }
+
+// Get All Crendentials offers API
+export async function get_all_credentials_offers() {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_all_credential_offers',
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Get signature for credential
+export async function get_signature(credentialId: string) {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_credential_signature',
+      params: {
+        credentialId: credentialId,
+      },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Generate signature
+export async function generate_credential_qr(credentialId: string) {
+  try {
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_credential_qr',
+      params: {
+        credentialId: credentialId,
+      },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Fetching signature for credential
+export const fetch_signature_by_cred_id = async (
+  credentialId: string,
+  values: Object,
+) => {
+  try {
+    const result = await get_signature(credentialId);
+    if (result.data.success) {
+      // Converting values in base64
+      let objJsonStr = JSON.stringify(values);
+      let base64Values = Buffer.from(objJsonStr).toString('base64');
+
+      // Making QR based on signature and base 64 encoded data
+      let qrData = {
+        data: base64Values,
+        signature: result.data.signature,
+        tenantId: result.data.tenantId,
+        keyVersion: result.data.keyVersion,
+        type: 'cred_ver',
+      };
+      return {
+        success: true,
+        qrcode: `${JSON.stringify(qrData)}`,
+      };
+    } else {
+      return {success: false};
+    }
+  } catch (error) {
+    return {success: false};
+  }
+};
+
+// Do verification of credential
+export const submit_cold_verification = async (
+  data: String,
+  signature: String,
+  tenantId: String,
+  keyVersion: String,
+) => {
+  try {
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/credential/submit_cold_verification',
+      data: {
+        data,
+        signature,
+        tenantId,
+        keyVersion,
+      },
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};

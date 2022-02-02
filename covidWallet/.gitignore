@@ -1,9 +1,10 @@
 # OSX
 #
 .DS_Store
-.history
+
 # Xcode
 #
+GoogleService-Info.plist
 yarn.lock
 package-lock.json
 build/
@@ -22,9 +23,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-android/app/google-services.json
-yarn.lock
-.history
+*.pbxproj merge=union
 
 # Android/IntelliJ
 #
@@ -34,6 +33,12 @@ build/
 local.properties
 *.iml
 google-services.json
+*.hprof
+release/
+android/app/release/
+android/app/build/
+android/app/private_key.pepk
+private_key.pepk
 
 # node.js
 #
@@ -46,6 +51,7 @@ buck-out/
 \.buckd/
 *.keystore
 !debug.keystore
+zada.keystore
 
 # fastlane
 #

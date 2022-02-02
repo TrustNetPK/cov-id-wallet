@@ -1,27 +1,33 @@
-import React, { useLayoutEffect, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, FlatList, Linking, Alert } from 'react-native';
-import { BACKGROUND_COLOR, BLACK_COLOR, GRAY_COLOR, WHITE_COLOR } from '../theme/Colors';
-import CredentialsCard from '../components/CredentialsCard';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { StyleSheet, View, Image, Text, Dimensions } from 'react-native';
+import { BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
 import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
-import { delete_credential } from '../gateways/credentials';
-import { showMessage, showAskDialog } from '../helpers/Toast';
-import { deleteCredentialByCredId } from '../helpers/Storage';
+import { delete_credential, generate_credential_qr } from '../gateways/credentials';
+import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
+import { deleteCredentialByCredId, getItem, saveItem } from '../helpers/Storage';
+import OverlayLoader from '../components/OverlayLoader';
+import SimpleButton from '../components/Buttons/SimpleButton';
+import { analytics_log_show_cred_qr } from '../helpers/analytics';
+import { PreventScreenshots } from 'react-native-prevent-screenshots';
+import CredQRModal from '../components/CredQRModal';
+import RenderValues from '../components/RenderValues';
+import ConstantsList from '../helpers/ConfigApp';
+import { Buffer } from 'buffer';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 
-export default function DetailsScreen(props) {
+function DetailsScreen(props) {
 
-    // Constants
+    // Credential
     const data = props.route.params.data;
-    const vaccineName = data.name
-    const imgURI = { uri: data.imageUrl }
-    const issuedBy = data.organizationName
 
     // States
     const [isLoading, setIsLoading] = useState(false)
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [isGenerating, setGenerating] = useState(false);
 
+    // Setting delete Icon
     useLayoutEffect(() => {
-        // Setting delete Icon
         props.navigation.setOptions({
             headerRight: () => (
                 <MaterialIcons
@@ -43,7 +49,7 @@ export default function DetailsScreen(props) {
             let result = await delete_credential(data.credentialId);
             if (result.data.success) {
                 deleteCredentialByCredId(data.credentialId);
-                showMessage('ZADA Wallet', 'Credentials deleted successfully!');
+                showMessage('ZADA Wallet', 'Credential is deleted successfully');
                 props.navigation.goBack();
             } else {
                 showMessage('ZADA Wallet', result.data.message);
@@ -51,84 +57,173 @@ export default function DetailsScreen(props) {
 
             setIsLoading(false)
         } catch (e) {
-            console.log(e);
+            _handleAxiosError(e);
             setIsLoading(false)
         }
     }
 
-    function onReject() { }
-
     async function showAlert() {
-        showAskDialog("Are you sure?", "Are you sure you want to delete this certificate?", onSuccess, onReject);
+        showAskDialog("Are you sure?", "Are you sure you want to delete this certificate?", onSuccess, () => { });
     }
 
-    function renderTitleInput(title, index) {
-        let value = Object.values(data.values)[index];
-        return (
-            <View
-                key={index}
-                style={{
-                    marginLeft: 16,
-                    marginRight: 16,
-                }}>
-                <Text style={{ color: GRAY_COLOR, marginLeft: 8, marginTop: 8, marginBottom: 4, }}>{title}</Text>
-                <View style={{
-                    paddingLeft: 16,
-                    paddingRight: 16,
-                    backgroundColor: WHITE_COLOR,
-                    color: BLACK_COLOR,
-                    height: 40,
-                    marginBottom: 4,
-                    borderRadius: 16,
-                    justifyContent: "center"
-                }}>
-                    <Text style={{ color: BLACK_COLOR }}>{value}</Text>
-                </View>
-            </View>
-        )
+    async function generateQrCode() {
+        try {
+            setGenerating(true);
+            let credentialId = data.credentialId;
+
+            const result = await generate_credential_qr(credentialId);
+            if (result.data.success) {
+                let signature = result.data.signature;
+                let tenantId = result.data.tenantId;
+                let keyVersion = result.data.keyVersion;
+
+                // Making QR based on signature and base 64 encoded data
+                let qrData = {
+                    data: Buffer.from(JSON.stringify(data.values)).toString('base64'),
+                    signature: signature,
+                    tenantId: tenantId,
+                    keyVersion: keyVersion,
+                    type: 'cred_ver',
+                };
+
+                let QR = `${JSON.stringify(qrData)}`;
+
+                // Get all credentials
+                let credentials = JSON.parse(await getItem(ConstantsList.CREDENTIALS));
+
+                // Find this credential and update it with QR
+                let index = credentials.findIndex(item => item.credentialId == credentialId)
+                credentials[index].qrCode = QR;
+                await saveItem(ConstantsList.CREDENTIALS, JSON.stringify(credentials));
+
+                // Open QR After Updating Credentials
+                data.qrCode = QR;
+            }
+            else {
+                _showAlert('ZADA Wallet', error.message);
+            }
+            setGenerating(false);
+        } catch (error) {
+            setGenerating(false);
+            _showAlert('ZADA Wallet', error.message);
+        }
     }
+
+    useEffect(() => {
+        const focusEvent = props.navigation.addListener('focus', () => {
+            PreventScreenshots.start();
+        });
+        const blurEvent = props.navigation.addListener('blur', () => {
+            PreventScreenshots.stop();
+        });
+
+        return (() => {
+            focusEvent;
+            blurEvent;
+        })
+    }, [])
 
     return (
         <View style={[themeStyles.mainContainer]}>
-            {isLoading &&
-                <View style={{ zIndex: 10, position: "absolute", left: 0, right: 0, bottom: 0, top: 0, alignItems: "center", justifyContent: "center" }}>
-                    <ActivityIndicator color={"#000"} size={"large"} />
-                </View>
+
+            {
+                isLoading &&
+                <OverlayLoader
+                    text='Deleting credential...'
+                />
             }
-            <View style={styles.container}>
-                <View style={styles.CredentialsCardContainer}>
-                    <CredentialsCard card_title={vaccineName} card_type="Digital Certificate" issuer={issuedBy} card_user="SAEED AHMAD" date="05/09/2020" card_logo={imgURI} />
-                </View>
-            </View>
+
+            {
+                isGenerating &&
+                <OverlayLoader
+                    text='Generating credential QR...'
+                />
+            }
+
+            {data.qrCode != undefined && <CredQRModal
+                isVisible={showQRModal}
+                onCloseClick={() => { setShowQRModal(false) }}
+                qrCode={data.qrCode}
+            />}
+
+            {
+                data.qrCode != undefined ? (
+                    <View style={styles.topContainer}>
+                        <Image
+                            source={require('../assets/images/qr-code.png')}
+                            style={styles.topContainerImage}
+                        />
+                        <SimpleButton
+                            onPress={() => {
+                                setShowQRModal(true);
+                                analytics_log_show_cred_qr();
+                            }}
+                            title='Show QR'
+                            titleColor='white'
+                            buttonColor={GREEN_COLOR}
+                        />
+                    </View>
+                ) : (
+                    <View style={{ margin: 15 }}>
+                        <Text style={styles._noQr}>You do not have QR of your credential.</Text>
+                        <SimpleButton
+                            onPress={generateQrCode}
+                            width={Dimensions.get('window').width * 0.32}
+                            title='Get QR'
+                            titleColor={WHITE_COLOR}
+                            buttonColor={GREEN_COLOR}
+                            style={{
+                                marginTop: 10,
+                                alignSelf: 'center',
+                            }}
+                        />
+                    </View>
+                )
+            }
 
 
-            <KeyboardAwareScrollView style={{
-                maxHeight: '70%',
-                marginTop: 16,
-            }}>
-                {
-                    data.values != undefined && Object.keys(data.values).map((e, i) => {
-                        return (
-                            renderTitleInput(e, i)
-                        )
-                    })
-                }
-            </KeyboardAwareScrollView>
+            <RenderValues
+                listStyle={{
+                    marginTop: 10,
+                }}
+                listContainerStyle={{
+                    paddingBottom: '10%',
+                    paddingHorizontal: 15,
+                }}
+                inputBackground={WHITE_COLOR}
+                inputTextColor={BLACK_COLOR}
+                labelColor={GRAY_COLOR}
+                values={data.values}
+            />
         </View >
     );
 }
 
 const styles = StyleSheet.create({
+    topContainer: {
+        width: 200,
+        height: 200,
+        margin: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+    },
+    topContainerImage: {
+        width: '100%',
+        height: '100%',
+        tintColor: '#C1C1C1',
+        position: 'absolute',
+    },
     headerRightIcon: {
-        padding: 10,
+        paddingRight: 15,
         color: BLACK_COLOR
     },
-    container: {
-        paddingTop: 0,
-        paddingLeft: 5,
-        paddingRight: 5,
-    },
-    CredentialsCardContainer: {
-        paddingTop: 5
+    _noQr: {
+        fontSize: 16,
+        fontFamily: 'Poppins-Bold',
+        textAlign: 'center',
+        alignSelf: 'center',
     },
 });
+
+export default DetailsScreen;

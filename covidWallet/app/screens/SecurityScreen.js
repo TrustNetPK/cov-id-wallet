@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { AlertIOS, StyleSheet, View, Text, Alert, Platform } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { BACKGROUND_COLOR } from '../theme/Colors'
-import PrimaryButton from '../components/PrimaryButton';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
@@ -13,7 +12,6 @@ function SecurityScreen({ navigation }) {
 
   const [isSensorAvailable, checkSensor] = useState(false);
   const [isSuccessful, checkSecureIDAuth] = useState(false);
-
 
   useEffect(() => {
     isSecureIDAvailable()
@@ -29,7 +27,7 @@ function SecurityScreen({ navigation }) {
     }
     else {
       //TODO: Skip the SecureID Process if Sensor not Available
-      navigation.navigate('PassCodeContainer');
+      navigation.navigate('NotifyMeScreen');
     }
   }
 
@@ -50,7 +48,6 @@ function SecurityScreen({ navigation }) {
   }
 
   function authLegacy() {
-    console.log("h1");
     FingerprintScanner.release();
     FingerprintScanner
       .authenticate({ title: 'Log in with Secure ID to continue' })
@@ -60,7 +57,6 @@ function SecurityScreen({ navigation }) {
         nextHandler();
       })
       .catch((error) => {
-        console.log(error)
         if (Platform.OS === 'ios') {
           AlertIOS.alert('Failed to Authenticate Secure ID');
         }
@@ -92,7 +88,7 @@ function SecurityScreen({ navigation }) {
 
 
   nextHandler = () => {
-    navigation.replace('PassCodeContainer');
+    navigation.navigate('NotifyMeScreen');
   }
 
   return (

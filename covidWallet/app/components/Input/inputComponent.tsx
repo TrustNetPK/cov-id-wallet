@@ -10,6 +10,8 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Foundation from 'react-native-vector-icons/Foundation';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
 // import Animated, {Easing} from 'react-native-reanimated';
 
 interface InputIProps {
@@ -21,6 +23,7 @@ interface InputIProps {
   leftIconName?: string;
   rightIcon?: any;
   isSecureText?: boolean;
+  toggleSecureEntry?: any;
   value?: any;
   keyboardType?: string;
   disabled?: boolean;
@@ -29,10 +32,13 @@ interface InputIProps {
   onBlur?: Function;
   infoText?: string;
   inputContainerStyle?: any;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  type: 'default' | 'secret';
+  height: Number;
 }
 
 export function InputComponent(props: InputIProps) {
-  const [secureInputValue, setSecureInputValue] = useState(props.isSecureText);
+  //const [secureInputValue, setSecureInputValue] = useState(props.isSecureText);
   const [inputValue, setInputValue] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [isOverlay, setOverlay] = useState(false);
@@ -87,10 +93,13 @@ export function InputComponent(props: InputIProps) {
         value={props.value}
         disabled={props.disabled}
         disabledInputStyle={{color: BLACK_COLOR}}
-        secureTextEntry={secureInputValue}
+        secureTextEntry={props.isSecureText}
         // errorMessage={showErrorMessage ? props.errorMessage : ''}
         leftIcon={renderLeftIcon()}
         onBlur={() => (props.onBlur ? props.onBlur() : {})}
+        autoCapitalize={
+          props.autoCapitalize ? props.autoCapitalize : 'sentences'
+        }
         keyboardType={
           props.keyboardType != undefined ? props.keyboardType : 'default'
         }
@@ -102,18 +111,34 @@ export function InputComponent(props: InputIProps) {
                   name={'exclamationcircleo'}
                   size={25}
                   color={RED_COLOR}
+                  style={{
+                    marginLeft: 10,
+                  }}
                 />
               </TouchableOpacity>
             </View>
+          ) : props.type == 'secret' ? (
+            <FontAwesome
+              onPress={props.toggleSecureEntry}
+              name={props.isSecureText ? 'eye-slash' : 'eye'}
+              size={25}
+              color={GRAY_COLOR}
+              style={{
+                paddingRight: 5,
+              }}
+            />
           ) : (
-            <View></View>
+            props.rightIcon
           )
         }
         onChangeText={(newText) => {
           setInputValue(newText);
           props.setStateValue(newText);
         }}
-        containerStyle={[props.style, {height: 55}]}
+        containerStyle={[
+          props.style,
+          {height: props.height ? props.height : 55},
+        ]}
         inputContainerStyle={props.inputContainerStyle}
       />
       {showErrorMessage && (

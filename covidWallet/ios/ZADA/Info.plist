@@ -45,6 +45,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -61,15 +63,13 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow ZADA to take Pictures?</string>
+	<string>ZADA Wallet needs camera access so that you can easily scan ZADA generated QRCode to handle connection and credentails requests</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>ZADA Wallet requires Secure ID access to allows you quick and secure access.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow ZADA to use Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow ZADA to use Photo Library?</string>
+	<string>ZADA Wallet needs photos access so that you can easily browse ZADA generated QRCode to handle connection and credentails requests</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
