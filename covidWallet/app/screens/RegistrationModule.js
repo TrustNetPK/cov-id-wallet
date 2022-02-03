@@ -129,13 +129,13 @@ function RegistrationModule({ navigation }) {
           // new user is going to register
           await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
           await saveItem(ConstantsList.WALLET_SECRET, secret);
-          navigation.replace('MultiFactorScreen');
+          navigation.replace('MultiFactorScreen', { from: "Register" });
         }
         else if (response.verified != undefined && !response.verified) {
           // unverified user come to register
           await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
           await saveItem(ConstantsList.WALLET_SECRET, secret);
-          navigation.replace('MultiFactorScreen');
+          navigation.replace('MultiFactorScreen', { from: "Register" });
         }
         else if (response.verified != undefined && response.verified) {
           // verified user came again to register
@@ -166,7 +166,7 @@ function RegistrationModule({ navigation }) {
         // unverified user come to register
         await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
         await saveItem(ConstantsList.WALLET_SECRET, secret);
-        navigation.replace('MultiFactorScreen');
+        navigation.replace('MultiFactorScreen', { from: "Register" });
       }
       else if (response.verified != undefined && response.verified) {
         // verified user came again to register
@@ -200,6 +200,7 @@ function RegistrationModule({ navigation }) {
             if (response.success == true) {
               storeUserID(response.userId);
               saveItem(ConstantsList.WALLET_SECRET, secret);
+              await saveItem(ConstantsList.LOGIN_DATA, JSON.stringify(response));
               await authenticateUserToken();
             } else {
               showMessage('ZADA Wallet', response.error);
@@ -281,7 +282,9 @@ function RegistrationModule({ navigation }) {
             await _fetchingAppData(isConnected);
             setProgress(false);
             // if token has wallet id
-            navigation.replace('SecurityScreen');
+            //  navigation.replace('SecurityScreen');
+            navigation.replace('MultiFactorScreen', { from: "Login" });
+
           }
           else {
             // if token has not wallet id

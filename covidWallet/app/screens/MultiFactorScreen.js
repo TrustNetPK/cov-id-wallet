@@ -30,8 +30,9 @@ import { _handleAxiosError } from '../helpers/AxiosResponse';
 
 const { width } = Dimensions.get('window');
 
-function MultiFactorScreen({ navigation }) {
+function MultiFactorScreen(props) {
 
+  const fromScreen = props.route.params.from;
   const { isConnected } = useNetwork();
   const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
   const [progress, setProgress] = useState(false);
@@ -86,7 +87,11 @@ function MultiFactorScreen({ navigation }) {
 
         if (result.data.success) {
           await saveItem(ConstantsList.USER_ID, result.data.userId);
-          await authenticateUser();
+          if (fromScreen == 'Register') {
+            await authenticateUser();
+          } else if (fromScreen == 'Login') {
+            await reNewAuthenticationToken();
+          }
         }
         else {
           showMessage('ZADA Wallet', result.data.error);
@@ -110,7 +115,7 @@ function MultiFactorScreen({ navigation }) {
         // Put User isFirsTime Logic here as well
         await AsyncStorage.setItem('isfirstTime', 'false');
 
-        navigation.replace('SecurityScreen');
+        props.navigation.replace('SecurityScreen');
         setProgress(false);
       } else {
         showMessage('ZADA Wallet', resp.message);
@@ -196,7 +201,10 @@ function MultiFactorScreen({ navigation }) {
 
   // Function to get registeration data of user
   const _getRegisterUserInfo = async () => {
-    const regData = JSON.parse(await getItem(ConstantsList.REGISTRATION_DATA));
+    let regData = JSON.parse(await getItem(ConstantsList.REGISTRATION_DATA));
+    if (!regData) {
+      regData = JSON.parse(await getItem(ConstantsList.LOGIN_DATA));
+    }
     // sending phone OTP
     _resendOTPAPI(regData.userId, 'phone');
     setUserData(regData);

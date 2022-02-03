@@ -29,6 +29,7 @@ module.exports = Object.freeze({
   COUNTDOWN_TIME: 'countdown_time',
   USER_PROFILE: 'user_profile',
   REGISTRATION_DATA: 'register_data',
+  LOGIN_DATA: 'login_data',
   PIN_CODE: 'pin_code',
   ZADA_AUTH_TEST: 'ZADA Auth Test',
   ZADA_AUTH_CONNECTION_ID: 'f743ac9a-9758-495d-bfbc-74421ae6d1e9',
