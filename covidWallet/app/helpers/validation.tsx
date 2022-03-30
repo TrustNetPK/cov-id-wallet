@@ -27,3 +27,9 @@ export const validateIfLowerCased = (text: string) => {
   }
   return isLowerCased;
 };
+
+export const validateLength = (text: string) => {
+  if (text.length < 4 || text.length > 30) {
+    return true;
+  }
+};

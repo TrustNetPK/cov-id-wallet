@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import React, {useRef, useState} from 'react';
+import {Alert} from 'react-native';
 import {
   View,
   Text,
@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
-import PhoneInput from "react-native-phone-number-input";
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
+import PhoneInput from 'react-native-phone-number-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PRIMARY_COLOR,
@@ -21,23 +21,26 @@ import {
 import HeadingComponent from '../components/HeadingComponent';
 import ConstantsList from '../helpers/ConfigApp';
 import NetInfo from '@react-native-community/netinfo';
-import { saveItem } from '../helpers/Storage';
-import { showMessage, showNetworkMessage, _showAlert } from '../helpers/Toast';
-import { AuthenticateUser } from '../helpers/Authenticate';
-import { InputComponent } from '../components/Input/inputComponent';
-import { nameRegex, validateIfLowerCased } from '../helpers/validation';
-import { _resgiterUserAPI } from '../gateways/auth';
+import {saveItem} from '../helpers/Storage';
+import {showMessage, showNetworkMessage, _showAlert} from '../helpers/Toast';
+import {AuthenticateUser} from '../helpers/Authenticate';
+import {InputComponent} from '../components/Input/inputComponent';
+import {
+  nameRegex,
+  validateIfLowerCased,
+  validateLength,
+} from '../helpers/validation';
+import {_resgiterUserAPI} from '../gateways/auth';
 import SimpleButton from '../components/Buttons/SimpleButton';
 import jwt_decode from 'jwt-decode';
-import { _fetchingAppData } from '../helpers/AppData';
+import {_fetchingAppData} from '../helpers/AppData';
 import useNetwork from '../hooks/useNetwork';
-import { _handleAxiosError } from '../helpers/AxiosResponse';
+import {_handleAxiosError} from '../helpers/AxiosResponse';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-function RegistrationModule({ navigation }) {
-
-  const { isConnected } = useNetwork();
+function RegistrationModule({navigation}) {
+  const {isConnected} = useNetwork();
   const [activeOption, updateActiveOption] = useState('register');
 
   const [name, setName] = useState('');
@@ -53,10 +56,10 @@ function RegistrationModule({ navigation }) {
 
   const [progress, setProgress] = useState(false);
 
-  // Toggling for password 
+  // Toggling for password
   const _toggleSecureSecretEntry = () => {
     setSecureSecret(!secureSecret);
-  }
+  };
 
   const selectionOnPress = (userType) => {
     updateActiveOption(userType);
@@ -66,18 +69,19 @@ function RegistrationModule({ navigation }) {
     if (activeOption == 'register') {
       setPhone('');
       // setSecret(randomString(24))
-      setSecretError('')
+      setSecretError('');
     } else {
       setSecret('');
     }
   }, [activeOption]);
 
   const submit = () => {
-
     // Check if name is valid.
     if (!nameRegex.test(name) && activeOption == 'register') {
-      setNameError("Please enter a name between 2-1000 alphabetical characters long. No numbers or special characters.")
-      return
+      setNameError(
+        'Please enter a name between 2-1000 alphabetical characters long. No numbers or special characters.',
+      );
+      return;
     }
     setNameError('');
 
@@ -85,7 +89,7 @@ function RegistrationModule({ navigation }) {
     const checkValid = phoneInput.current?.isValidNumber(phone);
     if (!checkValid) {
       Alert.alert('Zada Wallet', 'Please enter a valid phone number.');
-      return
+      return;
     }
 
     if (phoneText.charAt(0) == '0' && activeOption == 'register') {
@@ -93,15 +97,21 @@ function RegistrationModule({ navigation }) {
       return;
     }
 
-    // Check if secret 
-    if (secret == "") {
-      setSecretError('Password is required.')
-      return
+    // Check if secret
+    if (secret == '') {
+      setSecretError('Password is required.');
+      return;
+    }
+
+    //check secret length
+    if (validateLength(secret)) {
+      setSecretError('Password length should be 6 to 30 characters');
+      return;
     }
 
     if (!validateIfLowerCased(secret)) {
-      setSecretError('Password must be in lowercase.')
-      return
+      setSecretError('Password must be in lowercase.');
+      return;
     }
 
     setSecretError('');
@@ -110,7 +120,6 @@ function RegistrationModule({ navigation }) {
     if (activeOption == 'register') register();
     else if (activeOption == 'login') login();
     else setProgress(false);
-
   };
 
   const register = async () => {
@@ -120,29 +129,32 @@ function RegistrationModule({ navigation }) {
           name: name.trim(),
           phone: phone.trim(),
           secretPhrase: secret,
-        }
+        };
 
         const result = await _resgiterUserAPI(data);
         const response = result.data;
 
         if (response.success) {
           // new user is going to register
-          await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+          await saveItem(
+            ConstantsList.REGISTRATION_DATA,
+            JSON.stringify(response),
+          );
           await saveItem(ConstantsList.WALLET_SECRET, secret);
-          navigation.replace('MultiFactorScreen', { from: "Register" });
-        }
-        else if (response.verified != undefined && !response.verified) {
+          navigation.replace('MultiFactorScreen', {from: 'Register'});
+        } else if (response.verified != undefined && !response.verified) {
           // unverified user come to register
-          await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+          await saveItem(
+            ConstantsList.REGISTRATION_DATA,
+            JSON.stringify(response),
+          );
           await saveItem(ConstantsList.WALLET_SECRET, secret);
-          navigation.replace('MultiFactorScreen', { from: "Register" });
-        }
-        else if (response.verified != undefined && response.verified) {
+          navigation.replace('MultiFactorScreen', {from: 'Register'});
+        } else if (response.verified != undefined && response.verified) {
           // verified user came again to register
           selectionOnPress('login');
           _showAlert('Zada Wallet', response.error);
-        }
-        else {
+        } else {
           _showAlert('Zada Wallet', response.error);
         }
         setProgress(false);
@@ -157,29 +169,29 @@ function RegistrationModule({ navigation }) {
         _checkForVerification(error.response.data);
       }
     }
-
   };
 
   const _checkForVerification = async (response) => {
     try {
       if (response.verified != undefined && !response.verified) {
         // unverified user come to register
-        await saveItem(ConstantsList.REGISTRATION_DATA, JSON.stringify(response));
+        await saveItem(
+          ConstantsList.REGISTRATION_DATA,
+          JSON.stringify(response),
+        );
         await saveItem(ConstantsList.WALLET_SECRET, secret);
-        navigation.replace('MultiFactorScreen', { from: "Register" });
-      }
-      else if (response.verified != undefined && response.verified) {
+        navigation.replace('MultiFactorScreen', {from: 'Register'});
+      } else if (response.verified != undefined && response.verified) {
         // verified user came again to register
         selectionOnPress('login');
         _showAlert('Zada Wallet', response.error);
-      }
-      else {
+      } else {
         _showAlert('Zada Wallet', response.error);
       }
     } catch (error) {
       _handleAxiosError(error);
     }
-  }
+  };
 
   const login = async () => {
     if (isConnected) {
@@ -200,8 +212,13 @@ function RegistrationModule({ navigation }) {
             if (response.success == true) {
               storeUserID(response.userId);
               saveItem(ConstantsList.WALLET_SECRET, secret);
-              await saveItem(ConstantsList.LOGIN_DATA, JSON.stringify(response));
-              await authenticateUserToken();
+              await saveItem(
+                ConstantsList.LOGIN_DATA,
+                JSON.stringify(response),
+              );
+
+              console.log('response', response);
+              await authenticateUserToken(response?.type);
             } else {
               showMessage('ZADA Wallet', response.error);
               setProgress(false);
@@ -250,12 +267,10 @@ function RegistrationModule({ navigation }) {
                 setProgress(false);
                 // if token has wallet id
                 navigation.replace('SecurityScreen');
-              }
-              else {
+              } else {
                 //await authenticateUserToken();
               }
-            }
-            else {
+            } else {
               setProgress(false);
               _showAlert('ZADA Wallet', `${reAuth.message}`);
             }
@@ -269,7 +284,7 @@ function RegistrationModule({ navigation }) {
     );
   };
 
-  const authenticateUserToken = async () => {
+  const authenticateUserToken = async (isDemo) => {
     try {
       if (isConnected) {
         // autthenticating user
@@ -281,18 +296,20 @@ function RegistrationModule({ navigation }) {
           if (decodedToken.dub.length) {
             await _fetchingAppData(isConnected);
             setProgress(false);
+
             // if token has wallet id
             //  navigation.replace('SecurityScreen');
-            navigation.replace('MultiFactorScreen', { from: "Login" });
-
-          }
-          else {
+            if (isDemo != undefined && isDemo == 'demo') {
+              navigation.replace('SecurityScreen');
+            } else {
+              navigation.replace('MultiFactorScreen', {from: 'Login'});
+            }
+          } else {
             // if token has not wallet id
             // CREATING WALLET
             await createWallet(resp.token);
           }
-        }
-        else {
+        } else {
           setProgress(false);
           _showAlert('ZADA Wallet', resp.message);
         }
@@ -304,7 +321,6 @@ function RegistrationModule({ navigation }) {
       setProgress(false);
       _showAlert('Zada Wallet', error.toString());
     }
-
   };
 
   function renderPhoneNumberInput() {
@@ -315,19 +331,34 @@ function RegistrationModule({ navigation }) {
         defaultCode="MM"
         layout="second"
         containerStyle={{
-          flexDirection: "row",
+          flexDirection: 'row',
           backgroundColor: WHITE_COLOR,
           borderRadius: 10,
           height: 45,
           marginTop: 8,
-          alignSelf: "center",
+          alignSelf: 'center',
           width: '88%',
           marginLeft: 4,
         }}
-        textInputStyle={{ fontSize: 14, height: 45 }}
-        countryPickerButtonStyle={{ width: 65, borderRightColor: "00000040", borderRightWidth: 0.5 }}
-        textContainerStyle={{ fontSize: 16, padding: 0, borderRadius: 10, backgroundColor: WHITE_COLOR }}
-        codeTextStyle={{ fontSize: 14, textAlign: "center", textAlignVertical: "center", padding: 0, margin: 0 }}
+        textInputStyle={{fontSize: 14, height: 45}}
+        countryPickerButtonStyle={{
+          width: 65,
+          borderRightColor: '00000040',
+          borderRightWidth: 0.5,
+        }}
+        textContainerStyle={{
+          fontSize: 16,
+          padding: 0,
+          borderRadius: 10,
+          backgroundColor: WHITE_COLOR,
+        }}
+        codeTextStyle={{
+          fontSize: 14,
+          textAlign: 'center',
+          textAlignVertical: 'center',
+          padding: 0,
+          margin: 0,
+        }}
         onChangeFormattedText={(text) => {
           setPhone(text);
         }}
@@ -337,16 +368,16 @@ function RegistrationModule({ navigation }) {
         disableArrowIcon
         withShadow
       />
-    )
+    );
   }
 
   // KEYBOARD AVOIDING VIEW
   const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
-  const keyboardBehaviour = Platform.OS == 'ios' ? 'padding' : null
+  const keyboardBehaviour = Platform.OS == 'ios' ? 'padding' : null;
 
   return (
     <View
-      pointerEvents={progress ? "none" : "auto"}
+      pointerEvents={progress ? 'none' : 'auto'}
       style={{
         flex: 1,
         alignItems: 'center',
@@ -356,7 +387,7 @@ function RegistrationModule({ navigation }) {
         behavior={keyboardBehaviour}
         keyboardVerticalOffset={keyboardVerticalOffset}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+        contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
         <View
           style={{
             backgroundColor: BACKGROUND_COLOR,
@@ -365,7 +396,7 @@ function RegistrationModule({ navigation }) {
             justifyContent: 'space-around',
             borderRadius: 10,
           }}>
-          <View style={{ marginLeft: 50, marginRight: 50 }}>
+          <View style={{marginLeft: 50, marginRight: 50}}>
             <HeadingComponent text="Let's Get Started!" />
           </View>
 
@@ -477,14 +508,14 @@ function RegistrationModule({ navigation }) {
                   keyboardType="default"
                   isSecureText={secureSecret}
                   autoCapitalize={'none'}
-                  inputContainerStyle={{ width: '80%' }}
+                  inputContainerStyle={{width: '80%'}}
                   inputContainerStyle={styles.inputView}
                   setStateValue={(text) => {
-                    setSecret(text.replace(',', ''))
+                    setSecret(text.replace(',', ''));
                     if (text.length < 1) {
-                      setSecretError('Password is required.')
+                      setSecretError('Password is required.');
                     } else {
-                      setSecretError('')
+                      setSecretError('');
                     }
                   }}
                 />
@@ -502,8 +533,8 @@ function RegistrationModule({ navigation }) {
                   marginTop: 10,
                   marginRight: 20,
                 }}>
-                We need your details as your ZADA WALLET will be based on it.
-                We are not going to send you ads or spam email, or sell your
+                We need your details as your ZADA WALLET will be based on it. We
+                are not going to send you ads or spam email, or sell your
                 information to a 3rd party.
               </Text>
               <SimpleButton
@@ -511,10 +542,10 @@ function RegistrationModule({ navigation }) {
                 isLoading={progress}
                 onPress={submit}
                 width={250}
-                title='Continue'
+                title="Continue"
                 titleColor={WHITE_COLOR}
                 buttonColor={GREEN_COLOR}
-                style={{ marginVertical: 20, alignSelf: 'center' }}
+                style={{marginVertical: 20, alignSelf: 'center'}}
               />
             </View>
           )}
@@ -534,11 +565,11 @@ function RegistrationModule({ navigation }) {
                   autoCapitalize={'none'}
                   inputContainerStyle={styles.inputView}
                   setStateValue={(text) => {
-                    setSecret(text.replace(',', ''))
+                    setSecret(text.replace(',', ''));
                     if (text.length < 1) {
-                      setSecretError('Password is required.')
+                      setSecretError('Password is required.');
                     } else {
-                      setSecretError('')
+                      setSecretError('');
                     }
                   }}
                 />
@@ -547,8 +578,7 @@ function RegistrationModule({ navigation }) {
                 onPress={() => {
                   navigation.navigate('ForgotPasswordScreen');
                 }}
-                style={styles._forgotText}
-              >
+                style={styles._forgotText}>
                 Forgot password?
               </Text>
 
@@ -557,10 +587,10 @@ function RegistrationModule({ navigation }) {
                 isLoading={progress}
                 onPress={submit}
                 width={250}
-                title='Continue'
+                title="Continue"
                 titleColor={WHITE_COLOR}
                 buttonColor={GREEN_COLOR}
-                style={{ marginVertical: 20, alignSelf: 'center' }}
+                style={{marginVertical: 20, alignSelf: 'center'}}
               />
             </View>
           )}
@@ -674,9 +704,9 @@ const styles = StyleSheet.create({
   textRightIcon: {
     alignSelf: 'center',
     color: GRAY_COLOR,
-    position: "absolute",
+    position: 'absolute',
     right: '10%',
-    top: '30%'
+    top: '30%',
   },
 });
 
