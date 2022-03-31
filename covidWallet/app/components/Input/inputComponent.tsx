@@ -54,7 +54,6 @@ export function InputComponent(props: InputIProps) {
   };
 
   useEffect(() => {
-    console.log('test', props.strengthMessage);
     strengthMessageColor(props.strengthMessage);
   }, [props.strengthMessage]);
 

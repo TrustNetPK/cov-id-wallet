@@ -17,6 +17,8 @@ import {
   nameRegex,
   pincodeRegex,
   validateIfLowerCased,
+  validateLength,
+  validatePasswordStrength,
 } from '../helpers/validation';
 import {
   BLACK_COLOR,
@@ -74,6 +76,14 @@ const ProfileScreen = () => {
   const [rePincode, setRepincode] = useState('');
   const [rePincodeError, setRePincodeError] = useState('');
   const [rePincodeSecurity, setRePincodeSecurity] = useState(true);
+
+  const [newStrengthMessage, setNewStrengthMessage] = useState(
+    ConstantsList.WEAK,
+  );
+
+  const [reStrengthMessage, setReStrengthMessage] = useState(
+    ConstantsList.WEAK,
+  );
 
   // KEYBOARD AVOIDING VIEW
   const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
@@ -202,21 +212,11 @@ const ProfileScreen = () => {
       setCurrPasswordError('Current password is required.');
       return;
     }
-    // if (!validateIfLowerCased(currPassword)) {
-    //   setSecretError('Current password must be in lowercase.');
-    //   return;
-    // }
 
-    // if (!validateAtLeastOneUpperCaseLetter(secret)) {
-    //   setSecretError('Password must have a uppercase letter.');
-    //   return;
-    // }
-
-    // if (!validateAtLeastOneSpecialLetter(secret)) {
-    //   setSecretError('Password must have a special letter.');
-    //   return;
-    // }
-
+    if (validateLength(currPassword, 1, 50)) {
+      setCurrPasswordError('Password length should be 1 to 50 characters');
+      return;
+    }
     setCurrPasswordError('');
 
     if (newPassword == '') {
@@ -224,19 +224,11 @@ const ProfileScreen = () => {
       return;
     }
 
-    // if (!validateIfLowerCased(newPassword)) {
-    //   setNewPasswordError('New password must be in lowercase.');
-    //   return;
-    // }
-    // if (!validateAtLeastOneUpperCaseLetter(secret)) {
-    //   setSecretError('Password must have a uppercase letter.');
-    //   return;
-    // }
+    if (validateLength(newPassword, 6, 30)) {
+      setNewPasswordError('Password length should be 6 to 30 characters');
+      return;
+    }
 
-    // if (!validateAtLeastOneSpecialLetter(secret)) {
-    //   setSecretError('Password must have a special letter.');
-    //   return;
-    // }
     setNewPasswordError('');
 
     if (rePassword == '') {
@@ -244,20 +236,11 @@ const ProfileScreen = () => {
       return;
     }
 
-    // if (!validateIfLowerCased(rePassword)) {
-    //   setRePasswordError('Confirm password must be in lowercase.');
-    //   return;
-    // }
-
-    if (!validateAtLeastOneUpperCaseLetter(secret)) {
-      setSecretError('Password must have a uppercase letter.');
+    if (validateLength(rePassword, 6, 30)) {
+      setRePasswordError('Password length should be 6 to 30 characters');
       return;
     }
 
-    if (!validateAtLeastOneSpecialLetter(secret)) {
-      setSecretError('Password must have a special letter.');
-      return;
-    }
     setRePasswordError('');
 
     if (newPassword != rePassword) {
@@ -600,12 +583,15 @@ const ProfileScreen = () => {
               placeholderText="New password"
               errorMessage={newPasswordError}
               value={newPassword}
+              strengthMessage={newStrengthMessage}
               keyboardType="default"
               isSecureText={isNewPassSecure}
               autoCapitalize={'none'}
               inputContainerStyle={styles._inputView}
               setStateValue={(text) => {
                 setNewPassword(text.replace(',', ''));
+                const msg = validatePasswordStrength(text);
+                setNewStrengthMessage(msg);
               }}
             />
           </View>
@@ -621,12 +607,15 @@ const ProfileScreen = () => {
               placeholderText="Re enter new password"
               errorMessage={rePasswordError}
               value={rePassword}
+              strengthMessage={reStrengthMessage}
               keyboardType="default"
               isSecureText={isRePassSecure}
               autoCapitalize={'none'}
               inputContainerStyle={styles._inputView}
               setStateValue={(text) => {
                 setRePassword(text.replace(',', ''));
+                const msg = validatePasswordStrength(text);
+                setReStrengthMessage(msg);
               }}
             />
           </View>

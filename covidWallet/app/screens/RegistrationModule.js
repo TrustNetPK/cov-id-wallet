@@ -519,8 +519,6 @@ function RegistrationModule({navigation}) {
                   setStateValue={(text) => {
                     if (activeOption == 'register') {
                       const msg = validatePasswordStrength(text);
-
-                      console.log('log', msg);
                       setStrengthMessage(msg);
                     }
 
