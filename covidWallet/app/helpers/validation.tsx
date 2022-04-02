@@ -1,3 +1,6 @@
+import {GREEN_COLOR} from '../theme/Colors';
+import ConstantsList from '../helpers/ConfigApp';
+
 export const nameRegex = RegExp('^[a-zA-Z\\s]{2,1000}$');
 export const groupNameRegex = RegExp('^[a-zA-Z\\s]{2,1000}$');
 
@@ -26,4 +29,45 @@ export const validateIfLowerCased = (text: string) => {
     i++;
   }
   return isLowerCased;
+};
+
+export const validateAtLeastOneUpperCaseLetter = (text: string) => {
+  const reg = RegExp('(?=.*[A-Z])');
+
+  if (reg.test(text)) {
+    return true;
+  }
+};
+
+export const validateLength = (text: string, min: number, max: number) => {
+  if (text.length < min || text.length > max) {
+    return true;
+  }
+};
+
+export const validateAtLeastOneSpecialLetter = (text: string) => {
+  const reg = RegExp('(?=.*[~!@#$%^&*()_+])');
+
+  if (reg.test(text)) {
+    return true;
+  }
+};
+
+export const validatePasswordStrength = (text: string) => {
+  var strongRegex = new RegExp(
+    '^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\\W).*$',
+    'g',
+  );
+  var mediumRegex = new RegExp(
+    '^(((?=.*[A-Z])(?=.*[a-z]))|((?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))).*$',
+    'g',
+  );
+
+  if (strongRegex.test(text)) {
+    return ConstantsList.STRONG;
+  } else if (mediumRegex.test(text)) {
+    return ConstantsList.MEDIUM;
+  } else {
+    return ConstantsList.WEAK;
+  }
 };

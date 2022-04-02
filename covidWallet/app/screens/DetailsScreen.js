@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, Image, Text, Dimensions } from 'react-native';
-import { BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, WHITE_COLOR } from '../theme/Colors';
+import { BLACK_COLOR, GRAY_COLOR, GREEN_COLOR, WHITE_COLOR, BACKGROUND_COLOR } from '../theme/Colors';
 import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { delete_credential, generate_credential_qr } from '../gateways/credentials';
@@ -126,76 +126,80 @@ function DetailsScreen(props) {
     return (
         <View style={[themeStyles.mainContainer]}>
 
-            {
-                isLoading &&
-                <OverlayLoader
-                    text='Deleting credential...'
+            <View style={styles.innerContainer}>
+                {
+                    isLoading &&
+                    <OverlayLoader
+                        text='Deleting credential...'
+                    />
+                }
+
+                {
+                    isGenerating &&
+                    <OverlayLoader
+                        text='Generating credential QR...'
+                    />
+                }
+
+                {data.qrCode != undefined && <CredQRModal
+                    isVisible={showQRModal}
+                    onCloseClick={() => { setShowQRModal(false) }}
+                    qrCode={data.qrCode}
+                />}
+
+                {
+                    data.qrCode != undefined ? (
+                        <View style={styles.topContainer}>
+                            <Image
+                                source={require('../assets/images/qr-code.png')}
+                                style={styles.topContainerImage}
+                            />
+                            <SimpleButton
+                                onPress={() => {
+                                    setShowQRModal(true);
+                                    analytics_log_show_cred_qr();
+                                }}
+                                title='Show QR'
+                                titleColor='white'
+                                buttonColor={GREEN_COLOR}
+                            />
+                        </View>
+                    ) : (
+                        <View style={{ margin: 15 }}>
+                            <Text style={styles._noQr}>You do not have QR of your credential.</Text>
+                            <SimpleButton
+                                onPress={generateQrCode}
+                                width={Dimensions.get('window').width * 0.32}
+                                title='Get QR'
+                                titleColor={WHITE_COLOR}
+                                buttonColor={GREEN_COLOR}
+                                style={{
+                                    marginTop: 10,
+                                    alignSelf: 'center',
+                                }}
+                            />
+                        </View>
+                    )
+                }
+
+
+                <RenderValues
+                    listStyle={{
+                        marginTop: 10,
+                    }}
+                    listContainerStyle={{
+                        paddingBottom: '10%',
+                        paddingHorizontal: 15,
+                    }}
+                    inputBackground={WHITE_COLOR}
+                    inputTextColor={BLACK_COLOR}
+                    inputTextWeight={'bold'}
+                    inputTextSize={16}
+                    labelColor={GRAY_COLOR}
+                    values={data.values}
                 />
-            }
-
-            {
-                isGenerating &&
-                <OverlayLoader
-                    text='Generating credential QR...'
-                />
-            }
-
-            {data.qrCode != undefined && <CredQRModal
-                isVisible={showQRModal}
-                onCloseClick={() => { setShowQRModal(false) }}
-                qrCode={data.qrCode}
-            />}
-
-            {
-                data.qrCode != undefined ? (
-                    <View style={styles.topContainer}>
-                        <Image
-                            source={require('../assets/images/qr-code.png')}
-                            style={styles.topContainerImage}
-                        />
-                        <SimpleButton
-                            onPress={() => {
-                                setShowQRModal(true);
-                                analytics_log_show_cred_qr();
-                            }}
-                            title='Show QR'
-                            titleColor='white'
-                            buttonColor={GREEN_COLOR}
-                        />
-                    </View>
-                ) : (
-                    <View style={{ margin: 15 }}>
-                        <Text style={styles._noQr}>You do not have QR of your credential.</Text>
-                        <SimpleButton
-                            onPress={generateQrCode}
-                            width={Dimensions.get('window').width * 0.32}
-                            title='Get QR'
-                            titleColor={WHITE_COLOR}
-                            buttonColor={GREEN_COLOR}
-                            style={{
-                                marginTop: 10,
-                                alignSelf: 'center',
-                            }}
-                        />
-                    </View>
-                )
-            }
-
-
-            <RenderValues
-                listStyle={{
-                    marginTop: 10,
-                }}
-                listContainerStyle={{
-                    paddingBottom: '10%',
-                    paddingHorizontal: 15,
-                }}
-                inputBackground={WHITE_COLOR}
-                inputTextColor={BLACK_COLOR}
-                labelColor={GRAY_COLOR}
-                values={data.values}
-            />
-        </View >
+            </View >
+        </View>
     );
 }
 
@@ -208,6 +212,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
     },
+    innerContainer: {
+        padding: 20,
+        borderRadius: 10,
+        borderColor: BACKGROUND_COLOR,
+        borderWidth: 1,
+        backgroundColor: WHITE_COLOR,
+        height: '100%'
+    },
     topContainerImage: {
         width: '100%',
         height: '100%',
@@ -218,6 +230,7 @@ const styles = StyleSheet.create({
         paddingRight: 15,
         color: BLACK_COLOR
     },
+
     _noQr: {
         fontSize: 16,
         fontFamily: 'Poppins-Bold',
