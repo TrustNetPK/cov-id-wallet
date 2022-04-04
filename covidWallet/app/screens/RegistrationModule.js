@@ -27,6 +27,7 @@ import {AuthenticateUser} from '../helpers/Authenticate';
 import {InputComponent} from '../components/Input/inputComponent';
 import {
   nameRegex,
+<<<<<<< HEAD
   validateAtLeastOneSpecialLetter,
   validateAtLeastOneUpperCaseLetter,
   validateIfLowerCased,
@@ -34,6 +35,10 @@ import {
   validateMediumPassword,
   validatePasswordStrength,
   validateStrongPassword,
+=======
+  validateIfLowerCased,
+  validateLength,
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
 } from '../helpers/validation';
 import {_resgiterUserAPI} from '../gateways/auth';
 import SimpleButton from '../components/Buttons/SimpleButton';
@@ -109,6 +114,7 @@ function RegistrationModule({navigation}) {
     if (secret == '') {
       setSecretError('Password is required.');
       return;
+<<<<<<< HEAD
     }
 
     if (activeOption == 'register') {
@@ -117,6 +123,19 @@ function RegistrationModule({navigation}) {
         setSecretError('Password length should be 6 to 30 characters');
         return;
       }
+=======
+    }
+
+    //check secret length
+    if (validateLength(secret)) {
+      setSecretError('Password length should be 6 to 30 characters');
+      return;
+    }
+
+    if (!validateIfLowerCased(secret)) {
+      setSecretError('Password must be in lowercase.');
+      return;
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
     }
 
     if (activeOption == 'login') {
@@ -228,7 +247,13 @@ function RegistrationModule({navigation}) {
                 ConstantsList.LOGIN_DATA,
                 JSON.stringify(response),
               );
+<<<<<<< HEAD
               await authenticateUserToken();
+=======
+
+              console.log('response', response);
+              await authenticateUserToken(response?.type);
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
             } else {
               showMessage('ZADA Wallet', response.error);
               setProgress(false);
@@ -294,7 +319,7 @@ function RegistrationModule({navigation}) {
     );
   };
 
-  const authenticateUserToken = async () => {
+  const authenticateUserToken = async (isDemo) => {
     try {
       if (isConnected) {
         // autthenticating user
@@ -306,9 +331,18 @@ function RegistrationModule({navigation}) {
           if (decodedToken.dub.length) {
             await _fetchingAppData(isConnected);
             setProgress(false);
+
             // if token has wallet id
             //  navigation.replace('SecurityScreen');
+<<<<<<< HEAD
             navigation.replace('MultiFactorScreen', {from: 'Login'});
+=======
+            if (isDemo != undefined && isDemo == 'demo') {
+              navigation.replace('SecurityScreen');
+            } else {
+              navigation.replace('MultiFactorScreen', {from: 'Login'});
+            }
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
           } else {
             // if token has not wallet id
             // CREATING WALLET
@@ -517,11 +551,14 @@ function RegistrationModule({navigation}) {
                   inputContainerStyle={styles.inputView}
                   strengthMessage={strengthMessage}
                   setStateValue={(text) => {
+<<<<<<< HEAD
                     if (activeOption == 'register') {
                       const msg = validatePasswordStrength(text);
                       setStrengthMessage(msg);
                     }
 
+=======
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
                     setSecret(text.replace(',', ''));
                     if (text.length < 1) {
                       setSecretError('Password is required.');

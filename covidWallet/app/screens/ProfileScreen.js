@@ -18,7 +18,10 @@ import {
   pincodeRegex,
   validateIfLowerCased,
   validateLength,
+<<<<<<< HEAD
   validatePasswordStrength,
+=======
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
 } from '../helpers/validation';
 import {
   BLACK_COLOR,
@@ -77,6 +80,7 @@ const ProfileScreen = () => {
   const [rePincodeError, setRePincodeError] = useState('');
   const [rePincodeSecurity, setRePincodeSecurity] = useState(true);
 
+<<<<<<< HEAD
   const [newStrengthMessage, setNewStrengthMessage] = useState(
     ConstantsList.WEAK,
   );
@@ -109,6 +113,32 @@ const ProfileScreen = () => {
     setNewPassSecure(!isNewPassSecure);
   };
 
+=======
+  // KEYBOARD AVOIDING VIEW
+  const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
+  const keyboardBehaviour = Platform.OS == 'ios' ? 'padding' : null;
+
+  // Toggle pincode eye icon
+  const _toggleOldPincodeSecurity = () => {
+    setOldPincodeSecurity(!oldpincodeSecurity);
+  };
+
+  // Toggle Confirm pincode eye icon
+  const _toggleNewPincodeSecurity = () => {
+    setNewPincodeSecurity(!newPincodeSecurity);
+  };
+
+  // toggle current password security
+  const _toggleCurrPassSecurity = () => {
+    setCurrPassSecure(!isCurrPassSecure);
+  };
+
+  // toggle new password security
+  const _toggleNewPassSecurity = () => {
+    setNewPassSecure(!isNewPassSecure);
+  };
+
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
   // toggle new re password security
   const _toggleRePassSecurity = () => {
     setRePassSecure(!isRePassSecure);
@@ -213,6 +243,7 @@ const ProfileScreen = () => {
       return;
     }
 
+<<<<<<< HEAD
     if (validateLength(currPassword, 1, 50)) {
       setCurrPasswordError('Password length should be 1 to 50 characters');
       return;
@@ -388,6 +419,259 @@ const ProfileScreen = () => {
       showMessage(
         'Zada Wallet',
         'New pincode and confirm pincode should be same',
+=======
+    //check secret length
+    if (validateLength(currPassword)) {
+      setCurrPasswordError('Password length should be 6 to 30 characters');
+      return;
+    }
+
+    if (!validateIfLowerCased(currPassword)) {
+      setSecretError('Current password must be in lowercase.');
+      return;
+    }
+
+    setCurrPasswordError('');
+
+    if (newPassword == '') {
+      setNewPasswordError('New password is required.');
+      return;
+    }
+
+    //check secret length
+    if (validateLength(newPassword)) {
+      setNewPasswordError('Password length should be 6 to 30 characters');
+      return;
+    }
+
+    if (!validateIfLowerCased(newPassword)) {
+      setNewPasswordError('New password must be in lowercase.');
+      return;
+    }
+    setNewPasswordError('');
+
+    if (rePassword == '') {
+      setRePasswordError('Confirm password is required.');
+      return;
+    }
+
+    //check secret length
+    if (validateLength(rePassword)) {
+      setRePasswordError('Password length should be 6 to 30 characters');
+      return;
+    }
+
+    if (!validateIfLowerCased(rePassword)) {
+      setRePasswordError('Confirm password must be in lowercase.');
+      return;
+    }
+    setRePasswordError('');
+
+    if (newPassword != rePassword) {
+      showMessage(
+        'Zada Wallet',
+        'New Password and Confirm Password should be same',
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
+      );
+      return;
+    }
+
+<<<<<<< HEAD
+    // Updating Pincode
+    try {
+      const code = await getItem(ConstantsList.PIN_CODE);
+      if (code == oldPincode) {
+        await saveItem(ConstantsList.PIN_CODE, newPincode);
+        showMessage('Zada Wallet', 'Pincode is updated successfully.');
+        setOldPincode('');
+        setNewpincode('');
+        setRepincode('');
+      } else {
+        showMessage(
+          'Zada Wallet',
+          'You entered wrong old pincode. Please enter the correct.',
+        );
+      }
+    } catch (error) {
+      showMessage('Zada Wallet', error.toString());
+=======
+    // call api to update password
+    try {
+      setLoading(true);
+
+      let data = {
+        oldSecretPhrase: currPassword.trim(),
+        newSecretPhrase: newPassword.trim(),
+      };
+
+      const result = await _updateProfileAPI(data);
+      if (result.data.success) {
+        await saveItem(ConstantsList.WALLET_SECRET, newPassword.trim());
+        _showAlert('Zada Wallet', 'Password has been updated successfully');
+        setCurrPassword('');
+        setNewPassword('');
+        setRePassword('');
+      } else {
+        _showAlert('Zada Wallet', result.data.error);
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      _handleAxiosError(error);
+    }
+  };
+
+  // Effect to fetch user profile
+  useEffect(() => {
+    _fetchProfile();
+  }, []);
+
+  // Checking is Pincode set or not
+  const _checkPinCode = async () => {
+    try {
+      const isPincode = await getItem(ConstantsList.PIN_CODE);
+      if (isPincode != null && isPincode != undefined && isPincode.length != 0)
+        setIsPincode(true);
+      else setIsPincode(false);
+    } catch (error) {
+      showMessage('Zada Wallet', error.toString());
+    }
+  };
+
+  React.useLayoutEffect(() => {
+    _checkPinCode();
+  }, []);
+
+  const _setPinCode = async () => {
+    if (pincode.length == 0) {
+      setPincodeError('Pincode is required.');
+      return;
+    }
+    setPincodeError('');
+
+    if (!pincodeRegex.test(pincode)) {
+      setPincodeError('Pincode should contain only 6 digits.');
+      return;
+    }
+    setPincodeError('');
+
+    if (confirmPincode.length == 0) {
+      setConfirmPincodeError('Confirm pincode is required.');
+      return;
+    }
+    setConfirmPincodeError('');
+
+    if (!pincodeRegex.test(confirmPincode)) {
+      setConfirmPincodeError('Confirm pincode should contain only 6 digits.');
+      return;
+    }
+    setConfirmPincodeError('');
+
+    if (pincode != confirmPincode) {
+      showMessage(
+        'Zada Wallet',
+        'Pincode and confirm pincode are not same. Please check them carefully',
+      );
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
+    }
+  };
+
+<<<<<<< HEAD
+  return (
+    <KeyboardAvoidingView
+      behavior={keyboardBehaviour}
+      keyboardVerticalOffset={keyboardVerticalOffset}
+      style={styles._mainContainer}>
+      {/* PinCode Modal */}
+      <PincodeModal
+        isVisible={showPincodeModal}
+        pincode={pincode}
+        onPincodeChange={(text) => {
+          setPincode(text);
+          if (text.length == 0) setPincodeError('');
+        }}
+        pincodeError={pincodeError}
+        confirmPincode={confirmPincode}
+        onConfirmPincodeChange={(text) => {
+          setConfirmPincode(text);
+          if (text.length == 0) setConfirmPincodeError('');
+        }}
+        confirmPincodeError={confirmPincodeError}
+        onCloseClick={() => {
+          setShowPinCodeModal(!showPincodeModal);
+        }}
+        onContinueClick={_setPinCode}
+      />
+
+      {isLoading && <OverlayLoader text="Updating your profile..." />}
+
+      {profileLoading && <OverlayLoader text="Fetching your profile" />}
+      <ScrollView
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles._scrollContainer}>
+        {/* General Items */}
+        <Text style={styles._parent}>General</Text>
+
+=======
+    // Saving pincode in async
+    try {
+      await saveItem(ConstantsList.PIN_CODE, pincode);
+
+      setIsPincode(true);
+      setShowPinCodeModal(false);
+      showMessage(
+        'Zada Wallet',
+        'Your pincode is set successfully. Please keep it safe and secure.',
+      );
+      setPincode('');
+      setConfirmPincode('');
+    } catch (error) {
+      showMessage('Zada Wallet', error.toString());
+    }
+  };
+
+  const _updatePincode = async () => {
+    if (oldPincode.length == 0) {
+      setOldPincodeError('Old pincode is required.');
+      return;
+    }
+    setOldPincodeError('');
+
+    if (!pincodeRegex.test(oldPincode)) {
+      setOldPincodeError('Old pincode should contain only 6 digits.');
+      return;
+    }
+    setOldPincodeError('');
+
+    if (newPincode.length == 0) {
+      setNewPincodeError('New pincode is required.');
+      return;
+    }
+    setNewPincodeError('');
+
+    if (!pincodeRegex.test(newPincode)) {
+      setNewPincodeError('New pincode should contain only 6 digits.');
+      return;
+    }
+    setNewPincodeError('');
+
+    if (rePincode.length == 0) {
+      setRePincodeError('Confirm pincode is required.');
+      return;
+    }
+    setRePincodeError('');
+
+    if (!pincodeRegex.test(rePincode)) {
+      setRePincodeError('Confirm pincode should contain only 6 digits.');
+      return;
+    }
+    setRePincodeError('');
+
+    if (newPincode != rePincode) {
+      showMessage(
+        'Zada Wallet',
+        'New pincode and confirm pincode should be same',
       );
       return;
     }
@@ -448,6 +732,7 @@ const ProfileScreen = () => {
         {/* General Items */}
         <Text style={styles._parent}>General</Text>
 
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
         {/* Name */}
         <View style={styles._itemContainer}>
           <Text style={styles._itemLabel}>Full Name (Official Name)</Text>
@@ -583,15 +868,21 @@ const ProfileScreen = () => {
               placeholderText="New password"
               errorMessage={newPasswordError}
               value={newPassword}
+<<<<<<< HEAD
               strengthMessage={newStrengthMessage}
+=======
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
               keyboardType="default"
               isSecureText={isNewPassSecure}
               autoCapitalize={'none'}
               inputContainerStyle={styles._inputView}
               setStateValue={(text) => {
                 setNewPassword(text.replace(',', ''));
+<<<<<<< HEAD
                 const msg = validatePasswordStrength(text);
                 setNewStrengthMessage(msg);
+=======
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
               }}
             />
           </View>
@@ -607,15 +898,21 @@ const ProfileScreen = () => {
               placeholderText="Re enter new password"
               errorMessage={rePasswordError}
               value={rePassword}
+<<<<<<< HEAD
               strengthMessage={reStrengthMessage}
+=======
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
               keyboardType="default"
               isSecureText={isRePassSecure}
               autoCapitalize={'none'}
               inputContainerStyle={styles._inputView}
               setStateValue={(text) => {
                 setRePassword(text.replace(',', ''));
+<<<<<<< HEAD
                 const msg = validatePasswordStrength(text);
                 setReStrengthMessage(msg);
+=======
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
               }}
             />
           </View>

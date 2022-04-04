@@ -31,6 +31,7 @@ export const validateIfLowerCased = (text: string) => {
   return isLowerCased;
 };
 
+<<<<<<< HEAD
 export const validateAtLeastOneUpperCaseLetter = (text: string) => {
   const reg = RegExp('(?=.*[A-Z])');
 
@@ -71,3 +72,10 @@ export const validatePasswordStrength = (text: string) => {
     return ConstantsList.WEAK;
   }
 };
+=======
+export const validateLength = (text: string) => {
+  if (text.length < 4 || text.length > 30) {
+    return true;
+  }
+};
+>>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
