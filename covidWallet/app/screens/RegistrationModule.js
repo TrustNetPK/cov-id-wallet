@@ -334,15 +334,11 @@ function RegistrationModule({navigation}) {
 
             // if token has wallet id
             //  navigation.replace('SecurityScreen');
-<<<<<<< HEAD
-            navigation.replace('MultiFactorScreen', {from: 'Login'});
-=======
             if (isDemo != undefined && isDemo == 'demo') {
               navigation.replace('SecurityScreen');
             } else {
               navigation.replace('MultiFactorScreen', {from: 'Login'});
             }
->>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
           } else {
             // if token has not wallet id
             // CREATING WALLET
