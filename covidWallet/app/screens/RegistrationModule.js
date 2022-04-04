@@ -247,13 +247,9 @@ function RegistrationModule({navigation}) {
                 ConstantsList.LOGIN_DATA,
                 JSON.stringify(response),
               );
-<<<<<<< HEAD
-              await authenticateUserToken();
-=======
 
-              console.log('response', response);
+             
               await authenticateUserToken(response?.type);
->>>>>>> ZM-253-create-a-demo-account-for-that-by-passes-otp-verification-at-login-critical-max-delivery-by-5-april
             } else {
               showMessage('ZADA Wallet', response.error);
               setProgress(false);
