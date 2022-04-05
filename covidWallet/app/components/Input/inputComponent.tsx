@@ -179,6 +179,8 @@ export function InputComponent(props: InputIProps) {
           )
         }
         onChangeText={(newText) => {
+          setShowErrorMessage(newText.length > 1 ? false : true);
+
           setInputValue(newText);
           props.setStateValue(newText);
         }}
