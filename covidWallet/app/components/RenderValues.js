@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
 import { get_local_issue_time } from '../helpers/time';
 import { GRAY_COLOR } from '../theme/Colors';
 
-const RenderValues = ({ values, labelColor, inputTextColor, inputBackground, width, mainStyle, listStyle, listContainerStyle }) => {
+const RenderValues = ({ values, labelColor, inputTextColor, inputBackground, width, mainStyle, listStyle, listContainerStyle, inputTextWeight, inputTextSize }) => {
 
     values = Object.keys(values).sort().reduce(
         (obj, key) => {
@@ -30,9 +30,9 @@ const RenderValues = ({ values, labelColor, inputTextColor, inputBackground, wid
                             <View style={[styles._inputContainer, { backgroundColor: inputBackground }]}>
                                 {
                                     key == 'Issue Time' ? (
-                                        <Text style={[styles._inputText, { color: inputTextColor }]}>{get_local_issue_time(value)}</Text>
+                                        <Text style={[styles._inputText, { color: inputTextColor, fontWeight: inputTextWeight ? inputTextWeight : null, fontSize: inputTextSize ? inputTextSize : null }]}>{get_local_issue_time(value)}</Text>
                                     ) : (
-                                        <Text style={[styles._inputText, { color: inputTextColor }]}>{value}</Text>
+                                        <Text style={[styles._inputText, { color: inputTextColor, fontWeight: inputTextWeight ? inputTextWeight : null, fontSize: inputTextSize ? inputTextSize : null }]}>{value}</Text>
                                     )
                                 }
                             </View>

@@ -1,11 +1,15 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text, Animated} from 'react-native';
 import {Input, Overlay, Divider} from 'react-native-elements';
+import ConstantsList from '../../helpers/ConfigApp';
+
 import {
   GRAY_COLOR,
   BLACK_COLOR,
   SECONDARY_COLOR,
   RED_COLOR,
+  YELLOW_COLOR,
+  GREEN_COLOR,
 } from '../../theme/Colors';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -35,16 +39,28 @@ interface InputIProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   type: 'default' | 'secret';
   height: Number;
+  strengthMessage: string;
 }
 
 export function InputComponent(props: InputIProps) {
   //const [secureInputValue, setSecureInputValue] = useState(props.isSecureText);
   const [inputValue, setInputValue] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+
+  const [showStrenghtMessage, setShowStrenghtMessage] = useState(false);
+
+  const [messageColor, setMessageColor] = useState(RED_COLOR);
+
   const [isOverlay, setOverlay] = useState(false);
   const toggleOverlay = () => {
     setOverlay(!isOverlay);
   };
+
+  useEffect(() => {
+    setShowStrenghtMessage(props.strengthMessage != undefined ? true : false);
+    strengthMessageColor(props.strengthMessage);
+    toggleShowStrengthMessage();
+  }, [props.strengthMessage]);
 
   const [animationValue, setAnimationValue] = useState(new Animated.Value(0));
 
@@ -83,6 +99,37 @@ export function InputComponent(props: InputIProps) {
       }).start();
     }
   }
+
+  function toggleShowStrengthMessage() {
+    if (showStrenghtMessage == true) {
+      Animated.timing(animationValue, {
+        toValue: 0,
+        timing: 1500,
+        duration: 100,
+        useNativeDriver: false,
+      }).start();
+    }
+
+    // else {
+    //   setShowStrenghtMessage(!showStrenghtMessage);
+    //   Animated.timing(animationValue, {
+    //     toValue: 30,
+    //     timing: 1500,
+    //     duration: 100,
+    //     useNativeDriver: false,
+    //   }).start();
+    // }
+  }
+
+  const strengthMessageColor = (text: string) => {
+    if (text == ConstantsList.STRONG) {
+      setMessageColor(GREEN_COLOR);
+    } else if (text === ConstantsList.MEDIUM) {
+      setMessageColor(YELLOW_COLOR);
+    } else if (text === ConstantsList.WEAK) {
+      setMessageColor(RED_COLOR);
+    }
+  };
 
   return (
     <>
@@ -132,6 +179,8 @@ export function InputComponent(props: InputIProps) {
           )
         }
         onChangeText={(newText) => {
+          setShowErrorMessage(newText.length > 1 ? false : true);
+
           setInputValue(newText);
           props.setStateValue(newText);
         }}
@@ -145,6 +194,28 @@ export function InputComponent(props: InputIProps) {
         <Animated.View
           style={{height: animationValue, justifyContent: 'center'}}>
           <Text style={styles.errorStyle}>{props.errorMessage}</Text>
+        </Animated.View>
+      )}
+
+      {props.strengthMessage && (
+        <Animated.View
+          style={{
+            flexDirection: 'row',
+            paddingTop: 3,
+            paddingBottom: 10,
+          }}>
+          <Text style={[styles.strenghtMsgstyle, {color: GRAY_COLOR}]}>
+            {`Password Strength:  `}
+          </Text>
+
+          <Text
+            style={{
+              fontSize: 10,
+              //  paddingRight: 16,
+              color: messageColor,
+            }}>
+            {props.strengthMessage}
+          </Text>
         </Animated.View>
       )}
     </>
@@ -169,6 +240,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     paddingLeft: 24,
     paddingRight: 16,
+  },
+
+  strenghtMsgstyle: {
+    fontSize: 10,
+    paddingLeft: 24,
+    // paddingRight: 16,
   },
 
   modalContainer: {

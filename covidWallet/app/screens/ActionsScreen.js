@@ -229,6 +229,14 @@ function ActionsScreen({ navigation }) {
         finalObj = finalObj.concat(verification_offers)
     };
 
+    finalObj = finalObj.filter((element) => {
+      if (element.organizationName) {
+        return element
+      } else {
+        delete_credential_offer_request(element)
+      }
+    })
+
     // SetState ActionList
     if (finalObj.length > 0) {
       setActionsList(finalObj);
@@ -595,8 +603,37 @@ function ActionsScreen({ navigation }) {
     }
   }
 
+  const delete_credential_offer_request = async (req) => {
+    if (req.type === ConstantsList.CRED_OFFER) {
+      try {
+        delete_credential(req.credentialId);
+        deleteActionByCredId(ConstantsList.CRED_OFFER, req.credentialId).then(
+          (actions) => {
+            // updateActionsList();
+          },
+        );
+      } catch (e) {
+      }
+    }
+    if (req.type === ConstantsList.VER_REQ) {
+
+      try {
+        // Submit Verification Api call
+        let result = await delete_verification(req.verificationId);
+
+        if (result.data.success) {
+          await deleteActionByVerID(req.verificationId)
+
+        }
+      } catch (e) {
+      }
+
+    }
+  }
+
   // Reject Modal
   const rejectModal = async (v) => {
+
     let selectedItemObj = {};
     if (v.connectionId != undefined) {
       selectedItemObj = v
