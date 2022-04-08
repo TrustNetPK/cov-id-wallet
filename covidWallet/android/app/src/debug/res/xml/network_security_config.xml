@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <!-- deny cleartext traffic for React Native packager ips in release -->
+  <domain-config cleartextTrafficPermitted="true">
+   <domain includeSubdomains="true">localhost</domain>
+   <domain includeSubdomains="true">192.168.100.28</domain>
+   <domain includeSubdomains="true">10.0.2.2</domain>
+   <domain includeSubdomains="true">10.0.3.2</domain>
+   <domain includeSubdomains="true">test-agency.zadanetwork.com</domain>
+   <domain includeSubdomains="true">agency.zadanetwork.com</domain>
+   <domain includeSubdomains="true">www.youtube.com</domain>
+   <domain includeSubdomains="true">lonelycpp.github.io</domain>
+   <domain includeSubdomains="true">https://lonelycpp.github.io/</domain>
+  </domain-config>
+</network-security-config>
