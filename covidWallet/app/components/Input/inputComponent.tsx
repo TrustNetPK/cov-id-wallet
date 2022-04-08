@@ -46,7 +46,10 @@ export function InputComponent(props: InputIProps) {
   //const [secureInputValue, setSecureInputValue] = useState(props.isSecureText);
   const [inputValue, setInputValue] = useState('');
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [messageColor, setMessageColor] = useState(GREEN_COLOR);
+
+  const [showStrenghtMessage, setShowStrenghtMessage] = useState(false);
+
+  const [messageColor, setMessageColor] = useState(RED_COLOR);
 
   const [isOverlay, setOverlay] = useState(false);
   const toggleOverlay = () => {
@@ -54,7 +57,9 @@ export function InputComponent(props: InputIProps) {
   };
 
   useEffect(() => {
+    setShowStrenghtMessage(props.strengthMessage != undefined ? true : false);
     strengthMessageColor(props.strengthMessage);
+    toggleShowStrengthMessage();
   }, [props.strengthMessage]);
 
   const [animationValue, setAnimationValue] = useState(new Animated.Value(0));
@@ -93,6 +98,27 @@ export function InputComponent(props: InputIProps) {
         useNativeDriver: false,
       }).start();
     }
+  }
+
+  function toggleShowStrengthMessage() {
+    if (showStrenghtMessage == true) {
+      Animated.timing(animationValue, {
+        toValue: 0,
+        timing: 1500,
+        duration: 100,
+        useNativeDriver: false,
+      }).start();
+    }
+
+    // else {
+    //   setShowStrenghtMessage(!showStrenghtMessage);
+    //   Animated.timing(animationValue, {
+    //     toValue: 30,
+    //     timing: 1500,
+    //     duration: 100,
+    //     useNativeDriver: false,
+    //   }).start();
+    // }
   }
 
   const strengthMessageColor = (text: string) => {
@@ -153,6 +179,8 @@ export function InputComponent(props: InputIProps) {
           )
         }
         onChangeText={(newText) => {
+          setShowErrorMessage(newText.length > 1 ? false : true);
+
           setInputValue(newText);
           props.setStateValue(newText);
         }}
@@ -168,18 +196,24 @@ export function InputComponent(props: InputIProps) {
           <Text style={styles.errorStyle}>{props.errorMessage}</Text>
         </Animated.View>
       )}
+
       {props.strengthMessage && (
         <Animated.View
           style={{
             flexDirection: 'row',
-            height: animationValue,
-            justifyContent: 'center',
+            paddingTop: 3,
+            paddingBottom: 10,
           }}>
-          <Text style={{color: GRAY_COLOR, fontSize: 12}}>
-            {`Password Strength :`}
+          <Text style={[styles.strenghtMsgstyle, {color: GRAY_COLOR}]}>
+            {`Password Strength:  `}
           </Text>
 
-          <Text style={[styles.messageStyle, {color: messageColor}]}>
+          <Text
+            style={{
+              fontSize: 10,
+              //  paddingRight: 16,
+              color: messageColor,
+            }}>
             {props.strengthMessage}
           </Text>
         </Animated.View>
@@ -207,11 +241,11 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 16,
   },
-  messageStyle: {
-    color: RED_COLOR,
-    fontSize: 12,
+
+  strenghtMsgstyle: {
+    fontSize: 10,
     paddingLeft: 24,
-    paddingRight: 16,
+    // paddingRight: 16,
   },
 
   modalContainer: {
