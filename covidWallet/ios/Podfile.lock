@@ -2,7 +2,7 @@ PODS:
   - boost-for-react-native (1.63.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
-  - EXConstants (11.0.1):
+  - EXConstants (11.0.2):
     - ExpoModulesCore
     - UMCore
   - EXFileSystem (11.1.3):
@@ -174,9 +174,9 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OpenSSL-Universal (1.1.180)
-  - Permission-Camera (3.0.5):
+  - Permission-Camera (3.3.1):
     - RNPermissions
-  - PromisesObjC (2.0.0)
+  - PromisesObjC (2.1.0)
   - RCT-Folly (2020.01.13.00):
     - boost-for-react-native
     - DoubleConversion
@@ -370,25 +370,25 @@ PODS:
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
   - React-jsinspector (0.64.2)
-  - react-native-camera (3.43.8):
+  - react-native-camera (3.44.3):
     - React-Core
-    - react-native-camera/RCT (= 3.43.8)
-    - react-native-camera/RN (= 3.43.8)
-  - react-native-camera/RCT (3.43.8):
+    - react-native-camera/RCT (= 3.44.3)
+    - react-native-camera/RN (= 3.44.3)
+  - react-native-camera/RCT (3.44.3):
     - React-Core
-  - react-native-camera/RN (3.43.8):
+  - react-native-camera/RN (3.44.3):
     - React-Core
   - react-native-fingerprint-scanner (5.0.0):
     - React
-  - react-native-netinfo (6.0.2):
+  - react-native-netinfo (6.2.1):
     - React-Core
-  - react-native-pager-view (5.4.9):
+  - react-native-pager-view (5.4.15):
     - React-Core
   - react-native-safe-area-context (0.7.3):
     - React
-  - react-native-splash-screen (3.2.0):
-    - React
-  - react-native-webview (11.15.0):
+  - react-native-splash-screen (3.3.0):
+    - React-Core
+  - react-native-webview (11.18.1):
     - React-Core
   - React-perflogger (0.64.2)
   - React-RCTActionSheet (0.64.2):
@@ -454,13 +454,13 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - RNCAsyncStorage (1.15.4):
+  - RNCAsyncStorage (1.17.3):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
-  - RNCPushNotificationIOS (1.8.0):
+  - RNCPushNotificationIOS (1.10.1):
     - React-Core
-  - RNDeviceInfo (8.4.8):
+  - RNDeviceInfo (8.7.0):
     - React-Core
   - RNExitApp (1.1.0):
     - React
@@ -471,15 +471,15 @@ PODS:
   - RNFBApp (12.5.0):
     - Firebase/CoreOnly (= 8.5.0)
     - React-Core
-  - RNFBMessaging (12.7.2):
+  - RNFBMessaging (12.9.3):
     - Firebase/Messaging (= 8.5.0)
     - React-Core
     - RNFBApp
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNPermissions (3.0.5):
+  - RNPermissions (3.3.1):
     - React-Core
-  - RNReanimated (2.3.1):
+  - RNReanimated (2.7.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -487,7 +487,6 @@ PODS:
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
-    - React
     - React-callinvoker
     - React-Core
     - React-Core/DevSupport
@@ -509,13 +508,13 @@ PODS:
     - Yoga
   - RNScreens (2.18.1):
     - React-Core
-  - RNSVG (12.1.1):
-    - React
+  - RNSVG (12.3.0):
+    - React-Core
   - RNVectorIcons (6.6.0):
     - React
   - UMAppLoader (2.2.0)
-  - UMCore (7.1.1)
-  - UMReactNativeAdapter (6.3.5):
+  - UMCore (7.1.2)
+  - UMReactNativeAdapter (6.3.9):
     - ExpoModulesCore
     - React-Core
     - UMCore
@@ -763,7 +762,7 @@ SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
-  EXConstants: 5fc49c1bf567558e4576befcccb5e99f49f9c2ce
+  EXConstants: d0969e870d37f824cc940751d8e7e3c50afe6063
   EXFileSystem: 94496f1160b0bf7f000fe04e38ecb2aa63083a2c
   EXImageLoader: 6494524ac2b99af4edcacada0e19c71600423e59
   EXLocalAuthentication: 305703be9ca403b96ebe77af9d70274c4e3d80ff
@@ -792,8 +791,8 @@ SPEC CHECKSUMS:
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
-  Permission-Camera: 24c37a846ff69e0eb7fd4264346550850d5b707a
-  PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
+  Permission-Camera: 273b78e214eae8d734d1c497b67aa0030838c006
+  PromisesObjC: 99b6f43f9e1044bd87a95a60beff28c2c44ddb72
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: 6d3e854f0e7260a648badd0d44fc364bc9da9728
   RCTTypeSafety: c1f31d19349c6b53085766359caac425926fafaa
@@ -805,13 +804,13 @@ SPEC CHECKSUMS:
   React-jsi: 67747b9722f6dab2ffe15b011bcf6b3f2c3f1427
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
-  react-native-camera: 894cdcb9e5bfe41719513ad95e0cd1d108b79ee6
+  react-native-camera: fefef39fcd20850d17c3780638b04f741e0ccaae
   react-native-fingerprint-scanner: 77140320ed56d612200371ebc2abefa5f20b574e
-  react-native-netinfo: 8917788f12f8c422d16a56f840a1b06faa56e2b6
-  react-native-pager-view: 311c10a4eead1be627cad59062aa059d8108b943
+  react-native-netinfo: 877946c7b4eb85a639cf1ea31333dadc2be999a1
+  react-native-pager-view: 15ae71c52a8a40bd8a10505b5c64fb129fc437e2
   react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
-  react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
-  react-native-webview: fcadb5d977e7098e14eb3b27d339feae16c549ff
+  react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
+  react-native-webview: ba5a82f852bdd2564241a921c31dffdd696f88be
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
   React-RCTAnimation: 6a2e76ab50c6f25b428d81b76a5a45351c4d77aa
@@ -824,23 +823,23 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
+  RNCAsyncStorage: bef53cb70c06b8eff11bab4a848de86ad4488c39
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
-  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
-  RNDeviceInfo: 417b2ef4456c13a9d50ad8c57895eea837b735a8
+  RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
+  RNDeviceInfo: a5bd1c810c609f7b8dd87029fe4b2112ae36136d
   RNExitApp: 7d81855142a4d11eb75f4f06fdebf5a950d7aef2
   RNFBAnalytics: f333ca7f05d2cccd0f7092e54434d10a4f5982d1
   RNFBApp: 5f583e80cd7a32621d6057da3b786c4db96f1ef4
-  RNFBMessaging: 2d5cbe208f3bd5502975537fef327461916a6e1b
+  RNFBMessaging: 6a5c260dd010dc21fd5ed0a84cc9b11ff8bb288c
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92
-  RNReanimated: 7f143675d94978c3555345d5bfa8ed6ae800c5d3
+  RNPermissions: 7ad8d93b004e6bc85c89e27a102afcde90e07efa
+  RNReanimated: 93fe36bf01e6bd4346e0ffc9e469ce37a6b2bea9
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
-  RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
+  RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   UMAppLoader: db2dae4bc3085e21f56d6d9cf7783d08c5999af4
-  UMCore: 063edcab3a9de0c44301fe77af147aa1a654b40f
-  UMReactNativeAdapter: 548b3f6ae0e814ce55c8b2059ac1dc4bf43ec2db
+  UMCore: ad33bbda30dee343a248e3696f30502092d9842d
+  UMReactNativeAdapter: c10564ac78d5117d448b75b87862173deb043ec5
   UMTaskManagerInterface: 75462b0d8580ec91ae23f88a4f9271a3130efb02
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
