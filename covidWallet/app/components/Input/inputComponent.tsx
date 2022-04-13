@@ -109,16 +109,6 @@ export function InputComponent(props: InputIProps) {
         useNativeDriver: false,
       }).start();
     }
-
-    // else {
-    //   setShowStrenghtMessage(!showStrenghtMessage);
-    //   Animated.timing(animationValue, {
-    //     toValue: 30,
-    //     timing: 1500,
-    //     duration: 100,
-    //     useNativeDriver: false,
-    //   }).start();
-    // }
   }
 
   const strengthMessageColor = (text: string) => {

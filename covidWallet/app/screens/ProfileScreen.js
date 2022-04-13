@@ -76,14 +76,8 @@ const ProfileScreen = () => {
   const [rePincode, setRepincode] = useState('');
   const [rePincodeError, setRePincodeError] = useState('');
   const [rePincodeSecurity, setRePincodeSecurity] = useState(true);
-
-  const [newStrengthMessage, setNewStrengthMessage] = useState(
-    ConstantsList.WEAK,
-  );
-
-  const [reStrengthMessage, setReStrengthMessage] = useState(
-    ConstantsList.WEAK,
-  );
+  const [newStrengthMessage, setNewStrengthMessage] = useState(undefined);
+  const [reStrengthMessage, setReStrengthMessage] = useState(undefined);
 
   // KEYBOARD AVOIDING VIEW
   const keyboardVerticalOffset = Platform.OS == 'ios' ? 100 : 0;
@@ -590,8 +584,13 @@ const ProfileScreen = () => {
               inputContainerStyle={styles._inputView}
               setStateValue={(text) => {
                 setNewPassword(text.replace(',', ''));
-                const msg = validatePasswordStrength(text);
-                setNewStrengthMessage(msg);
+
+                if (text.length > 1) {
+                  const msg = validatePasswordStrength(text);
+                  setNewStrengthMessage(msg);
+                } else {
+                  setNewStrengthMessage(null);
+                }
               }}
             />
           </View>
@@ -614,8 +613,13 @@ const ProfileScreen = () => {
               inputContainerStyle={styles._inputView}
               setStateValue={(text) => {
                 setRePassword(text.replace(',', ''));
-                const msg = validatePasswordStrength(text);
-                setReStrengthMessage(msg);
+
+                if (text.length > 1) {
+                  const msg = validatePasswordStrength(text);
+                  setReStrengthMessage(msg);
+                } else {
+                  setReStrengthMessage(null);
+                }
               }}
             />
           </View>
