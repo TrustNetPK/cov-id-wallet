@@ -1,38 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
-import {
-  StyleSheet,
-  View,
-  Text,
-  Alert,
-  TouchableOpacity,
-} from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import {StyleSheet, View, Text, Alert, TouchableOpacity} from 'react-native';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import queryString from 'query-string';
-import {
-  getItem,
-  ls_addConnection,
-  saveItem,
-} from '../helpers/Storage';
-import ConstantsList, { ZADA_AUTH_CONNECTION_ID } from '../helpers/ConfigApp';
-import { Buffer } from 'buffer';
+import {getItem, ls_addConnection, saveItem} from '../helpers/Storage';
+import ConstantsList, {ZADA_AUTH_CONNECTION_ID} from '../helpers/ConfigApp';
+import {Buffer} from 'buffer';
 import CustomProgressBar from '../components/CustomProgressBar';
-import { showMessage, showNetworkMessage, _showAlert } from '../helpers/Toast';
-import { AuthenticateUser } from '../helpers/Authenticate'
-import { addImageAndNameFromConnectionList } from '../helpers/ActionList';
-import { accept_connection, add_session, find_auth_connection, save_did, send_zada_auth_verification_request } from '../gateways/connections';
+import {showMessage, showNetworkMessage, _showAlert} from '../helpers/Toast';
+import {AuthenticateUser} from '../helpers/Authenticate';
+import {addImageAndNameFromConnectionList} from '../helpers/ActionList';
+import {
+  accept_connection,
+  add_session,
+  find_auth_connection,
+  save_did,
+  send_zada_auth_verification_request,
+} from '../gateways/connections';
 import SuccessModal from '../components/SuccessModal';
 import FailureModal from '../components/FailureModal';
 import CredValuesModal from '../components/CredValuesModal';
-import { analytics_log_unverified_credential, analytics_log_verified_credential, analytics_log_verify_cred_qr } from '../helpers/analytics';
-import { submit_cold_verification } from '../gateways/credentials';
+import {
+  analytics_log_unverified_credential,
+  analytics_log_verified_credential,
+  analytics_log_verify_cred_qr,
+} from '../helpers/analytics';
+import {submit_cold_verification} from '../gateways/credentials';
 import useNetwork from '../hooks/useNetwork';
-import { _handleAxiosError } from '../helpers/AxiosResponse';
+import {_handleAxiosError} from '../helpers/AxiosResponse';
 
-function QRScreen({ route, navigation }) {
-
-  const { isConnected } = useNetwork();
+function QRScreen({route, navigation}) {
+  const {isConnected} = useNetwork();
 
   const [scan, setScan] = useState(true);
   const [connection_request, setConnectionRequest] = useState('');
@@ -70,7 +69,7 @@ function QRScreen({ route, navigation }) {
           setConnectionRequest(JSON.stringify(cr_arr));
           if (route.params != undefined) {
             setScan(false);
-            const { request } = route.params;
+            const {request} = route.params;
             const qrJSON = JSON.parse(JSON.stringify(request));
             if (request.type == 'connection_request') {
               setProgress(true);
@@ -96,7 +95,7 @@ function QRScreen({ route, navigation }) {
           setCredentialRequest(JSON.stringify(cred_arr));
           if (route.params != undefined) {
             setScan(false);
-            const { request } = route.params;
+            const {request} = route.params;
             const qrJSON = JSON.parse(JSON.stringify(request));
             if (request.type == 'credential_offer') {
               setProgress(true);
@@ -107,7 +106,6 @@ function QRScreen({ route, navigation }) {
         .catch((e) => {
           console.log(e);
         });
-
 
       getItem(ConstantsList.PROOF_REQ)
         .then((data) => {
@@ -125,12 +123,10 @@ function QRScreen({ route, navigation }) {
         .catch((e) => {
           console.log(e);
         });
-    }
-    else {
+    } else {
       showNetworkMessage();
     }
   }, []);
-
 
   const getResponseUrl = async (inviteID, qrJSON) => {
     let baseURL = 'https://trinsic.studio/url/';
@@ -170,7 +166,7 @@ function QRScreen({ route, navigation }) {
                 onPress: () => navigation.navigate('MainScreen'),
               },
             ],
-            { cancelable: false },
+            {cancelable: false},
           );
         } else {
           cr_arr.push(qrJSON);
@@ -193,8 +189,8 @@ function QRScreen({ route, navigation }) {
       if (resp.success) {
         await fetch(
           ConstantsList.BASE_URL +
-          '/api/credential/get_credential' +
-          `?credentialId=${credID}`,
+            '/api/credential/get_credential' +
+            `?credentialId=${credID}`,
           {
             method: 'GET',
             headers: {
@@ -215,7 +211,7 @@ function QRScreen({ route, navigation }) {
                     onPress: () => navigation.navigate('MainScreen'),
                   },
                 ],
-                { cancelable: false },
+                {cancelable: false},
               );
             } else if (data.success == true) {
               let qrJSON = data.credential;
@@ -238,7 +234,7 @@ function QRScreen({ route, navigation }) {
                         onPress: () => navigation.navigate('MainScreen'),
                       },
                     ],
-                    { cancelable: false },
+                    {cancelable: false},
                   );
                 });
             } else {
@@ -252,7 +248,7 @@ function QRScreen({ route, navigation }) {
                     onPress: () => navigation.navigate('MainScreen'),
                   },
                 ],
-                { cancelable: false },
+                {cancelable: false},
               );
             }
           }),
@@ -268,7 +264,7 @@ function QRScreen({ route, navigation }) {
   // Handling zada auth connection requests
   const _handleZadaAuth = async (data) => {
     try {
-      setDialogTitle('Processing...')
+      setDialogTitle('Processing...');
       setScan(false);
       setProgress(true);
 
@@ -281,18 +277,18 @@ function QRScreen({ route, navigation }) {
         // Find Connection
         const response = await find_auth_connection(userId, data.tenantId);
         if (response.data.success) {
-          const sendResult = await send_zada_auth_verification_request(response.data.data.did);
+          const sendResult = await send_zada_auth_verification_request(
+            response.data.data.did,
+          );
 
           if (sendResult.data.success) {
             setProgress(false);
             navigation.navigate('MainScreen');
-          }
-          else {
+          } else {
             setProgress(false);
             _showAlert('Zada Wallet', sendResult.data.error);
           }
-        }
-        else {
+        } else {
           // Accept connection
           const result = await accept_connection(ZADA_AUTH_CONNECTION_ID);
           if (result.data.success) {
@@ -300,23 +296,24 @@ function QRScreen({ route, navigation }) {
             await ls_addConnection(result.data.connection);
 
             // Saving DID
-            const didResult = await save_did(userId, data.tenantId, result.data.connection.myDid);
+            const didResult = await save_did(
+              userId,
+              data.tenantId,
+              result.data.connection.myDid,
+            );
             if (didResult.data.success) {
               navigation.navigate('MainScreen');
               //_showAlert('Zada Wallet', 'Connection is accepted successfully');
-            }
-            else {
+            } else {
               navigation.navigate('MainScreen');
               _showAlert('Zada Wallet', result.data.message);
             }
-          }
-          else {
+          } else {
             _showAlert('Zada Wallet', result.data.message);
           }
           setProgress(false);
         }
-      }
-      else {
+      } else {
         setProgress(false);
         _showAlert('Zada Wallet', sessionResult.data.error);
       }
@@ -325,13 +322,13 @@ function QRScreen({ route, navigation }) {
       setProgress(false);
       _handleAxiosError(error);
     }
-  }
+  };
 
   const onSuccess = (e) => {
     try {
       if (isConnected) {
         let unEscapedStr = e.data;
-        unEscapedStr = unEscapedStr.replace(/\\/g, "");
+        unEscapedStr = unEscapedStr.replace(/\\/g, '');
         unEscapedStr = unEscapedStr.replace(/“/g, '"');
         try {
           if (JSON.parse(unEscapedStr).type == 'cred_ver') {
@@ -339,8 +336,7 @@ function QRScreen({ route, navigation }) {
           }
           if (JSON.parse(unEscapedStr).type == 'zadaauth') {
             _handleZadaAuth(JSON.parse(e.data));
-          }
-          else {
+          } else {
             try {
               let title = '';
               try {
@@ -370,8 +366,8 @@ function QRScreen({ route, navigation }) {
                 title = 'Digital Proof Request Added';
                 arr2.push(qrJSON);
                 saveItem(ConstantsList.PROOF_REQ, JSON.stringify(arr2))
-                  .then(() => { })
-                  .catch((e) => { });
+                  .then(() => {})
+                  .catch((e) => {});
               } else {
                 title = 'Invalid QR Code';
               }
@@ -388,16 +384,14 @@ function QRScreen({ route, navigation }) {
                     onPress: () => navigation.navigate('MainScreen'),
                   },
                 ],
-                { cancelable: false },
+                {cancelable: false},
               );
-
             }
           }
         } catch (error) {
-          _showAlert('Zada WAllet', error.toString());
+          _showAlert('Zada WAllet', 'Not a valid ZADA QR');
         }
-      }
-      else {
+      } else {
         showNetworkMessage();
       }
     } catch (error) {
@@ -407,13 +401,12 @@ function QRScreen({ route, navigation }) {
 
   function arrangeValues(values) {
     let orderedValues = undefined;
-    orderedValues = Object.keys(values).sort().reduce(
-      (obj, key) => {
+    orderedValues = Object.keys(values)
+      .sort()
+      .reduce((obj, key) => {
         obj[key] = values[key];
         return obj;
-      },
-      {}
-    );
+      }, {});
     return orderedValues;
   }
 
@@ -435,12 +428,11 @@ function QRScreen({ route, navigation }) {
     } catch (error) {
       _showAlert('ZADA Wallet', error.message);
     }
-  }
+  };
 
   // When user will click on verification button
   const on_verify_click = async () => {
     try {
-
       if (isConnected) {
         analytics_log_verify_cred_qr();
 
@@ -450,7 +442,7 @@ function QRScreen({ route, navigation }) {
           credentialData.data,
           credentialData.signature,
           credentialData.tenantId,
-          credentialData.keyVersion
+          credentialData.keyVersion,
         );
 
         if (result.data.success) {
@@ -460,21 +452,18 @@ function QRScreen({ route, navigation }) {
             setShowSuccessModal(true);
           }, 500);
           analytics_log_verified_credential();
-        }
-        else {
+        } else {
           setErrMsg('Failed to validate credential');
           setScanning(false);
           setShowVerifyModal(false);
           setTimeout(() => {
             setShowErrorModal(true);
           }, 500);
-          analytics_log_unverified_credential()
+          analytics_log_unverified_credential();
         }
-      }
-      else {
+      } else {
         showNetworkMessage();
       }
-
     } catch (error) {
       setErrMsg('Unable to verify credential');
       setScanning(false);
@@ -482,36 +471,50 @@ function QRScreen({ route, navigation }) {
       setTimeout(() => {
         setShowErrorModal(true);
       }, 500);
-      analytics_log_unverified_credential()
+      analytics_log_unverified_credential();
     }
-  }
+  };
 
   return (
     <View style={styles.MainContainer}>
-
       <CredValuesModal
         values={values}
         isVisible={showVerifyModal}
         heading={isScanning ? `Verifying...` : `Credential\nInformation`}
         isScanning={isScanning}
-        onCloseClick={() => { setShowVerifyModal(false); setScan(true) }}
-        onVerifyPress={() => { on_verify_click() }}
+        onCloseClick={() => {
+          setShowVerifyModal(false);
+          setScan(true);
+        }}
+        onVerifyPress={() => {
+          on_verify_click();
+        }}
       />
 
       <SuccessModal
         isVisible={showSuccessModal}
-        heading='Success'
-        info='Credential is verified successfully'
-        onCloseClick={() => { setShowSuccessModal(false) }}
-        onOkayPress={() => { setShowSuccessModal(false); setScan(true) }}
+        heading="Success"
+        info="Credential is verified successfully"
+        onCloseClick={() => {
+          setShowSuccessModal(false);
+        }}
+        onOkayPress={() => {
+          setShowSuccessModal(false);
+          setScan(true);
+        }}
       />
 
       <FailureModal
         isVisible={showErrorModal}
-        heading='Invalid Credential'
+        heading="Invalid Credential"
         info={errMsg}
-        onCloseClick={() => { setShowErrorModal(false) }}
-        onOkayPress={() => { setShowErrorModal(false); setScan(true) }}
+        onCloseClick={() => {
+          setShowErrorModal(false);
+        }}
+        onOkayPress={() => {
+          setShowErrorModal(false);
+          setScan(true);
+        }}
       />
 
       {scan ? (
