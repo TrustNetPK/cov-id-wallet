@@ -51,12 +51,10 @@ export default function SettingsScreen(props) {
   }, []);
 
   const _toggleBio = (value) => {
-    console.log('_toggleBio', value);
     props.route.params.oneTimeAuthentication((e) => _bioResult(e, value));
   };
 
   const _bioResult = async (result, value) => {
-    console.log('result, value', result, value);
     if (result) {
       // Saving preference in asyncstorage.
       await saveItem(BIOMETRIC_ENABLED, JSON.stringify(value));
