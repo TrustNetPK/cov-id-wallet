@@ -16,6 +16,7 @@ const useBiometric = () => {
     setOneTime(true);
     setTimeout(async () => {
       let result = await authenticateUser();
+      console.log('authenticateUser', result);
       setAuthStatus(true);
       return callback(result);
     }, 500);
@@ -25,6 +26,8 @@ const useBiometric = () => {
   const authenticateUser = async () => {
     // Check if sensor is available.
     let available = await LocalAuthentication.hasHardwareAsync();
+
+    console.log('available', available);
 
     if (available) {
       // Check if fingerprint is enrolled.
