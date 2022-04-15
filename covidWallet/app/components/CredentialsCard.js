@@ -28,38 +28,21 @@ function CredentialsCard(props) {
       setLoading(true);
 
       let schemeId = props.schemeId.replace(/:/g, '.');
-      console.log('schemeId', schemeId);
 
-      console.log('url', `${ZADA_S3_BASE_URL}/${schemeId}.png`);
       const result = axios
         .get(`${ZADA_S3_BASE_URL}/${schemeId}.png`)
         .then((res) => {
           if (res.status == 200) {
-            console.log(
-              'cardbackground',
-              `${ZADA_S3_BASE_URL}/${schemeId}.png`,
-            );
             setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}.png`);
             setUrl(true);
             setLoading(false);
           }
         })
         .catch((error) => {
-          console.log('image', backgroundImage);
-          console.log('error', error);
           setUrl(false);
           setLoading(false);
           // setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
         });
-
-      //   console.log('result', result);
-      //   if (result.status == 200) {
-      //     console.log('cardbackground', `${ZADA_S3_BASE_URL}/${schemeId}.png`);
-      //     setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}.png`);
-      //   } else {
-      //     console.log(`${ZADA_S3_BASE_URL}/default.png`);
-      //     setBakcgroundImage(`${ZADA_S3_BASE_URL}/default.png`);
-      //   }
     } catch (error) {
       setUrl(false);
       setBakcgroundImage(CARD_BG);
