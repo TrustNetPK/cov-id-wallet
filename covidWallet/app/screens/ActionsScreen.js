@@ -653,19 +653,29 @@ function ActionsScreen({navigation}) {
     } else {
       let selectedItemObj = JSON.parse(selectedItem);
 
-      biometricVerification()
-        .then((res) => {
-          setModalVisible(false);
-          setIsLoading(true);
+      let checkbiometric = await biometricVerification();
 
-          accept_verification_request(selectedItemObj, data);
-        })
-        .catch(() => {
-          showMessage(
-            'ZADA Wallet',
-            'Biometric verification is required for accepting verification request',
-          );
-        });
+      if (checkbiometric) {
+        setModalVisible(false);
+        accept_verification_request(selectedItemObj, data);
+      } else {
+        showMessage(
+          'ZADA Wallet',
+          'Biometric verification is required for accepting verification request',
+        );
+      }
+
+      // biometricVerification()
+      //   .then((res) => {
+      //     setModalVisible(false);
+      //     setIsLoading(true);
+      //   })
+      //   .catch(() => {
+      //     showMessage(
+      //       'ZADA Wallet',
+      //       'Biometric verification is required for accepting verification request',
+      //     );
+      //   });
     }
   };
 
@@ -759,25 +769,35 @@ function ActionsScreen({navigation}) {
     }
 
     if (selectedItemObj.type === ConstantsList.VER_REQ) {
-      //handleVerificationRequests();
       // Biometric Verification
 
-      biometricVerification()
-        .then((res) => {
-          console.log('res', res);
-          setModalVisible(false);
-          delete_verification_request(selectedItemObj);
-        })
-        .catch(() => {
-          if (isPincodeSet) {
-            setModalVisible(false);
-            setTimeout(() => {
-              setShowConfirmModal(true);
-            }, 100);
+      let checkbiometric = await biometricVerification();
 
-            // delete_verification_request(selectedItemObj);
-          }
-        });
+      if (checkbiometric) {
+        setModalVisible(false);
+        delete_verification_request(selectedItemObj);
+      } else if (isPincodeSet) {
+        setModalVisible(false);
+        setTimeout(() => {
+          setShowConfirmModal(true);
+        }, 100);
+      }
+      // biometricVerification()
+      //   .then((res) => {
+      //     console.log('res', res);
+      //     setModalVisible(false);
+      //     delete_verification_request(selectedItemObj);
+      //   })
+      //   .catch(() => {
+      //     if (isPincodeSet) {
+      //       setModalVisible(false);
+      //       setTimeout(() => {
+      //         setShowConfirmModal(true);
+      //       }, 100);
+
+      //       // delete_verification_request(selectedItemObj);
+      //     }
+      //   });
     }
   };
 
