@@ -519,7 +519,7 @@ function RegistrationModule({navigation}) {
                   keyboardType="default"
                   isSecureText={secureSecret}
                   autoCapitalize={'none'}
-                  inputContainerStyle={{width: '80%'}}
+                  //inputContainerStyle={{width: '80%'}}
                   inputContainerStyle={styles.inputView}
                   strengthMessage={strengthMessage}
                   setStateValue={(text) => {

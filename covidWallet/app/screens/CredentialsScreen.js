@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
   Text,
   useWindowDimensions,
-  View
+  View,
 } from 'react-native';
-import { BACKGROUND_COLOR, PRIMARY_COLOR } from '../theme/Colors'
-import { TabView, SceneMap } from 'react-native-tab-view';
+import {BACKGROUND_COLOR, PRIMARY_COLOR} from '../theme/Colors';
+import {TabView, SceneMap} from 'react-native-tab-view';
 import Credentials from './Credentials';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import CredentialGroups from './CredentialGroups';
 
 const CredentialsScreen = (props) => {
-
   const layout = useWindowDimensions();
 
   const renderScene = SceneMap({
@@ -23,8 +22,8 @@ const CredentialsScreen = (props) => {
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'certificates', title: 'All Certificates' },
-    { key: 'groups', title: 'Groups' },
+    {key: 'certificates', title: 'All Certificates'},
+    {key: 'groups', title: 'Groups'},
   ]);
 
   const CustomTabbAr = (props) => {
@@ -33,12 +32,15 @@ const CredentialsScreen = (props) => {
         {props.navigationState.routes.map((route, i) => {
           return (
             <TouchableOpacity
-              style={[styles._tabbar, {
-                borderBottomColor: PRIMARY_COLOR,
-                borderBottomWidth: index == i ? 2 : 0,
-              }]}
-              onPress={() => setIndex(i)}
-            >
+              key={i}
+              style={[
+                styles._tabbar,
+                {
+                  borderBottomColor: PRIMARY_COLOR,
+                  borderBottomWidth: index == i ? 2 : 0,
+                },
+              ]}
+              onPress={() => setIndex(i)}>
               <Text style={[styles._tabText]}>{route.title}</Text>
             </TouchableOpacity>
           );
@@ -51,15 +53,15 @@ const CredentialsScreen = (props) => {
     <View style={styles._mainContainer}>
       <TabView
         renderTabBar={(props) => <CustomTabbAr {...props} />}
-        navigationState={{ index, routes }}
+        navigationState={{index, routes}}
         renderScene={renderScene}
         onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
+        initialLayout={{width: layout.width}}
         swipeEnabled={false}
       />
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   _mainContainer: {
@@ -84,6 +86,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
   },
-})
+});
 
 export default CredentialsScreen;
