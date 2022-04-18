@@ -644,39 +644,39 @@ function ActionsScreen({navigation}) {
   const handleVerificationRequests = async (data) => {
     setDialogData(data);
 
-    // Check Either pincode set or not
-    if (isPincodeSet) {
+    let selectedItemObj = JSON.parse(selectedItem);
+
+    let checkbiometric = await biometricVerification();
+
+    if (checkbiometric) {
       setModalVisible(false);
-      setTimeout(() => {
-        setShowConfirmModal(true);
-      }, 100);
+      accept_verification_request(selectedItemObj, data);
     } else {
-      let selectedItemObj = JSON.parse(selectedItem);
+      // showMessage(
+      //   'ZADA Wallet',
+      //   'Biometric verification is required for accepting verification request',
+      // );
 
-      let checkbiometric = await biometricVerification();
-
-      if (checkbiometric) {
+      // Check Either pincode set or not
+      if (isPincodeSet) {
         setModalVisible(false);
-        accept_verification_request(selectedItemObj, data);
-      } else {
-        showMessage(
-          'ZADA Wallet',
-          'Biometric verification is required for accepting verification request',
-        );
+        setTimeout(() => {
+          setShowConfirmModal(true);
+        }, 100);
       }
-
-      // biometricVerification()
-      //   .then((res) => {
-      //     setModalVisible(false);
-      //     setIsLoading(true);
-      //   })
-      //   .catch(() => {
-      //     showMessage(
-      //       'ZADA Wallet',
-      //       'Biometric verification is required for accepting verification request',
-      //     );
-      //   });
     }
+
+    // biometricVerification()
+    //   .then((res) => {
+    //     setModalVisible(false);
+    //     setIsLoading(true);
+    //   })
+    //   .catch(() => {
+    //     showMessage(
+    //       'ZADA Wallet',
+    //       'Biometric verification is required for accepting verification request',
+    //     );
+    //   });
   };
 
   const delete_credential_offer_request = async (req) => {

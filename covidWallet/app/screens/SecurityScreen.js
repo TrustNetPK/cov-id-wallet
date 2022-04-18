@@ -47,10 +47,8 @@ function SecurityScreen({navigation}) {
         authCurrent();
       }
     } else {
-      //TODO: Skip the SecureID Process if Sensor not Available
-      // navigation.navigate('NotifyMeScreen');
-
-      navigation.navigate('NotifyMeScreen');
+      //Open Pincode modal the SecureID Process if Sensor not Available
+      setShowPinCodeModal(true);
     }
   }
 
@@ -75,6 +73,7 @@ function SecurityScreen({navigation}) {
     })
       .then(() => {
         // this.props.handlePopupDismissedLegacy();
+
         checkSecureIDAuth(true);
         nextHandler();
       })
@@ -96,6 +95,8 @@ function SecurityScreen({navigation}) {
       .then(() => {
         checkSecureIDAuth(true);
         nextHandler();
+        //set OTP also
+        setShowPinCodeModal(true);
       })
       .catch((error) => {
         if (Platform.OS === 'ios') {
@@ -178,31 +179,20 @@ function SecurityScreen({navigation}) {
         }}>
         <Text style={styles.TextContainerHead}>Be Secure</Text>
 
-        {isSensorAvailable && (
-          <TextComponent
-            onboarding={true}
-            text="Using biometric security significantly reduces the chances
+        <TextComponent
+          onboarding={true}
+          text="Using biometric and pincode security significantly reduces the chances
                 your account will be compromised in case your phone is lost or stolen."
-          />
-        )}
+        />
       </View>
       <View style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
         <ImageBoxComponent source={img} />
       </View>
       <View style={{flex: 3, alignItems: 'center', justifyContent: 'center'}}>
-        {isSensorAvailable ? (
-          <GreenPrimaryButton
-            text="ENABLE SECURE ID"
-            nextHandler={enableSecureID}
-          />
-        ) : (
-          <GreenPrimaryButton
-            text="SET PINCODE"
-            nextHandler={() => {
-              setShowPinCodeModal(true);
-            }}
-          />
-        )}
+        <GreenPrimaryButton
+          text="ENABLE SECURE ID"
+          nextHandler={enableSecureID}
+        />
       </View>
       {/* PinCode Modal */}
       <PincodeModal

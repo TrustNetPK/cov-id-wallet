@@ -110,7 +110,7 @@ export default function SettingsScreen(props) {
         contentContainerStyle={styles._listContainer}>
         <Text style={styles._rowHeading}>General</Text>
         <View style={styles._row}>
-          <Text style={styles._rowLabel}>Biometric</Text>
+          <Text style={styles._rowLabel}>Authenticate with Biometric</Text>
           <Switch
             trackColor={{
               false: '#81b0ff',
