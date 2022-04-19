@@ -35,7 +35,7 @@ function SecurityScreen({navigation}) {
 
   useEffect(() => {
     isSecureIDAvailable();
-  });
+  }, []);
 
   function enableSecureID() {
     console.log('isSensorAvailable', isSensorAvailable);
