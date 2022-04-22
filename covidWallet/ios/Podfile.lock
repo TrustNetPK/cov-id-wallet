@@ -380,6 +380,8 @@ PODS:
     - React-Core
   - react-native-fingerprint-scanner (5.0.0):
     - React
+  - react-native-html-to-pdf (0.12.0):
+    - React-Core
   - react-native-netinfo (6.2.1):
     - React-Core
   - react-native-pager-view (5.4.15):
@@ -508,6 +510,8 @@ PODS:
     - Yoga
   - RNScreens (2.18.1):
     - React-Core
+  - RNShare (7.3.9):
+    - React-Core
   - RNSVG (12.3.0):
     - React-Core
   - RNVectorIcons (6.6.0):
@@ -571,6 +575,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
+  - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -600,6 +605,7 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
@@ -685,6 +691,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-fingerprint-scanner:
     :path: "../node_modules/react-native-fingerprint-scanner"
+  react-native-html-to-pdf:
+    :path: "../node_modules/react-native-html-to-pdf"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
@@ -743,6 +751,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -806,6 +816,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-camera: fefef39fcd20850d17c3780638b04f741e0ccaae
   react-native-fingerprint-scanner: 77140320ed56d612200371ebc2abefa5f20b574e
+  react-native-html-to-pdf: d994a500216e88032cce3635d3240f6e4fa0cb40
   react-native-netinfo: 877946c7b4eb85a639cf1ea31333dadc2be999a1
   react-native-pager-view: 15ae71c52a8a40bd8a10505b5c64fb129fc437e2
   react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
@@ -835,6 +846,7 @@ SPEC CHECKSUMS:
   RNPermissions: 7ad8d93b004e6bc85c89e27a102afcde90e07efa
   RNReanimated: 93fe36bf01e6bd4346e0ffc9e469ce37a6b2bea9
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
+  RNShare: 807d6f8231b8ebcf6dd839294b877342eb93d4e5
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   UMAppLoader: db2dae4bc3085e21f56d6d9cf7783d08c5999af4

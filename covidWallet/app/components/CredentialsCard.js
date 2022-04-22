@@ -28,13 +28,11 @@ function CredentialsCard(props) {
       setLoading(true);
 
       let schemeId = props.schemeId.replace(/:/g, '.');
-      console.log('schemeId', schemeId);
 
-      console.log('url', `${ZADA_S3_BASE_URL}/${schemeId}.png`);
       const result = axios
         .get(`${ZADA_S3_BASE_URL}/${schemeId}.png`)
         .then((res) => {
-          if (res.status == 200) {
+          if (res.status === 200) {
             console.log(
               'cardbackground',
               `${ZADA_S3_BASE_URL}/${schemeId}.png`,
