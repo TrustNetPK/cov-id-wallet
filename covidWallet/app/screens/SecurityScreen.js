@@ -75,7 +75,7 @@ function SecurityScreen({navigation}) {
         // this.props.handlePopupDismissedLegacy();
 
         checkSecureIDAuth(true);
-        nextHandler();
+        // nextHandler();
       })
       .catch((error) => {
         if (Platform.OS === 'ios') {

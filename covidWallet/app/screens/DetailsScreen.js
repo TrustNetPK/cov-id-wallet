@@ -45,13 +45,13 @@ function DetailsScreen(props) {
     props.navigation.setOptions({
       headerRight: () => (
         <View style={{flexDirection: 'row'}}>
-          <MaterialIcons
+          {/* <MaterialIcons
             onPress={() => sharePDF()}
             style={styles.headerRightIcon}
             size={25}
             name="share"
             padding={30}
-          />
+          /> */}
           <MaterialIcons
             onPress={() => (!isLoading ? showAlert() : {})}
             style={styles.headerRightIcon}
@@ -92,7 +92,32 @@ function DetailsScreen(props) {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../css/style.css" />
+
+    * {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  padding: 10px;
+}
+.cell {
+  min-height: 75px;
+  flex-grow: 1;
+  flex-basis: 100%;
+}
+#ix98 {
+  flex-basis: 86.68%;
+}
+#ih9d {
+  flex-basis: 50%;
+}
+   
   </head>
   <body>
     <body id="i2wh">

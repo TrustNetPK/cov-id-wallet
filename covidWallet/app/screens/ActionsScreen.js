@@ -242,6 +242,7 @@ function ActionsScreen({navigation}) {
 
     /** CREDENTIALS OFFER */
     // Get Credential Offers
+
     let credential_offer = JSON.parse(
       (await getItem(ConstantsList.CRED_OFFER)) || null,
     );
@@ -257,6 +258,7 @@ function ActionsScreen({navigation}) {
     let verification_offers = JSON.parse(
       (await getItem(ConstantsList.VER_REQ)) || null,
     );
+
     // If credential_offer available
     if (verification_offers != null) {
       if (verification_offers.find((element) => element == null) !== null)
@@ -503,7 +505,6 @@ function ActionsScreen({navigation}) {
         // Accept credentials Api call.
         let result = await accept_credential(selectedItemObj.credentialId);
 
-        console.log('result,', result);
         if (result.data.success) {
           // Delete Action
           await deleteActionByCredId(
@@ -602,7 +603,6 @@ function ActionsScreen({navigation}) {
   const accept_verification_request = async (selectedItemObj, data) => {
     let alreadyExist = await _isVerRequestAlreadyExist();
 
-    console.log('alreadyExist', alreadyExist);
     if (alreadyExist) {
       try {
         let policyName = selectedItemObj.policy.attributes[0].policyName;
@@ -614,9 +614,7 @@ function ActionsScreen({navigation}) {
           policyName,
         );
 
-        console.log('resultAccept', result);
         if (result.data.success) {
-          console.log('(result.data.success', result.data.success);
           await deleteActionByVerID(selectedItemObj.verificationId).then(() => {
             updateActionsList();
           });
@@ -685,10 +683,12 @@ function ActionsScreen({navigation}) {
         delete_credential(req.credentialId);
         deleteActionByCredId(ConstantsList.CRED_OFFER, req.credentialId).then(
           (actions) => {
-            // updateActionsList();
+            //  updateActionsList();
           },
         );
-      } catch (e) {}
+      } catch (e) {
+        console.log('error', e);
+      }
     }
     if (req.type === ConstantsList.VER_REQ) {
       try {
@@ -755,17 +755,17 @@ function ActionsScreen({navigation}) {
       setModalVisible(false);
 
       // Delete connection locally.
-      deleteActionByConnId(
-        ConstantsList.CRED_OFFER,
-        selectedItemObj.metadata,
-      ).then((actions) => {
+      deleteActionByConnId(ConstantsList.CRED_OFFER, selectedItemObj.metadata)
+        .then((actions) => {
+          updateActionsList();
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+
+      delete_credential(selectedItemObj.credentialId).then((actions) => {
         updateActionsList();
       });
-
-      // delete_credential(selectedItemObj.credentialId).then((actions) => {
-      //   console.log('actions', actions);
-      //   updateActionsList();
-      // });
     }
 
     if (selectedItemObj.type === ConstantsList.VER_REQ) {
@@ -844,7 +844,6 @@ function ActionsScreen({navigation}) {
   const _checkPinCode = async () => {
     try {
       const isPincode = await getItem(ConstantsList.PIN_CODE);
-      console.log('isPincode', isPincode);
       if (isPincode != null && isPincode != undefined && isPincode.length != 0)
         setIsPincode(true);
       else setIsPincode(false);
