@@ -159,7 +159,7 @@ function ActionsScreen({navigation}) {
         _fetchActionList();
         Alert.alert(
           'Zada Wallet',
-          `Notifications are disabled. You will not be able to receive alerts for the actions. Pull down to refresh and receive the latest actions.`,
+          'Notifications are disabled. You will not be able to receive alerts for the actions. Pull down to refresh and receive the latest actions.',
           [
             {
               text: 'Okay',
@@ -187,6 +187,7 @@ function ActionsScreen({navigation}) {
   useFocusEffect(
     React.useCallback(() => {
       updateActionsList();
+      _fetchActionList();
       return;
     }, [isAction]),
   );
@@ -386,7 +387,7 @@ function ActionsScreen({navigation}) {
     if (find) {
       await deleteActionByConnId(
         selectedItemObj.type,
-        selectedItemObj.metadata,
+        selectedItemObj.credentialId,
       );
       updateActionsList();
     }
@@ -447,10 +448,13 @@ function ActionsScreen({navigation}) {
       if (!(await _isConnectionAlreadyExist())) {
         // Connection is not exist
         let resp = await AuthenticateUser();
+
         if (resp.success) {
           let selectedItemObj = JSON.parse(selectedItem);
+
           let userID = await getItem(ConstantsList.USER_ID);
           let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+
           storeUid(userID);
           storeSecret(walletSecret);
 
@@ -459,10 +463,11 @@ function ActionsScreen({navigation}) {
           try {
             // Accept connection Api call.
             let result = await accept_connection(selectedItemObj.metadata);
+
             if (result.data.success) {
               await deleteActionByConnId(
                 selectedItemObj.type,
-                selectedItemObj.metadata,
+                selectedItemObj.credentialId,
               );
               // Update connection screen.
               await ls_addConnection(result.data.connection);
@@ -480,7 +485,7 @@ function ActionsScreen({navigation}) {
             setIsLoading(false);
           }
         } else {
-          showMessage('ZADA Wallet', result.data.message);
+          showMessage('ZADA Wallet', resp.data.message);
           setIsLoading(false);
         }
       } else {
@@ -745,7 +750,7 @@ function ActionsScreen({navigation}) {
       // Delete connection locally.
       deleteActionByConnId(
         ConstantsList.CONN_REQ,
-        selectedItemObj.metadata,
+        selectedItemObj.credentialId,
       ).then((actions) => {
         updateActionsList();
       });
@@ -755,7 +760,10 @@ function ActionsScreen({navigation}) {
       setModalVisible(false);
 
       // Delete connection locally.
-      deleteActionByConnId(ConstantsList.CRED_OFFER, selectedItemObj.metadata)
+      deleteActionByConnId(
+        ConstantsList.CRED_OFFER,
+        selectedItemObj.credentialId,
+      )
         .then((actions) => {
           updateActionsList();
         })
