@@ -33,10 +33,6 @@ function CredentialsCard(props) {
         .get(`${ZADA_S3_BASE_URL}/${schemeId}.png`)
         .then((res) => {
           if (res.status === 200) {
-            console.log(
-              'cardbackground',
-              `${ZADA_S3_BASE_URL}/${schemeId}.png`,
-            );
             setBakcgroundImage(`${ZADA_S3_BASE_URL}/${schemeId}.png`);
             setUrl(true);
             setLoading(false);

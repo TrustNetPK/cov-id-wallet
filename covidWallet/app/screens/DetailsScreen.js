@@ -1,5 +1,12 @@
 import React, {useEffect, useLayoutEffect, useState} from 'react';
-import {StyleSheet, View, Image, Text, Dimensions} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import {
   BLACK_COLOR,
   GRAY_COLOR,
@@ -26,8 +33,7 @@ import {Buffer} from 'buffer';
 import {_handleAxiosError} from '../helpers/AxiosResponse';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
-import QRCode from 'react-native-qrcode-svg';
-import {get_local_issue_date, get_local_issue_time} from '../helpers/time';
+import {get_local_issue_time} from '../helpers/time';
 
 function DetailsScreen(props) {
   // Credential
@@ -46,7 +52,7 @@ function DetailsScreen(props) {
       headerRight: () => (
         <View style={{flexDirection: 'row'}}>
           <MaterialIcons
-            onPress={() => sharePDF()}
+            onPress={() => generatePDF()}
             style={styles.headerRightIcon}
             size={25}
             name="share"
@@ -85,14 +91,241 @@ function DetailsScreen(props) {
     }
   }
 
-  function generateHTML() {
-    console.log('data', data);
-
+  function generateHTML(jsonData) {
+    console.log('qrCode', JSON.parse(jsonData.qrCode).data);
     return `<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="../css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <style>
+   * {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  padding: 10px;
+}
+.cell {
+  min-height: 75px;
+  flex-grow: 1;
+  flex-basis: 100%;
+}
+#ix98 {
+  flex-basis: 86.68%;
+}
+#ih9d {
+  flex-basis: 50%;
+}
+#ivsh {
+  height: 176px;
+}
+#i2yt {
+  justify-content: space-between;
+  flex-direction: column;
+  display: flex;
+}
+#ifo2 {
+  color: black;
+  width: 200px;
+  height: 200px;
+}
+
+#i0xih {
+  padding: 10px;
+}
+#ig8t8 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#inj3u {
+  display: flex;
+}
+#imcyy {
+  color: black;
+  width: 350px;
+  height: 350px;
+}
+#ii0jf {
+  padding: 10px;
+  justify-content: space-around;
+  display: flex;
+}
+#i6vai {
+  justify-content: space-around;
+  padding: 0 10px 10px 10px;
+}
+#id7t6 {
+  padding: 10px 10px 0 10px;
+}
+#ibugt {
+  color: black;
+  width: 100%;
+}
+#ibk3g {
+  padding: 10px;
+  font-size: 32px;
+  height: 50px;
+}
+#iutjp {
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+  height: 50px;
+}
+#ijmqg {
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  height: 70px;
+  align-items: center;
+}
+#iizaq {
+  color: rgb(68, 68, 68);
+  font-family: Poppins, Arial, Roboto, sans-serif;
+  font-size: 17px;
+  text-align: center;
+}
+@media (max-width: 768px) {
+  .row {
+    flex-wrap: wrap;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  padding: 10px;
+}
+.cell {
+  min-height: 75px;
+  flex-grow: 1;
+  flex-basis: 100%;
+}
+#ix98 {
+  flex-basis: 86.68%;
+}
+#ih9d {
+  flex-basis: 50%;
+  max-width: 200px;
+  padding-right: 25px;
+}
+#ivsh {
+  height: 176px;
+}
+#i2yt {
+  justify-content: space-between;
+  flex-direction: column;
+  display: flex;
+  max-width: calc(100% - 200px);
+  width: 100%;
+}
+
+#ik2g {
+  padding: 10px 10px 10px 0;
+  font-size: 32px;
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+#i0xih {
+  padding: 10px;
+}
+.pair-items {
+ display: flex;
+ align-items: center;
+  
+}
+#ig8t8 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#inj3u {
+  display: flex;
+}
+#imcyy {
+  color: black;
+  width: 350px;
+  height: 350px;
+}
+#ii0jf {
+  padding: 10px;
+  justify-content: space-around;
+  display: flex;
+}
+#i6vai {
+  justify-content: space-around;
+  padding: 0 10px 10px 10px;
+}
+#id7t6 {
+  padding: 10px 10px 0 10px;
+}
+#ibugt {
+  color: black;
+  width: 100%;
+}
+#ibk3g {
+  padding: 10px;
+  font-size: 32px;
+  height: 50px;
+}
+#iutjp {
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+  height: 50px;
+}
+#ijmqg {
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  height: 70px;
+  align-items: center;
+}
+#iizaq {
+  color: rgb(68, 68, 68);
+  font-family: Poppins, Arial, Roboto, sans-serif;
+  font-size: 17px;
+  text-align: center;
+  padding: 10px;
+}
+#itii {
+display:flex;
+ align-items: center;
+
+  }
+
+  #i86u {
+    font-weight:bold;
+     font-size: 50px;
+
+  }
+  .text-space {
+    padding-left: 10px;
+  }
+@media (max-width: 768px) {
+  .row {
+    flex-wrap: wrap;
+  }
+  
+}</style>
+
   </head>
   <body>
     <body id="i2wh">
@@ -100,35 +333,40 @@ function DetailsScreen(props) {
         <div class="cell" id="ih9d">
           <img
             id="ifo2"
-            src=${data.imageUrl}
+            src=${jsonData.imageUrl}
           />
         </div>
         <div class="cell" id="i2yt">
-          <div id="ik2g"><b id="i86u">${data.organizationName}</b></div>
+          <div id="ik2g"><b id="i86u">${jsonData.organizationName}</b></div>
         </div>
       </div>
       <div class="row">
         <div class="cell" id="i5lto">
           <div id="ibk3g">Credential Details</div>
-          <div id="i0xih">
-            ${Object.keys(data.values).map((key, index) => {
-              let value = data.values[key];
-
-              return `<div id="i0xih">${key}</div><div id="i0xih">${value}</div>`;
+         
+            ${Object.keys(jsonData.values).map((key, index) => {
+              let value = jsonData.values[key];
+              return `<div id="i0xih"> <div class="pair-items">
+                <p>${key}</p>
+                <p class="text-space">${value}</p>
+              </div>
+              </div>`;
             })}
           </div>
         </div>
         <div class="cell" id="ir6hs">
-          <div id="iutjp">Date: ${get_local_issue_time(data.issuedAtUtc)}</div>
+          <div id="iutjp">Date: ${get_local_issue_time(
+            jsonData.issuedAtUtc,
+          )}</div>
         </div>
       </div>
       <div class="row" id="id7t6">
         <div class="cell" id="ig8t8">
   <img
             id="imcyy"
-            src="https://api.qrserver.com/v1/create-qr-code/?size=512x512&${
-              data.qrCode
-            }/>
+            src="https://api.qrserver.com/v1/create-qr-code/?data=${
+              JSON.parse(jsonData.qrCode).data
+            }&size=24x24/>
           <div id="ii0jf">Scan with ZADA Wallet to verify.</div>
         </div>
       </div>
@@ -160,34 +398,43 @@ function DetailsScreen(props) {
     </body>
   </body>
   <html></html>
-</html>`;
-    // Object.keys(data.values).map((key, index) => {
-    //   let value = data.values[key];
-    //   return '<h1>PDF TEST</h1><h1>${value}</h1><h1>PDF TEST</h1><h1>PDF TEST</h1><h1>PDF TEST</h1><h1>PDF TEST</h1><h1>PDF TEST</h1>';
-    // });
+            </html>`;
   }
 
+  //geneate HTML from values
+
   async function generatePDF() {
-    //geneate HTML from values
+    console.log('test', generateHTML(data));
     //generateHTML();
 
     //console.log('test', generateHTML());
 
     let options = {
-      html: generateHTML(),
+      html: generateHTML(data),
       fileName: 'ceritificate',
       directory: 'Documents',
     };
 
     let file = await RNHTMLtoPDF.convert(options);
     console.log('file,', file.filePath);
-    //let base64URL = Buffer.from(file.filePath).toString('base64');
-    // console.log('base64URL', base64URL);
 
-    setPDFurl(file.filePath);
+    //setPDFurl(file.filePath);
+
+    const shareOptions = {
+      title: 'Certificate',
+      url: Platform.OS == 'android' ? `file://${file.filePath}` : file.filePath,
+    };
+
+    try {
+      const ShareResponse = await Share.open(shareOptions);
+      console.log('rezlt', JSON.stringify(ShareResponse, null, 2));
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 
-  async function sharePDF() {
+  function sharePDF() {
+    console.log('pdfURL', pdfURL);
     //First create PDF
     generatePDF();
 
@@ -197,7 +444,7 @@ function DetailsScreen(props) {
     };
 
     try {
-      const ShareResponse = await Share.open(shareOptions);
+      const ShareResponse = Share.open(shareOptions);
       console.log('rezlt', JSON.stringify(ShareResponse, null, 2));
     } catch (error) {
       console.log('error', error);
