@@ -7,7 +7,7 @@ import {BLACK_COLOR, WHITE_COLOR} from '../theme/Colors';
 
 const CARD_BG = require('../assets/images/card-bg.png');
 
-function CredentialsCard(props) {
+function CardBackground(props) {
   const {isConnected} = useNetwork();
   const [backgroundImage, setBakcgroundImage] = React.useState(CARD_BG);
   const [loading, setLoading] = React.useState(true);
@@ -18,6 +18,7 @@ function CredentialsCard(props) {
   }, []);
 
   const _checkForImageInS3 = () => {
+    console.log('_checkForImageInS3');
     try {
       if (!isConnected) {
         setLoading(false);
@@ -68,34 +69,7 @@ function CredentialsCard(props) {
             source={isUrl ? {uri: backgroundImage} : backgroundImage}
             style={styles._frontLayer}
           />
-
-          <View style={styles._detailsView}>
-            <Text style={styles._cardTitle}>{props.card_type}</Text>
-
-            <View style={styles._bottomContainer}>
-              <Image source={props.card_logo} style={styles._cardLogo} />
-              <View style={styles._cardInfoContainer}>
-                <View
-                  style={{
-                    width: '60%',
-                  }}>
-                  <Text style={styles.card_small_text}>Issued by</Text>
-                  <Text style={[styles.card_small_text, {fontWeight: 'bold'}]}>
-                    {props.issuer}
-                  </Text>
-                </View>
-                {props.date ? (
-                  <View>
-                    <Text style={styles.card_small_text}>Issued Time</Text>
-                    <Text
-                      style={[styles.card_small_text, {fontWeight: 'bold'}]}>
-                      {props.date}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-            </View>
-          </View>
+          {props.children}
         </>
       )}
     </View>
@@ -126,6 +100,7 @@ const styles = StyleSheet.create({
     fontSize: 23,
     lineHeight: 22,
     fontWeight: '100',
+    fontWeight: 'bold',
   },
   _bottomContainer: {
     width: '100%',
@@ -152,4 +127,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CredentialsCard;
+export default CardBackground;

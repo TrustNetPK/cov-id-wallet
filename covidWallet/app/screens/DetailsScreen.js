@@ -186,10 +186,6 @@ body {
   </body>
   <html></html>
 </html>`;
-    // Object.keys(data.values).map((key, index) => {
-    //   let value = data.values[key];
-    //   return '<h1>PDF TEST</h1><h1>${value}</h1><h1>PDF TEST</h1><h1>PDF TEST</h1><h1>PDF TEST</h1><h1>PDF TEST</h1><h1>PDF TEST</h1>';
-    // });
   }
 
   async function generatePDF() {
@@ -273,7 +269,7 @@ body {
         // Open QR After Updating Credentials
         data.qrCode = QR;
       } else {
-        _showAlert('ZADA Wallet');
+        _showAlert('ZADA Wallet', error.message);
       }
       setGenerating(false);
     } catch (error) {

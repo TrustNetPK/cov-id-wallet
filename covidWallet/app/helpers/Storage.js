@@ -91,15 +91,7 @@ export const deleteActionByConnId = async (key, connID) => {
   return getItem(key).then((action) => {
     let QRJsonList = JSON.parse(action);
 
-    console.log('QRJsonList', QRJsonList);
     let newQRList = [];
-    // QRJsonList.forEach((element) => {
-    //   console.log('element', element);
-    //   if (element.metadata != connID) {
-    //     newQRList.push(element);
-    //   }
-    // });
-
     QRJsonList.forEach((element) => {
       console.log('element', element);
       if (element.credentialId != connID) {
@@ -112,7 +104,6 @@ export const deleteActionByConnId = async (key, connID) => {
         console.log('error', error);
       });
 
-    console.log('newQRList', newQRList.length);
     return newQRList.length;
   });
 };
