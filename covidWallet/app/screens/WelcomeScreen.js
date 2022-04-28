@@ -19,11 +19,11 @@ import HeadingComponent from '../components/HeadingComponent';
 
 const img = require('../assets/images/t&c.png');
 
-function WelcomeScreen({ navigation }) {
+function WelcomeScreen({navigation}) {
   const nextHandler = () => {
     navigation.navigate('RegistrationScreen');
   };
-  
+
   return (
     <View
       style={{
@@ -49,7 +49,6 @@ function WelcomeScreen({ navigation }) {
           // marginBottom: 150,
           borderRadius: 10,
         }}>
-
         <View
           style={{
             // height: 400,
@@ -58,14 +57,14 @@ function WelcomeScreen({ navigation }) {
             justifyContent: 'center',
             textAlign: 'center',
           }}>
-          <View style={{ marginTop: 20, marginLeft: 25, marginRight: 25 }}>
+          <View style={{marginTop: 20, marginLeft: 25, marginRight: 25}}>
             <HeadingComponent text="ZADA is your Digital ID Wallet!" />
           </View>
           <TextComponent
             onboarding={true}
             text="Securely prove who you are and only share the information you want."
           />
-          <View style={{ paddingTop: 10 }} />
+          <View style={{paddingTop: 10}} />
           <TextComponent
             onboarding={true}
             text="All certificates and IDs safely stored on your phone, where only you can access them."
@@ -98,7 +97,7 @@ function WelcomeScreen({ navigation }) {
               By continuing below you confirm that you have read and agree to
               &nbsp;
               <Text
-                style={{ color: PRIMARY_COLOR }}
+                style={{color: PRIMARY_COLOR}}
                 onPress={() => {
                   Linking.openURL('https://zada.io/privacy-policy/');
                 }}>
@@ -106,7 +105,7 @@ function WelcomeScreen({ navigation }) {
               </Text>
               &nbsp;and&nbsp;
               <Text
-                style={{ color: PRIMARY_COLOR }}
+                style={{color: PRIMARY_COLOR}}
                 onPress={() => {
                   Linking.openURL('https://zada.io/privacy-policy/');
                 }}>
@@ -120,7 +119,7 @@ function WelcomeScreen({ navigation }) {
           style={{
             alignSelf: 'stretch',
             justifyContent: 'center',
-            alignItems: "center",
+            alignItems: 'center',
             borderRadius: 20,
             paddingTop: 20,
             paddingBottom: 20,
@@ -129,7 +128,6 @@ function WelcomeScreen({ navigation }) {
             <Text style={styles.text}>CONTINUE</Text>
           </TouchableOpacity>
         </View>
-
       </ScrollView>
     </View>
   );
