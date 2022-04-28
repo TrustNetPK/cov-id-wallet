@@ -108,7 +108,7 @@ function SecurityScreen({navigation}) {
       });
   }
 
-  nextHandler = () => {
+  const nextHandler = () => {
     navigation.navigate('NotifyMeScreen');
   };
 
