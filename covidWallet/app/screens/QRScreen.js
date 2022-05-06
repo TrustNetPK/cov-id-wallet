@@ -390,7 +390,7 @@ function QRScreen({route, navigation}) {
           }
         } catch (error) {
           _showAlert('Zada WAllet', 'Not a valid ZADA QR');
-          navigation.pop();
+          navigation.goBack();
         }
       } else {
         showNetworkMessage();
