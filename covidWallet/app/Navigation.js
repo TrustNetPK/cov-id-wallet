@@ -86,7 +86,7 @@ function NavigationComponent() {
     } catch (error) {
       // Error retrieving data
     }
-    await AsyncStorage.setItem("temporarilyMovedToBackground", 'false');
+    await AsyncStorage.setItem('temporarilyMovedToBackground', 'false');
   };
 
   // Checking auth status
@@ -306,7 +306,6 @@ function NavigationComponent() {
                 component={ProfileScreen}
               />
               <Stack.Screen
-                options={{headerShown: false}}
                 name="DetailsScreen"
                 component={DetailsScreen}
                 options={({navigation}) => ({
@@ -324,17 +323,6 @@ function NavigationComponent() {
                       Details
                     </Text>
                   ),
-                  // headerLeft: () => (
-                  //   <MaterialIcons
-                  //     onPress={() => {
-                  //       navigation.goBack();
-                  //     }}
-                  //     style={styles.headerRightIcon}
-                  //     size={30}
-                  //     name="arrow-back"
-                  //     padding={30}
-                  //   />
-                  // ),
                 })}
               />
               <Stack.Screen
