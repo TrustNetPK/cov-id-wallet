@@ -187,7 +187,6 @@ function ActionsScreen({navigation}) {
   useFocusEffect(
     React.useCallback(() => {
       updateActionsList();
-      _fetchActionList();
       return;
     }, [isAction]),
   );
