@@ -305,7 +305,6 @@ function NavigationComponent() {
                 component={ProfileScreen}
               />
               <Stack.Screen
-                options={{headerShown: false}}
                 name="DetailsScreen"
                 component={DetailsScreen}
                 options={({navigation}) => ({
@@ -323,17 +322,6 @@ function NavigationComponent() {
                       Details
                     </Text>
                   ),
-                  // headerLeft: () => (
-                  //   <MaterialIcons
-                  //     onPress={() => {
-                  //       navigation.goBack();
-                  //     }}
-                  //     style={styles.headerRightIcon}
-                  //     size={30}
-                  //     name="arrow-back"
-                  //     padding={30}
-                  //   />
-                  // ),
                 })}
               />
               <Stack.Screen
