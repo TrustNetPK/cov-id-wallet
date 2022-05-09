@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AlertIOS,
   StyleSheet,
@@ -9,19 +9,19 @@ import {
   TurboModuleRegistry,
 } from 'react-native';
 import FingerprintScanner from 'react-native-fingerprint-scanner';
-import {BACKGROUND_COLOR} from '../theme/Colors';
+import { BACKGROUND_COLOR } from '../theme/Colors';
 import ImageBoxComponent from '../components/ImageBoxComponent';
 import TextComponent from '../components/TextComponent';
 import GreenPrimaryButton from '../components/GreenPrimaryButton';
 import PincodeModal from '../components/PincodeModal';
-import {pincodeRegex} from '../helpers/validation';
-import {showMessage} from '../helpers/Toast';
-import {saveItem} from '../helpers/Storage';
+import { pincodeRegex } from '../helpers/validation';
+import { showMessage } from '../helpers/Toast';
+import { saveItem } from '../helpers/Storage';
 import ConstantsList from '../helpers/ConfigApp';
 
 const img = require('../assets/images/security.png');
 
-function SecurityScreen({navigation}) {
+function SecurityScreen({ navigation }) {
   const [isSensorAvailable, checkSensor] = useState(false);
   const [isSuccessful, checkSecureIDAuth] = useState(false);
 
@@ -41,10 +41,28 @@ function SecurityScreen({navigation}) {
     console.log('isSensorAvailable', isSensorAvailable);
 
     if (isSensorAvailable) {
-      if (requiresLegacyAuthentication()) {
-        authLegacy();
+      if (Platform.OS == 'ios') {
+        FingerprintScanner
+          .authenticate({ description: 'Scan your fingerprint on the device scanner to continue' })
+          .then(() => {
+            checkSecureIDAuth(true);
+            nextHandler();
+
+            setShowPinCodeModal(true);
+          })
+          .catch((error) => {
+            if (Platform.OS === 'ios') {
+              AlertIOS.alert('Failed to Authenticate Secure ID');
+            } else {
+              Alert.alert('Secure ID Authentication Failed', error.message);
+            }
+          });
       } else {
-        authCurrent();
+        if (requiresLegacyAuthentication()) {
+          authLegacy();
+        } else {
+          authCurrent();
+        }
       }
     } else {
       //Open Pincode modal the SecureID Process if Sensor not Available
@@ -185,10 +203,10 @@ function SecurityScreen({navigation}) {
                 your account will be compromised in case your phone is lost or stolen."
         />
       </View>
-      <View style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
         <ImageBoxComponent source={img} />
       </View>
-      <View style={{flex: 3, alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <GreenPrimaryButton
           text="ENABLE SECURE ID"
           nextHandler={enableSecureID}

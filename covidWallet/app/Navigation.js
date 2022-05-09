@@ -86,6 +86,7 @@ function NavigationComponent() {
     } catch (error) {
       // Error retrieving data
     }
+    await AsyncStorage.setItem("temporarilyMovedToBackground", 'false');
   };
 
   // Checking auth status
