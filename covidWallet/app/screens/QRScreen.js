@@ -523,6 +523,7 @@ function QRScreen({route, navigation}) {
         <QRCodeScanner
           reactivate={true}
           showMarker={true}
+          reactivateTimeout={1000}
           customMarker={
             <View
               style={{
