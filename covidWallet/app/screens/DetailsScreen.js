@@ -135,7 +135,7 @@ function DetailsScreen(props) {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <style>
+     <style>
       * {
         box-sizing: border-box;
       }
@@ -147,7 +147,7 @@ function DetailsScreen(props) {
         justify-content: flex-start;
         align-items: stretch;
         flex-wrap: nowrap;
-        padding: 10px;
+        padding: 0 10px;
       }
       .cell {
         flex-grow: 1;
@@ -165,7 +165,7 @@ function DetailsScreen(props) {
       }
       .pair-items p,
       .pair-items b {
-        margin: 10px 10px 10px 10px !important;
+        margin: 5px 0px !important;
       }
       #i2yt {
         width: calc(100% - 100px);
@@ -204,8 +204,17 @@ function DetailsScreen(props) {
       #imcyy {
         margin: 10px 0 0;
         color: black;
-        width: 200px;
-        height: 200px;
+        width: 150px;
+        height: 150px;
+      }
+      .title-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .title-wrap p {
+        flex-shrink: 0;
+        margin: 0;
       }
       #ii0jf {
         font-size: 24px;
@@ -225,11 +234,11 @@ function DetailsScreen(props) {
         height: 100%;
       }
       #ibk3g {
+        width: 100%;
         padding: 5px;
-        font-size: 32px;
+        font-size: 16px;
       }
       #iutjp {
-        padding: 10px;
         display: flex;
         justify-content: flex-end;
       }
@@ -242,21 +251,37 @@ function DetailsScreen(props) {
       #iizaq {
         color: rgb(68, 68, 68);
         font-family: Poppins, Arial, Roboto, sans-serif;
-        font-size: 16px;
+        font-size: 12px;
       }
 
       #i5lto {
-        width: 60%;
+        width: 100%;
         display: flex;
+      }
+      .i0xih > div {
+        display: flex;
+        flex: 50%; /* or - flex: 0 50% - or - flex-basis: 50% - */
+        /*demo*/
+        padding: 5px;
+        border: 1px solid black;
+        border-top: 0;
+        border-left: 0;
+      }
+      .i0xih > div:nth-child(-n + 2) {
+        border-top: 1px solid black;
+      }
+
+      .i0xih > div:nth-child(odd) {
+        border-left: 1px solid black;
       }
 
       .pair-items {
-        display: flex;
-        align-items: center;
+        /* display: flex;
+        align-items: center; */
+        width: 100%;
       }
 
       .up-items {
-        margin-top: 15px;
         position: relative;
         display: flex;
         align-items: flex-start;
@@ -267,21 +292,26 @@ function DetailsScreen(props) {
         display: flex;
         align-items: center;
       }
-      #i0xih {
-        margin-top: 20px;
+
+      .i0xih {
+        width: 100%;
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
       }
 
       #ir6hs {
         display: block;
-        /* // float:right; */
+      }
+
+      #i0o3v {
         position: absolute;
-        top: 0;
-        right: 0;
-        width: 35%;
-        /* dispaly: inline-block; */
-        align-self: flex-start;
-        justify-items: flex-start;
-        justify-self: flex-start;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .box-relative {
+        position: relative;
       }
       @media (max-width: 768px) {
         .row {
@@ -303,17 +333,20 @@ function DetailsScreen(props) {
     <div class="row up-items">
       <div class="cell" id="i5lto">
         <div id="ibk3g">
-          Credential Details
-          <div id="i0xih">${credentialDetails.join('')}</div>
+         <div class="title-wrap">
+            <p>Credential Details</p>
+            <div class="cell" id="ir6hs">
+              <div id="iutjp">
+                <span id="iizaq"
+                  >Date: ${get_local_issue_time(jsonData.issuedAtUtc)}</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="i0xih">${credentialDetails.join('')}</div>
         </div>
       </div>
-      <div class="cell" id="ir6hs">
-        <div id="iutjp">
-          <span id="iizaq"
-            >Date: ${get_local_issue_time(jsonData.issuedAtUtc)}</span
-          >
-        </div>
-      </div>
+     
     </div>
 
     <div class="row" id="id7t6">
@@ -332,7 +365,7 @@ function DetailsScreen(props) {
         />
       </div>
     </div>
-    <div class="row">
+    <div class="row box-relative">
       <div class="cell" id="i0o3v">
         <div id="ijmqg">
           <span id="iizaq"
