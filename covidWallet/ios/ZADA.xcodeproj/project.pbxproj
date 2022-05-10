@@ -20,6 +20,7 @@
 		2DCD954D1E0B4F2C00145EB5 /* ZADATests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ZADATests.m */; };
 		330E119450E848CA9CF6B0C1 /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4D069A740F95423C838CD4CE /* Poppins-Regular.ttf */; };
 		6A059EFFC038403EB8221FC1 /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CF924E663F2747058B1A324C /* Poppins-Bold.ttf */; };
+		C186A484282A43CA00A8F262 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 008F07F21AC5B25A0029DE68 /* main.jsbundle */; };
 		D28FBECF67394B063DA4565D /* libPods-ZADA-ZADATests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6F09E88AFF2C2E44173F7D2 /* libPods-ZADA-ZADATests.a */; };
 		EF9D462162F6EFB6396C5397 /* libPods-ZADA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F04713D5DBCCC0A4814B473 /* libPods-ZADA.a */; };
 		F473F3095AE64D8AA326B6EE /* Merriweather-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 092EF3C6D0DC4D618DC6462C /* Merriweather-Bold.ttf */; };
@@ -397,6 +398,7 @@
 				F473F3095AE64D8AA326B6EE /* Merriweather-Bold.ttf in Resources */,
 				330E119450E848CA9CF6B0C1 /* Poppins-Regular.ttf in Resources */,
 				6A059EFFC038403EB8221FC1 /* Poppins-Bold.ttf in Resources */,
+				C186A484282A43CA00A8F262 /* main.jsbundle in Resources */,
 				043C979626B805FA006295AC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
