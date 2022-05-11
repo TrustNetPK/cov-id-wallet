@@ -53,11 +53,12 @@ function SecurityScreen({navigation}) {
             setShowPinCodeModal(true);
           })
           .catch((error) => {
-            if (Platform.OS === 'ios') {
-              Alert.alert('Failed to Authenticate Secure ID');
-            } else {
-              Alert.alert('Secure ID Authentication Failed', error.message);
-            }
+            setShowPinCodeModal(true);
+            // if (Platform.OS === 'ios') {
+            //   Alert.alert('Failed to Authenticate Secure ID');
+            // } else {
+            //   Alert.alert('Secure ID Authentication Failed', error.message);
+            // }
           });
       } else {
         if (requiresLegacyAuthentication()) {
