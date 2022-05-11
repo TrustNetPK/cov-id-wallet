@@ -4,22 +4,13 @@ import {
   Text,
   Linking,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
 } from 'react-native';
 import {
   PRIMARY_COLOR,
-  BACKGROUND_COLOR,
-  GREEN_COLOR,
-  WHITE_COLOR,
 } from '../theme/Colors';
 
-import TextComponent from '../components/TextComponent';
-import HeadingComponent from '../components/HeadingComponent';
-
-const img = require('../assets/images/t&c.png');
-
-function ContactUs({navigation}) {
+function ContactUs() {
   return (
     <View style={styles.MainContainer}>
       <ScrollView
@@ -82,7 +73,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // textAlign: 'center',
   },
 
   ItemText: {

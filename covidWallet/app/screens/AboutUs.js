@@ -2,27 +2,11 @@ import * as React from 'react';
 import {
   View,
   Text,
-  Linking,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import {
-  PRIMARY_COLOR,
-  BACKGROUND_COLOR,
-  GREEN_COLOR,
-  WHITE_COLOR,
-} from '../theme/Colors';
 
-import TextComponent from '../components/TextComponent';
-import HeadingComponent from '../components/HeadingComponent';
-
-const img = require('../assets/images/t&c.png');
-
-function AboutUs({navigation}) {
-  const nextHandler = () => {
-    navigation.navigate('RegistrationScreen');
-  };
+function AboutUs() {
 
   return (
     <View style={styles.MainContainer}>
@@ -79,7 +63,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // textAlign: 'center',
   },
 
   ItemText: {
