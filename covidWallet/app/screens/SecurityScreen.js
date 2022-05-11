@@ -99,11 +99,13 @@ function SecurityScreen({navigation}) {
         // nextHandler();
       })
       .catch((error) => {
-        if (Platform.OS === 'ios') {
-          AlertIOS.alert('Failed to Authenticate Secure ID');
-        } else {
-          Alert.alert('Secure ID Authentication Failed', error.message);
-        }
+        //set OTP also
+        setShowPinCodeModal(true);
+        // if (Platform.OS === 'ios') {
+        //   AlertIOS.alert('Failed to Authenticate Secure ID');
+        // } else {
+        //   Alert.alert('Secure ID Authentication Failed', error.message);
+        // }
         checkSecureIDAuth(false);
       });
   }
@@ -120,11 +122,12 @@ function SecurityScreen({navigation}) {
         setShowPinCodeModal(true);
       })
       .catch((error) => {
-        if (Platform.OS === 'ios') {
-          AlertIOS.alert('Failed to Authenticate Secure ID');
-        } else {
-          Alert.alert('Secure ID Authentication Failed', error.message);
-        }
+        setShowPinCodeModal(true);
+        // if (Platform.OS === 'ios') {
+        //   AlertIOS.alert('Failed to Authenticate Secure ID');
+        // } else {
+        //   Alert.alert('Secure ID Authentication Failed', error.message);
+        // }
         checkSecureIDAuth(false);
       });
   }
