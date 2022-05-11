@@ -63,13 +63,18 @@ export default function SettingsScreen(props) {
       if (value) {
         setBioEnable(true);
         // Display message.
-        showMessage('ZADA Wallet', 'Biometric enabled!');
+        setTimeout(() => {
+          showMessage('ZADA Wallet', 'Biometric enabled!');
+        }, 1000);
       } else {
         setBioEnable(false);
-        showMessage('ZADA Wallet', 'Biometric disabled!');
+        setTimeout(() => {
+          showMessage('ZADA Wallet', 'Biometric disabled!');
+        }, 1000);
       }
     } else {
-      setBioEnable(false);
+      if (result)
+        setBioEnable(false);
     }
   };
 
@@ -146,9 +151,7 @@ export default function SettingsScreen(props) {
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles._row}
-          onPress={() => {
-            Linking.openURL('mailto:support@zada.com');
-          }}>
+          onPress={() => props.navigation.navigate('ContactUs')}>
           <Text style={styles._rowLabel}>Contact Us</Text>
           <Icon name="right" color={GREEN_COLOR} size={18} />
         </TouchableOpacity>
@@ -166,9 +169,7 @@ export default function SettingsScreen(props) {
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles._row}
-          onPress={() => {
-            Linking.openURL('https://zada.io/');
-          }}>
+          onPress={() => props.navigation.navigate('AboutUs')}>
           <Text style={styles._rowLabel}>About Us</Text>
           <Icon name="right" color={GREEN_COLOR} size={18} />
         </TouchableOpacity>

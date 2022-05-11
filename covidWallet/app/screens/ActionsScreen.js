@@ -159,7 +159,7 @@ function ActionsScreen({navigation}) {
         _fetchActionList();
         Alert.alert(
           'Zada Wallet',
-          `Notifications are disabled. You will not be able to receive alerts for the actions. Pull down to refresh and receive the latest actions.`,
+          'Notifications are disabled. You will not be able to receive alerts for the actions. Pull down to refresh and receive the latest actions.',
           [
             {
               text: 'Okay',
@@ -242,6 +242,7 @@ function ActionsScreen({navigation}) {
 
     /** CREDENTIALS OFFER */
     // Get Credential Offers
+
     let credential_offer = JSON.parse(
       (await getItem(ConstantsList.CRED_OFFER)) || null,
     );
@@ -257,6 +258,7 @@ function ActionsScreen({navigation}) {
     let verification_offers = JSON.parse(
       (await getItem(ConstantsList.VER_REQ)) || null,
     );
+
     // If credential_offer available
     if (verification_offers != null) {
       if (verification_offers.find((element) => element == null) !== null)
@@ -384,7 +386,7 @@ function ActionsScreen({navigation}) {
     if (find) {
       await deleteActionByConnId(
         selectedItemObj.type,
-        selectedItemObj.metadata,
+        selectedItemObj.credentialId,
       );
       updateActionsList();
     }
@@ -445,10 +447,13 @@ function ActionsScreen({navigation}) {
       if (!(await _isConnectionAlreadyExist())) {
         // Connection is not exist
         let resp = await AuthenticateUser();
+
         if (resp.success) {
           let selectedItemObj = JSON.parse(selectedItem);
+
           let userID = await getItem(ConstantsList.USER_ID);
           let walletSecret = await getItem(ConstantsList.WALLET_SECRET);
+
           storeUid(userID);
           storeSecret(walletSecret);
 
@@ -457,10 +462,11 @@ function ActionsScreen({navigation}) {
           try {
             // Accept connection Api call.
             let result = await accept_connection(selectedItemObj.metadata);
+
             if (result.data.success) {
               await deleteActionByConnId(
                 selectedItemObj.type,
-                selectedItemObj.metadata,
+                selectedItemObj.credentialId,
               );
               // Update connection screen.
               await ls_addConnection(result.data.connection);
@@ -478,7 +484,7 @@ function ActionsScreen({navigation}) {
             setIsLoading(false);
           }
         } else {
-          showMessage('ZADA Wallet', result.data.message);
+          showMessage('ZADA Wallet', resp.data.message);
           setIsLoading(false);
         }
       } else {
@@ -503,7 +509,6 @@ function ActionsScreen({navigation}) {
         // Accept credentials Api call.
         let result = await accept_credential(selectedItemObj.credentialId);
 
-        console.log('result,', result);
         if (result.data.success) {
           // Delete Action
           await deleteActionByCredId(
@@ -602,7 +607,6 @@ function ActionsScreen({navigation}) {
   const accept_verification_request = async (selectedItemObj, data) => {
     let alreadyExist = await _isVerRequestAlreadyExist();
 
-    console.log('alreadyExist', alreadyExist);
     if (alreadyExist) {
       try {
         let policyName = selectedItemObj.policy.attributes[0].policyName;
@@ -614,9 +618,7 @@ function ActionsScreen({navigation}) {
           policyName,
         );
 
-        console.log('resultAccept', result);
         if (result.data.success) {
-          console.log('(result.data.success', result.data.success);
           await deleteActionByVerID(selectedItemObj.verificationId).then(() => {
             updateActionsList();
           });
@@ -685,10 +687,12 @@ function ActionsScreen({navigation}) {
         delete_credential(req.credentialId);
         deleteActionByCredId(ConstantsList.CRED_OFFER, req.credentialId).then(
           (actions) => {
-            // updateActionsList();
+            //  updateActionsList();
           },
         );
-      } catch (e) {}
+      } catch (e) {
+        console.log('error', e);
+      }
     }
     if (req.type === ConstantsList.VER_REQ) {
       try {
@@ -745,7 +749,7 @@ function ActionsScreen({navigation}) {
       // Delete connection locally.
       deleteActionByConnId(
         ConstantsList.CONN_REQ,
-        selectedItemObj.metadata,
+        selectedItemObj.credentialId,
       ).then((actions) => {
         updateActionsList();
       });
@@ -757,15 +761,18 @@ function ActionsScreen({navigation}) {
       // Delete connection locally.
       deleteActionByConnId(
         ConstantsList.CRED_OFFER,
-        selectedItemObj.metadata,
-      ).then((actions) => {
+        selectedItemObj.credentialId,
+      )
+        .then((actions) => {
+          updateActionsList();
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+
+      delete_credential(selectedItemObj.credentialId).then((actions) => {
         updateActionsList();
       });
-
-      // delete_credential(selectedItemObj.credentialId).then((actions) => {
-      //   console.log('actions', actions);
-      //   updateActionsList();
-      // });
     }
 
     if (selectedItemObj.type === ConstantsList.VER_REQ) {
@@ -844,7 +851,6 @@ function ActionsScreen({navigation}) {
   const _checkPinCode = async () => {
     try {
       const isPincode = await getItem(ConstantsList.PIN_CODE);
-      console.log('isPincode', isPincode);
       if (isPincode != null && isPincode != undefined && isPincode.length != 0)
         setIsPincode(true);
       else setIsPincode(false);

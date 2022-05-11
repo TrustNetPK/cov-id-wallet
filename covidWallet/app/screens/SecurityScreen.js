@@ -35,16 +35,37 @@ function SecurityScreen({navigation}) {
 
   useEffect(() => {
     isSecureIDAvailable();
-  });
+  }, []);
 
   function enableSecureID() {
     console.log('isSensorAvailable', isSensorAvailable);
 
     if (isSensorAvailable) {
-      if (requiresLegacyAuthentication()) {
-        authLegacy();
+      if (Platform.OS === 'ios') {
+        FingerprintScanner.authenticate({
+          description:
+            'Scan your fingerprint on the device scanner to continue',
+        })
+          .then(() => {
+            checkSecureIDAuth(true);
+            nextHandler();
+
+            setShowPinCodeModal(true);
+          })
+          .catch((error) => {
+            setShowPinCodeModal(true);
+            // if (Platform.OS === 'ios') {
+            //   Alert.alert('Failed to Authenticate Secure ID');
+            // } else {
+            //   Alert.alert('Secure ID Authentication Failed', error.message);
+            // }
+          });
       } else {
-        authCurrent();
+        if (requiresLegacyAuthentication()) {
+          authLegacy();
+        } else {
+          authCurrent();
+        }
       }
     } else {
       //Open Pincode modal the SecureID Process if Sensor not Available
@@ -75,14 +96,16 @@ function SecurityScreen({navigation}) {
         // this.props.handlePopupDismissedLegacy();
 
         checkSecureIDAuth(true);
-        nextHandler();
+        // nextHandler();
       })
       .catch((error) => {
-        if (Platform.OS === 'ios') {
-          AlertIOS.alert('Failed to Authenticate Secure ID');
-        } else {
-          Alert.alert('Secure ID Authentication Failed', error.message);
-        }
+        //set OTP also
+        setShowPinCodeModal(true);
+        // if (Platform.OS === 'ios') {
+        //   AlertIOS.alert('Failed to Authenticate Secure ID');
+        // } else {
+        //   Alert.alert('Secure ID Authentication Failed', error.message);
+        // }
         checkSecureIDAuth(false);
       });
   }
@@ -99,16 +122,17 @@ function SecurityScreen({navigation}) {
         setShowPinCodeModal(true);
       })
       .catch((error) => {
-        if (Platform.OS === 'ios') {
-          AlertIOS.alert('Failed to Authenticate Secure ID');
-        } else {
-          Alert.alert('Secure ID Authentication Failed', error.message);
-        }
+        setShowPinCodeModal(true);
+        // if (Platform.OS === 'ios') {
+        //   AlertIOS.alert('Failed to Authenticate Secure ID');
+        // } else {
+        //   Alert.alert('Secure ID Authentication Failed', error.message);
+        // }
         checkSecureIDAuth(false);
       });
   }
 
-  nextHandler = () => {
+  const nextHandler = () => {
     navigation.navigate('NotifyMeScreen');
   };
 

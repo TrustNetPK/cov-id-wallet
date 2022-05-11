@@ -75,6 +75,8 @@ export async function accept_connection(metadata: string) {
       headers,
     });
 
+    console.log('acceptREsuzlt', result);
+
     // Google Analytics
     analytics_log_accept_connection_request();
 
