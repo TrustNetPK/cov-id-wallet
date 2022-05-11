@@ -305,10 +305,7 @@ function DetailsScreen(props) {
       }
 
       #i0o3v {
-        position: absolute;
-        bottom: 5px;
-        left: 50%;
-        transform: translateX(-50%);
+       
       }
       .box-relative {
         position: relative;
