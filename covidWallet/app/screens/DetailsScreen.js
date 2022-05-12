@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,26 +14,26 @@ import {
   WHITE_COLOR,
   BACKGROUND_COLOR,
 } from '../theme/Colors';
-import {themeStyles} from '../theme/Styles';
+import { themeStyles } from '../theme/Styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
   delete_credential,
   generate_credential_qr,
 } from '../gateways/credentials';
-import {showMessage, showAskDialog, _showAlert} from '../helpers/Toast';
-import {deleteCredentialByCredId, getItem, saveItem} from '../helpers/Storage';
+import { showMessage, showAskDialog, _showAlert } from '../helpers/Toast';
+import { deleteCredentialByCredId, getItem, saveItem } from '../helpers/Storage';
 import OverlayLoader from '../components/OverlayLoader';
 import SimpleButton from '../components/Buttons/SimpleButton';
-import {analytics_log_show_cred_qr} from '../helpers/analytics';
-import {PreventScreenshots} from 'react-native-prevent-screenshots';
+import { analytics_log_show_cred_qr } from '../helpers/analytics';
+import { PreventScreenshots } from 'react-native-prevent-screenshots';
 import CredQRModal from '../components/CredQRModal';
 import RenderValues from '../components/RenderValues';
 import ConstantsList from '../helpers/ConfigApp';
-import {Buffer} from 'buffer';
-import {_handleAxiosError} from '../helpers/AxiosResponse';
+import { Buffer } from 'buffer';
+import { _handleAxiosError } from '../helpers/AxiosResponse';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
-import {get_local_issue_time} from '../helpers/time';
+import { changeDateFormat, get_local_issue_time, get_local_date_time } from '../helpers/time';
 
 function DetailsScreen(props) {
   // Credential
@@ -47,10 +47,9 @@ function DetailsScreen(props) {
 
   // Setting delete Icon
   useLayoutEffect(() => {
-    console.log('data', data);
     props.navigation.setOptions({
       headerRight: () => (
-        <View style={{flexDirection: 'row'}}>
+        <View style={{ flexDirection: 'row' }}>
           <MaterialIcons
             onPress={() => generateAndSharePDF()}
             style={styles.headerRightIcon}
@@ -122,8 +121,25 @@ function DetailsScreen(props) {
       return '<div>Record Not Found</div>';
     }
 
-    let credentialDetails = Object.keys(jsonData.values).map((key, index) => {
-      let value = jsonData.values[key];
+    // Ordering data
+    const orderedData = Object.keys(jsonData.values).sort().reduce(
+      (obj, key) => {
+        obj[key] = jsonData.values[key];
+        return obj;
+      },
+      {}
+    );
+
+    let credentialDetails = Object.keys(orderedData).map((key, index) => {
+      let value = orderedData[key];
+
+      if (key.match(/Issue Time/)) {
+        value = get_local_issue_time(value);
+      }
+      if (key.match(/Administered Date|Birth Date/)) {
+        value = changeDateFormat(value)
+      }
+
       return `<div class="pair-items">
               <b class="text-space" id="iizaq">${key}:</b>
               <p id="iizaq">${value}</p>
@@ -335,7 +351,7 @@ function DetailsScreen(props) {
             <div class="cell" id="ir6hs">
               <div id="iutjp">
                 <span id="iizaq"
-                  >Date: ${get_local_issue_time(jsonData.issuedAtUtc)}</span
+                  >Date: ${get_local_date_time(new Date())}</span
                 >
               </div>
             </div>
@@ -421,7 +437,7 @@ function DetailsScreen(props) {
       'Are you sure?',
       'Are you sure you want to delete this certificate?',
       onSuccess,
-      () => {},
+      () => { },
     );
   }
 
@@ -521,7 +537,7 @@ function DetailsScreen(props) {
             />
           </View>
         ) : (
-          <View style={{margin: 15}}>
+          <View style={{ margin: 15 }}>
             <Text style={styles._noQr}>
               You do not have QR of your credential.
             </Text>
