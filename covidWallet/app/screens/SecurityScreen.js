@@ -166,6 +166,7 @@ function SecurityScreen({navigation}) {
         'Zada Wallet',
         'Pincode and confirm pincode are not same. Please check them carefully',
       );
+      return
     }
 
     // Saving pincode in async
