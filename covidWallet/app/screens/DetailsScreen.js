@@ -33,7 +33,7 @@ import { Buffer } from 'buffer';
 import { _handleAxiosError } from '../helpers/AxiosResponse';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
-import { changeDateFormat, get_local_issue_date, get_local_issue_time } from '../helpers/time';
+import { changeDateFormat, get_local_issue_time, get_local_date_time } from '../helpers/time';
 
 function DetailsScreen(props) {
   // Credential
@@ -351,7 +351,7 @@ function DetailsScreen(props) {
             <div class="cell" id="ir6hs">
               <div id="iutjp">
                 <span id="iizaq"
-                  >Date: ${get_local_issue_time(jsonData.issuedAtUtc)}</span
+                  >Date: ${get_local_date_time(new Date())}</span
                 >
               </div>
             </div>

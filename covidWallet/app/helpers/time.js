@@ -36,3 +36,7 @@ export const get_local_issue_date = (issueTime) => {
 export const changeDateFormat = (date) => {
   return moment(date).format('DD/MM/YYYY');
 }
+
+export const get_local_date_time = (date) => {
+  return moment(date).format('DD/MM/YYYY hh:mm A');
+}
