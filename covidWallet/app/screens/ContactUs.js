@@ -47,9 +47,9 @@ function ContactUs() {
           <Text
             style={[styles.ItemText, {color: PRIMARY_COLOR}]}
             onPress={() => {
-              Linking.openURL('http://m.me/zadasolutions');
+              Linking.openURL('http://m.me/zadanetwork');
             }}>
-            Facebook messenger: m.me/zadasolutions
+            Facebook messenger: m.me/zadanetwork
           </Text>
         </View>
       </ScrollView>
