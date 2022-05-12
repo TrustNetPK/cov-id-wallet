@@ -8,12 +8,15 @@ import { showMessage } from '../helpers/Toast';
 
 const useBiometric = () => {
 
+    // Refs
     const appState = useRef(AppState.currentState);
-    // const [appStateVisible, setAppStateVisible] = useState(appState.current);
+    const appStarted = useRef(true);
 
+    // States
     const [authStatus, setAuthStatus] = useState(false);
-    const [singleAuth, setSingleAuth] = useState(false);
 
+
+    // UseEffects
     useEffect(() => {
         const subscription = AppState.addEventListener("change", nextAppState => {
             if (
@@ -24,16 +27,21 @@ const useBiometric = () => {
             } else {
                 setAuthStatus(false);
             }
-
             appState.current = nextAppState;
-            // console.log("AppState", appState.current);
         });
+
+        // On app start
+        if (appStarted.current) {
+            checkIfAuthIsRequired();
+        }
 
         return () => {
             subscription.remove();
         };
     }, [])
 
+
+    // Functions
     // Authenticate function
     const authenticateUser = async () => {
         // Check if sensor is available.
@@ -65,19 +73,27 @@ const useBiometric = () => {
     const checkIfAuthIsRequired = async () => {
         let temporarilyMovedToBackground = await AsyncStorage.getItem("temporarilyMovedToBackground");
 
-        // return if condition is met
         let biometricEnabled = await getItem(BIOMETRIC_ENABLED);
         biometricEnabled = JSON.parse(biometricEnabled || 'false');
 
+        // Return if biometric is disabled
         if (!biometricEnabled) return;
 
-
+        // Return if authStatus is false
         if (!authStatus) {
+            // Check if Authorization is not in process.
             if (temporarilyMovedToBackground == 'true') return false
 
-            console.log('Auth is required...');
-
-            authenticateNow();
+            // Start Authorize flow
+            if (appStarted.current) {
+                // adding timeout to resolve multiple calls to authenticateNow()
+                setTimeout(() => {
+                    authenticateNow();
+                }, 1000);
+                appStarted.current = false;
+            } else {
+                authenticateNow();
+            }
         }
     }
 
@@ -101,6 +117,7 @@ const useBiometric = () => {
     }
 
 
+    // For single authentications
     const oneTimeAuthentication = async (callback: Function) => {
         try {
             let result = await authenticateNow(true)
