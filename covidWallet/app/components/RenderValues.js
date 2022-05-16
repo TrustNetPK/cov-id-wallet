@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
-import {get_local_issue_time} from '../helpers/time';
+import {dobFormat, get_local_issue_time} from '../helpers/time';
 import {GRAY_COLOR} from '../theme/Colors';
 
 const RenderValues = ({
@@ -23,55 +23,50 @@ const RenderValues = ({
       return obj;
     }, {});
 
+  let credentialDetails =
+    values != undefined &&
+    Object.keys(values).map((key, index) => {
+      let value = values[key];
+
+      if (key.match(/Issue Time/)) {
+        value = get_local_issue_time(value);
+      }
+      if (key.match(/Date Of Birth|Birth Date/)) {
+        value = dobFormat(value);
+      }
+
+      return (
+        <View
+          key={index}
+          style={[styles._mainContainer, mainStyle, {width: width}]}>
+          <Text style={[styles._labelStyle, {color: labelColor}]}>{key}</Text>
+          <View
+            style={[
+              styles._inputContainer,
+              {backgroundColor: inputBackground},
+            ]}>
+            <Text
+              style={[
+                styles._inputText,
+                {
+                  color: inputTextColor,
+                  fontWeight: inputTextWeight ? inputTextWeight : null,
+                  fontSize: inputTextSize ? inputTextSize : null,
+                },
+              ]}>
+              {value}
+            </Text>
+          </View>
+        </View>
+      );
+    });
+
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
       style={listStyle}
       contentContainerStyle={listContainerStyle}>
-      {values != undefined &&
-        Object.keys(values).map((key, index) => {
-          let value = values[key];
-          return (
-            <View
-              key={index}
-              style={[styles._mainContainer, mainStyle, {width: width}]}>
-              <Text style={[styles._labelStyle, {color: labelColor}]}>
-                {key}
-              </Text>
-              <View
-                style={[
-                  styles._inputContainer,
-                  {backgroundColor: inputBackground},
-                ]}>
-                {key == 'Issue Time' ? (
-                  <Text
-                    style={[
-                      styles._inputText,
-                      {
-                        color: inputTextColor,
-                        fontWeight: inputTextWeight ? inputTextWeight : null,
-                        fontSize: inputTextSize ? inputTextSize : null,
-                      },
-                    ]}>
-                    {get_local_issue_time(value)}
-                  </Text>
-                ) : (
-                  <Text
-                    style={[
-                      styles._inputText,
-                      {
-                        color: inputTextColor,
-                        fontWeight: inputTextWeight ? inputTextWeight : null,
-                        fontSize: inputTextSize ? inputTextSize : null,
-                      },
-                    ]}>
-                    {value}
-                  </Text>
-                )}
-              </View>
-            </View>
-          );
-        })}
+      {credentialDetails}
     </KeyboardAwareScrollView>
   );
 };
