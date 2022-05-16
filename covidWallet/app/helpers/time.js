@@ -36,7 +36,7 @@ export const changeDateFormat = (date) => {
   return moment(date).format('DD/MM/YYYY');
 };
 
-export const dobFormat = (date) => {
+export const formatDateWithHyphen = (date) => {
   return moment(date).format('DD-MM-YYYY');
 };
 
