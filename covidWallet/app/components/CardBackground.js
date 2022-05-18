@@ -18,7 +18,6 @@ function CardBackground(props) {
   }, []);
 
   const _checkForImageInS3 = () => {
-    console.log('_checkForImageInS3');
     try {
       if (!isConnected) {
         setLoading(false);

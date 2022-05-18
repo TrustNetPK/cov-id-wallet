@@ -14,9 +14,10 @@ import FeatureVideo from '../components/FeatureVideo';
 import {PRIMARY_COLOR, WHITE_COLOR} from '../theme/Colors';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {_handleAxiosError} from '../helpers/AxiosResponse';
-import {get_local_issue_date} from '../helpers/time';
+import {formatDateWithHyphen, get_local_issue_date} from '../helpers/time';
 import CardBackground from '../components/CardBackground';
 import CertificateCard from '../components/CertificateCard';
+const _ = require('lodash');
 
 function Credentials(props) {
   const {isConnected} = useNetwork();
@@ -30,7 +31,6 @@ function Credentials(props) {
     if (searchText != null && searchText.length != 0) {
       let searchCreds = [];
       credentials.forEach((item) => {
-        console.log(item);
         if (
           (item.type != undefined &&
             item.type != undefined &&
@@ -49,6 +49,16 @@ function Credentials(props) {
     }
   };
 
+  function sortFunction(a, b) {
+    var dateA = a.values['Issue Time']
+      ? new Date(a.values['Issue Time'])
+      : undefined;
+    var dateB = b.values['Issue Time']
+      ? new Date(b.values['Issue Time'])
+      : undefined;
+    return dateA > dateB ? 1 : -1;
+  }
+
   const updateCredentialsList = async () => {
     try {
       // Getting item from asyncstorage
@@ -59,7 +69,6 @@ function Credentials(props) {
       let connectionsList = JSON.parse(connections) || [];
       let credentialsList = JSON.parse(local_credentials) || [];
 
-      // If arr is empty, return
       if (connectionsList.length === 0 || credentialsList.length === 0) {
         setCredentials([]);
         return;
@@ -72,8 +81,6 @@ function Credentials(props) {
         credentials.every(function (element, index) {
           return element.credentialId === credentialsList[index].credentialId;
         });
-
-      console.log('is_same', is_same);
 
       if (!is_same) {
         setCredentials([]);
@@ -160,6 +167,13 @@ function Credentials(props) {
     );
   };
 
+  const data = search ? filteredCreds : credentials;
+
+  //Sort array from descending order
+  const sortedData = data.sort(
+    (a, b) => new Date(b.issuedAtUtc) - new Date(a.issuedAtUtc),
+  );
+
   return (
     <View style={themeStyles.mainContainer}>
       <FeatureVideo
@@ -192,7 +206,7 @@ function Credentials(props) {
             style={{
               flexGrow: 1,
             }}
-            data={search ? filteredCreds : credentials}
+            data={sortedData}
             contentContainerStyle={{
               width: '100%',
             }}
