@@ -32,7 +32,7 @@ const Slides = [
 
 function IntroScreen({navigation}) {
   const nextHandler = () => {
-    navigation.navigate('RegistrationScreen');
+    navigation.navigate('WelcomeScreen');
   };
 
   return (
@@ -58,15 +58,7 @@ function IntroScreen({navigation}) {
         </Swiper>
       </View>
 
-      <View
-        style={{
-          alignSelf: 'stretch',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: 20,
-          paddingTop: 20,
-          paddingBottom: 20,
-        }}>
+      <View style={styles.buttonView}>
         <TouchableOpacity style={styles.primaryButton} onPress={nextHandler}>
           <Text style={styles.text}>GET STARTED</Text>
         </TouchableOpacity>
@@ -137,6 +129,15 @@ const styles = StyleSheet.create({
 
   containerSwiper: {
     height: '60%',
+  },
+
+  buttonView: {
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
 });
 
