@@ -35,6 +35,7 @@ import ContantList from './helpers/ConfigApp';
 import useNetwork from './hooks/useNetwork';
 import AboutUs from './screens/AboutUs';
 import ContactUs from './screens/ContactUs';
+import IntroScreen from './screens/IntroScreen';
 const Stack = createStackNavigator();
 
 const navigationAnimation =
@@ -162,6 +163,12 @@ function NavigationComponent() {
             </Stack.Navigator>
           ) : isFirstTime === 'true' ? (
             <Stack.Navigator screenOptions={{...navigationAnimation}}>
+              <Stack.Screen
+                options={{headerShown: false}}
+                name="IntroScreen"
+                component={IntroScreen}
+              />
+
               <Stack.Screen
                 options={{headerShown: false}}
                 name="WelcomeScreen"

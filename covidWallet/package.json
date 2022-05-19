@@ -68,6 +68,7 @@
     "react-native-splash-screen": "^3.2.0",
     "react-native-svg": "^12.1.1",
     "react-native-swipe-list-view": "^3.2.9",
+    "react-native-swiper": "^1.6.0-rc.3",
     "react-native-tab-view": "^3.1.1",
     "react-native-unimodules": "^0.14.6",
     "react-native-vector-icons": "6.6.0",
