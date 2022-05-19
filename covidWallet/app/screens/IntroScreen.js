@@ -1,11 +1,6 @@
 import * as React from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
-import {
-  GRAY_COLOR,
-  GREEN_COLOR,
-  PRIMARY_COLOR,
-  WHITE_COLOR,
-} from '../theme/Colors';
+import {GRAY_COLOR, GREEN_COLOR, WHITE_COLOR} from '../theme/Colors';
 const img = require('../assets/images/t&c.png');
 const action = require('../assets/images/action.gif');
 
