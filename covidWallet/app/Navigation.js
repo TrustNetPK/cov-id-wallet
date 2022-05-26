@@ -53,7 +53,7 @@ function NavigationComponent() {
 
   // States
   const [isLoading, setLoading] = useState(true);
-  const [count, setCount] = useState(2);
+  const [messageIndex, setMessageIndex] = useState(2);
   const [isNewVersion, setIsNewVersion] = useState(false);
   const [versionDetails, setVersionDetails] = useState(null);
   const {authStatus, oneTimeAuthentication} = useBiometric();
@@ -83,12 +83,12 @@ function NavigationComponent() {
         // Getting Network info
         let state = await getNetworkInfo();
         if(state.isConnected){
-          setCount(1);
+          setMessageIndex(1);
           
           // Fetching data
           await _fetchingAppData(state.isConnected);
           
-          setCount(3)
+          setMessageIndex(3)
 
           // Setting Timeout just so it looks good for now.
           setTimeout(() => {
@@ -137,7 +137,7 @@ function NavigationComponent() {
 
   useEffect(() => {
     const _checkVersion = async () => {
-      setCount(0);
+      setMessageIndex(0);
       let netState = await getNetworkInfo(); 
       SplashScreen.hide();
       if (netState.isConnected) {
@@ -178,7 +178,7 @@ function NavigationComponent() {
               <Stack.Screen
                 options={{headerShown: false}}
                 name="LoadingScreen"
-                children={() => <LoadingScreen count={count}/>}
+                children={() => <LoadingScreen messageIndex={messageIndex}/>}
               />
             </Stack.Navigator>
           ) : isFirstTime === 'true' ? (

@@ -27,7 +27,7 @@ function LoadingScreen(props) {
       />
       <LogoAnimation />
       <View style={styles.textViewStyle}>
-        <ChangingText count={props.count} />
+        <ChangingText messageIndex={props.messageIndex} />
       </View>
     </View>
   );
