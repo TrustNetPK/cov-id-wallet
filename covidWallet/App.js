@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, View } from 'react-native';
 import NetworkContext from './app/context/NetworkContext';
 import NavigationComponent from './app/Navigation';
 import { PRIMARY_COLOR } from './app/theme/Colors';
@@ -18,7 +18,12 @@ const App = () => {
     <NetworkContext>
       <ErrorBoundary FallbackComponent={ErrorFallback} onError={errorHandler}>
         <StatusBar barStyle="light-content" backgroundColor={PRIMARY_COLOR} />
-        <NavigationComponent />
+        <View style={{
+          flex: 1,
+          backgroundColor: PRIMARY_COLOR
+        }}>
+          <NavigationComponent />
+        </View>
       </ErrorBoundary>
     </NetworkContext>
   );
