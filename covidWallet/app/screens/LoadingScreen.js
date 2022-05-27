@@ -1,21 +1,13 @@
 import * as React from 'react';
-import {View, Text, Linking, StyleSheet, TouchableOpacity} from 'react-native';
+import { Animated, View, Text, Image, StyleSheet, ActivityIndicator, Easing } from 'react-native';
+import ChangingText from '../components/Animations/ChangingText';
+import LogoAnimation from '../components/Animations/LogoAnimation';
 import {
   PRIMARY_COLOR,
   BACKGROUND_COLOR,
-  GREEN_COLOR,
-  WHITE_COLOR,
 } from '../theme/Colors';
-import TextComponent from '../components/TextComponent';
-import HeadingComponent from '../components/HeadingComponent';
 
-const img = require('../assets/images/t&c.png');
-
-function LoadingScreen({navigation}) {
-  const nextHandler = () => {
-    navigation.navigate('RegistrationScreen');
-  };
-
+function LoadingScreen(props) {
   return (
     <View
       style={{
@@ -33,61 +25,26 @@ function LoadingScreen({navigation}) {
           borderRadius: 10,
         }}
       />
+      <LogoAnimation />
+      <View style={styles.textViewStyle}>
+        <ChangingText messageIndex={props.messageIndex} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  TextContainerHead: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'black',
-    fontSize: 32,
+  textViewStyle: {
+    flex: 1,
+    marginTop: 24,
   },
-  ErrorBox: {
-    color: 'red',
-    fontSize: 13,
+  textStyle: {
+    marginTop: 24,
+    color: "white"
   },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    textAlign: 'center',
-    paddingLeft: 0,
-    paddingRight: 0,
-    color: PRIMARY_COLOR,
-  },
-  checkbox: {
-    paddingTop: '2%',
-    color: PRIMARY_COLOR,
-  },
-  linkText: {
-    color: PRIMARY_COLOR,
-    fontSize: 14,
-    fontStyle: 'italic',
-    margin: 5,
-  },
-  link: {
-    color: 'black',
-    fontSize: 14,
-    marginBottom: 20,
-  },
-  primaryButton: {
-    borderColor: GREEN_COLOR,
-    borderWidth: 2,
-    borderRadius: 20,
-    backgroundColor: GREEN_COLOR,
-    paddingTop: 10,
-    paddingLeft: 20,
-    paddingBottom: 10,
-    paddingRight: 20,
-    marginTop: 10,
-    width: 250,
-  },
-  text: {
-    color: WHITE_COLOR,
-    alignSelf: 'center',
-    fontFamily: 'Merriweather-Bold',
-  },
+  activityIndicatorStyle: {
+    marginTop: 16,
+  }
 });
 
 export default LoadingScreen;

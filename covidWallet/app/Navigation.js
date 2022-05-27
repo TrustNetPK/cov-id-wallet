@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import {StyleSheet, Platform, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
@@ -48,46 +48,57 @@ function NavigationComponent() {
     prefixes: ['https://zadanetwork.com', 'zada://'], //npx uri-scheme open https://zadanetwork.com/connection_request/abcd --android
   };
 
-  const {isConnected} = useNetwork();
-  // Biometric Hook
+  // Hooks
+  const {isConnected, getNetworkInfo} = useNetwork();
+
+  // States
+  const [isLoading, setLoading] = useState(true);
+  const [messageIndex, setMessageIndex] = useState(2);
   const [isNewVersion, setIsNewVersion] = useState(false);
   const [versionDetails, setVersionDetails] = useState(null);
   const {authStatus, oneTimeAuthentication} = useBiometric();
   const [isFirstTime, getisFirstTime] = React.useState('true');
-  const [isLoading, setLoading] = useState(true);
 
   const storeData = async () => {
     try {
-      await AsyncStorage.setItem('isfirstTime', 'false');
+      AsyncStorage.setItem('isfirstTime', 'false');
     } catch (error) {
       // Error saving data
     }
   };
 
   const retrieveData = async () => {
-    try {
-      const value = await AsyncStorage.getItem('isfirstTime').then(
-        async (value) => {
-          setLoading(false);
-          if (value == null) {
-            SplashScreen.hide();
-            getisFirstTime('true');
-          } else if (value == 'true') {
-            SplashScreen.hide();
-            getisFirstTime('true');
-          } else if (value == 'false') {
-            getisFirstTime('false');
-            NetInfo.fetch().then(async (state) => {
-              await _fetchingAppData(state.isConnected);
-              SplashScreen.hide();
-            });
-          }
-        },
-      );
+    try { 
+      const value  = await AsyncStorage.getItem('isfirstTime');
+
+      if (value == null || value == 'true'){
+        getisFirstTime('true');
+        setLoading(false);
+        return
+      }
+
+      if(value == 'false'){
+        getisFirstTime('false');
+        
+        // Getting Network info
+        let state = await getNetworkInfo();
+        if(state.isConnected){
+          setMessageIndex(1);
+          
+          // Fetching data
+          await _fetchingAppData(state.isConnected);
+          
+          setMessageIndex(3)
+
+          // Setting Timeout just so it looks good for now.
+          setTimeout(() => {
+            setLoading(false);
+          }, 1500);
+        }
+      }
     } catch (error) {
       // Error retrieving data
     }
-    await AsyncStorage.setItem('temporarilyMovedToBackground', 'false');
   };
 
   // Checking auth status
@@ -118,9 +129,18 @@ function NavigationComponent() {
     [],
   );
 
-  React.useEffect(() => {
+
+  // UseEffects
+  useEffect(() => {
+    AsyncStorage.setItem('temporarilyMovedToBackground', 'false');
+  },[])
+
+  useEffect(() => {
     const _checkVersion = async () => {
-      if (isConnected) {
+      setMessageIndex(0);
+      let netState = await getNetworkInfo(); 
+      SplashScreen.hide();
+      if (netState.isConnected) {
         const version = await checkVersion();
         if (version.needsUpdate) {
           setIsNewVersion(true);
@@ -158,7 +178,7 @@ function NavigationComponent() {
               <Stack.Screen
                 options={{headerShown: false}}
                 name="LoadingScreen"
-                component={LoadingScreen}
+                children={() => <LoadingScreen messageIndex={messageIndex}/>}
               />
             </Stack.Navigator>
           ) : isFirstTime === 'true' ? (
