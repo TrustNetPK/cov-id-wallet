@@ -33,6 +33,11 @@ export const analytics_log_reject_verification_request = async () => {
     await analytics().logEvent('Verification_Rejected')
 }
 
+export const analytics_log_submit_connectionless_verification_request = async () => {
+    await analytics().logEvent('Submit_Connectionless_Verification')
+}
+
+
 export const analytics_log_login_success = async () => {
     await analytics().logEvent('Login_Sucess')
 }

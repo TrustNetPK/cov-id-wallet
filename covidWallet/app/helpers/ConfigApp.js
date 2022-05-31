@@ -17,6 +17,7 @@ module.exports = Object.freeze({
   CONN_REQ: 'connection_request',
   CRED_OFFER: 'credential_offer',
   VER_REQ: 'verification_request',
+  CONNLESS_VER_REQ: 'connectionless_verification',
   PROOF_REQ: 'connection_proof',
   CONNECTIONS: 'connections',
   USER_TOKEN: 'userToken',

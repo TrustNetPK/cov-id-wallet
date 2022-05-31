@@ -1,10 +1,11 @@
 import http_client from './http_client';
-import {AuthenticateUser} from '../helpers/Authenticate';
+import { AuthenticateUser } from '../helpers/Authenticate';
 import {
   analytics_log_accept_verification_request,
   analytics_log_reject_verification_request,
+  analytics_log_submit_connectionless_verification_request,
 } from '../helpers/analytics';
-import {ZADA_AUTH_TEST} from '../helpers/ConfigApp';
+import { ZADA_AUTH_TEST } from '../helpers/ConfigApp';
 
 async function getToken() {
   let resp = await AuthenticateUser();
@@ -48,6 +49,57 @@ export async function get_all_credentials_for_verification(
         Authorization: 'Bearer ' + (await getToken()),
       },
     });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Getting all credentials for connectionless verification.
+export async function get_all_credentials_connectionless_verification(metadata: string,) {
+  try {
+    let obj = {
+      metadata,
+    };
+
+    const result = await http_client({
+      method: 'GET',
+      url: '/api/credential/get_all_credentials_connectionless_verification',
+      params: obj,
+      headers: {
+        Authorization: 'Bearer ' + (await getToken()),
+      },
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Submitting Connectionless verification request.
+export async function submit_verification_connectionless(metadata: string, policyName: string, credentialId: string) {
+  try {
+    let obj = {
+      metadata,
+      policyName,
+      credentialId
+    };
+
+    let headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + (await getToken()),
+    };
+
+    const result = await http_client({
+      method: 'POST',
+      url: '/api/credential/submit_verification_connectionless',
+      data: obj,
+      headers,
+    });
+
+    // Google Analytics
+    analytics_log_submit_connectionless_verification_request();
+
     return result;
   } catch (error) {
     throw error;

@@ -5,7 +5,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import queryString from 'query-string';
 import {getItem, ls_addConnection, saveItem} from '../helpers/Storage';
-import ConstantsList, {ZADA_AUTH_CONNECTION_ID} from '../helpers/ConfigApp';
+import ConstantsList, {CONNLESS_VER_REQ, ZADA_AUTH_CONNECTION_ID} from '../helpers/ConfigApp';
 import {Buffer} from 'buffer';
 import CustomProgressBar from '../components/CustomProgressBar';
 import {showMessage, showNetworkMessage, _showAlert} from '../helpers/Toast';
@@ -29,6 +29,8 @@ import {
 import {submit_cold_verification} from '../gateways/credentials';
 import useNetwork from '../hooks/useNetwork';
 import {_handleAxiosError} from '../helpers/AxiosResponse';
+import ActionDialog from '../components/Dialogs/ActionDialog';
+import { submit_verification_connectionless } from '../gateways/verifications';
 
 function QRScreen({route, navigation}) {
   const {isConnected} = useNetwork();
@@ -43,6 +45,8 @@ function QRScreen({route, navigation}) {
   const [credentialData, setCredentialData] = useState(null);
 
   // For Modals
+  const [verificationModalData, setVerificationModalData] = useState(null);
+  const [verificationModalVisibility, setVerificationModalVisibility] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -331,6 +335,10 @@ function QRScreen({route, navigation}) {
         unEscapedStr = unEscapedStr.replace(/\\/g, '');
         unEscapedStr = unEscapedStr.replace(/“/g, '"');
         try {
+          if(JSON.parse(unEscapedStr).type == 'connectionless_verification'){
+            handle_QR_login(JSON.parse(unEscapedStr));
+            return;
+          }
           if (JSON.parse(unEscapedStr).type == 'cred_ver') {
             handle_cred_verification(JSON.parse(unEscapedStr));
           }
@@ -477,6 +485,63 @@ function QRScreen({route, navigation}) {
     }
   };
 
+  // Function to handle QR based login
+  const handle_QR_login = async (loginQRData) => {
+    console.log('Inside Handler QE')
+    console.log(loginQRData)
+    try {
+      let availableCredentials = {
+        metadata: loginQRData.metadata,
+        type: loginQRData.type,
+        imageUrl:require('../assets/images/qr-code.png'),
+        organizationName:"ZADA Verification"
+      }
+      setVerificationModalData(availableCredentials);
+      setTimeout(() => {
+        setVerificationModalVisibility(true);
+        setScan(false);
+      }, 500);
+    } catch (error) {
+      _showAlert('ZADA Wallet', error.message);
+    }
+  }
+
+  // Modal Functions
+  const rejectModal = () => {
+    navigation.goBack();
+    setVerificationModalVisibility(false);
+  }
+  const dismissModal = () => {
+    setScan(true);
+    setVerificationModalVisibility(false);
+  }
+  const acceptModal = async (e) => {
+    setVerificationModalVisibility(false);
+    setTimeout(() => {
+      setProgress(true)
+      setScan(false);
+    }, 500);
+    setDialogTitle('Submitting Verification...')
+
+    try{
+      // Submitting verification
+      await submit_verification_connectionless(e.metadata, e.policyName, e.credentialId);
+      setProgress(false)
+      alert('Submitted Successfully!')
+      navigation.goBack();
+    }catch(e) {
+      console.log(e);
+      setErrMsg('Unable to verify credential')
+      setScanning(false);
+      setProgress(false);
+      setShowVerifyModal(false);
+      setTimeout(() => {
+        setShowErrorModal(true);
+      }, 500);
+      analytics_log_unverified_credential();
+    }
+  }
+
   return (
     <View style={styles.MainContainer}>
       <CredValuesModal
@@ -492,6 +557,18 @@ function QRScreen({route, navigation}) {
           on_verify_click();
         }}
       />
+
+      {verificationModalVisibility && (
+        <ActionDialog
+          isVisible={verificationModalVisibility}
+          rejectModal={rejectModal}
+          data={verificationModalData}
+          dismissModal={dismissModal}
+          acceptModal={acceptModal}
+          modalType="action"
+          isIconVisible={true}
+        />
+      )}
 
       <SuccessModal
         isVisible={showSuccessModal}

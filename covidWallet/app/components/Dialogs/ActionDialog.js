@@ -11,9 +11,9 @@ import {
 } from '../../theme/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import BorderButton from '../BorderButton';
-import { VER_REQ, ZADA_AUTH_TEST } from '../../helpers/ConfigApp';
+import { CONNLESS_VER_REQ, VER_REQ, ZADA_AUTH_TEST } from '../../helpers/ConfigApp';
 import { showMessage } from '../../helpers/Toast';
-import { get_all_credentials_for_verification } from '../../gateways/verifications';
+import { get_all_credentials_connectionless_verification, get_all_credentials_for_verification } from '../../gateways/verifications';
 import { getActionText } from '../../helpers/ActionList';
 import CustomAccordian from './components/CustomAccordian';
 import { get_tenant } from '../../gateways/connections';
@@ -27,6 +27,7 @@ function ActionDialog(props) {
     const [values, setValues] = useState(null);
     const [credential, setCredential] = useState([]);
     const [selectedCred, setSelectedCred] = useState(null);
+    const [policyName, setPolicyName] = useState(null);
     const [tenant, setTenant] = useState({});
     const [counter, setCounter] = useState(0);
 
@@ -46,9 +47,15 @@ function ActionDialog(props) {
     async function getAllCredForVeri() {
         try {
             setSpinner(true);
-            let result = await get_all_credentials_for_verification(props.data.verificationId);
+            let result = []
+            if (props.data.type == CONNLESS_VER_REQ) {
+                result = await get_all_credentials_connectionless_verification(props.data.metadata);
+            } else {
+                result = await get_all_credentials_for_verification(props.data.verificationId);
+            }
             if (result.data.success) {
                 let val = result.data.availableCredentials[0].availableCredentials[0] ? result.data.availableCredentials[0].availableCredentials[0].values : null;
+                let polName = result.data.availableCredentials[0] ? result.data.availableCredentials[0].policyName : null;
                 let cred = result.data.availableCredentials[0].availableCredentials ? result.data.availableCredentials[0].availableCredentials : [];
 
                 let fullyVaccinatedCreds = [];
@@ -65,6 +72,7 @@ function ActionDialog(props) {
                 }
                 else {
                     setCredential(cred);
+                    setPolicyName(polName);
                 }
                 setValues(val != null ? orderValues(val) : null);
             } else {
@@ -90,7 +98,7 @@ function ActionDialog(props) {
     }
 
     useLayoutEffect(() => {
-        if (props.data.type == VER_REQ) {
+        if (props.data.type == VER_REQ || props.data.type == CONNLESS_VER_REQ) {
             getAllCredForVeri();
         } else {
             setValues(props.data.hasOwnProperty('values') ? orderValues(props.data.values) : {})
@@ -102,7 +110,7 @@ function ActionDialog(props) {
         let val = values;
 
         // If no certificate is selected.
-        if (props.data.type == VER_REQ && (selectedCred == null || val == null)) {
+        if ((props.data.type == VER_REQ || props.data.type == CONNLESS_VER_REQ) && (selectedCred == null || val == null)) {
             alert('Please select a certificate');
             return
         }
@@ -113,9 +121,10 @@ function ActionDialog(props) {
 
         // If value is empty
         if (val == undefined) return
-        if (props.data.type == VER_REQ) {
+        if (props.data.type == VER_REQ ||  props.data.type == CONNLESS_VER_REQ) {
             val = selectedCred;
             props.data.credentialId = selectedCred.credentialId;
+            props.data.policyName = policyName
         }
 
         //Adding type.
@@ -245,7 +254,7 @@ function ActionDialog(props) {
                                     }}>
                                     <Image
                                         style={styles.Imagesize}
-                                        source={{
+                                        source={props.data.type == CONNLESS_VER_REQ ? props.data.imageUrl : {
                                             uri: props.data.imageUrl
                                         }}
                                     />
@@ -285,7 +294,7 @@ function ActionDialog(props) {
                                                 <ActivityIndicator color={"#000"} size={"small"} />
                                             </View>
                                         ) : (
-                                            props.data.type == VER_REQ && credential.length ?
+                                            (props.data.type == VER_REQ || props.data.type == CONNLESS_VER_REQ) && credential.length ?
                                                 (
                                                     <CustomAccordian credential={credential} setSelected={setSelected} />
                                                 ) : (
